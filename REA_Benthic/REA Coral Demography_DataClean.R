@@ -3,23 +3,28 @@
 ################
 #####
 rm(list=ls())
-#Load raw data
-setwd("C:/Users/Courtney.S.Couch/Documents/Courtney's Files/R Files/ESD/ReportCard")#set directory
-a <- read.csv("Data/HistoricalREA_V0_CORAL_OBS_E.csv")
+
+#LOAD LIBRARY FUNCTIONS ... 
+source("Functions/Benthic Functions.R")
+library(plyr) ##for ddply function below
+
+## LOAD benthic data
+x<-read.csv("Data/HistoricalREA_V0_CORAL_OBS_E.csv")
+x$SITE<-SiteNumLeadingZeros(x$SITE) # Change site number such as MAR-22 to MAR-0022
+
+# get strata and sectors data NOTE: we need these files
+sectors<-read.csv("Data/Sectors-Strata-Areas.csv", stringsAsFactors=FALSE)
+
+# load site master to merge with sector names
+site_master<-read.csv("Data/SITE MASTER.csv")
+site_master$SITE<-SiteNumLeadingZeros(site_master$SITE)
 
 
-library(ggplot2)
-require(gridExtra)
-library(reshape2)
-library(plyr)
-library(grid)
-library(data.table) 
-library(tidyr)
 
-
-###FUNCTIONS
 
 # HOUSEKEEPING ------------------------------------------------------------
+
+#Create vector of column names to include then exclude unwanted columns from dataframe
 DATA_COLS<-c("MISSIONID","REGION","ISLANDCODE","SITE","LATITUDE",	"LONGITUDE","REEF_ZONE","DEPTH_BIN","OBS_YEAR",
              "DATE_","SITE_MIN_DEPTH","SITE_MAX_DEPTH","HABITAT_CODE","DIVER","TRANSECT","SEGMENT","SEGWIDTH",
              "SEGLENGTH","NO_SURVEY_YN","TAXONCODE","MORPH_CODE","COLONYLENGTH","OLDDEAD",
@@ -33,18 +38,42 @@ x<-x[,DATA_COLS]
 sapply(x,levels)
 sapply(x,class)
 
-x<-subset(x,NO_SURVEY_YN!=-1) #What is the difference between 0 and NA, if no diff then change NA's to 0 and subset -1
-x<-subset(x,SEGLENGTH!="NA") #Remove segments that were not surveyed for coral dem
-
-colnames(x)[colnames(x)=="TAXONCODE"]<-"SPCODE" #Change column name
+#Removing specfic colonies and segments
+x$NO_SURVEY_YN<-is.na(x$NO_SURVEY_YN)<-0 #Change NAs (blank cells) to 0
+x<-subset(x,NO_SURVEY_YN>-1) #rows with -1
+x<-subset(x,SEGLENGTH!="NA") #Remove segments that were not surveyed for coral demography
 
 #Create new colummns that combine species, genus and morphology
+colnames(x)[colnames(x)=="TAXONCODE"]<-"SPCODE" #Change column name
 x$SPMORPH<-paste(x$SPCODE,x$MORPH_CODE,sep="")
 x$GENMORPH<-paste(x$GENUS_CODE,x$MORPH_CODE,sep="")
 
 #Remove colony fragments
 x<-subset(x, COLONYLENGTH>5)
 
+
+##Calcuating segment and transect area and add column for transect area
+x$SEGAREA<-x$SEGLENGTH*x$SEGWIDTH # Calculate segment area
+
+#Calculate total transect area then merge back to a dataframe
+s.df<-ddply(x, .(MISSIONID,REGION,ISLANDCODE,OBS_YEAR,SITE,TRANSECT,SEGMENT),
+            summarise,
+            SEGAREA=unique(SEGAREA))
+tr.df<-ddply(s.df, .(MISSIONID,REGION,ISLANDCODE,OBS_YEAR,SITE,TRANSECT),
+             summarise,
+             TRANAREA=sum(SEGAREA))
+
+new.df<-merge(x,tr.df, by=c("MISSIONID","REGION","ISLANDCODE","OBS_YEAR","SITE","TRANSECT"),all=TRUE)
+sapply(new.df,levels)
+head(new.df)
+nrow(new.df)
+
+
+#Remove transects with less than 5m surveyed and check how many rows were removed
+new.df<-subset(new.df,TRANAREA>=5) 
+nrow(new.df)
+head(new.df)
+levels(new.df$OBS_YEAR)
 
 head(x)
 tail(x)
@@ -77,49 +106,8 @@ x<-subset(x,ISLANDGROUP!="NA")
 
 
 
-#add SITE MASTER information to x 
+#add SITE MASTER information to x -NOTE this code was copied from the fish team- do we have an analysis year and scheme?
 x<-merge(x, site_master[,c("SITE", "SEC_NAME", "ANALYSIS_YEAR", "ANALYSIS_SCHEME")], by="SITE", all.x=TRUE)  #..  should actually pick up ANALYSIS_SEC from the sectors file.
 
 
 
-
-
-
-
-###Add new column COUNT (This will allow us to include sites that didn't have any colonies)
-ncol(a)
-a$COUNT<-NA
-a$COUNT<-as.character(a$COUNT)
-for (i in 1:length(a$S_ORDER)){ #opening brace
-  
-  if(a$S_ORDER[i] =="Scleractinia"){ #c&p
-    a[i,c("COUNT")] = "1" #c&p
-  } #c&p
-  if(a$S_ORDER[i] !="Scleractinia"){ #c&p
-    a[i,c("COUNT")] = "0" #c&p
-  } #c&p
-} #closing curly brace for entire forloop
-
-head(a)
-levels(as.numeric(a$COUNT))
-
-
-a$SEGAREA<-a$SEGLENGTH*a$SEGWIDTH # Calculate segment area
-
-#Calculate total transect area then merge back to a dataframe
-S.df<-ddply(a, .(REGION,ISLANDCODE,OBS_YEAR,SITE,TRANSECT,SEGMENT),
-            summarise,
-            SEGAREA=unique(SEGAREA))
-TR.DF<-ddply(S.df, .(REGION,ISLANDCODE,OBS_YEAR,SITE,TRANSECT),
-             summarise,
-             TRANAREA=sum(SEGAREA))
-
-new.df<-merge(a,TR.DF, by=c("REGION","ISLANDCODE","OBS_YEAR","SITE","TRANSECT"),all=TRUE)
-sapply(new.df,levels)
-head(new.df)
-nrow(new.df)
-
-new.df<-subset(new.df,TRANAREA>=5) #Remove transects with less than 5m surveyed and check how many rows were removed
-nrow(new.df)
-head(new.df)
-levels(new.df$OBS_YEAR)
