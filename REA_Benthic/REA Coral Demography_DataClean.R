@@ -49,7 +49,11 @@ x$SPMORPH<-paste(x$SPCODE,x$MORPH_CODE,sep="")
 x$GENMORPH<-paste(x$GENUS_CODE,x$MORPH_CODE,sep="")
 
 #Remove colony fragments
-x<-subset(x, COLONYLENGTH>5)
+x<-subset(x, COLONYLENGTH>5|SPCODE=="AAAA")
+tail(x)#make sure that AAAA's are included
+
+#Change old dead,recent dead, extent and severity from -9 to NA
+x[x==-9]<-NA
 
 
 ##Calcuating segment and transect area and add column for transect area
@@ -63,17 +67,17 @@ tr.df<-ddply(s.df, .(MISSIONID,REGION,ISLANDCODE,OBS_YEAR,SITE,TRANSECT),
              summarise,
              TRANAREA=sum(SEGAREA))
 
-new.df<-merge(x,tr.df, by=c("MISSIONID","REGION","ISLANDCODE","OBS_YEAR","SITE","TRANSECT"),all=TRUE)
-sapply(new.df,levels)
-head(new.df)
-nrow(new.df)
+x<-merge(x,tr.df, by=c("MISSIONID","REGION","ISLANDCODE","OBS_YEAR","SITE","TRANSECT"),all=TRUE)
+sapply(x,levels)
+head(x)
+nrow(x)
 
 
 #Remove transects with less than 5m surveyed and check how many rows were removed
-new.df<-subset(new.df,TRANAREA>=5) 
-nrow(new.df)
-head(new.df)
-levels(new.df$OBS_YEAR)
+x<-subset(x,TRANAREA>=5) 
+nrow(x)
+head(x)
+levels(x$OBS_YEAR)
 
 head(x)
 tail(x)
@@ -104,10 +108,16 @@ levels(as.factor(x$ISLANDGROUP))
 
 x<-subset(x,ISLANDGROUP!="NA")
 
+write.csv(x,"Data/test.csv")
+
+
+
+
 
 
 #add SITE MASTER information to x -NOTE this code was copied from the fish team- do we have an analysis year and scheme?
 x<-merge(x, site_master[,c("SITE", "SEC_NAME", "ANALYSIS_YEAR", "ANALYSIS_SCHEME")], by="SITE", all.x=TRUE)  #..  should actually pick up ANALYSIS_SEC from the sectors file.
+
 
 
 
