@@ -33,6 +33,97 @@ SiteNumLeadingZeros <- function(site_names)
 } #SiteNumLeadingZeros
 
 
+
+
+##Calcuate segment and transect area and add column for transect area
+Transectarea<-function(data,s.df){
+
+data$SEGAREA<-data$SEGLENGTH*data$SEGWIDTH # Calculate segment area
+
+#Calculate total transect area then merge back to a dataframe
+s.df<-ddply(data, .(MISSIONID,REGION,ISLANDCODE,OBS_YEAR,SITE,TRANSECT,SEGMENT),
+            summarise,
+            SEGAREA=unique(SEGAREA))
+tr.df<-ddply(s.df, .(MISSIONID,REGION,ISLANDCODE,OBS_YEAR,SITE,TRANSECT),
+             summarise,
+             TRANAREA=sum(SEGAREA))
+
+data<-merge(data,tr.df, by=c("MISSIONID","REGION","ISLANDCODE","OBS_YEAR","SITE","TRANSECT"),all=TRUE)
+
+
+return(data)
+}
+
+####Functions for benthic summary metrics
+
+#This function calculates total area surveyed per site
+Calc_SurveyArea_By_Site<-function(data){
+  
+  tr.df<-ddply(data, .(MISSIONID,REGION,ISLANDCODE,OBS_YEAR,SITE,TRANSECT),
+               summarise,
+               TRANAREA=unique(TRANAREA))
+  
+  tr.df2<-ddply(tr.df, .(MISSIONID,REGION,ISLANDCODE,OBS_YEAR,SITE),
+                summarise,
+                TRANAREA=sum(TRANAREA))
+  return(tr.df2)
+}
+
+
+
+#This function calculates colony density at the site scale by first calculating the total survey area (using Calc_SurveyArea_By_SIte) then calcuating colony density
+Calc_ColDen_By_Site<-function(data){
+
+trarea<-Calc_SurveyArea_By_Site(data)
+
+colden<-ddply(data, .(MISSIONID,REGION,ISLANDCODE,OBS_YEAR,SITE),
+              summarise,
+              Colabun=length(COLONYLENGTH))
+
+colden2<-merge(colden,trarea, by=c("MISSIONID","REGION","ISLANDCODE","OBS_YEAR","SITE"),all=TRUE)
+
+colden2$ColonyDensity<-colden2$Colabun/colden2$TRANAREA
+
+return(colden2)
+}
+
+#This function calculates colony density at the site scale for each species by first calculating the total survey area (using Calc_SurveyArea_By_SIte) then calcuating colony density
+Calc_ColDen_By_Taxon_Site<-function(data){
+  
+  trarea<-Calc_SurveyArea_By_Site(data)
+  
+  colden<-ddply(data, .(MISSIONID,REGION,ISLANDCODE,OBS_YEAR,SITE,SPCODE),
+                summarise,
+                Colabun=length(COLONYLENGTH))
+  
+  colden2<-merge(colden,trarea, by=c("MISSIONID","REGION","ISLANDCODE","OBS_YEAR","SITE"),all=TRUE)
+  
+  colden2$ColonyDensity<-colden2$Colabun/colden2$TRANAREA
+  
+  return(colden2)
+}
+
+
+##This function calculates mean % old dead
+Calc_olddead_By_Site<-function(data){
+
+  olddead<-ddply(data, .(MISSIONID,REGION,ISLANDCODE,OBS_YEAR,SITE),
+                summarise,
+                OLDDEAD=mean(OLDDEAD))
+  
+  return(olddead)
+}
+
+
+
+
+
+
+
+
+
+
+
 ###playing around modifying fish code for adult colony density- still working on this
 
 
