@@ -5,7 +5,7 @@
 rm(list=ls())
 
 #LOAD LIBRARY FUNCTIONS ... 
-source("Functions/Benthic Functions.R")
+source("C:/Users/Courtney.S.Couch/Documents/Courtney's Files/R Files/ESD/Benthic Functions.R")
 library(plyr) ##for ddply function below
 
 ## LOAD benthic data
@@ -13,11 +13,11 @@ x<-read.csv("Data/HistoricalREA_V0_CORAL_OBS_E.csv")
 x$SITE<-SiteNumLeadingZeros(x$SITE) # Change site number such as MAR-22 to MAR-0022
 
 # get strata and sectors data NOTE: we need these files
-sectors<-read.csv("Data/Sectors-Strata-Areas.csv", stringsAsFactors=FALSE)
+#sectors<-read.csv("Data/Sectors-Strata-Areas.csv", stringsAsFactors=FALSE)
 
 # load site master to merge with sector names
-site_master<-read.csv("Data/SITE MASTER.csv")
-site_master$SITE<-SiteNumLeadingZeros(site_master$SITE)
+#site_master<-read.csv("Data/SITE MASTER.csv")
+#site_master$SITE<-SiteNumLeadingZeros(site_master$SITE)
 
 
 
@@ -48,29 +48,23 @@ colnames(x)[colnames(x)=="TAXONCODE"]<-"SPCODE" #Change column name
 x$SPMORPH<-paste(x$SPCODE,x$MORPH_CODE,sep="")
 x$GENMORPH<-paste(x$GENUS_CODE,x$MORPH_CODE,sep="")
 
-#Remove colony fragments
+
+##DOUBLE CHECK THAT WE ARE DEALING WITH NO COLONY SITES AND NAs CORRECTLY
+#Remove colony fragments, note include sites with no colonies (AAAA)
 x<-subset(x, COLONYLENGTH>5|SPCODE=="AAAA")
 tail(x)#make sure that AAAA's are included
 
-#Change old dead,recent dead, extent and severity from -9 to NA
+#Change old dead,recent dead, extent and severity from -9 or . to NA
 x[x==-9]<-NA
+x[x=="."]<-NA
 
 
 ##Calcuating segment and transect area and add column for transect area
-x$SEGAREA<-x$SEGLENGTH*x$SEGWIDTH # Calculate segment area
-
-#Calculate total transect area then merge back to a dataframe
-s.df<-ddply(x, .(MISSIONID,REGION,ISLANDCODE,OBS_YEAR,SITE,TRANSECT,SEGMENT),
-            summarise,
-            SEGAREA=unique(SEGAREA))
-tr.df<-ddply(s.df, .(MISSIONID,REGION,ISLANDCODE,OBS_YEAR,SITE,TRANSECT),
-             summarise,
-             TRANAREA=sum(SEGAREA))
-
-x<-merge(x,tr.df, by=c("MISSIONID","REGION","ISLANDCODE","OBS_YEAR","SITE","TRANSECT"),all=TRUE)
+x<-Transectarea(x)
 sapply(x,levels)
 head(x)
 nrow(x)
+
 
 
 #Remove transects with less than 5m surveyed and check how many rows were removed
@@ -84,40 +78,17 @@ tail(x)
 sapply(x,levels)
 summary(x)
 
-###Create new column for island group
-x$ISLANDGROUP<-NA
-x$ISLANDGROUP<-as.character(x$ISLANDGROUP)
-for (i in 1:length(x$ISLANDCODE)){ #opening brace
-  
-  if(x$ISLANDCODE[i] =="HAW"){ #c&p
-    x[i,c("ISLANDGROUP")] = "HAW" #c&p
-  } #c&p
-  if(x$ISLANDCODE[i] =="OAH"){ #c&p
-    x[i,c("ISLANDGROUP")] = "OAH" #c&p
-  } #c&p
-  if(x$ISLANDCODE[i] =="MOL"|x$ISLANDCODE[i] =="MAI"|x$ISLANDCODE[i] =="LAN"){ #c&p
-    x[i,c("ISLANDGROUP")] = "MAUINUI" #c&p
-  } #c&p
-  if(x$ISLANDCODE[i] =="KAU"|x$ISLANDCODE[i] =="NII"){ #c&p
-    x[i,c("ISLANDGROUP")] = "KAUNII" #c&p
-  } #c&p
-  
-} #closing curly brace for entire forloop
-
-levels(as.factor(x$ISLANDGROUP))
-
-x<-subset(x,ISLANDGROUP!="NA")
-
-write.csv(x,"Data/test.csv")
-
-
-
-
 
 
 #add SITE MASTER information to x -NOTE this code was copied from the fish team- do we have an analysis year and scheme?
 x<-merge(x, site_master[,c("SITE", "SEC_NAME", "ANALYSIS_YEAR", "ANALYSIS_SCHEME")], by="SITE", all.x=TRUE)  #..  should actually pick up ANALYSIS_SEC from the sectors file.
 
 
+#CHECK THAT all ANALYSIS_SCHEMES are present in the site_master file)
+idw<-x[is.na(x$ANALYSIS_SCHEME), c("REGION", "SITE","OBS_YEAR", "METHOD"),]
+if(dim(idw)[1]>0) {cat("sites with MISSING ANALYSIS_SCHEME")}   # should be 0
 
+
+wd<-droplevels(x)
+save(wd, file="Benthicwd.Rdata")  #Save clean working data
 
