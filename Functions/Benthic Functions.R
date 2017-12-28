@@ -1,9 +1,18 @@
 # reshape library inclues the cast() function used below
 library(reshape2)
 library(ggplot2) ## to create the diver vs diver graphs
+library(data.table)
+library(plyr)
 
 
 
+# GENERAL FUNCTIONS -------------------------------------------------------
+
+#merging more than 2 dataframes together
+MyMerge <- function(x, y){
+  df <- merge(x, y, by= c("SITE","SITEVISITID"), all.x= TRUE, all.y= TRUE)
+  return(df)
+}
 
 
 ######################################################
@@ -35,35 +44,51 @@ SiteNumLeadingZeros <- function(site_names)
 
 
 
+
+
 ##Calcuate segment and transect area and add column for transect area
 Transectarea<-function(data,s.df){
-
 data$SEGAREA<-data$SEGLENGTH*data$SEGWIDTH # Calculate segment area
 
 #Calculate total transect area then merge back to a dataframe
-s.df<-ddply(data, .(MISSIONID,REGION,ISLANDCODE,OBS_YEAR,SITE,TRANSECT,SEGMENT),
+s.df<-ddply(data, .(MISSIONID,REGION,ISLANDCODE,OBS_YEAR,SITE,TRANSECT,SEGMENT,SITEVISITID),
             summarise,
             SEGAREA=unique(SEGAREA))
-tr.df<-ddply(s.df, .(MISSIONID,REGION,ISLANDCODE,OBS_YEAR,SITE,TRANSECT),
+tr.df<-ddply(s.df, .(MISSIONID,REGION,ISLANDCODE,OBS_YEAR,SITE,TRANSECT,SITEVISITID),
              summarise,
-             TRANAREA=sum(SEGAREA))
+             TRANSECTAREA=sum(SEGAREA))
 
-data<-merge(data,tr.df, by=c("MISSIONID","REGION","ISLANDCODE","OBS_YEAR","SITE","TRANSECT"),all=TRUE)
+data<-merge(data,tr.df, by=c("MISSIONID","REGION","ISLANDCODE","OBS_YEAR","SITE","SITEVISITID","TRANSECT"),all=TRUE)
 
 
 return(data)
 }
+
+
+
+Aggregate_InputTable<-function(x, field_list){  
+  # function assumes that x is a data frame looking like our standard input
+  # field_list is the list of fields to include (could be everything relating to each survey, or everything relating to a coral taxon)
+  # function returns a data frame 
+  
+  y<-aggregate(x$COLONYLENGTH,by=x[,field_list], sum)  # aggregate sums colony lenth per record, using field_list 
+  y<-y[,field_list]                             # drop the length - was just using that to generate a summary table
+  
+  return(y)
+  
+} # end Aggregate_InputTables
+
 
 ####Functions for benthic summary metrics
 
 #This function calculates total area surveyed per site
 Calc_SurveyArea_By_Site<-function(data){
   
-  tr.df<-ddply(data, .(MISSIONID,REGION,ISLANDCODE,OBS_YEAR,SITE,TRANSECT),
+  tr.df<-ddply(data, .(SITE,TRANSECT,SITEVISITID),
                summarise,
                TRANAREA=unique(TRANAREA))
   
-  tr.df2<-ddply(tr.df, .(MISSIONID,REGION,ISLANDCODE,OBS_YEAR,SITE),
+  tr.df2<-ddply(tr.df, .(SITE,SITEVISITID),
                 summarise,
                 TRANAREA=sum(TRANAREA))
   return(tr.df2)
@@ -72,17 +97,21 @@ Calc_SurveyArea_By_Site<-function(data){
 
 
 #This function calculates colony density at the site scale by first calculating the total survey area (using Calc_SurveyArea_By_SIte) then calcuating colony density
-Calc_ColDen_By_Site<-function(data){
+Calc_ColDen_By_Site<-function(data,S_ORDER,GENUS){
 
 trarea<-Calc_SurveyArea_By_Site(data)
 
-colden<-ddply(data, .(MISSIONID,REGION,ISLANDCODE,OBS_YEAR,SITE),
+scl<-subset(data,S_ORDER=="Scleractinia")
+
+colden<-ddply(scl, .(SITE,SITEVISITID),
               summarise,
               Colabun=length(COLONYLENGTH))
 
-colden2<-merge(colden,trarea, by=c("MISSIONID","REGION","ISLANDCODE","OBS_YEAR","SITE"),all=TRUE)
+colden2<-merge(trarea,colden, by=c("SITE","SITEVISITID"),all.x=TRUE)
 
-colden2$ColonyDensity<-colden2$Colabun/colden2$TRANAREA
+colden2[is.na(colden2)]<-0
+
+colden2$AdultColDen<-colden2$Colabun/colden2$TRANAREA
 
 return(colden2)
 }
@@ -92,13 +121,15 @@ Calc_ColDen_By_Taxon_Site<-function(data){
   
   trarea<-Calc_SurveyArea_By_Site(data)
   
-  colden<-ddply(data, .(MISSIONID,REGION,ISLANDCODE,OBS_YEAR,SITE,SPCODE),
+  scl<-subset(data,S_ORDER=="Scleractinia")
+  
+  colden<-ddply(scl, .(SITE,GENUS,SPCODE,SITEVISITID),
                 summarise,
                 Colabun=length(COLONYLENGTH))
   
-  colden2<-merge(colden,trarea, by=c("MISSIONID","REGION","ISLANDCODE","OBS_YEAR","SITE"),all=TRUE)
+  colden2<-merge(colden,trarea, by=c("SITE","SITEVISITID"),all=TRUE)
   
-  colden2$ColonyDensity<-colden2$Colabun/colden2$TRANAREA
+  colden2$AdultColDen<-colden2$Colabun/colden2$TRANAREA
   
   return(colden2)
 }
@@ -106,19 +137,30 @@ Calc_ColDen_By_Taxon_Site<-function(data){
 
 ##This function calculates mean % old dead
 Calc_olddead_By_Site<-function(data){
+  
+  scl<-subset(data,S_ORDER=="Scleractinia")
 
-  olddead<-ddply(data, .(MISSIONID,REGION,ISLANDCODE,OBS_YEAR,SITE),
+  olddead<-ddply(data, .(SITE,SITEVISITID),
                 summarise,
-                OLDDEAD=mean(OLDDEAD))
+                Ave_OldDead=mean(OLDDEAD))
   
   return(olddead)
 }
 
 
+##This function calculates mean % recent mortality. 
+#Note: RECENT_SPECIFIC_CAUSE_CODE 1 and 2 were changed to COND1 AND COND2 to improve coding efficency
 
-
-
-
+Calc_recentdead_By_Site<-function(data){
+  data<-subset(data,RDEXTENT1>=0 & RDEXTENT1!="NA")
+  scl<-subset(data,S_ORDER=="Scleractinia")
+  scl$RD<-scl$RDEXTENT1+scl$RDEXTENT2
+  recentdead<-ddply(scl, .(SITE,SITEVISITID),
+                 summarise,
+                 Ave_RecentDead=mean(RD))
+  
+  return(recentdead)
+}
 
 
 
