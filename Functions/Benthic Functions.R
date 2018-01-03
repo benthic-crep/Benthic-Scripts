@@ -3,6 +3,8 @@ library(reshape2)
 library(ggplot2) ## to create the diver vs diver graphs
 library(data.table)
 library(plyr)
+library(gdata)
+library(tidyr)
 
 
 
@@ -81,58 +83,56 @@ Aggregate_InputTable<-function(x, field_list){
 
 ####Functions for benthic summary metrics
 
+#This function calculates total area surveyed per transect
+Calc_SurveyArea_By_Transect<-function(data){
+  
+  tr.df<-ddply(data, .(SITE,SITEVISITID,TRANSECT),
+               summarise,
+               TRANSECTAREA=unique(TRANSECTAREA))
+
+  return(tr.df)
+}
+
+
 #This function calculates total area surveyed per site
 Calc_SurveyArea_By_Site<-function(data){
   
   tr.df<-ddply(data, .(SITE,TRANSECT,SITEVISITID),
                summarise,
-               TRANAREA=unique(TRANAREA))
+               TRANSECTAREA=unique(TRANSECTAREA))
   
   tr.df2<-ddply(tr.df, .(SITE,SITEVISITID),
                 summarise,
-                TRANAREA=sum(TRANAREA))
+                TRANSECTAREA=sum(TRANSECTAREA))
   return(tr.df2)
 }
 
 
 
 #This function calculates colony density at the site scale by first calculating the total survey area (using Calc_SurveyArea_By_SIte) then calcuating colony density
-Calc_ColDen_By_Site<-function(data,S_ORDER,GENUS){
+Calc_ColDen_By_Transect<-function(data, grouping_field="S_ORDER"){
 
-trarea<-Calc_SurveyArea_By_Site(data)
+trarea<-Calc_SurveyArea_By_Transect(data)
 
-scl<-subset(data,S_ORDER=="Scleractinia")
+#scl<-subset(data,S_ORDER==s_order)
 
-colden<-ddply(scl, .(SITE,SITEVISITID),
+data$GROUP<-data[,grouping_field]
+colden<-ddply(data, .(SITE,SITEVISITID,TRANSECT, GROUP),
               summarise,
               Colabun=length(COLONYLENGTH))
 
-colden2<-merge(trarea,colden, by=c("SITE","SITEVISITID"),all.x=TRUE)
+colden2<-merge(trarea,colden, by=c("SITE","SITEVISITID","TRANSECT"),all.x=TRUE)
 
 colden2[is.na(colden2)]<-0
 
-colden2$AdultColDen<-colden2$Colabun/colden2$TRANAREA
+colden2$AdultColDen<-colden2$Colabun/colden2$TRANSECTAREA
+
+colden2<-dcast(colden2, formula=SITE + SITEVISITID + TRANSECT ~ GROUP, value="AdultColDen",fill=0)
+
 
 return(colden2)
 }
 
-#This function calculates colony density at the site scale for each species by first calculating the total survey area (using Calc_SurveyArea_By_SIte) then calcuating colony density
-Calc_ColDen_By_Taxon_Site<-function(data){
-  
-  trarea<-Calc_SurveyArea_By_Site(data)
-  
-  scl<-subset(data,S_ORDER=="Scleractinia")
-  
-  colden<-ddply(scl, .(SITE,GENUS,SPCODE,SITEVISITID),
-                summarise,
-                Colabun=length(COLONYLENGTH))
-  
-  colden2<-merge(colden,trarea, by=c("SITE","SITEVISITID"),all=TRUE)
-  
-  colden2$AdultColDen<-colden2$Colabun/colden2$TRANAREA
-  
-  return(colden2)
-}
 
 
 ##This function calculates mean % old dead
