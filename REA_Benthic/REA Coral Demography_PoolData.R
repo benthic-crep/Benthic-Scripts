@@ -3,10 +3,11 @@ library(gdata)             # needed for drop_levels()
 library(reshape)           # reshape library inclues the cast() function used below
 
 #LOAD LIBRARY FUNCTIONS ... 
-source("lib/Benthic Functions.R")
-source("lib/Benthic_Islandwide Mean&Variance Functions.R")
+source("C:/Users/Courtney.S.Couch/Documents/Courtney's Files/R Files/ESD/Benthic REA/Benthic Functions.R")
+source("C:/Users/Courtney.S.Couch/Documents/Courtney's Files/R Files/ESD/Benthic REA/Benthic_Islandwide Mean&Variance Functions.R")
 
 #LOAD THE CLEAN wsd and sectors data
+setwd("C:/Users/Courtney.S.Couch/Documents/Courtney's Files/R Files/ESD/Benthic REA")
 load("TMPsectors.Rdata")
 load("TMPwsd_site.Rdata")
 load("TMPdata.cols.Rdata")
