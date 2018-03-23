@@ -1,14 +1,17 @@
 rm(list=ls())
 
 #LOAD LIBRARY FUNCTIONS ... 
-source("C:/Users/Courtney.S.Couch/Documents/Courtney's Files/R Files/ESD/Benthic Functions.R")
-source("C:/Users/Courtney.S.Couch/Documents/Courtney's Files/R Files/ESD/Benthic REA/Benthic_Islandwide Mean&Variance Functions.R")
+source("C:/Users/Courtney.S.Couch/Documents/Courtney's Files/R Files/ESD/Benthic_Functions.R")
+source("C:/Users/Courtney.S.Couch/Documents/Courtney's Files/R Files/ESD/core_functions.R")
+
 
 #LOAD THE CLEAN wd 
 setwd("C:/Users/Courtney.S.Couch/Documents/Courtney's Files/R Files/ESD/Benthic REA")
-load("TMPBenthicREAwd.Rdata")
+load("TMPBenthicREA_Adultwd_v2.Rdata")
+awd<-wd
+load("TMPBenthicREA_Juvwd.Rdata")
+jwd<-wd
 
-#get base survey info, calculate average depth+complexity+so on
 
 #base information about the survey - field names should match those in input file (obviously!)
 UNIQUE_SURVEY<-c("SITEVISITID","SITE")
@@ -16,85 +19,138 @@ UNIQUE_TRANSECT<-c(UNIQUE_SURVEY, "TRANSECT")
 UNIQUE_COLONY<-c(UNIQUE_TRANSECT, "COLONYID")
 
 
-#Generate a table of metadata at the transect and colony level - ADD SECTOR NAME, ANALYSIS YEAR EVENTUALLY
-SURVEY_INFO<-c("SITEVISITID", "OBS_YEAR", "REGION", "REGION_NAME", "ISLAND","ISLANDCODE", "SITE", "DATE_", "REEF_ZONE", "DEPTH_BIN", "LATITUDE", "LONGITUDE","SITE_MIN_DEPTH","SITE_MAX_DEPTH","TRANSECT")
-survey_transect<-Aggregate_InputTable(wd, SURVEY_INFO)
+#Generate a table of metadata at the transect and colony level for ADULTS- ADD SECTOR NAME, ANALYSIS YEAR EVENTUALLY
+SURVEY_INFO<-c("SITEVISITID", "OBS_YEAR", "REGION", "REGION_NAME", "ISLAND","ISLANDCODE", "SITE", "DATE_", "REEF_ZONE", "DEPTH_BIN", "LATITUDE", "LONGITUDE","SITE_MIN_DEPTH_FT","SITE_MAX_DEPTH_FT","TRANSECT")
+survey_transect<-Aggregate_InputTable(awd, SURVEY_INFO)
 
-SURVEY_INFO<-c("SITEVISITID", "OBS_YEAR", "REGION", "REGION_NAME", "ISLAND","ISLANDCODE", "SITE", "DATE_", "REEF_ZONE", "DEPTH_BIN", "LATITUDE", "LONGITUDE","SITE_MIN_DEPTH","SITE_MAX_DEPTH","TRANSECT","COLONYID")
-survey_colony<-Aggregate_InputTable(wd, SURVEY_INFO)
+SURVEY_INFO<-c("SITEVISITID", "OBS_YEAR", "REGION", "REGION_NAME", "ISLAND","ISLANDCODE", "SITE", "DATE_", "REEF_ZONE", "DEPTH_BIN", "LATITUDE", "LONGITUDE","SITE_MIN_DEPTH_FT","SITE_MAX_DEPTH_FT","TRANSECT","COLONYID","GENUS_CODE","TAXONCODE","S_ORDER")
+survey_colony<-Aggregate_InputTable(awd, SURVEY_INFO)
+
+save(survey_transect, file="TMPsurveys_Transect.Rdata")
+save(survey_colony, file="TMPsurveys_Colony.Rdata")
+
+
+#Generate a table of metadata at the transect and colony level for JUVENILES- ADD SECTOR NAME, ANALYSIS YEAR EVENTUALLY
+SURVEY_INFO<-c("SITEVISITID", "OBS_YEAR", "REGION", "REGION_NAME", "ISLAND","ISLANDCODE", "SITE", "DATE_", "REEF_ZONE", "DEPTH_BIN", "LATITUDE", "LONGITUDE","SITE_MIN_DEPTH_FT","SITE_MAX_DEPTH_FT","TRANSECT")
+jsurvey_transect<-Aggregate_InputTable(jwd, SURVEY_INFO)
+
+SURVEY_INFO<-c("SITEVISITID", "OBS_YEAR", "REGION", "REGION_NAME", "ISLAND","ISLANDCODE", "SITE", "DATE_", "REEF_ZONE", "DEPTH_BIN", "LATITUDE", "LONGITUDE","SITE_MIN_DEPTH_FT","SITE_MAX_DEPTH_FT","TRANSECT","COLONYID","GENUS_CODE","TAXONCODE","S_ORDER")
+jsurvey_colony<-Aggregate_InputTable(jwd, SURVEY_INFO)
 
 save(survey_transect, file="TMPsurveys_Transect.Rdata")
 save(survey_colony, file="TMPsurveys_Colony.Rdata")
 
 #Pull all species information into a separate df, for possible later use ..
-TAXON_MORPH_FIELDS<-c("SPCODE","GENUS_CODE", "S_ORDER", "SPMORPH", "GENMORPH","MORPH_CODE")
-taxon_morph_table<-Aggregate_InputTable(wd, TAXON_MORPH_FIELDS)
+TAXON_MORPH_FIELDS<-c("TAXONCODE","GENUS_CODE", "S_ORDER", "TAXMORPH", "GENMORPH","MORPH_CODE")
+taxon_morph_table<-Aggregate_InputTable(awd, TAXON_MORPH_FIELDS)
 save(taxon_morph_table, file="TMPtaxonmorph.Rdata")
 
+
+#Remove scleractinan colony fragments, but include include sites with no colonies (AAAA) and other cnidarians
+#if AAAA or other cnidarians are excluded here then the transect area may not calculated properly.
+awd<-subset(awd, COLONYLENGTH>5&S_ORDER=="Scleractinia"|COLONYLENGTH<0|SPCODE=="AAAA")
+tail(wd)#make sure that AAAA's are included
+
+#Remove transects with less than 5m surveyed and check how many rows were removed
+nrow(awd)
+awd<-subset(awd,TRANSECTAREA>=5) 
+nrow(awd)
+head(awd)
+
+##Change Transects 3 and 4 in the juvenile data to 1 and 2 so we can merge with adult data
+jwd$TRANSECT[jwd$TRANSECT == "3"] <- "1"
+jwd$TRANSECT[jwd$TRANSECT == "4"] <- "2"
+
+
 #test functions on MHI data to make code run faster
-wd2<-subset(wd,REGION=="MHI")
+awd2<-subset(awd,REGION=="MHI")
+jwd2<-subset(jwd,REGION=="MHI")
 
 # GENERATE SUMMARY METRICS at the transect-level -this is just a start, more metrics to come --------------------------------------------------
-m1<-Calc_ColDen_By_Transect(wd2,"GENUS_CODE");m1<-subset(m1,select=-Var.5);gen.cols<-names(m1[4:dim(m1)[2]]) # calculate density at genus level, remove column V1 (summary of AAAA) and create a separate df for just the data named gen.cols
-
-m2<-Calc_olddead_By_Transect(wd)
-
-#Transform RD1 and RD2 from long to wide format, remove other site AND TRANSECT level info
-#This function calculates colony density at the transect scale by first calculating the total survey area (using Calc_SurveyArea_By_SIte) then calcuating colony density
-#Calc_ColDen_By_Transect<-function(data){
-wdscl<-subset(wd2,S_ORDER=="Scleractinia")
-rd1<-dcast(wdscl, formula=SITEVISITID + SITE+TRANSECT+COLONYID ~ RD1, value.var="RD1",length,fill=0);names(rd1)<-gsub("DZGN","DZGNS",names(rd1),fixed = TRUE)#; rd1<-rd1[,-c(1:3)]
-rd2<-dcast(wdscl, formula=SITEVISITID + SITE+TRANSECT+COLONYID ~ RD2, value.var="RD2",length,fill=0) ;names(rd2)<-gsub("DZGN","DZGNS",names(rd2),fixed = TRUE)#; rd2<-rd2[,-c(1:3)]
-rd3<-dcast(wdscl, formula=SITEVISITID + SITE+TRANSECT+COLONYID ~ GENRD1, value.var="GENRD1",length,fill=0)#; rd3<-rd3[,-c(1:3)]
-rd4<-dcast(wdscl, formula=SITEVISITID + SITE+TRANSECT+COLONYID ~ GENRD2, value.var="GENRD2",length,fill=0)# ; rd4<-rd4[,-c(1:3)]
-
-#merge all dataframes together
-a<-merge(rd1,rd2,by=c("SITEVISITID","SITE","TRANSECT","COLONYID"),all=TRUE)
-b<-merge(a,rd3,by=c("SITEVISITID","SITE","TRANSECT","COLONYID"),all=TRUE)
-allrd<-merge(b,rd4,by=c("SITEVISITID","SITE","TRANSECT","COLONYID"),all=TRUE)
-
-#remove .x and .y so that we can sum identifically named columns
-names(allrd)<-gsub(".x","",names(allrd),fixed = TRUE)
-names(allrd)<-gsub(".y","",names(allrd),fixed = TRUE)
-head(allrd)
-
-allrd.n<-allrd[,-c(1:4)]
+m1<-Calc_ColDen_Transect(awd2,"GENUS_CODE")# calculate density at genus level as well as total
+#m2<-Calc_Rich_By_Transect(wd2);m2<-subset(m2,select=-Var.4);richorder.cols<-names(m2[4:dim(m2)[2]]) # calculate richness at order level, remove column V1 (summary of AAAA) and create a separate df for just the data named gen.cols
+m2<-Calc_olddead_Transect(awd2,"GENUS_CODE")
+m3<-Calc_recentdead_Transect(awd2,"GENUS_CODE")
+m4<-Calc_RDabun_Transect(awd2,"GENUS_CODE")
+m5<-Calc_Condabun_Transect(awd2,"GENUS_CODE")
 
 
-#Sum identically named columns and remove the no data column
-allrd2<-as.data.frame(sapply(unique(colnames(allrd.n)), 
-                             function(x) rowSums(allrd.n[, colnames(allrd.n) == x, drop = FALSE])));allrd2<-allrd2[,!(colnames(allrd2) =="NODATA")]
+m6<-Calc_ColDen_Transect(awd2,"TAXONCODE")# calculate density at genus level as well as total
+#m2<-Calc_Rich_By_Transect(wd2);m2<-subset(m2,select=-Var.4);richorder.cols<-names(m2[4:dim(m2)[2]]) # calculate richness at order level, remove column V1 (summary of AAAA) and create a separate df for just the data named gen.cols
+m7<-Calc_olddead_Transect(awd2,"TAXONCODE")
+m8<-Calc_recentdead_Transect(awd2,"TAXONCODE")
+m9<-Calc_RDabun_Transect(awd2,"TAXONCODE")
+m10<-Calc_Condabun_Transect(awd2,"TAXONCODE")
 
-#merge data with colony level metada, remove colonyid, then add up number of colonies with with condition to the transect level
-allrd3<-merge(survey_colony,allrd2, by="COLONYID")
-allrd3<-allrd3[,!(colnames(allrd3) =="COLONYID")]
-metadata<-colnames(allrd3[1:15])
-allrd3<-data.table(allrd3)
-rdsum<-allrd3[, lapply(.SD, sum), by = metadata]
-rdsum<-as.data.frame(rdsum)
+m11<-Calc_ColDen_Transect(jwd2,"GENUS_CODE"); colnames(m11)[colnames(m11)=="Colabun"]<-"JuvColabun";colnames(m11)[colnames(m11)=="ColDen"]<-"JuvColDen"
+# calculate density at genus level as well as total
+m12<-Calc_ColDen_Transect(jwd2,"TAXONCODE"); 
 
-##Calculate total transect area surveyed including transects with no colonies
-trarea<-Calc_SurveyArea_By_Transect(wd)
+test<-Calc_ColDen_Transect_DEPTH(awd2)
+##Unweighted Summaries for Benthic Summary Reports
+# GENERATE SUMMARY METRICS at the transect-level -this is just a start, more metrics to come --------------------------------------------------
+rd<-merge(m1,m4, by=c("SITE","SITEVISITID","TRANSECT","GENUS_CODE"),all.x=TRUE)
+con<-merge(m1,m5, by=c("SITE","SITEVISITID","TRANSECT","GENUS_CODE"),all.x=TRUE) # THIS CODE GENERATES NAS IN THE RDCOND COLUMN FOR TAXA THAT AREN'T PRESENT ON TRANSECT. SPEAK WITH IVOR
+rd.<-ifelse(rd$Colabun==0& rd$RDCond=="NA",rd$RDabun=="NA",ifelse(rd$Colabun>0 & rd$RDabun=="NA",rd$RDabun==0,rd$RDabun==rd$RDabun))####this isn't working
+con$Condabun[is.na(con$Condabun)]<-0
+rd$RDabun[is.na(rd$RDabun)]<-0
 
-#Sum total number of hard corals/transect
-scl<-subset(wd,S_ORDER=="Scleractinia") 
-b<-ddply(scl, .(SITE,SITEVISITID,TRANSECT),
-         summarise,
-         Colabun=length(COLONYLENGTH))
+head(con);head(rd)
+rd$rdprev<-rd$RDabun/rd$Colabun*100 #calculate prevalence
+con$condprev<-con$Condabun/con$Colabun*100 #calculate prevalence
 
-a<-merge(trarea,b, by=c("SITE","SITEVISITID","TRANSECT"),all.x=TRUE)
-
-a[is.na(a)]<-0
-
-rdsum2<-merge(a,rdsum,by=c("SITE","SITEVISITID","TRANSECT"),all.x=TRUE)
-
-
+AcuteDZ<-subset(rd,RDCond=="All_DZGN");colnames(AcuteDZ)[colnames(AcuteDZ)=="RDabun"]<-"AcuteDZabun";colnames(AcuteDZ)[colnames(AcuteDZ)=="rdprev"]<-"AcuteDZprev" #Change column name
+ChronicDZ<-subset(con,COND=="ChronicDZ");colnames(ChronicDZ)[colnames(ChronicDZ)=="Condabun"]<-"ChronicDZabun";colnames(ChronicDZ)[colnames(ChronicDZ)=="condprev"]<-"ChronicDZprev" #Change column name
+COTS<-subset(rd,RDCond=="COTS");colnames(COTS)[colnames(COTS)=="RDabun"]<-"COTSabun";colnames(COTS)[colnames(COTS)=="rdprev"]<-"COTSprev" #Change column name
+BLE<-subset(con,COND=="BLE");colnames(BLE)[colnames(BLE)=="Condabun"]<-"BLEabun";colnames(BLE)[colnames(BLE)=="condprev"]<-"BLEprev" #Change column name
+head(ChronicDZ)
 
 
-#cond$CronDZ<-allrd2$FUG+allrd2$PDS+allrd2$SGA+allrd2$PTR
-#allrd2$SGA_PDS<-allrd2$PDS+allrd2$SGA
+a1<-merge(AcuteDZ,ChronicDZ, by=c("DEPTH_BIN","REEF_ZONE","SITE","SITEVISITID","TRANSECT","GENUS_CODE","Colabun","ColDen"),all=TRUE) # THIS CODE GENERATES NAS IN THE RDCOND COLUMN FOR TAXA THAT AREN'T PRESENT ON TRANSECT. SPEAK WITH IVOR
+a2<-merge(a1,BLE, by=c("DEPTH_BIN","REEF_ZONE","SITE","SITEVISITID","TRANSECT","GENUS_CODE","Colabun","ColDen"),all=TRUE) # THIS CODE GENERATES NAS IN THE RDCOND COLUMN FOR TAXA THAT AREN'T PRESENT ON TRANSECT. SPEAK WITH IVOR
+a3<-merge(a2,COTS, by=c("DEPTH_BIN","REEF_ZONE","SITE","SITEVISITID","TRANSECT","GENUS_CODE","Colabun","ColDen"),all=TRUE) # THIS CODE GENERATES NAS IN THE RDCOND COLUMN FOR TAXA THAT AREN'T PRESENT ON TRANSECT. SPEAK WITH IVOR
+head(a3)
 
-##Merging Colony abundance df and recent dead df
+a3$TotDZabun<-a3$AcuteDZabun+a3$ChronicDZabun
+a3$TotDZprev<-a3$TotDZabun/a3$Colabun
+colnames(a3)[colnames(a3)=="Colabun"]<-"AdultColabun"
+colnames(a3)[colnames(a3)=="ColDen"]<-"AdultColDen"
+
+
+a3<- subset(a3, select=-c(RDCond,COND.x,COND.y)) #remove extra columns
+a4<-merge(a4,m11,by =c("DEPTH_BIN","REEF_ZONE","SITE","SITEVISITID","TRANSECT","GENUS_CODE"),all=TRUE) #merge adult data with juv data
+a4[is.na(a4)]<-0 #THIS IS TEMPORARY- FIX NAS IN THE IFELSE STATEMENT ABOVE
+head(a4)
+
+##Unweighted Summaries for Benthic Summary Reports
+# GENERATE SUMMARY METRICS at the transect-level -this is just a start, more metrics to come --------------------------------------------------
+bsrSITE<-Calc_Sitemetrics_BSR(a4,"GENUS_CODE")
+bsrIS<-Calc_Islmetrics_BSR(bsrSITE,"GENUS_CODE")
+bsrDEPTH<-Calc_IslDepthmetrics_BSR(bsrSITE,"GENUS_CODE")
+
+##Create table for island level summaries for total sclerarctinans
+TotalScl_SITE<-subset(bsrSITE,GENUS_CODE=="SSSS")
+TotalScl_IS<-subset(bsrIS,GENUS_CODE=="SSSS")
+TotalScl_ISDEPTH<-subset(bsrDEPTH,GENUS_CODE=="SSSS")
+
+##Create table for island level summaries for target genera, change this to target genera
+TargGenera_IS<-subset(bsrIS,GENUS_CODE %in% c("MOSP","POSP","LEPT")) 
+
+
+# get strata and sectors data and subset it for the regions you need
+setwd("C:/Users/Courtney.S.Couch/Documents/Courtney's Files/R Files/ESD/Benthic REA")
+sectors<-read.csv("Benthic_SectorArea_v4.csv", stringsAsFactors=FALSE)
+samoa<-subset(sectors,REGION=="SAMOA")
+pria<-subset(sectors,REGION=="PRIAs")
+
+
+###write out tables to csv files
+write.csv(samoa,"Samoa_Stratareas.csv")
+write.csv(pria,"PRIA_Stratareas.csv")
+write.csv(TotalScl_SITE,"Sitemetrics_totalscl.csv")
+write.csv(TotalScl_IS,"Islandmetrics_totalscl.csv")
+write.csv(TotalScl_ISDEPTH,"IslandDepth_metrics_totalscl.csv")
+write.csv(TargGenera_IS,"Islandmetrics_targetgenera.csv")
 
 
 
