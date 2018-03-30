@@ -363,12 +363,12 @@ Calc_RDabun_Site<-function(data, grouping_field="S_ORDER"){
 #WORK WITH IVOR TO BUILD IN MORE FLEXIBILITY FOR CONDITIONS
 Calc_Condabun_Site<-function(data, grouping_field="S_ORDER"){
   scl<-subset(data,S_ORDER=="Scleractinia")
-  
+
   c<-dcast(scl, formula=SITEVISITID + SITE+COLONYID ~ COND, value.var="COND",length,fill=0)
   c$ChronicDZ<-c$PDS+c$FUG+c$SGA
   c <- subset(c, select = -c(NDZ)) #remove columns
   a<-merge(survey_colony,c, by=c("SITE","SITEVISITID","COLONYID"))
-  long <- gather(a, COND, Condabun, names(a[19:dim(a)[2]]), factor_key=TRUE) #convert wide to long format by condition
+  long <- gather(a, COND, Condabun, names(a[22:dim(a)[2]]), factor_key=TRUE) #convert wide to long format by condition
   
   #merge data with colony level metadata and sum conditions by transect and taxoncode
   long$GROUP<-long[,grouping_field]
@@ -378,8 +378,11 @@ Calc_Condabun_Site<-function(data, grouping_field="S_ORDER"){
   out1<-ddply(longsum, .(SITE,SITEVISITID,COND), #calc total colonies by condition
               summarise,
               Condabun=sum(Condabun))
-  out1$GROUP<-"SSSS"; out1 <- out1[c(1,2,3,6,4,5)] #add total colony code
+  out1$GROUP<-"SSSS"; out1 <- out1[c(1,2,3,5,4)] #add total colony code
   out<-rbind(longsum,out1)
+  
+  out<-dcast(out, formula=SITEVISITID +SITE +GROUP~ COND, value.var="Condabun",sum,fill=0)
+  head(out)
   
   colnames(out)[which(colnames(out) == 'GROUP')] <- grouping_field #change group to whatever your grouping field is.
   
