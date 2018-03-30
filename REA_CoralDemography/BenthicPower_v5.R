@@ -423,6 +423,14 @@ Ju_ColonytoSite=function(raw){
   return(site_long)
 }
 
+
+#Define parameters ----
+#M_hi= Total possible number of SSUs(transects) in PSU (site) i in stratum h
+#N_h= Total possible number of PSUs (site) in stratum h
+#Dom_N_h=Total possible number of PSUs (site) in domain h
+#w_h=stratum h weighting factor(proportion of available habitat)
+#D_h= mean site density of colonies in stratum h
+
 analysis_schema_rollup1S=function(Col_Data,Ad_Ju="Ad",M_hi=250){
   #First roll Colony to Site
   if(Ad_Ju=="Ad"){
@@ -431,21 +439,23 @@ analysis_schema_rollup1S=function(Col_Data,Ad_Ju="Ad",M_hi=250){
     Site_roll=Ju_ColonytoSite(Col_Data) 
   }
   #For a Given ANALYSIS_SCHEMA, we need to pool N_h, and generate w_h
-  Strata_NHroll=ddply(subset(Site_roll,TAXONCODE=="All"),.(DOMAIN_SCHEMA,ANALYSIS_SCHEMA,STRATANAME),summarize,N_h=median(NH,na.rm=TRUE))
-  Schema_NHroll=ddply(Strata_NHroll,.(DOMAIN_SCHEMA,ANALYSIS_SCHEMA),summarize,N_h=sum(N_h,na.rm=TRUE))
-  Dom_NHroll=ddply(Schema_NHroll,.(DOMAIN_SCHEMA),summarize,Dom_N_h=sum(N_h,na.rm=TRUE))
-  Schema_NHroll$Dom_N_h=Dom_NHroll$Dom_N_h[match(Schema_NHroll$DOMAIN_SCHEMA,Dom_NHroll$DOMAIN_SCHEMA)]
-  Schema_NHroll$w_h=Schema_NHroll$N_h/Schema_NHroll$Dom_N_h
+  Strata_NHroll=ddply(subset(Site_roll,TAXONCODE=="All"),.(DOMAIN_SCHEMA,ANALYSIS_SCHEMA,STRATANAME),summarize,N_h=median(NH,na.rm=TRUE)) #calculate # of possible sites in a given stratum
+  Schema_NHroll=ddply(Strata_NHroll,.(DOMAIN_SCHEMA,ANALYSIS_SCHEMA),summarize,N_h=sum(N_h,na.rm=TRUE))#calculate # of possible sites in a given schema
+  Dom_NHroll=ddply(Schema_NHroll,.(DOMAIN_SCHEMA),summarize,Dom_N_h=sum(N_h,na.rm=TRUE))#calculate # of possible sites in a given domain
+  Schema_NHroll$Dom_N_h=Dom_NHroll$Dom_N_h[match(Schema_NHroll$DOMAIN_SCHEMA,Dom_NHroll$DOMAIN_SCHEMA)]# add Dom_N_h to schema dataframe
+  Schema_NHroll$w_h=Schema_NHroll$N_h/Schema_NHroll$Dom_N_h # add schema weighting factor to schema dataframe
+  
   #Now add back the Analysis_Schema Nh and wh to Site_roll
   Site_roll$N_h.as=Schema_NHroll$N_h[match(Site_roll$ANALYSIS_SCHEMA,Schema_NHroll$ANALYSIS_SCHEMA)]
   Site_roll$w_h.as=Schema_NHroll$w_h[match(Site_roll$ANALYSIS_SCHEMA,Schema_NHroll$ANALYSIS_SCHEMA)]
-  #Roll up the Schema
+  
+  #Roll up the Schema from site 
   Schema_roll=ddply(Site_roll,.(DOMAIN_SCHEMA,ANALYSIS_SCHEMA,TAXONCODE),summarize,
-                    n_h=length(NCol),# No. of Sites in a Strata
+                    n_h=length(NCol),# No. of Sites surveyed in a Strata
                     N_h=median(N_h.as,na.rm=T),# Strata Area (as N 50x50 grids)
                     w_h=median(w_h.as,na.rm=T),# Strata Area (as N 50x50 grids)
                     D._h=mean(ColDen,na.rm=T), # Mean of Site-Level Density in a Stratum
-                    S2_h=var(ColDen,na.rm=T), #Strata level sample variance of mean density
+                    S1_h=var(ColDen,na.rm=T), #sample variance in density between sites
                     varD._h=(1-(n_h/N_h))*S2_h/n_h, #Strata level  variance of mean density
                     Y._h=D._h*N_h^2,
                     varY._h=varD._h*N_h^2,

@@ -1,13 +1,15 @@
 rm(list=ls())
 
 #LOAD LIBRARY FUNCTIONS ... 
-source("C:/Users/Courtney.S.Couch/Documents/Courtney's Files/R Files/ESD/Benthic_Functions.R")
-source("C:/Users/Courtney.S.Couch/Documents/Courtney's Files/R Files/ESD/core_functions.R")
+source("C:/Users/Courtney.S.Couch/Documents/GitHub/Benthic-Scripts/Functions/Benthic_Functions.R")
+source("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/lib/core_functions.R")
 
 
 #LOAD THE CLEAN wd 
 setwd("C:/Users/Courtney.S.Couch/Documents/Courtney's Files/R Files/ESD/Benthic REA")
 load("TMPBenthicREA_Adultwd_v2.Rdata")
+
+load("TMPBenthicREA_Adultwd_V2.Rdata")
 awd<-wd
 load("TMPBenthicREA_Juvwd.Rdata")
 jwd<-wd
@@ -57,36 +59,95 @@ awd<-subset(awd,TRANSECTAREA>=5)
 nrow(awd)
 head(awd)
 
+
 ##Change Transects 3 and 4 in the juvenile data to 1 and 2 so we can merge with adult data
 jwd$TRANSECT[jwd$TRANSECT == "3"] <- "1"
 jwd$TRANSECT[jwd$TRANSECT == "4"] <- "2"
 
 
 #test functions on MHI data to make code run faster
-awd2<-subset(awd,REGION=="MHI")
-jwd2<-subset(jwd,REGION=="MHI")
+awd2<-subset(awd,ISLAND=="Hawaii")
+jwd2<-subset(jwd,ISLAND=="Hawaii")
 
-# GENERATE SUMMARY METRICS at the transect-level -this is just a start, more metrics to come --------------------------------------------------
-m1<-Calc_ColDen_Transect(awd2,"GENUS_CODE")# calculate density at genus level as well as total
-#m2<-Calc_Rich_By_Transect(wd2);m2<-subset(m2,select=-Var.4);richorder.cols<-names(m2[4:dim(m2)[2]]) # calculate richness at order level, remove column V1 (summary of AAAA) and create a separate df for just the data named gen.cols
-m2<-Calc_olddead_Transect(awd2,"GENUS_CODE")
-m3<-Calc_recentdead_Transect(awd2,"GENUS_CODE")
-m4<-Calc_RDabun_Transect(awd2,"GENUS_CODE")
-m5<-Calc_Condabun_Transect(awd2,"GENUS_CODE")
+# # GENERATE SUMMARY METRICS at the transect-level -this is just a start, more metrics to come --------------------------------------------------
+# acd.gen<-Calc_ColDen_Transect(awd2,"GENUS_CODE");colnames(acd.gen)[colnames(acd.gen)=="Colabun"]<-"AdColabun";colnames(acd.gen)[colnames(acd.gen)=="ColDen"]<-"AdColDen"# calculate density at genus level as well as total
+# od.gen<-Calc_Dead_Sev_Ext_Transect(awd2,"GENUS_CODE","OLDDEAD"); colnames(od.gen)[colnames(od.gen)=="Ave.y"]<-"Ave.od"
+# rd.gen<-Calc_Dead_Sev_Ext_Transect(awd2,"GENUS_CODE",c("RDEXTENT1", "RDEXTENT2")); colnames(rd.gen)[colnames(rd.gen)=="Ave.y"]<-"Ave.rd"
+# rdabun.gen<-Calc_RDabun_Transect(awd2,"GENUS_CODE")
+# condabun.gen<-Calc_Condabun_Transect(awd2,"GENUS_CODE")
+# jcd.gen<-Calc_ColDen_Transect(jwd2,"GENUS_CODE"); colnames(jcd.gen)[colnames(jcd.gen)=="Colabun"]<-"JuvColabun";colnames(jcd.gen)[colnames(jcd.gen)=="ColDen"]<-"JuvColDen"
+# 
+# 
+# acd.tax<-Calc_ColDen_Transect(awd2,"TAXONCODE");colnames(acd.tax)[colnames(acd.tax)=="Colabun"]<-"AdColabun";colnames(acd.tax)[colnames(acd.tax)=="ColDen"]<-"AdColDen"# calculate density at genus level as well as total
+# od.tax<-Calc_Dead_Sev_Ext_Transect(awd2,"TAXONCODE","OLDDEAD"); colnames(od.tax)[colnames(od.tax)=="Ave.y"]<-"Ave.od"
+# rd.tax<-Calc_Dead_Sev_Ext_Transect(awd2,"TAXONCODE",c("RDEXTENT1", "RDEXTENT2")); colnames(rd.tax)[colnames(rd.tax)=="Ave.y"]<-"Ave.rd"
+# rdabun.tax<-Calc_RDabun_Transect(awd2,"TAXONCODE")
+# condabun.tax<-Calc_Condabun_Transect(awd2,"TAXONCODE")
+# jcd.tax<-Calc_ColDen_Transect(jwd2,"TAXONCODE"); colnames(jcd.tax)[colnames(jcd.tax)=="Colabun"]<-"JuvColabun";colnames(jcd.tax)[colnames(jcd.tax)=="ColDen"]<-"JuvColDen"
+# 
+# #Merge density and partial moratlity data together. R
+# MyMerge <- function(x, y){
+#   df <- merge(x, y, by= c("SITE","SITEVISITID","TRANSECT","GENUS_CODE"), all.x= TRUE, all.y= TRUE)
+#   return(df)
+# }
+# data.gen<-Reduce(MyMerge, list(acd.gen,od.gen,rd.gen,jcd.gen));
+# 
+# #Change NAs for abunanance and density metrics to 0. Don't change NAs in the partial mortality columns to 0
+# data.gen$JuvColabun[is.na(data.gen$JuvColabun)]<-0;data.gen$JuvColDen[is.na(data.gen$JuvColDen)]<-0
+# data.gen$AdColabun[is.na(data.gen$AdColabun)]<-0;data.gen$AdColDen[is.na(data.gen$AdColDen)]<-0
+# 
+# MyMerge <- function(x, y){
+#   df <- merge(x, y, by= c("SITE","SITEVISITID","TRANSECT","TAXONCODE"), all.x= TRUE, all.y= TRUE)
+#   return(df)
+# }
+# data.tax<-Reduce(MyMerge, list(acd.tax,od.tax,rd.tax,jcd.tax))
+# data.tax$JuvColabun[is.na(data.tax$JuvColabun)]<-0;data.tax$JuvColDen[is.na(data.tax$JuvColDen)]<-0
+# data.tax$AdColabun[is.na(data.tax$AdColabun)]<-0;data.tax$AdColDen[is.na(data.tax$AdColDen)]<-0
 
 
-m6<-Calc_ColDen_Transect(awd2,"TAXONCODE")# calculate density at genus level as well as total
-#m2<-Calc_Rich_By_Transect(wd2);m2<-subset(m2,select=-Var.4);richorder.cols<-names(m2[4:dim(m2)[2]]) # calculate richness at order level, remove column V1 (summary of AAAA) and create a separate df for just the data named gen.cols
-m7<-Calc_olddead_Transect(awd2,"TAXONCODE")
-m8<-Calc_recentdead_Transect(awd2,"TAXONCODE")
-m9<-Calc_RDabun_Transect(awd2,"TAXONCODE")
-m10<-Calc_Condabun_Transect(awd2,"TAXONCODE")
 
-m11<-Calc_ColDen_Transect(jwd2,"GENUS_CODE"); colnames(m11)[colnames(m11)=="Colabun"]<-"JuvColabun";colnames(m11)[colnames(m11)=="ColDen"]<-"JuvColDen"
-# calculate density at genus level as well as total
-m12<-Calc_ColDen_Transect(jwd2,"TAXONCODE"); 
+# GENERATE SUMMARY METRICS at the SITE-level -this is just a start, more metrics to come --------------------------------------------------
+acd.gen<-Calc_ColDen_Site(awd2,"GENUS_CODE");colnames(acd.gen)[colnames(acd.gen)=="Colabun"]<-"AdColabun";colnames(acd.gen)[colnames(acd.gen)=="ColDen"]<-"AdColDen"# calculate density at genus level as well as total
+od.gen<-Calc_Dead_Sev_Ext_Site(awd2,"GENUS_CODE","OLDDEAD"); colnames(od.gen)[colnames(od.gen)=="Ave.y"]<-"Ave.od"
+rd.gen<-Calc_Dead_Sev_Ext_Site(awd2,"GENUS_CODE",c("RDEXTENT1", "RDEXTENT2")); colnames(rd.gen)[colnames(rd.gen)=="Ave.y"]<-"Ave.rd"
+#rdabun.gen<-Calc_RDabun_Site(awd2,"GENUS_CODE")
+#condabun.gen<-Calc_Condabun_Site(awd2,"GENUS_CODE")
+jcd.gen<-Calc_ColDen_Site(jwd2,"GENUS_CODE"); colnames(jcd.gen)[colnames(jcd.gen)=="Colabun"]<-"JuvColabun";colnames(jcd.gen)[colnames(jcd.gen)=="ColDen"]<-"JuvColDen"
 
-test<-Calc_ColDen_Transect_DEPTH(awd2)
+
+acd.tax<-Calc_ColDen_Site(awd2,"TAXONCODE");colnames(acd.tax)[colnames(acd.tax)=="Colabun"]<-"AdColabun";colnames(acd.tax)[colnames(acd.tax)=="ColDen"]<-"AdColDen"# calculate density at genus level as well as total
+od.tax<-Calc_Dead_Sev_Ext_Site(awd2,"TAXONCODE","OLDDEAD"); colnames(od.tax)[colnames(od.tax)=="Ave.y"]<-"Ave.od"
+rd.tax<-Calc_Dead_Sev_Ext_Site(awd2,"TAXONCODE",c("RDEXTENT1", "RDEXTENT2")); colnames(rd.tax)[colnames(rd.tax)=="Ave.y"]<-"Ave.rd"
+#rdabun.tax<-Calc_RDabun_Site(awd2,"TAXONCODE")
+#condabun.tax<-Calc_Condabun_Site(awd2,"TAXONCODE")
+jcd.tax<-Calc_ColDen_Site(jwd2,"TAXONCODE"); colnames(jcd.tax)[colnames(jcd.tax)=="Colabun"]<-"JuvColabun";colnames(jcd.tax)[colnames(jcd.tax)=="ColDen"]<-"JuvColDen"
+
+#Merge density and partial moratlity data together. R
+MyMerge <- function(x, y){
+  df <- merge(x, y, by= c("SITE","SITEVISITID","GENUS_CODE"), all.x= TRUE, all.y= TRUE)
+  return(df)
+}
+data.gen<-Reduce(MyMerge, list(acd.gen,od.gen,rd.gen,jcd.gen));
+
+#Change NAs for abunanance and density metrics to 0. Don't change NAs in the partial mortality columns to 0
+data.gen$JuvColabun[is.na(data.gen$JuvColabun)]<-0;data.gen$JuvColDen[is.na(data.gen$JuvColDen)]<-0
+data.gen$AdColabun[is.na(data.gen$AdColabun)]<-0;data.gen$AdColDen[is.na(data.gen$AdColDen)]<-0
+
+MyMerge <- function(x, y){
+  df <- merge(x, y, by= c("SITE","SITEVISITID","TAXONCODE"), all.x= TRUE, all.y= TRUE)
+  return(df)
+}
+data.tax<-Reduce(MyMerge, list(acd.tax,od.tax,rd.tax,jcd.tax))
+data.tax$JuvColabun[is.na(data.tax$JuvColabun)]<-0;data.tax$JuvColDen[is.na(data.tax$JuvColDen)]<-0
+data.tax$AdColabun[is.na(data.tax$AdColabun)]<-0;data.tax$AdColDen[is.na(data.tax$AdColDen)]<-0
+
+
+
+
+
+
+
+
 ##Unweighted Summaries for Benthic Summary Reports
 # GENERATE SUMMARY METRICS at the transect-level -this is just a start, more metrics to come --------------------------------------------------
 rd<-merge(m1,m4, by=c("SITE","SITEVISITID","TRANSECT","GENUS_CODE"),all.x=TRUE)
@@ -117,49 +178,8 @@ colnames(a3)[colnames(a3)=="Colabun"]<-"AdultColabun"
 colnames(a3)[colnames(a3)=="ColDen"]<-"AdultColDen"
 
 
-a3<- subset(a3, select=-c(RDCond,COND.x,COND.y)) #remove extra columns
-a4<-merge(a4,m11,by =c("DEPTH_BIN","REEF_ZONE","SITE","SITEVISITID","TRANSECT","GENUS_CODE"),all=TRUE) #merge adult data with juv data
-a4[is.na(a4)]<-0 #THIS IS TEMPORARY- FIX NAS IN THE IFELSE STATEMENT ABOVE
+a3<- subset(a3, select=-c(RDCond.x,RDCond.y,COND.x,COND.y)) #remove extra columns
+a4<-merge(a3,m11,by =c("DEPTH_BIN","REEF_ZONE","SITE","SITEVISITID","TRANSECT","GENUS_CODE"),all=TRUE) #merge adult data with juv data
+a4[is.na(a4)]<-0 
 head(a4)
 
-##Unweighted Summaries for Benthic Summary Reports
-# GENERATE SUMMARY METRICS at the transect-level -this is just a start, more metrics to come --------------------------------------------------
-bsrSITE<-Calc_Sitemetrics_BSR(a4,"GENUS_CODE")
-bsrIS<-Calc_Islmetrics_BSR(bsrSITE,"GENUS_CODE")
-bsrDEPTH<-Calc_IslDepthmetrics_BSR(bsrSITE,"GENUS_CODE")
-
-##Create table for island level summaries for total sclerarctinans
-TotalScl_SITE<-subset(bsrSITE,GENUS_CODE=="SSSS")
-TotalScl_IS<-subset(bsrIS,GENUS_CODE=="SSSS")
-TotalScl_ISDEPTH<-subset(bsrDEPTH,GENUS_CODE=="SSSS")
-
-##Create table for island level summaries for target genera, change this to target genera
-TargGenera_IS<-subset(bsrIS,GENUS_CODE %in% c("MOSP","POSP","LEPT")) 
-
-
-# get strata and sectors data and subset it for the regions you need
-setwd("C:/Users/Courtney.S.Couch/Documents/Courtney's Files/R Files/ESD/Benthic REA")
-sectors<-read.csv("Benthic_SectorArea_v4.csv", stringsAsFactors=FALSE)
-samoa<-subset(sectors,REGION=="SAMOA")
-pria<-subset(sectors,REGION=="PRIAs")
-
-
-###write out tables to csv files
-write.csv(samoa,"Samoa_Stratareas.csv")
-write.csv(pria,"PRIA_Stratareas.csv")
-write.csv(TotalScl_SITE,"Sitemetrics_totalscl.csv")
-write.csv(TotalScl_IS,"Islandmetrics_totalscl.csv")
-write.csv(TotalScl_ISDEPTH,"IslandDepth_metrics_totalscl.csv")
-write.csv(TargGenera_IS,"Islandmetrics_targetgenera.csv")
-
-
-
-
-#Merge Site Data and Count Data Per Site Per Grouping Variable (e.g. Species, Tropic_MonRep, Family) 
-wsd<-merge(survey_transect,m1,by=UNIQUE_TRANSECT)
-wsd$TotColden<-rowSums(wsd[,gen.cols]) #calculate total colony density
-subset(wsd,TotColden==0) #double check that there are transects with 0 colonies weren't dropped
-data.cols<-c(gen.cols, "TotColden")
-
-# OUTPUT working_site_data  -----------------------------------
-save(wsd_site, file="TMPwsd_site.Rdata")
