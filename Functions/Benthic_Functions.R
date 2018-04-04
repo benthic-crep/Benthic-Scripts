@@ -124,10 +124,10 @@ ca<-dcast(colden2, formula=SITE + SITEVISITID + TRANSECT ~ GROUP, value.var="Col
 cd<-cd[,-grep("NA",colnames(cd))] #remove NA column
 ca<-ca[,-grep("NA",colnames(ca))] #remove NA column
 
-cd$SSSS<-rowSums(cd[,names(cd[4:dim(cd)[2]])]) #calculate total colony density
+cd$SSSS<-rowSums(cd[,names(cd[4:dim(cd)[2]]),drop=FALSE]) #calculate total colony density
 cd <- gather(cd, GROUP, ColDen, names(cd[4:dim(cd)[2]]), factor_key=TRUE) #convert wide to long format
 
-ca$SSSS<-rowSums(ca[,names(ca[4:dim(ca)[2]])]) #calculate total colony density
+ca$SSSS<-rowSums(ca[,names(ca[4:dim(ca)[2]]),drop=FALSE]) #calculate total colony density
 ca <- gather(ca, GROUP, Colabun, names(ca[4:dim(ca)[2]]), factor_key=TRUE) #convert wide to long format
 
 out<-merge(cd,ca, by=c("SITE","SITEVISITID","TRANSECT","GROUP"))
@@ -265,13 +265,11 @@ Calc_ColDen_Site<-function(data, grouping_field="S_ORDER",other_field="DUMMY"){
   
   cd<-dcast(colden2, formula=SITE + SITEVISITID +OTHER ~ GROUP, value.var="ColDen",fill=0)
   ca<-dcast(colden2, formula=SITE + SITEVISITID +OTHER ~ GROUP, value.var="Colabun",fill=0)
-  cd<-cd[,-grep("NA",colnames(cd))] #remove NA column
-  ca<-ca[,-grep("NA",colnames(ca))] #remove NA column
-  
-  cd$SSSS<-rowSums(cd[,names(cd[4:dim(cd)[2]])]) #calculate total colony density
+
+  cd$SSSS<-rowSums(cd[,names(cd[4:dim(cd)[2]]),drop=FALSE]) #calculate total colony density
   cd <- gather(cd, GROUP, ColDen, names(cd[4:dim(cd)[2]]), factor_key=TRUE) #convert wide to long format
   
-  ca$SSSS<-rowSums(ca[,names(ca[4:dim(ca)[2]])]) #calculate total colony density
+  ca$SSSS<-rowSums(ca[,names(ca[4:dim(ca)[2]]),drop=FALSE]) #calculate total colony density
   ca <- gather(ca, GROUP, Colabun, names(ca[4:dim(ca)[2]]), factor_key=TRUE) #convert wide to long format
   
   out<-merge(cd,ca, by=c("SITE","SITEVISITID","OTHER","GROUP"))
