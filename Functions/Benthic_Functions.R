@@ -392,7 +392,10 @@ Calc_Condabun_Site<-function(data, grouping_field="S_ORDER"){
 #STRATA ROLL UP FUNCTION-This function calculates mean, var, SE and CV at the strata level. I've built in flexilbity to use either genus or taxoncode
 # You can input any metric you would like (eg. adult density, mean % old dead,etc). Note that for any metric that does not involve density of colonies, 
 # Y._h (total colony abundance in stratum),varY._h (variance in total abundance), SE_Y._h and CV_Y._h are meaningless-DO NOT USE
-Calc_Strata=function(site_data,grouping_field,metric_field=c("AdColDen","JuvColDen","Ave.od","Ave.rd"),other_field="DUMMY",M_hi=250){
+#Note: for whatever reason, the grouping, other and metric fields need to be in this order. If you don't want to include an other field then add "DUMMY" as the second variable when you are running this function.
+#e.g. st<-Calc_Strata(data.mon,"GENUS_CODE","DUMMY","ColDen")
+
+Calc_Strata=function(site_data,grouping_field,other_field="DUMMY",metric_field=c("AdColDen","JuvColDen","Ave.od","Ave.rd"),M_hi=250){
   
   #Build in flexibility to look at genus or taxon level
   site_data$GROUP<-site_data[,grouping_field]
@@ -414,7 +417,7 @@ Calc_Strata=function(site_data,grouping_field,metric_field=c("AdColDen","JuvColD
   #Now add back the Analysis_Schema Nh and wh to site_data
   site_data$N_h.as<-Schema_NH$N_h[match(site_data$ANALYSIS_SCHEMA,Schema_NH$ANALYSIS_SCHEMA)]
   site_data$w_h.as<-Schema_NH$w_h[match(site_data$ANALYSIS_SCHEMA,Schema_NH$ANALYSIS_SCHEMA)]
-  
+
   #Calculate summary metrics at the stratum level (rolled up from site level)
   Strata_roll=ddply(site_data,.(ANALYSIS_YEAR,DOMAIN_SCHEMA,ANALYSIS_SCHEMA,OTHER,GROUP),summarize,
                     n_h=length(SITE),# No. of Sites surveyed in a Strata
@@ -423,7 +426,7 @@ Calc_Strata=function(site_data,grouping_field,metric_field=c("AdColDen","JuvColD
                     D._h=mean(METRIC,na.rm=T), # Mean of Site-Level Density in a Stratum
                     S1_h=var(METRIC,na.rm=T), #sample variance in density between sites
                     varD._h=(1-(n_h/N_h))*S1_h/n_h, #Strata level  variance of mean density
-                    Y._h=D._h*N_h^2, #total colony abundance in stratum 
+                    Y._h=D._h*N_h*250, #total colony abundance in stratum (Mhi=250)
                     varY._h=varD._h*N_h^2, #variance in total abundance 
                     SE_D._h=sqrt(varD._h),
                     CV_D._h=SE_D._h/D._h,
@@ -440,10 +443,10 @@ Calc_Strata=function(site_data,grouping_field,metric_field=c("AdColDen","JuvColD
   Strata_roll<-Strata_roll[Strata_roll$n_h>1,]
   
   colnames(Strata_roll)[which(colnames(Strata_roll) == 'GROUP')] <- grouping_field #change group to whatever your grouping field is.
-  
+
   colnames(Strata_roll)[which(colnames(Strata_roll) == 'OTHER')] <- other_field #change group to whatever your grouping field is.
-  
-  
+
+
   return(Strata_roll)
 }
 
@@ -453,7 +456,7 @@ Calc_Strata=function(site_data,grouping_field,metric_field=c("AdColDen","JuvColD
 # Y._h (total colony abundance in stratum),varY._h (variance in total abundance), SE_Y._h and CV_Y._h are meaningless-DO NOT USE
 Calc_Domain=function(site_data,grouping_field="S_ORDER",metric_field=c("AdColDen","JuvColDen","Ave.od","Ave.rd"),other_field="DUMMY"){
  
-  Strata_data=Calc_Strata(site_data,grouping_field,metric_field,other_field)
+  Strata_data=Calc_Strata(site_data,grouping_field,other_field,metric_field)
   
   #Build in flexibility to look at genus or taxon level
   Strata_data$GROUP<-Strata_data[,grouping_field]
