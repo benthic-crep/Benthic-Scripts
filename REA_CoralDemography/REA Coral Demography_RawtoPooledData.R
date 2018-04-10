@@ -32,6 +32,7 @@ DATA_COLS<-c("MISSIONID","REGION","REGION_NAME","ISLAND","ISLANDCODE","SITE","LA
 
 head(x[,DATA_COLS])
 x<-x[,DATA_COLS]
+x$Adult_juv<-"A" #add a column that indicates these are adults. This will be useful later on if we merge adult and juv datasets and also useful for Calc_ColDen_Site function
 
 #Double check level and class of variables to make sure there aren't any errors
 sapply(x,levels)
@@ -50,6 +51,14 @@ colnames(x)[colnames(x)=="SITE_MAX_DEPTH"]<-"SITE_MAX_DEPTH_FT" #Change column n
 colnames(x)[colnames(x)=="DZCODE"]<-"COND" #Change column name
 
 head(x)
+
+#Create a list of sites only surveyed for photoquads
+SURVEY_INFO<-c("NO_SURVEY_YN","SITEVISITID","OBS_YEAR", "REGION", "REGION_NAME", "ISLAND","ISLANDCODE", "SITE", "DATE_", "REEF_ZONE", "DEPTH_BIN", "LATITUDE", "LONGITUDE","SITE_MIN_DEPTH_FT","SITE_MAX_DEPTH_FT")
+pq_only<-Aggregate_InputTable(x, SURVEY_INFO)
+pq<-subset(pq_only,NO_SURVEY_YN==-1)
+
+
+
 #read in list of taxa that we feel comfortable identifying to species or genus level. Note, taxa lists vary by year and region. This will need to be updated through time.
 taxa<-read.csv("2013-17_Taxa_MASTER.csv")
 
@@ -86,10 +95,18 @@ test<-unique(a)
 write.csv(test,"missingsectors.csv")
 
 
-#Remove specfic colonies and segments
-x$NO_SURVEY_YN<-is.na(x$NO_SURVEY_YN)<-0 #Change NAs (blank cells) to 0 CHECK THIS 
+#Test whether there are missing values in the NO_SURVEY_YN column. The value should be 0 or -1
+x.na<-x[is.na(x$NO_SURVEY_YN),]
+test<-ddply(x.na,.(SITE),
+            summarize,
+            SEG=length(unique(SEGMENT)))
+test
+
+#Convert NAs to 0 and remove trasects with no surveys
+x$NO_SURVEY_YN<-is.na(x$NO_SURVEY_YN)<-0 #Change NAs (blank cells) to 0
 x<-subset(x,NO_SURVEY_YN>-1) #Exclude rows -1
 x<-subset(x,SEGLENGTH!="NA") #Remove segments that were not surveyed for coral demography
+
 
 
 ##Calcuating segment and transect area and add column for transect area
@@ -161,6 +178,8 @@ DATA_COLS<-c("MISSIONID","REGION","REGION_NAME","ISLAND","ISLANDCODE","SITE","LA
 
 head(x[,DATA_COLS])
 x<-x[,DATA_COLS]
+x$Adult_juv<-"J" #add a column that indicates these are adults. This will be useful later on if we merge adult and juv datasets and also useful for Calc_ColDen_Site function
+
 
 #Double check level and class of variables to make sure there aren't any errors
 sapply(x,levels)
@@ -233,11 +252,7 @@ jwd<-droplevels(x)
 
 
 #Final Tweaks before calculating Site-level data-------------------------------------------------
-
-#Remove scleractinan colony fragments, but include include sites with no colonies (AAAA) and other cnidarians
-#if AAAA or other cnidarians are excluded here then the transect area may not calculated properly.
-awd<-subset(awd, COLONYLENGTH>5&S_ORDER=="Scleractinia"|COLONYLENGTH<0|SPCODE=="AAAA")
-tail(wd)#make sure that AAAA's are included
+#Colony fragments and scleractinans are subseted in the functions 
 
 #Remove transects with less than 5m surveyed and check how many rows were removed
 nrow(awd)
@@ -256,11 +271,11 @@ awd$DUMMY<-"DUMMY"
 jwd$DUMMY<-"DUMMY"
 
 #test functions on HAWAII ISLAND data to test code
-awd2<-subset(awd,ISLAND=="Hawaii")
-jwd2<-subset(jwd,ISLAND=="Hawaii")
+awd2<-subset(awd,ISLAND=="Oahu")
+jwd2<-subset(jwd,ISLAND=="Oahu")
 
 
-# # GENERATE SUMMARY METRICS at the transect-level -this is just a start, more metrics to come --------------------------------------------------
+# # GENERATE SUMMARY METRICS at the transect-level This code needs to be updated to match SITE LEVEL --------------------------------------------------
 # acd.gen<-Calc_ColDen_Transect(awd2,"GENUS_CODE");colnames(acd.gen)[colnames(acd.gen)=="Colabun"]<-"AdColabun";colnames(acd.gen)[colnames(acd.gen)=="ColDen"]<-"AdColDen"# calculate density at genus level as well as total
 # od.gen<-Calc_Dead_Sev_Ext_Transect(awd2,"GENUS_CODE","OLDDEAD"); colnames(od.gen)[colnames(od.gen)=="Ave.y"]<-"Ave.od"
 # rd.gen<-Calc_Dead_Sev_Ext_Transect(awd2,"GENUS_CODE",c("RDEXTENT1", "RDEXTENT2")); colnames(rd.gen)[colnames(rd.gen)=="Ave.y"]<-"Ave.rd"
@@ -299,21 +314,27 @@ jwd2<-subset(jwd,ISLAND=="Hawaii")
 
 
 # GENERATE SUMMARY METRICS at the SITE-level ---------------------------------------------------
+SURVEY_INFO<-c("SITEVISITID", "OBS_YEAR", "REGION", "REGION_NAME", "ISLAND","ISLANDCODE","SEC_NAME", "SITE", "DATE_", "REEF_ZONE", 
+               "DEPTH_BIN", "LATITUDE", "LONGITUDE","SITE_MIN_DEPTH_FT","SITE_MAX_DEPTH_FT","TRANSECT","COLONYID","GENUS_CODE","TAXONCODE","MORPH_CODE","COLONYLENGTH")
+survey_colony<-Aggregate_InputTable(awd2, SURVEY_INFO)
 
+#at GENUS level
 acd.gen<-Calc_ColDen_Site(awd2,"GENUS_CODE");colnames(acd.gen)[colnames(acd.gen)=="Colabun"]<-"AdColabun";colnames(acd.gen)[colnames(acd.gen)=="ColDen"]<-"AdColDen"# calculate density at genus level as well as total
-size.gen<-Calc_ColMetric_Site(awd2,"GENUS_CODE","COLONYLENGTH"); colnames(size.gen)[colnames(size.gen)=="Ave.y"]<-"Ave.size"
-od.gen<-Calc_ColMetric_Site(awd2,"GENUS_CODE","OLDDEAD"); colnames(od.gen)[colnames(od.gen)=="Ave.y"]<-"Ave.od"
-rd.gen<-Calc_ColMetric_Site(awd2,"GENUS_CODE",c("RDEXTENT1", "RDEXTENT2")); colnames(rd.gen)[colnames(rd.gen)=="Ave.y"]<-"Ave.rd"
-#rdabun.gen<-Calc_RDabun_Site(awd2,"GENUS_CODE") #this function needs more tweaking
-#condabun.gen<-Calc_Condabun_Site(awd2,"GENUS_CODE") #this function needs more tweaking
+size.gen<-Calc_ColMetric_Site(awd2,"GENUS_CODE","COLONYLENGTH"); colnames(size.gen)[colnames(size.gen)=="Ave.y"]<-"Ave.size" #Average colony length
+od.gen<-Calc_ColMetric_Site(awd2,"GENUS_CODE","OLDDEAD"); colnames(od.gen)[colnames(od.gen)=="Ave.y"]<-"Ave.od" #Average % old dead
+rd.gen<-Calc_ColMetric_Site(awd2,"GENUS_CODE",c("RDEXTENT1", "RDEXTENT2")); colnames(rd.gen)[colnames(rd.gen)=="Ave.y"]<-"Ave.rd" #Average % recent dead
+rdden.gen<-Calc_RDden_Site(awd2,"GENUS_CODE") # Density of recent dead colonies by condition, you will need to subset which ever condition you want
+condden.gen<-Calc_Condden_Site(awd2,"GENUS_CODE")# Density of condition colonies by condition, you will need to subset which ever condition you want
+ble.gen<-subset(condden.gen,select = c(SITEVISITID,SITE,GENUS_CODE,BLE)) #subset just bleached colonies
 jcd.gen<-Calc_ColDen_Site(jwd2,"GENUS_CODE"); colnames(jcd.gen)[colnames(jcd.gen)=="Colabun"]<-"JuvColabun";colnames(jcd.gen)[colnames(jcd.gen)=="ColDen"]<-"JuvColDen"
 
-
+#at TAXONCODE level
 acd.tax<-Calc_ColDen_Site(awd2,"TAXONCODE");colnames(acd.tax)[colnames(acd.tax)=="Colabun"]<-"AdColabun";colnames(acd.tax)[colnames(acd.tax)=="ColDen"]<-"AdColDen"# calculate density at genus level as well as total
 od.tax<-Calc_ColMetric_Site(awd2,"TAXONCODE","OLDDEAD"); colnames(od.tax)[colnames(od.tax)=="Ave.y"]<-"Ave.od"
 rd.tax<-Calc_ColMetric_Site(awd2,"TAXONCODE",c("RDEXTENT1", "RDEXTENT2")); colnames(rd.tax)[colnames(rd.tax)=="Ave.y"]<-"Ave.rd"
-#rdabun.tax<-Calc_RDabun_Site(awd2,"TAXONCODE")#this function needs more tweaking
-#condabun.tax<-Calc_Condabun_Site(awd2,"TAXONCODE")#this function needs more tweaking
+rdden.tax<-Calc_RDden_Site(awd2,"GENUS_CODE") 
+condden.tax<-Calc_Condden_Site(awd2,"GENUS_CODE")
+
 jcd.tax<-Calc_ColDen_Site(jwd2,"TAXONCODE"); colnames(jcd.tax)[colnames(jcd.tax)=="Colabun"]<-"JuvColabun";colnames(jcd.tax)[colnames(jcd.tax)=="ColDen"]<-"JuvColDen"
 
 
@@ -345,10 +366,10 @@ sectors<-read.csv("Benthic_SectorArea_v5.csv", stringsAsFactors=FALSE)
 
 
 #Generate a table of metadata at the transect and site level for ADULTS
-SURVEY_INFO<-c("SITEVISITID", "OBS_YEAR", "REGION", "REGION_NAME", "ISLAND","ISLANDCODE","SEC_NAME","SITE", "DATE_", "REEF_ZONE", "DEPTH_BIN", "LATITUDE", "LONGITUDE","SITE_MIN_DEPTH_FT","SITE_MAX_DEPTH_FT","TRANSECT")
+SURVEY_INFO<-c("SITEVISITID", "ANALYSIS_YEAR","OBS_YEAR", "REGION", "REGION_NAME", "ISLAND","ISLANDCODE","SEC_NAME","SITE", "DATE_", "REEF_ZONE", "DEPTH_BIN", "LATITUDE", "LONGITUDE","SITE_MIN_DEPTH_FT","SITE_MAX_DEPTH_FT","TRANSECT")
 survey_transect<-Aggregate_InputTable(awd2, SURVEY_INFO)
 
-SURVEY_INFO<-c("SITEVISITID", "OBS_YEAR", "REGION", "REGION_NAME", "ISLAND","ISLANDCODE","SEC_NAME", "SITE", "DATE_", "REEF_ZONE", "DEPTH_BIN", "LATITUDE", "LONGITUDE","SITE_MIN_DEPTH_FT","SITE_MAX_DEPTH_FT")
+SURVEY_INFO<-c("SITEVISITID","ANALYSIS_YEAR", "OBS_YEAR", "REGION", "REGION_NAME", "ISLAND","ISLANDCODE","SEC_NAME", "SITE", "DATE_", "REEF_ZONE", "DEPTH_BIN", "LATITUDE", "LONGITUDE","SITE_MIN_DEPTH_FT","SITE_MAX_DEPTH_FT")
 survey_site<-Aggregate_InputTable(awd2, SURVEY_INFO)
 
 
@@ -378,9 +399,9 @@ data.tax.a$ANALYSIS_SCHEMA<-data.tax.a$STRATANAME
 data.tax.a$DOMAIN_SCHEMA<-data.tax.a$ISLANDCODE
 
 #Calculate metrics at Strata-level
-test2<-Calc_Strata(data.gen.a,"GENUS_CODE","AdColDen")
+test2<-Calc_Strata(data.gen.a,"GENUS_CODE","DUMMY","AdColDen") #Dummy variable can be ignored, but needs to be listed for this function.
 
 #Calculate metrics at Domain-level
-test3<-Calc_Domain(data.gen.a,"GENUS_CODE","Ave.rd")
+test3<-Calc_Domain(data.gen.a,"GENUS_CODE","DUMMY","AdColDen")#Dummy variable can be ignored, but needs to be listed for this function. We still need to tweak this function since it's providing NAs
 
 
