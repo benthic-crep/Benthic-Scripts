@@ -30,6 +30,7 @@ DATA_COLS<-c("MISSIONID","REGION","REGION_NAME","ISLAND","ISLANDCODE","SITE","LA
              "RECENTDEAD_2",	"RECENT_GENERAL_CAUSE_CODE_2","RECENT_SPECIFIC_CAUSE_CODE_2","DZCODE",
              "EXTENT",	"SEVERITY","GENUS_CODE","S_ORDER","TAXONNAME")
 
+#remove extraneous columns
 head(x[,DATA_COLS])
 x<-x[,DATA_COLS]
 x$Adult_juv<-"A" #add a column that indicates these are adults. This will be useful later on if we merge adult and juv datasets and also useful for Calc_ColDen_Site function
@@ -260,7 +261,6 @@ awd<-subset(awd,TRANSECTAREA>=5)
 nrow(awd)
 head(awd)
 
-
 ##Change Transects 3 and 4 in the juvenile data to 1 and 2 so we can merge with adult data
 jwd$TRANSECT[jwd$TRANSECT == "3"] <- "1"
 jwd$TRANSECT[jwd$TRANSECT == "4"] <- "2"
@@ -309,8 +309,6 @@ jwd2<-subset(jwd,ISLAND=="Oahu")
 # data.tax<-Reduce(MyMerge, list(acd.tax,od.tax,rd.tax,jcd.tax))
 # data.tax$JuvColabun[is.na(data.tax$JuvColabun)]<-0;data.tax$JuvColDen[is.na(data.tax$JuvColDen)]<-0
 # data.tax$AdColabun[is.na(data.tax$AdColabun)]<-0;data.tax$AdColDen[is.na(data.tax$AdColDen)]<-0
-
-#add dummy field here
 
 
 # GENERATE SUMMARY METRICS at the SITE-level ---------------------------------------------------
@@ -373,10 +371,6 @@ SURVEY_INFO<-c("SITEVISITID","ANALYSIS_YEAR", "OBS_YEAR", "REGION", "REGION_NAME
 survey_site<-Aggregate_InputTable(awd2, SURVEY_INFO)
 
 
-#Pull all species information into a separate df, for possible later use ..
-TAXON_MORPH_FIELDS<-c("TAXONCODE","GENUS_CODE", "S_ORDER", "TAXMORPH", "GENMORPH","MORPH_CODE")
-taxon_morph_table<-Aggregate_InputTable(awd, TAXON_MORPH_FIELDS)
-save(taxon_morph_table, file="TMPtaxonmorph.Rdata")
 
 #Merge together survey meta data and sector area files and check for missmatches 
 meta<-merge(survey_site,sectors,by=c("REGION","SEC_NAME","ISLAND","REEF_ZONE","DEPTH_BIN"),all.x=TRUE)
@@ -399,9 +393,9 @@ data.tax.a$ANALYSIS_SCHEMA<-data.tax.a$STRATANAME
 data.tax.a$DOMAIN_SCHEMA<-data.tax.a$ISLANDCODE
 
 #Calculate metrics at Strata-level
-test2<-Calc_Strata(data.gen.a,"GENUS_CODE","DUMMY","AdColDen") #Dummy variable can be ignored, but needs to be listed for this function.
+adcolden_st<-Calc_Strata(data.gen.a,"GENUS_CODE","DUMMY","AdColDen") #Dummy variable can be ignored, but needs to be listed for this function.
 
 #Calculate metrics at Domain-level
-test3<-Calc_Domain(data.gen.a,"GENUS_CODE","DUMMY","AdColDen")#Dummy variable can be ignored, but needs to be listed for this function. We still need to tweak this function since it's providing NAs
+adcolden_is<-Calc_Domain(data.gen.a,"GENUS_CODE","DUMMY","AdColDen")#Dummy variable can be ignored, but needs to be listed for this function. We still need to tweak this function since it's providing NAs
 
 

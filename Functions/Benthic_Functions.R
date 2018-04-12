@@ -251,12 +251,12 @@ Calc_ColDen_Site<-function(data, grouping_field="S_ORDER",other_field="DUMMY"){
   trarea<-Calc_SurveyArea_By_Site(data)
   
   #Remove scleractinan adult colony fragments
-  scl<-subset(data,COLONYLENGTH>5&S_ORDER=="Scleractinia"&Adult_juv=="A"|S_ORDER=="Scleractinia"&Adult_juv=="J")
+  scl<-subset(data,COLONYLENGTH>5&S_ORDER=="Scleractinia"& Adult_juv=="A"|S_ORDER=="Scleractinia"&Adult_juv=="J") #mess with this to include paraenthes
   
   scl$GROUP<-scl[,grouping_field]
   scl$OTHER<-scl[,other_field]
   
-  colden<-ddply(scl, .(SITE,SITEVISITID, OTHER,GROUP),
+  colden<-ddply(scl, .(SITE,SITEVISITID, OTHER,GROUP), #change colabun to COUNT
                 summarise,
                 Colabun=length(COLONYID)) #change to count
   
@@ -269,7 +269,7 @@ Calc_ColDen_Site<-function(data, grouping_field="S_ORDER",other_field="DUMMY"){
   cd<-dcast(colden2, formula=SITE + SITEVISITID +OTHER ~ GROUP, value.var="ColDen",fill=0)
   ca<-dcast(colden2, formula=SITE + SITEVISITID +OTHER ~ GROUP, value.var="Colabun",fill=0)
 
-  cd$SSSS<-rowSums(cd[,names(cd[4:dim(cd)[2]]),drop=FALSE]) #calculate total colony density
+  cd$SSSS<-rowSums(cd[,names(cd[4:dim(cd)[2]]),drop=FALSE]) #calculate total colony density DOUBLE CHECK COMMAS
   cd <- gather(cd, GROUP, ColDen, names(cd[4:dim(cd)[2]]), factor_key=TRUE) #convert wide to long format
   
   ca$SSSS<-rowSums(ca[,names(ca[4:dim(ca)[2]]),drop=FALSE]) #calculate total colony density
@@ -449,12 +449,12 @@ Calc_Strata=function(site_data,grouping_field,other_field="DUMMY",metric_field=c
   #Calculate summary metrics at the stratum level (rolled up from site level)
   Strata_roll=ddply(site_data,.(ANALYSIS_YEAR,DOMAIN_SCHEMA,ANALYSIS_SCHEMA,OTHER,GROUP),summarize,
                     n_h=length(SITE),# No. of Sites surveyed in a Strata
-                    N_h=median(N_h.as,na.rm=T),# Strata Area (as N 50x50 grids)
-                    w_h=median(w_h.as,na.rm=T),# weigting factor for a given stratum
-                    D._h=mean(METRIC,na.rm=T), # Mean of Site-Level Density in a Stratum
-                    S1_h=var(METRIC,na.rm=T), #sample variance in density between sites
+                    N_h=median(N_h.as,na.rm=T),# Strata Area (as N 50x50 grids) - median allows you to pick 1 value
+                    w_h=median(w_h.as,na.rm=T),# weigting factor for a given stratum- median allows you to pick 1 value
+                    D._h=mean(METRIC,na.rm=T), # Mean of Site-Level metric in a Stratum
+                    S1_h=var(METRIC,na.rm=T), #sample variance in metric between sites
                     varD._h=(1-(n_h/N_h))*S1_h/n_h, #Strata level  variance of mean density
-                    Y._h=D._h*N_h*250, #total colony abundance in stratum (Mhi=250)
+                    Y._h=D._h*N_h*250, #total colony abundance in stratum (Mhi=250) 
                     varY._h=varD._h*N_h^2, #variance in total abundance 
                     SE_D._h=sqrt(varD._h),
                     CV_D._h=SE_D._h/D._h,
@@ -515,6 +515,89 @@ Calc_Domain=function(site_data,grouping_field="S_ORDER",other_field="DUMMY",metr
   return(Domain_roll)
 }
 
+
+
+#####Need to have different functions for strat and domain for % metrics 
+#add proprtion occurence
+
+
+#Roll up functions for Benthic Cover Estimates
+#STRATA ROLL UP FUNCTION-This function calculates mean, var, SE and CV at the strata level. I've built in flexilbity to use either genus or taxoncode
+# You can input any metric you would like (eg. adult density, mean % old dead,etc). Note that for any metric that does not involve density of colonies, 
+# Y._h (total colony abundance in stratum),varY._h (variance in total abundance), SE_Y._h and CV_Y._h are meaningless-DO NOT USE
+#Note: for whatever reason, the grouping, other and metric fields need to be in this order. If you don't want to include an other field then add "DUMMY" as the second variable when you are running this function.
+#e.g. st<-Calc_Strata(data.mon,"GENUS_CODE","DUMMY","ColDen")
+
+Calc_Strata_Cover=function(site_data,metric_field=c("CCA","CORAL","TURF","MA","RBratio"),M_hi=250){
+  
+  #Build in flexibility to summarized different metrics
+  site_data$METRIC<-site_data[,metric_field]
+  site_data$METRIC<-as.numeric(site_data$METRIC)
+  
+  #For a Given ANALYSIS_SCHEMA, we need to pool N_h, and generate w_h
+  Strata_NH<-ddply(site_data,.(OBS_YEAR,DOMAIN_SCHEMA,ANALYSIS_SCHEMA,STRATANAME),summarize,N_h=median(NH,na.rm=TRUE)) #calculate # of possible sites in a given stratum
+  Schema_NH<-ddply(Strata_NH,.(OBS_YEAR,DOMAIN_SCHEMA,ANALYSIS_SCHEMA),summarize,N_h=sum(N_h,na.rm=TRUE))#calculate # of possible sites in a given schema
+  Dom_NH<-ddply(Schema_NH,.(OBS_YEAR,DOMAIN_SCHEMA),summarize,Dom_N_h=sum(N_h,na.rm=TRUE))#calculate # of possible sites in a given domain
+  Schema_NH$Dom_N_h<-Dom_NH$Dom_N_h[match(Schema_NH$DOMAIN_SCHEMA,Dom_NH$DOMAIN_SCHEMA)]# add Dom_N_h to schema dataframe
+  Schema_NH$w_h<-Schema_NH$N_h/Schema_NH$Dom_N_h # add schema weighting factor to schema dataframe
+  
+  #Now add back the Analysis_Schema Nh and wh to site_data
+  site_data$N_h.as<-Schema_NH$N_h[match(site_data$ANALYSIS_SCHEMA,Schema_NH$ANALYSIS_SCHEMA)]
+  site_data$w_h.as<-Schema_NH$w_h[match(site_data$ANALYSIS_SCHEMA,Schema_NH$ANALYSIS_SCHEMA)]
+  
+  #Calculate summary metrics at the stratum level (rolled up from site level)
+  Strata_roll=ddply(site_data,.(OBS_YEAR,DOMAIN_SCHEMA,ANALYSIS_SCHEMA),summarize,
+                    n_h=length(SITE),# No. of Sites surveyed in a Strata
+                    N_h=median(N_h.as,na.rm=T),# Strata Area (as N 50x50 grids)
+                    w_h=median(w_h.as,na.rm=T),# weigting factor for a given stratum
+                    D._h=mean(METRIC,na.rm=T), # Mean of Site-Level Density in a Stratum
+                    S1_h=var(METRIC,na.rm=T), #sample variance in density between sites
+                    varD._h=(1-(n_h/N_h))*S1_h/n_h, #Strata level  variance of mean density
+                    Y._h=D._h*N_h*250, #total colony abundance in stratum (Mhi=250)
+                    varY._h=varD._h*N_h^2, #variance in total abundance 
+                    SE_D._h=sqrt(varD._h),
+                    CV_D._h=SE_D._h/D._h,
+                    SE_Y._h=sqrt(varY._h),
+                    CV_Y._h=SE_Y._h/Y._h)
+  
+  Strata_roll$M_hi=250 #define total possible transects in a site
+  Strata_roll=Strata_roll[,c("OBS_YEAR","DOMAIN_SCHEMA","ANALYSIS_SCHEMA",
+                             "M_hi","n_h","N_h","w_h",
+                             "D._h","S1_h","varD._h","SE_D._h","CV_D._h",
+                             "Y._h","varY._h","SE_Y._h","CV_Y._h")]
+  
+  #remove strata that have only 1 site because you can't calculate variance
+  Strata_roll<-Strata_roll[Strata_roll$n_h>1,]
+
+  return(Strata_roll)
+}
+
+
+#DOMAIN ROLL UP FUNCTION-This function calculates mean, var, SE and CV at the DOMAIN level. I've built in flexilbity to use either genus or taxoncode as well as other metrics (size class, morph)
+# You can input any metric you would like (eg. adult density, mean % old dead,etc). Note that for any metric that does not involve density of colonies, 
+# Y._h (total colony abundance in stratum),varY._h (variance in total abundance), SE_Y._h and CV_Y._h are meaningless-DO NOT USE
+Calc_Domain_Cover=function(site_data,metric_field=c("CCA","CORAL","TURF","MA","RBratio")){
+  
+  Strata_data=Calc_Strata_Cover(site_data,metric_field)
+  
+  DomainStr_NH=ddply(Strata_data,.(OBS_YEAR,DOMAIN_SCHEMA),summarize,N_h=sum(N_h,na.rm=TRUE)) #total possible sites in a domain
+  Strata_data$DomainSumN_h=DomainStr_NH$N_h[match(Strata_data$DOMAIN_SCHEMA,DomainStr_NH$DOMAIN_SCHEMA)] # add previous to strata data
+  Strata_data$w_h=Strata_data$N_h/Strata_data$DomainSumN_h
+  
+  Domain_roll=ddply(Strata_data,.(OBS_YEAR,DOMAIN_SCHEMA),summarize,
+                    D._st=sum(w_h*D._h,na.rm=TRUE), #Domain weighted estimate (sum of Weighted strata density)
+                    varD._st=sum(w_h^2*varD._h,na.rm=TRUE), #Domain weighted variance estimate
+                    Y._st=sum(Y._h,na.rm=TRUE), #Domain total abundance (sum of extrapolated strata abundance)
+                    varY._st=sum(varY._h,na.rm=TRUE),#Domain variance total abundance (sum of extrapolated strata varaiance abundance)
+                    n=sum(n_h,na.rm=TRUE), #total sites surveyed in domain
+                    N=sum(N_h,na.rm=TRUE), #total possible sites in domain
+                    SE_varD._st=sqrt(varD._st), #SE of domain metric estimate
+                    CV_varD._st=SE_varD._st/D._st, #CV of domain metric estimate
+                    SE_varY._st=sqrt(varY._st),#SE of domain abundance estimate
+                    CV_varY._st=SE_varY._st/Y._st)#CV of domain abundnace estimate
+  
+  return(Domain_roll)
+}
 
 
 
