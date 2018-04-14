@@ -11,7 +11,7 @@ source("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/lib/core_functions
 ## LOAD benthic data
 setwd("C:/Users/Courtney.S.Couch/Documents/Courtney's Files/R Files/ESD/Benthic REA")
 load("ALL_REA_ADULTCORAL_RAW.rdata") #from oracle
-x<-df
+x<-df #leave this as df
 
 x$SITE<-SiteNumLeadingZeros(x$SITE) # Change site number such as MAR-22 to MAR-0022
 
@@ -53,11 +53,11 @@ colnames(x)[colnames(x)=="DZCODE"]<-"COND" #Change column name
 
 head(x)
 
-#Create a list of sites only surveyed for photoquads
-SURVEY_INFO<-c("NO_SURVEY_YN","SITEVISITID","OBS_YEAR", "REGION", "REGION_NAME", "ISLAND","ISLANDCODE", "SITE", "DATE_", "REEF_ZONE", "DEPTH_BIN", "LATITUDE", "LONGITUDE","SITE_MIN_DEPTH_FT","SITE_MAX_DEPTH_FT")
-pq_only<-Aggregate_InputTable(x, SURVEY_INFO)
-pq<-subset(pq_only,NO_SURVEY_YN==-1)
-
+# #Create a list of sites only surveyed for photoquads
+# SURVEY_INFO<-c("NO_SURVEY_YN","SITEVISITID","OBS_YEAR", "REGION", "REGION_NAME", "ISLAND","ISLANDCODE", "SITE", "DATE_", "REEF_ZONE", "DEPTH_BIN", "LATITUDE", "LONGITUDE","SITE_MIN_DEPTH_FT","SITE_MAX_DEPTH_FT")
+# pq_only<-Aggregate_InputTable(x, SURVEY_INFO)
+# pq<-subset(pq_only,NO_SURVEY_YN==-1)
+# 
 
 
 #read in list of taxa that we feel comfortable identifying to species or genus level. Note, taxa lists vary by year and region. This will need to be updated through time.
@@ -65,13 +65,35 @@ taxa<-read.csv("2013-17_Taxa_MASTER.csv")
 
 nrow(x)
 
+gsample$Continent <- with(gsample, ifelse(MAKE=='HOLDEN', 'AUS', Continent))
+
 #Convert SPCODE in raw colony data to TAXONCODE -generates a look up table
 x.<-Convert_to_Taxoncode(x)
-utils::View(x.) #view data in separate window
+
+#There are some SPCODES that were a combination of taxa and weren't included in the complete taxa list
+#Change these unknown genus or taxoncodes to the spcode and the remaining NAs in the Taxon and genus code to AAAA
+x.$GENUS_CODE<-as.character(x.$GENUS_CODE)
+x.$SPCODE<-as.character(x.$SPCODE)
+x.$TAXONCODE<-as.character(x.$TAXONCODE)
+
+x.$GENUS_CODE<-ifelse(is.na(x.$GENUS_CODE)&x.$S_ORDER=="Scleractinia",x.$SPCODE,x.$GENUS_CODE)
+x.$TAXONCODE<-ifelse(is.na(x.$TAXONCODE)&x.$S_ORDER=="Scleractinia",x.$SPCODE,x.$TAXONCODE)
+
+x.$TAXONCODE[is.na(x.$TAXONCODE)]<-"AAAA" #change nas to AAAA
+x.$GENUS_CODE[is.na(x.$GENUS_CODE)]<-"AAAA"#change nas to AAAA
+#utils::View(x.) #view data in separate window
+
+#Check that Unknown scl were changed correctly
+test<-subset(x.,TAXONCODE=="UNKN"&S_ORDER=="Scleractinia");head(test)
+test<-subset(x.,GENUS_CODE=="UNKN"&S_ORDER=="Scleractinia");head(test)
+test<-subset(x.,GENUS_CODE=="AAAA");head(test)
+
 #Confirm that no rows were dropped during merge
 nrow(x)
 nrow(x.)
 x<-x.
+
+
 
 #Create new colummns that combine species, genus and morphology
 x$TAXMORPH<-paste(x$TAXONCODE,x$MORPH_CODE,sep="")
@@ -216,14 +238,32 @@ nrow(x)
 #read in list of taxa that we feel comfortable identifying to species or genus level. Note, taxa lists vary by year and region. This will need to be updated through time.
 taxa<-read.csv("2013-17_Taxa_MASTER.csv")
 
-#Convert SPCODE in raw colony data to taxoncode -generates a look up table
+#Convert SPCODE in raw colony data to TAXONCODE -generates a look up table
 x.<-Convert_to_Taxoncode(x)
-utils::View(x.) #view data in separate window
+
+#There are some SPCODES that were a combination of taxa and weren't included in the complete taxa list
+#Change these unknown genus or taxoncodes to the spcode and the remaining NAs in the Taxon and genus code to AAAA
+x.$GENUS_CODE<-as.character(x.$GENUS_CODE)
+x.$SPCODE<-as.character(x.$SPCODE)
+x.$TAXONCODE<-as.character(x.$TAXONCODE)
+
+x.$GENUS_CODE<-ifelse(is.na(x.$GENUS_CODE)&x.$S_ORDER=="Scleractinia",x.$SPCODE,x.$GENUS_CODE)
+x.$TAXONCODE<-ifelse(is.na(x.$TAXONCODE)&x.$S_ORDER=="Scleractinia",x.$SPCODE,x.$TAXONCODE)
+
+x.$TAXONCODE[is.na(x.$TAXONCODE)]<-"AAAA" #change nas to AAAA
+x.$GENUS_CODE[is.na(x.$GENUS_CODE)]<-"AAAA"#change nas to AAAA
+#utils::View(x.) #view data in separate window
+
+#Check that Unknown scl were changed correctly
+test<-subset(x.,TAXONCODE=="UNKN"&S_ORDER=="Scleractinia");head(test)
+test<-subset(x.,GENUS_CODE=="UNKN"&S_ORDER=="Scleractinia");head(test)
+test<-subset(x.,GENUS_CODE=="AAAA");head(test)
+
 #Confirm that no rows were dropped during merge
 nrow(x)
 nrow(x.)
 x<-x.
-head(x)
+
 
 #CHECK THAT all SEC_CODES are present in the site_master file
 test<-x[is.na(x$BENTHIC_SEC_CODE), c("REGION", "SITE","OBS_YEAR"),]
@@ -255,6 +295,18 @@ jwd<-droplevels(x)
 #Final Tweaks before calculating Site-level data-------------------------------------------------
 #Colony fragments and scleractinans are subseted in the functions 
 
+#Double check that there are no NAs in GENUS_CODE
+new_DF <- awd[is.na(awd$GENUS_CODE),] 
+
+#Add a DUMMY column to data frames. This will allow you to have greater flexibility in the subsequent functions to include different variables (e.g. morphology, size class, etc)
+#you can easily remove this column after pooling to the domain level
+awd$DUMMY<-"DUMMY"
+jwd$DUMMY<-"DUMMY"
+
+#Add a column for adult fragments we we can remove them from the dataset later (-1 indicates fragment)
+awd$Fragment<-ifelse(awd$COLONYLENGTH<5&awd$S_ORDER=="Scleractinia",-1,0)
+jwd$Fragment<-0 # you need to add this column so that you can use the site level functions correctly
+
 #Remove transects with less than 5m surveyed and check how many rows were removed
 nrow(awd)
 awd<-subset(awd,TRANSECTAREA>=5) 
@@ -262,38 +314,97 @@ nrow(awd)
 head(awd)
 
 ##Change Transects 3 and 4 in the juvenile data to 1 and 2 so we can merge with adult data
+#BE CAREFUL- because we survey different areas for adults and juveniles you can not merge together ad and juvs until AFTER you calculate density
 jwd$TRANSECT[jwd$TRANSECT == "3"] <- "1"
 jwd$TRANSECT[jwd$TRANSECT == "4"] <- "2"
 
-#Add a DUMMY column to data frames. This will allow you to have greater flexibility in the subsequent functions to include different variables (e.g. morphology, size class, etc)
-#you can easily remove this column after pooling to the domain level
-awd$DUMMY<-"DUMMY"
-jwd$DUMMY<-"DUMMY"
 
 #test functions on HAWAII ISLAND data to test code
 awd2<-subset(awd,ISLAND=="Oahu")
 jwd2<-subset(jwd,ISLAND=="Oahu")
 
+#Create a look a table of all of the colony attributes- you will need this for the Calc_RDden and Calc_Condden functions
+SURVEY_INFO<-c("SITEVISITID", "OBS_YEAR", "REGION", "REGION_NAME", "ISLAND","ISLANDCODE","SEC_NAME", "SITE", "DATE_", "REEF_ZONE",
+               "DEPTH_BIN", "LATITUDE", "LONGITUDE","SITE_MIN_DEPTH_FT","SITE_MAX_DEPTH_FT","TRANSECT","COLONYID","GENUS_CODE","TAXONCODE","MORPH_CODE","COLONYLENGTH")
+survey_colony<-Aggregate_InputTable(awd2, SURVEY_INFO)
 
-# # GENERATE SUMMARY METRICS at the transect-level This code needs to be updated to match SITE LEVEL --------------------------------------------------
-# acd.gen<-Calc_ColDen_Transect(awd2,"GENUS_CODE");colnames(acd.gen)[colnames(acd.gen)=="Colabun"]<-"AdColabun";colnames(acd.gen)[colnames(acd.gen)=="ColDen"]<-"AdColDen"# calculate density at genus level as well as total
-# od.gen<-Calc_Dead_Sev_Ext_Transect(awd2,"GENUS_CODE","OLDDEAD"); colnames(od.gen)[colnames(od.gen)=="Ave.y"]<-"Ave.od"
-# rd.gen<-Calc_Dead_Sev_Ext_Transect(awd2,"GENUS_CODE",c("RDEXTENT1", "RDEXTENT2")); colnames(rd.gen)[colnames(rd.gen)=="Ave.y"]<-"Ave.rd"
-# rdabun.gen<-Calc_RDabun_Transect(awd2,"GENUS_CODE")
-# condabun.gen<-Calc_Condabun_Transect(awd2,"GENUS_CODE")
-# jcd.gen<-Calc_ColDen_Transect(jwd2,"GENUS_CODE"); colnames(jcd.gen)[colnames(jcd.gen)=="Colabun"]<-"JuvColabun";colnames(jcd.gen)[colnames(jcd.gen)=="ColDen"]<-"JuvColDen"
+
+# GENERATE SUMMARY METRICS at the transect-level  --------------------------------------------------
+
+acd.gen<-Calc_ColDen_Transect(awd2,"GENUS_CODE");colnames(acd.gen)[colnames(acd.gen)=="ColCount"]<-"AdColCount";colnames(acd.gen)[colnames(acd.gen)=="ColDen"]<-"AdColDen"# calculate density at genus level as well as total
+size.gen<-Calc_ColMetric_Transect(awd2,"GENUS_CODE","COLONYLENGTH"); colnames(size.gen)[colnames(size.gen)=="Ave.y"]<-"Ave.size" #Average colony length
+od.gen<-Calc_ColMetric_Transect(awd2,"GENUS_CODE","OLDDEAD"); colnames(od.gen)[colnames(od.gen)=="Ave.y"]<-"Ave.od" #Average % old dead
+rd.gen<-Calc_ColMetric_Transect(awd2,"GENUS_CODE",c("RDEXTENT1", "RDEXTENT2")); colnames(rd.gen)[colnames(rd.gen)=="Ave.y"]<-"Ave.rd" #Average % recent dead
+# rdden.gen<-Calc_RDden_Transect(awd2,"GENUS_CODE") # Density of recent dead colonies by condition, you will need to subset which ever condition you want
+# condden.gen<-Calc_Condden_Transect(awd2,"GENUS_CODE")# Density of condition colonies by condition, you will need to subset which ever condition you want
+# ble.gen<-subset(condden.gen,select = c(SITEVISITID,SITE,GENUS_CODE,BLE)) #subset just bleached colonies
+jcd.gen<-Calc_ColDen_Transect(jwd2,"GENUS_CODE"); colnames(jcd.gen)[colnames(jcd.gen)=="ColCount"]<-"JuvColCount";colnames(jcd.gen)[colnames(jcd.gen)=="ColDen"]<-"JuvColDen"
+
+#at TAXONCODE level
+acd.tax<-Calc_ColDen_Transect(awd2,"TAXONCODE");colnames(acd.tax)[colnames(acd.tax)=="ColCount"]<-"AdColCount";colnames(acd.tax)[colnames(acd.tax)=="ColDen"]<-"AdColDen"# calculate density at genus level as well as total
+od.tax<-Calc_ColMetric_Transect(awd2,"TAXONCODE","OLDDEAD"); colnames(od.tax)[colnames(od.tax)=="Ave.y"]<-"Ave.od"
+rd.tax<-Calc_ColMetric_Transect(awd2,"TAXONCODE",c("RDEXTENT1", "RDEXTENT2")); colnames(rd.tax)[colnames(rd.tax)=="Ave.y"]<-"Ave.rd"
+#rdden.tax<-Calc_RDden_Transect(awd2,"GENUS_CODE") 
+condden.tax<-Calc_Condden_Transect(awd2,"GENUS_CODE")
+
+jcd.tax<-Calc_ColDen_Transect(jwd2,"TAXONCODE"); colnames(jcd.tax)[colnames(jcd.tax)=="ColCount"]<-"JuvColCount";colnames(jcd.tax)[colnames(jcd.tax)=="ColDen"]<-"JuvColDen"
+
+
+#Merge density and partial moratlity data together.You will need to replace the DUMMY field with the one you want
+MyMerge <- function(x, y){
+  df <- merge(x, y, by= c("SITE","SITEVISITID","TRANSECT","DUMMY","GENUS_CODE"), all.x= TRUE, all.y= TRUE)
+  return(df)
+}
+data.gen<-Reduce(MyMerge, list(acd.gen,size.gen,od.gen,rd.gen,jcd.gen));
+
+#Change NAs for abunanance and density metrics to 0. Don't change NAs in the partial mortality columns to 0
+data.gen$JuvColCount[is.na(data.gen$JuvColCount)]<-0;data.gen$JuvColDen[is.na(data.gen$JuvColDen)]<-0
+data.gen$AdColCount[is.na(data.gen$AdColCount)]<-0;data.gen$AdColDen[is.na(data.gen$AdColDen)]<-0
+
+MyMerge <- function(x, y){
+  df <- merge(x, y, by= c("SITE","SITEVISITID","TRANSECT","DUMMY","TAXONCODE"), all.x= TRUE, all.y= TRUE)
+  return(df)
+}
+data.tax<-Reduce(MyMerge, list(acd.tax,od.tax,rd.tax,jcd.tax))
+data.tax$JuvColabun[is.na(data.tax$JuvColabun)]<-0;data.tax$JuvColDen[is.na(data.tax$JuvColDen)]<-0
+data.tax$AdColabun[is.na(data.tax$AdColabun)]<-0;data.tax$AdColDen[is.na(data.tax$AdColDen)]<-0
+
+
+#GENERATE SITE-LEVEL DATA BY AVERAGING TRANSECTS-----------------------------------
+#Since we are moving to a 1 stage design, we need to summarize the transects before rolling up to site.
+#Dione suggested that we calculate mean of 2 transects rather than pooling or dropping a transect
+
+#define columns you would like to average
+data.cols<-c("AdColDen","Ave.size","Ave.od","Ave.rd","JuvColDen")
+
+#now average metrics to site level
+site.data.gen<-aggregate(data.gen[,data.cols], by = data.gen[,c("SITEVISITID", "SITE","DUMMY", "GENUS_CODE")],  mean)
+
+
+# # GENERATE SITE-LEVEL BY POOLING TRANSECTS---------------------------------------------------
+# # at GENUS-level
+# acd.gen<-Calc_ColDen_Site(awd2,"GENUS_CODE");colnames(acd.gen)[colnames(acd.gen)=="Colabun"]<-"AdColabun";colnames(acd.gen)[colnames(acd.gen)=="ColDen"]<-"AdColDen"# calculate density at genus level as well as total
+# size.gen<-Calc_ColMetric_Site(awd2,"GENUS_CODE","COLONYLENGTH"); colnames(size.gen)[colnames(size.gen)=="Ave.y"]<-"Ave.size" #Average colony length
+# od.gen<-Calc_ColMetric_Site(awd2,"GENUS_CODE","OLDDEAD"); colnames(od.gen)[colnames(od.gen)=="Ave.y"]<-"Ave.od" #Average % old dead
+# rd.gen<-Calc_ColMetric_Site(awd2,"GENUS_CODE",c("RDEXTENT1", "RDEXTENT2")); colnames(rd.gen)[colnames(rd.gen)=="Ave.y"]<-"Ave.rd" #Average % recent dead
+# rdden.gen<-Calc_RDden_Site(awd2,"GENUS_CODE") # Density of recent dead colonies by condition, you will need to subset which ever condition you want
+# condden.gen<-Calc_Condden_Site(awd2,"GENUS_CODE")# Density of condition colonies by condition, you will need to subset which ever condition you want
+# ble.gen<-subset(condden.gen,select = c(SITEVISITID,SITE,GENUS_CODE,BLE)) #subset just bleached colonies
+# jcd.gen<-Calc_ColDen_Site(jwd2,"GENUS_CODE"); colnames(jcd.gen)[colnames(jcd.gen)=="Colabun"]<-"JuvColabun";colnames(jcd.gen)[colnames(jcd.gen)=="ColDen"]<-"JuvColDen"
+# 
+# #at TAXONCODE level
+# acd.tax<-Calc_ColDen_Site(awd2,"TAXONCODE");colnames(acd.tax)[colnames(acd.tax)=="Colabun"]<-"AdColabun";colnames(acd.tax)[colnames(acd.tax)=="ColDen"]<-"AdColDen"# calculate density at genus level as well as total
+# od.tax<-Calc_ColMetric_Site(awd2,"TAXONCODE","OLDDEAD"); colnames(od.tax)[colnames(od.tax)=="Ave.y"]<-"Ave.od"
+# rd.tax<-Calc_ColMetric_Site(awd2,"TAXONCODE",c("RDEXTENT1", "RDEXTENT2")); colnames(rd.tax)[colnames(rd.tax)=="Ave.y"]<-"Ave.rd"
+# rdden.tax<-Calc_RDden_Site(awd2,"GENUS_CODE") 
+# condden.tax<-Calc_Condden_Site(awd2,"GENUS_CODE")
+# 
+# jcd.tax<-Calc_ColDen_Site(jwd2,"TAXONCODE"); colnames(jcd.tax)[colnames(jcd.tax)=="Colabun"]<-"JuvColabun";colnames(jcd.tax)[colnames(jcd.tax)=="ColDen"]<-"JuvColDen"
 # 
 # 
-# acd.tax<-Calc_ColDen_Transect(awd2,"TAXONCODE");colnames(acd.tax)[colnames(acd.tax)=="Colabun"]<-"AdColabun";colnames(acd.tax)[colnames(acd.tax)=="ColDen"]<-"AdColDen"# calculate density at genus level as well as total
-# od.tax<-Calc_Dead_Sev_Ext_Transect(awd2,"TAXONCODE","OLDDEAD"); colnames(od.tax)[colnames(od.tax)=="Ave.y"]<-"Ave.od"
-# rd.tax<-Calc_Dead_Sev_Ext_Transect(awd2,"TAXONCODE",c("RDEXTENT1", "RDEXTENT2")); colnames(rd.tax)[colnames(rd.tax)=="Ave.y"]<-"Ave.rd"
-# rdabun.tax<-Calc_RDabun_Transect(awd2,"TAXONCODE")
-# condabun.tax<-Calc_Condabun_Transect(awd2,"TAXONCODE")
-# jcd.tax<-Calc_ColDen_Transect(jwd2,"TAXONCODE"); colnames(jcd.tax)[colnames(jcd.tax)=="Colabun"]<-"JuvColabun";colnames(jcd.tax)[colnames(jcd.tax)=="ColDen"]<-"JuvColDen"
-# 
-# #Merge density and partial moratlity data together. R
+# #Merge density and partial moratlity data together.You will need to replace the DUMMY field with the one you want
 # MyMerge <- function(x, y){
-#   df <- merge(x, y, by= c("SITE","SITEVISITID","TRANSECT","GENUS_CODE"), all.x= TRUE, all.y= TRUE)
+#   df <- merge(x, y, by= c("SITE","SITEVISITID","DUMMY","GENUS_CODE"), all.x= TRUE, all.y= TRUE)
 #   return(df)
 # }
 # data.gen<-Reduce(MyMerge, list(acd.gen,od.gen,rd.gen,jcd.gen));
@@ -303,58 +414,13 @@ jwd2<-subset(jwd,ISLAND=="Oahu")
 # data.gen$AdColabun[is.na(data.gen$AdColabun)]<-0;data.gen$AdColDen[is.na(data.gen$AdColDen)]<-0
 # 
 # MyMerge <- function(x, y){
-#   df <- merge(x, y, by= c("SITE","SITEVISITID","TRANSECT","TAXONCODE"), all.x= TRUE, all.y= TRUE)
+#   df <- merge(x, y, by= c("SITE","SITEVISITID","DUMMY","TAXONCODE"), all.x= TRUE, all.y= TRUE)
 #   return(df)
 # }
 # data.tax<-Reduce(MyMerge, list(acd.tax,od.tax,rd.tax,jcd.tax))
 # data.tax$JuvColabun[is.na(data.tax$JuvColabun)]<-0;data.tax$JuvColDen[is.na(data.tax$JuvColDen)]<-0
 # data.tax$AdColabun[is.na(data.tax$AdColabun)]<-0;data.tax$AdColDen[is.na(data.tax$AdColDen)]<-0
-
-
-# GENERATE SUMMARY METRICS at the SITE-level ---------------------------------------------------
-SURVEY_INFO<-c("SITEVISITID", "OBS_YEAR", "REGION", "REGION_NAME", "ISLAND","ISLANDCODE","SEC_NAME", "SITE", "DATE_", "REEF_ZONE", 
-               "DEPTH_BIN", "LATITUDE", "LONGITUDE","SITE_MIN_DEPTH_FT","SITE_MAX_DEPTH_FT","TRANSECT","COLONYID","GENUS_CODE","TAXONCODE","MORPH_CODE","COLONYLENGTH")
-survey_colony<-Aggregate_InputTable(awd2, SURVEY_INFO)
-
-#at GENUS level
-acd.gen<-Calc_ColDen_Site(awd2,"GENUS_CODE");colnames(acd.gen)[colnames(acd.gen)=="Colabun"]<-"AdColabun";colnames(acd.gen)[colnames(acd.gen)=="ColDen"]<-"AdColDen"# calculate density at genus level as well as total
-size.gen<-Calc_ColMetric_Site(awd2,"GENUS_CODE","COLONYLENGTH"); colnames(size.gen)[colnames(size.gen)=="Ave.y"]<-"Ave.size" #Average colony length
-od.gen<-Calc_ColMetric_Site(awd2,"GENUS_CODE","OLDDEAD"); colnames(od.gen)[colnames(od.gen)=="Ave.y"]<-"Ave.od" #Average % old dead
-rd.gen<-Calc_ColMetric_Site(awd2,"GENUS_CODE",c("RDEXTENT1", "RDEXTENT2")); colnames(rd.gen)[colnames(rd.gen)=="Ave.y"]<-"Ave.rd" #Average % recent dead
-rdden.gen<-Calc_RDden_Site(awd2,"GENUS_CODE") # Density of recent dead colonies by condition, you will need to subset which ever condition you want
-condden.gen<-Calc_Condden_Site(awd2,"GENUS_CODE")# Density of condition colonies by condition, you will need to subset which ever condition you want
-ble.gen<-subset(condden.gen,select = c(SITEVISITID,SITE,GENUS_CODE,BLE)) #subset just bleached colonies
-jcd.gen<-Calc_ColDen_Site(jwd2,"GENUS_CODE"); colnames(jcd.gen)[colnames(jcd.gen)=="Colabun"]<-"JuvColabun";colnames(jcd.gen)[colnames(jcd.gen)=="ColDen"]<-"JuvColDen"
-
-#at TAXONCODE level
-acd.tax<-Calc_ColDen_Site(awd2,"TAXONCODE");colnames(acd.tax)[colnames(acd.tax)=="Colabun"]<-"AdColabun";colnames(acd.tax)[colnames(acd.tax)=="ColDen"]<-"AdColDen"# calculate density at genus level as well as total
-od.tax<-Calc_ColMetric_Site(awd2,"TAXONCODE","OLDDEAD"); colnames(od.tax)[colnames(od.tax)=="Ave.y"]<-"Ave.od"
-rd.tax<-Calc_ColMetric_Site(awd2,"TAXONCODE",c("RDEXTENT1", "RDEXTENT2")); colnames(rd.tax)[colnames(rd.tax)=="Ave.y"]<-"Ave.rd"
-rdden.tax<-Calc_RDden_Site(awd2,"GENUS_CODE") 
-condden.tax<-Calc_Condden_Site(awd2,"GENUS_CODE")
-
-jcd.tax<-Calc_ColDen_Site(jwd2,"TAXONCODE"); colnames(jcd.tax)[colnames(jcd.tax)=="Colabun"]<-"JuvColabun";colnames(jcd.tax)[colnames(jcd.tax)=="ColDen"]<-"JuvColDen"
-
-
-#Merge density and partial moratlity data together.You will need to replace the DUMMY field with the one you want
-MyMerge <- function(x, y){
-  df <- merge(x, y, by= c("SITE","SITEVISITID","DUMMY","GENUS_CODE"), all.x= TRUE, all.y= TRUE)
-  return(df)
-}
-data.gen<-Reduce(MyMerge, list(acd.gen,od.gen,rd.gen,jcd.gen));
-
-#Change NAs for abunanance and density metrics to 0. Don't change NAs in the partial mortality columns to 0
-data.gen$JuvColabun[is.na(data.gen$JuvColabun)]<-0;data.gen$JuvColDen[is.na(data.gen$JuvColDen)]<-0
-data.gen$AdColabun[is.na(data.gen$AdColabun)]<-0;data.gen$AdColDen[is.na(data.gen$AdColDen)]<-0
-
-MyMerge <- function(x, y){
-  df <- merge(x, y, by= c("SITE","SITEVISITID","DUMMY","TAXONCODE"), all.x= TRUE, all.y= TRUE)
-  return(df)
-}
-data.tax<-Reduce(MyMerge, list(acd.tax,od.tax,rd.tax,jcd.tax))
-data.tax$JuvColabun[is.na(data.tax$JuvColabun)]<-0;data.tax$JuvColDen[is.na(data.tax$JuvColDen)]<-0
-data.tax$AdColabun[is.na(data.tax$AdColabun)]<-0;data.tax$AdColDen[is.na(data.tax$AdColDen)]<-0
-
+# 
 
 
 # POOLING DATA from Site to Strata and Domain---------------------------------------------------
@@ -364,8 +430,8 @@ sectors<-read.csv("Benthic_SectorArea_v5.csv", stringsAsFactors=FALSE)
 
 
 #Generate a table of metadata at the transect and site level for ADULTS
-SURVEY_INFO<-c("SITEVISITID", "ANALYSIS_YEAR","OBS_YEAR", "REGION", "REGION_NAME", "ISLAND","ISLANDCODE","SEC_NAME","SITE", "DATE_", "REEF_ZONE", "DEPTH_BIN", "LATITUDE", "LONGITUDE","SITE_MIN_DEPTH_FT","SITE_MAX_DEPTH_FT","TRANSECT")
-survey_transect<-Aggregate_InputTable(awd2, SURVEY_INFO)
+# SURVEY_INFO<-c("SITEVISITID", "ANALYSIS_YEAR","OBS_YEAR", "REGION", "REGION_NAME", "ISLAND","ISLANDCODE","SEC_NAME","SITE", "DATE_", "REEF_ZONE", "DEPTH_BIN", "LATITUDE", "LONGITUDE","SITE_MIN_DEPTH_FT","SITE_MAX_DEPTH_FT","TRANSECT")
+# survey_transect<-Aggregate_InputTable(awd2, SURVEY_INFO)
 
 SURVEY_INFO<-c("SITEVISITID","ANALYSIS_YEAR", "OBS_YEAR", "REGION", "REGION_NAME", "ISLAND","ISLANDCODE","SEC_NAME", "SITE", "DATE_", "REEF_ZONE", "DEPTH_BIN", "LATITUDE", "LONGITUDE","SITE_MIN_DEPTH_FT","SITE_MAX_DEPTH_FT")
 survey_site<-Aggregate_InputTable(awd2, SURVEY_INFO)
@@ -378,24 +444,28 @@ meta[which(is.na(meta$AREA_HA))]
 
 
 #Merge site level data and meta data
-data.gen.a<-merge(data.gen,meta,by=c("SITEVISITID","SITE"),all.x=TRUE)
-data.tax.a<-merge(data.tax,meta,by=c("SITEVISITID","SITE"),all.x=TRUE)
+site.data.gen<-merge(site.data.gen,meta,by=c("SITEVISITID","SITE"),all.x=TRUE)
+site.data.tax<-merge(site.data.tax,meta,by=c("SITEVISITID","SITE"),all.x=TRUE)
 
 #Create STRATANAME by idenityfing which ANALAYSIS SCHEME you want to use then concatinating with depth and reef zone that will be used to pool data
-data.gen.a$STRATANAME=paste0(data.gen.a$BENTHIC_SEC_CODE,"_",data.gen.a$DEPTH_BIN,"_",data.gen.a$REEF_ZONE)
-data.tax.a$STRATANAME=paste0(data.tax.a$BENTHIC_SEC_CODE,"_",data.tax.a$DEPTH_BIN,"_",data.tax.a$REEF_ZONE)
+site.data.gen$STRATANAME=paste0(site.data.gen$BENTHIC_SEC_CODE,"_",site.data.gen$DEPTH_BIN,"_",site.data.gen$REEF_ZONE)
+site.data.tax$STRATANAME=paste0(site.data.tax$BENTHIC_SEC_CODE,"_",site.data.tax$DEPTH_BIN,"_",data.tax.a$REEF_ZONE)
+
+#create a table of total number of sites surveyed by strataname then read out file csv and mess with pooling
+
+#Mess with Backreef and depth pooling here import columns for stratum name for pooling
 
 #Set ANALYSIS_SCHEMA to STRATA and DOMAIN_SCHEMA to whatever the highest level you want estimates for (e.g. sector, island, region)
-data.gen.a$ANALYSIS_SCHEMA<-data.gen.a$STRATANAME
-data.gen.a$DOMAIN_SCHEMA<-data.gen.a$ISLANDCODE
+site.data.gen$ANALYSIS_SCHEMA<-site.data.gen$STRATANAME
+site.data.gen$DOMAIN_SCHEMA<-site.data.gen$ISLANDCODE
 
-data.tax.a$ANALYSIS_SCHEMA<-data.tax.a$STRATANAME
-data.tax.a$DOMAIN_SCHEMA<-data.tax.a$ISLANDCODE
+site.data.tax$ANALYSIS_SCHEMA<-site.data.tax$STRATANAME
+site.data.tax$DOMAIN_SCHEMA<-site.data.tax$ISLANDCODE
 
 #Calculate metrics at Strata-level
-adcolden_st<-Calc_Strata(data.gen.a,"GENUS_CODE","DUMMY","AdColDen") #Dummy variable can be ignored, but needs to be listed for this function.
+adcolden_st<-Calc_Strata(site.data.gen,"GENUS_CODE","DUMMY","AdColDen") #Dummy variable can be ignored, but needs to be listed for this function.
 
 #Calculate metrics at Domain-level
-adcolden_is<-Calc_Domain(data.gen.a,"GENUS_CODE","DUMMY","AdColDen")#Dummy variable can be ignored, but needs to be listed for this function. We still need to tweak this function since it's providing NAs
+adcolden_is<-Calc_Domain(site.data.gen,"GENUS_CODE","DUMMY","AdColDen")#Dummy variable can be ignored, but needs to be listed for this function. We still need to tweak this function since it's providing NAs
 
 
