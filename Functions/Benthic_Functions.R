@@ -158,9 +158,9 @@ Calc_ColMetric_Transect<-function(data, grouping_field="S_ORDER",pool_fields=c("
                summarise,
                Ave.y=mean(y, na.rm=TRUE))
   rdtot$GROUP<-"SSSS"; rdtot <- rdtot[c(1,2,3,4,6,5)]
-  rd_wide<-dcast(rd, formula=SITE + SITEVISITID +OTHER +TRANSECT~ GROUP, value.var="Ave.y",fill=0)
-  rd_long <- gather(rd_wide, GROUP, Ave.y, names(rd_wide[5:dim(rd_wide)[2]]), factor_key=TRUE) #convert wide to long format
-  rd_long<-rbind(rd_long,rdtot)
+  #rd_wide<-dcast(rd, formula=SITE + SITEVISITID +OTHER +TRANSECT~ GROUP, value.var="Ave.y",fill=0)
+  #rd_long <- gather(rd_wide, GROUP, Ave.y, names(rd_wide[5:dim(rd_wide)[2]]), factor_key=TRUE) #convert wide to long format
+  rd_long<-rbind(rd,rdtot)
   
   colnames(rd_long)[which(colnames(rd_long) == 'GROUP')] <- grouping_field #change group to whatever your grouping field is.
   
@@ -343,8 +343,8 @@ Calc_ColMetric_Site<-function(data, grouping_field="S_ORDER",pool_fields=c("COLO
                summarise,
                Ave.y=mean(y, na.rm=TRUE))
   rdtot$GROUP<-"SSSS"; rdtot <- rdtot[c(1,2,3,5,4)]
-  rd_wide<-dcast(rd, formula=SITE + SITEVISITID +OTHER ~ GROUP, value.var="Ave.y",fill=0)
-  rd_long <- gather(rd_wide, GROUP, Ave.y, names(rd_wide[4:dim(rd_wide)[2]]), factor_key=TRUE) #convert wide to long format
+  # rd_wide<-dcast(rd, formula=SITE + SITEVISITID +OTHER ~ GROUP, value.var="Ave.y",fill=0)
+  # rd_long <- gather(rd_wide, GROUP, Ave.y, names(rd_wide[4:dim(rd_wide)[2]]), factor_key=TRUE) #convert wide to long format
   rd_long<-rbind(rd_long,rdtot)
   
   colnames(rd_long)[which(colnames(rd_long) == 'GROUP')] <- grouping_field #change group to whatever your grouping field is.
