@@ -30,7 +30,7 @@ Convert_to_Taxoncode<-function(data){
   b<-merge(a,taxa,by=c("REGION","OBS_YEAR","SPCODE"),all.x=T)
   b$TAXONCODE<-ifelse(b$S_ORDER!="Scleractinia",as.character(b$SPCODE),ifelse(is.na(b$TAXON_NAME), as.character(b$GENUS_CODE),as.character(b$SPCODE))) #Change spcode to genus code if we do not uniformly id that taxon to species level
   b$TAXONCODE[b$TAXONCODE==""] <- "UNKN" #Convert unknown species or codes that aren't in our taxa list to unknown
-  out<-merge(x,b,by=c("REGION","OBS_YEAR","GENUS_CODE","SPCODE","S_ORDER"))
+  out<-merge(data,b,by=c("REGION","OBS_YEAR","GENUS_CODE","SPCODE","S_ORDER"))
   out<-subset(out,select=-c(count,TAXON_NAME,TAXAGROUP)) #merge to master taxa list
   return(out)
 }
@@ -103,76 +103,136 @@ Calc_SurveyArea_By_Site<-function(data){
 ## TRANSECT LEVEL SUMMARY FUNCTIONS #######
 
 #This function calculates colony density at the transect scale by first calculating the total survey area (using Calc_SurveyArea_By_Transect) then calcuating colony density
-Calc_ColDen_Transect<-function(data, grouping_field="GENUS_CODE",other_field="DUMMY"){
+Calc_ColDen_Transect<-function(data, grouping_field="GENUS_CODE"){
   
-  trarea<-Calc_SurveyArea_By_Transect(data)
+  trarea<-Calc_SurveyArea_By_Transect(awd2)
   
   #Remove scleractinan adult colony fragments
-  scl<-subset(data,Fragment==0)
+  scl<-subset(awd2,Fragment==0) #move this to after transpose
   
   scl$GROUP<-scl[,grouping_field]
-  scl$OTHER<-scl[,other_field]
-  
-  a<-ddply(scl, .(SITE,SITEVISITID,TRANSECT,OTHER, S_ORDER,GROUP),
+
+  a<-ddply(awd2, .(SITE,SITEVISITID,TRANSECT, S_ORDER,GENUS_CODE,Fragment),
            summarise,
            ColCount=length(COLONYID)) #change to count
   
   colden2<-merge(trarea,a, by=c("SITE","SITEVISITID","TRANSECT"),all.x=TRUE)
   
-  colden2$ColCount[is.na(colden2$ColCount)]<-0
+  #colden2$ColCount[is.na(colden2$ColCount)]<-0
+  
+  
+  cd<-dcast(colden2, formula=SITE + SITEVISITID +TRANSECT +Fragment+S_ORDER~ GENUS_CODE, value.var="ColDen",fill=0)
+  ca<-dcast(colden2, formula=SITE + SITEVISITID +TRANSECT +Fragment+S_ORDER~ GENUS_CODE, value.var="ColCount",fill=0)
+  
+  #Create a list of scleractinian taxa that are in the dataframe as columns then sum across just those taxa to get total scl
+  b<-subset(awd2,S_ORDER=="Scleractinia");taxalist<-as.character(unique(b$GENUS_CODE))
+  cd$SSSS<-rowSums(cd[,taxalist,drop=FALSE]) #calculate total colony density
+  # cd$site_frag_order<-paste(cd$SITE,cd$SITEVISITID,cd$TRANSECT,cd$Fragment,cd$S_ORDER,sep="_")
+  # cd[grep("0_Scleractinia", cd$site_frag_order), ]
+  cd <- gather(cd, GENUS_CODE, ColDen, names(cd[6:dim(cd)[2]]), factor_key=TRUE) #convert wide to long format
+
+  ca$SSSS<-rowSums(ca[,taxalist,drop=FALSE]) #calculate total colony density
+  ca <- gather(ca, GENUS_CODE, ColCount, names(ca[6:dim(ca)[2]]), factor_key=TRUE) #convert wide to long format
+  
+  out<-merge(cd,ca, by=c("SITE","SITEVISITID","TRANSECT","GENUS_CODE","Fragment","S_ORDER"))
+  
+  out<-subset(out,S_ORDER =="Scleractinia" & Fragment ==0)
+  
+  test2<-merge(trarea,out, by=c("SITE","SITEVISITID","TRANSECT"),all.x=TRUE)
   
   colden2$ColDen<-colden2$ColCount/colden2$TRANSECTAREA
   
-  colden2<-subset(colden2,S_ORDER=="Scleractinia")
+  write.csv(test2,"test2.csv")
   
-  cd<-dcast(colden2, formula=SITE + SITEVISITID + OTHER+TRANSECT ~ GROUP, value.var="ColDen",fill=0)
-  ca<-dcast(colden2, formula=SITE + SITEVISITID + OTHER+TRANSECT ~ GROUP, value.var="ColCount",fill=0)
-  
-  cd$SSSS<-rowSums(cd[,names(cd[5:dim(cd)[2]]),drop=FALSE]) #calculate total colony density
-  cd <- gather(cd, GROUP, ColDen, names(cd[5:dim(cd)[2]]), factor_key=TRUE) #convert wide to long format
-  
-  ca$SSSS<-rowSums(ca[,names(ca[5:dim(ca)[2]]),drop=FALSE]) #calculate total colony density
-  ca <- gather(ca, GROUP, ColCount, names(ca[5:dim(ca)[2]]), factor_key=TRUE) #convert wide to long format
-  
-  out<-merge(cd,ca, by=c("SITE","SITEVISITID","TRANSECT","OTHER","GROUP"))
+  write.csv(cd,"test.csv")
   
   colnames(out)[which(colnames(out) == 'GROUP')] <- grouping_field #change group to whatever your grouping field is.
-  colnames(out)[which(colnames(out) == 'OTHER')] <- other_field #change group to whatever your grouping field is.
+
+  return(out)
+}
+
+#MESSING WITH COLONY DENSITY 
+#This function calculates colony density at the transect scale by first calculating the total survey area (using Calc_SurveyArea_By_Transect) then calcuating colony density
+Calc_ColDen_Transect<-function(data, grouping_field="GENUS_CODE"){
+  
+  trarea<-Calc_SurveyArea_By_Transect(awd2)
+  
+  #Remove scleractinan adult colony fragments
+  scl<-subset(awd2,Fragment==0) #move this to after transpose
+  
+  scl$GROUP<-scl[,grouping_field]
+  
+  a<-ddply(awd2, .(SITE,SITEVISITID,TRANSECT, S_ORDER,GENUS_CODE,Fragment),
+           summarise,
+           ColCount=length(COLONYID)) #change to count
+  
+  
+  ca<-dcast(a, formula=SITE + SITEVISITID +TRANSECT +Fragment+S_ORDER~ GENUS_CODE, value.var="ColCount",fill=0)
+  
+  #Create a list of scleractinian taxa that are in the dataframe as columns then sum across just those taxa to get total scl
+  b<-subset(awd2,S_ORDER=="Scleractinia");taxalist<-as.character(unique(b$GENUS_CODE))
+  ca$SSSS<-rowSums(ca[,taxalist,drop=FALSE]) #calculate total colony density
+  ca <- gather(ca, GENUS_CODE, ColDen, names(ca[6:dim(ca)[2]]), factor_key=TRUE) #convert wide to long format
+  
+  ca$frag_order<-paste(ca$Fragment,ca$S_ORDER,sep="_")
+  ca$S_ORDER<-"Scleractinia"
+  #out<-ca[grep("0_Scleractinia", ca$frag_order), ] THE ISSUE IS HERE. 
+
+              out<-out[out$GENUS_CODE %in% taxalist,]
+  
+  #### STILL ISN'T WORKING
+              
+              
+  test2<-merge(trarea,out, by=c("SITE","SITEVISITID","TRANSECT"),all.x=TRUE)
+  
+  is.na(test2$GENUS_CODE)<-"SSSS"
+  #Change NA to 0
+  
+  colden2$ColDen<-colden2$ColCount/colden2$TRANSECTAREA
+  #colden2$ColCount[is.na(colden2$ColCount)]<-0
+
+  write.csv(out,"test2.csv")
+  
+  write.csv(cd,"test.csv")
+  
+  colnames(out)[which(colnames(out) == 'GROUP')] <- grouping_field #change group to whatever your grouping field is.
   
   return(out)
 }
 
+
+
+
+
+
+
+#Change percent to proportion
 ##This function calculates mean colony legnth, % recent dead, % old dead, condition severity or condition extent to the transect level
-Calc_ColMetric_Transect<-function(data, grouping_field="S_ORDER",pool_fields=c("COLONYLENGTH","RDEXTENT1", "RDEXTENT2","OLDDEAD","SEVERITY","EXTENT"),other_field="DUMMY"){
+Calc_ColMetric_Transect<-function(data, grouping_field="S_ORDER",pool_fields=c("COLONYLENGTH","RDEXTENT1", "RDEXTENT2","OLDDEAD","SEVERITY","EXTENT")){
   
   scl<-subset(data,COLONYLENGTH>5&S_ORDER=="Scleractinia")
   scl$GROUP<-scl[,grouping_field]
-  scl$OTHER<-scl[,other_field]
   scl$y <- rowSums(scl[,pool_fields,drop=FALSE], na.rm=TRUE) #this will allow you to add the 2 recent dead columns if you are looking at this metric
   
-  rd<-ddply(scl, .(SITE,SITEVISITID,TRANSECT,OTHER,GROUP),
+  rd<-ddply(scl, .(SITE,SITEVISITID,TRANSECT,GROUP),
             summarise,
             Ave.y=mean(y, na.rm=TRUE))
   
-  rdtot<-ddply(scl, .(SITE,SITEVISITID,TRANSECT,OTHER),
+  rdtot<-ddply(scl, .(SITE,SITEVISITID,TRANSECT),
                summarise,
                Ave.y=mean(y, na.rm=TRUE))
-  rdtot$GROUP<-"SSSS"; rdtot <- rdtot[c(1,2,3,4,6,5)]
+  rdtot$GROUP<-"SSSS"; rdtot <- rdtot[c(1,2,3,5,4)]
   #rd_wide<-dcast(rd, formula=SITE + SITEVISITID +OTHER +TRANSECT~ GROUP, value.var="Ave.y",fill=0)
   #rd_long <- gather(rd_wide, GROUP, Ave.y, names(rd_wide[5:dim(rd_wide)[2]]), factor_key=TRUE) #convert wide to long format
   rd_long<-rbind(rd,rdtot)
   
   colnames(rd_long)[which(colnames(rd_long) == 'GROUP')] <- grouping_field #change group to whatever your grouping field is.
   
-  colnames(rd_long)[which(colnames(rd_long) == 'OTHER')] <- other_field #change group to whatever your other field is.
-  
   return(rd_long)
 }
 
 #This function calculate abundance of recent dead conditions by transect and taxonomic group
 #Transform RD1 and RD2 from long to wide format, remove other site AND TRANSECT level info
-
-#STILL NEED TO INCORPORATE FRAGMENT AND SCL CHANGES INTO THIS FUNCTION
 
 Calc_RDden_Transect<-function(data, grouping_field="S_ORDER"){
 scl<-subset(data,COLONYLENGTH>5&S_ORDER=="Scleractinia")
@@ -226,7 +286,7 @@ new_DF <- ab.tr[rowSums(is.na(ab.tr)) > 0,] #identify which rows have NAs
 
 #calcualte density of each condition
 cd<-ab.tr[, 6:ncol(ab.tr)]/ab.tr$TRANSECTAREA # selects every row and 2nd to last columns
-out<-cbind(ab.tr[,1:5],cd) #cbind the transect info to data.
+out<-cbind(ab.tr[,c(1:5)],cd) #cbind the transect info to data.
 
 colnames(out)[which(colnames(out) == 'GROUP')] <- grouping_field #change group to whatever your grouping field is.
 
@@ -274,7 +334,8 @@ Calc_Condden_Transect<-function(data, grouping_field="S_ORDER"){
   
   #calcualte density of each condition
   cd<-ab.tr[, 6:ncol(ab.tr)]/ab.tr$TRANSECTAREA # selects every row and 2nd to last columns
-  out<-cbind(ab.tr[,1:5],cd)
+  out<-cbind(ab.tr[,c(1:5)],cd) #cbind the transect info to data.
+  
   colnames(out)[which(colnames(out) == 'GROUP')] <- grouping_field #change group to whatever your grouping field is.
   
   return(out)
@@ -287,7 +348,7 @@ Calc_Condden_Transect<-function(data, grouping_field="S_ORDER"){
 #Use the grouping field to identify whether you want to look at GENUS_CODE or TAXONCODE
 #Use the other field to for summarizing data such as colony size bins, morphology, etc. Note: you will need to add a DUMMY column to the dataframe prior to using this funciton.
 #If you don't want to pass a variable into the other_field then the function will just spit out a DUMMY collumn that can be removed later. 
-Calc_ColDen_Site<-function(data, grouping_field="S_ORDER",other_field="DUMMY"){
+Calc_ColDen_Site<-function(data, grouping_field="S_ORDER"){
   
   trarea<-Calc_SurveyArea_By_Site(data)
   
@@ -295,9 +356,8 @@ Calc_ColDen_Site<-function(data, grouping_field="S_ORDER",other_field="DUMMY"){
   scl<-subset(data,Fragment==0)
   
   scl$GROUP<-scl[,grouping_field]
-  scl$OTHER<-scl[,other_field]
-  
-  a<-ddply(scl, .(SITE,SITEVISITID, S_ORDER,OTHER,GROUP), #change colabun to COUNT
+
+  a<-ddply(scl, .(SITE,SITEVISITID, S_ORDER,GROUP), #change colabun to COUNT
                 summarise,
            ColCount=length(COLONYID)) #change to count
   
@@ -309,47 +369,42 @@ Calc_ColDen_Site<-function(data, grouping_field="S_ORDER",other_field="DUMMY"){
   
   colden2<-subset(colden2,S_ORDER=="Scleractinia")
   
-  cd<-dcast(colden2, formula=SITE + SITEVISITID +OTHER ~ GROUP, value.var="ColDen",fill=0)
-  ca<-dcast(colden2, formula=SITE + SITEVISITID +OTHER ~ GROUP, value.var="ColCount",fill=0)
+  cd<-dcast(colden2, formula=SITE + SITEVISITID  ~ GROUP, value.var="ColDen",fill=0)
+  ca<-dcast(colden2, formula=SITE + SITEVISITID  ~ GROUP, value.var="ColCount",fill=0)
 
-  cd$SSSS<-rowSums(cd[,names(cd[4:dim(cd)[2]]),drop=FALSE]) #calculate total colony density DOUBLE CHECK COMMAS
-  cd <- gather(cd, GROUP, ColDen, names(cd[4:dim(cd)[2]]), factor_key=TRUE) #convert wide to long format
+  cd$SSSS<-rowSums(cd[,names(cd[3:dim(cd)[2]]),drop=FALSE]) #calculate total colony density DOUBLE CHECK COMMAS
+  cd <- gather(cd, GROUP, ColDen, names(cd[3:dim(cd)[2]]), factor_key=TRUE) #convert wide to long format
   
-  ca$SSSS<-rowSums(ca[,names(ca[4:dim(ca)[2]]),drop=FALSE]) #calculate total colony density
-  ca <- gather(ca, GROUP, ColCount, names(ca[4:dim(ca)[2]]), factor_key=TRUE) #convert wide to long format
+  ca$SSSS<-rowSums(ca[,names(ca[3:dim(ca)[2]]),drop=FALSE]) #calculate total colony density
+  ca <- gather(ca, GROUP, ColCount, names(ca[3:dim(ca)[2]]), factor_key=TRUE) #convert wide to long format
   
-  out<-merge(cd,ca, by=c("SITE","SITEVISITID","OTHER","GROUP"))
+  out<-merge(cd,ca, by=c("SITE","SITEVISITID","GROUP"))
   
   colnames(out)[which(colnames(out) == 'GROUP')] <- grouping_field #change group to whatever your grouping field is.
-  
-  colnames(out)[which(colnames(out) == 'OTHER')] <- other_field #change group to whatever your other field is.
   
   return(out)
 }
 
 ##This function calculates mean colony legnth, % recent dead, % old dead, condition severity or condition extent to the transect level
-Calc_ColMetric_Site<-function(data, grouping_field="S_ORDER",pool_fields=c("COLONYLENGTH","RDEXTENT1", "RDEXTENT2","OLDDEAD","SEVERITY","EXTENT"),other_field="DUMMY"){
+Calc_ColMetric_Site<-function(data, grouping_field="S_ORDER",pool_fields=c("COLONYLENGTH","RDEXTENT1", "RDEXTENT2","OLDDEAD","SEVERITY","EXTENT")){
   
   scl<-subset(data,S_ORDER=="Scleractinia")
   scl$GROUP<-scl[,grouping_field]
-  scl$OTHER<-scl[,other_field]
   scl$y <- rowSums(scl[,pool_fields,drop=FALSE], na.rm=TRUE) #this will allow you to add the 2 recent dead columns if you are looking at this metric
   
-  rd<-ddply(scl, .(SITE,SITEVISITID,OTHER,GROUP),
+  rd<-ddply(scl, .(SITE,SITEVISITID,GROUP),
             summarise,
             Ave.y=mean(y, na.rm=TRUE))
   
-  rdtot<-ddply(scl, .(SITE,SITEVISITID,OTHER),
+  rdtot<-ddply(scl, .(SITE,SITEVISITID),
                summarise,
                Ave.y=mean(y, na.rm=TRUE))
-  rdtot$GROUP<-"SSSS"; rdtot <- rdtot[c(1,2,3,5,4)]
+  rdtot$GROUP<-"SSSS"; rdtot <- rdtot[c(1,2,4,3)]
   # rd_wide<-dcast(rd, formula=SITE + SITEVISITID +OTHER ~ GROUP, value.var="Ave.y",fill=0)
   # rd_long <- gather(rd_wide, GROUP, Ave.y, names(rd_wide[4:dim(rd_wide)[2]]), factor_key=TRUE) #convert wide to long format
   rd_long<-rbind(rd_long,rdtot)
   
   colnames(rd_long)[which(colnames(rd_long) == 'GROUP')] <- grouping_field #change group to whatever your grouping field is.
-  
-  colnames(rd_long)[which(colnames(rd_long) == 'OTHER')] <- other_field #change group to whatever your other field is.
   
   return(rd_long)
 }
@@ -466,13 +521,10 @@ Calc_Condden_Site<-function(data, grouping_field="S_ORDER"){
 #Note: for whatever reason, the grouping, other and metric fields need to be in this order. If you don't want to include an other field then add "DUMMY" as the second variable when you are running this function.
 #e.g. st<-Calc_Strata(data.mon,"GENUS_CODE","DUMMY","ColDen")
 
-Calc_Strata=function(site_data,grouping_field,other_field="DUMMY",metric_field=c("AdColDen","JuvColDen","Ave.od","Ave.rd","Condabun"),M_hi=250){
+Calc_Strata=function(site_data,grouping_field,metric_field=c("AdColDen","JuvColDen","Ave.od","Ave.rd","Condabun"),M_hi=250){
   
   #Build in flexibility to look at genus or taxon level
   site_data$GROUP<-site_data[,grouping_field]
-  
-  #Build in flexibility to look at other variables (e.g. morphology, size_class)
-  site_data$OTHER<-site_data[,other_field]
   
   #Build in flexibility to summarized different metrics
   site_data$METRIC<-site_data[,metric_field]
@@ -490,7 +542,7 @@ Calc_Strata=function(site_data,grouping_field,other_field="DUMMY",metric_field=c
   site_data$w_h.as<-Schema_NH$w_h[match(site_data$ANALYSIS_SCHEMA,Schema_NH$ANALYSIS_SCHEMA)]
 
   #Calculate summary metrics at the stratum level (rolled up from site level)
-  Strata_roll=ddply(site_data,.(ANALYSIS_YEAR,DOMAIN_SCHEMA,ANALYSIS_SCHEMA,OTHER,GROUP),summarize,
+  Strata_roll=ddply(site_data,.(ANALYSIS_YEAR,DOMAIN_SCHEMA,ANALYSIS_SCHEMA,GROUP),summarize,
                     n_h=length(SITE),# No. of Sites surveyed in a Strata
                     N_h=median(N_h.as,na.rm=T),# Strata Area (as N 50x50 grids) - median allows you to pick 1 value
                     w_h=median(w_h.as,na.rm=T),# weigting factor for a given stratum- median allows you to pick 1 value
@@ -505,7 +557,7 @@ Calc_Strata=function(site_data,grouping_field,other_field="DUMMY",metric_field=c
                     CV_Y._h=SE_Y._h/Y._h)
   
   Strata_roll$M_hi=250 #define total possible transects in a site
-  Strata_roll=Strata_roll[,c("ANALYSIS_YEAR","DOMAIN_SCHEMA","ANALYSIS_SCHEMA","OTHER","GROUP",
+  Strata_roll=Strata_roll[,c("ANALYSIS_YEAR","DOMAIN_SCHEMA","ANALYSIS_SCHEMA","GROUP",
                              "M_hi","n_h","N_h","w_h",
                              "D._h","S1_h","varD._h","SE_D._h","CV_D._h",
                              "Y._h","varY._h","SE_Y._h","CV_Y._h")]
@@ -515,8 +567,6 @@ Calc_Strata=function(site_data,grouping_field,other_field="DUMMY",metric_field=c
   
   colnames(Strata_roll)[which(colnames(Strata_roll) == 'GROUP')] <- grouping_field #change group to whatever your grouping field is.
 
-  colnames(Strata_roll)[which(colnames(Strata_roll) == 'OTHER')] <- other_field #change group to whatever your grouping field is.
-
 
   return(Strata_roll)
 }
@@ -525,21 +575,18 @@ Calc_Strata=function(site_data,grouping_field,other_field="DUMMY",metric_field=c
 #DOMAIN ROLL UP FUNCTION-This function calculates mean, var, SE and CV at the DOMAIN level. I've built in flexilbity to use either genus or taxoncode as well as other metrics (size class, morph)
 # You can input any metric you would like (eg. adult density, mean % old dead,etc). Note that for any metric that does not involve density of colonies, 
 # Y._h (total colony abundance in stratum),varY._h (variance in total abundance), SE_Y._h and CV_Y._h are meaningless-DO NOT USE
-Calc_Domain=function(site_data,grouping_field="S_ORDER",other_field="DUMMY",metric_field=c("AdColDen","JuvColDen","Ave.od","Ave.rd")){
+Calc_Domain=function(site_data,grouping_field="S_ORDER",metric_field=c("AdColDen","JuvColDen","Ave.od","Ave.rd")){
  
-  Strata_data=Calc_Strata(site_data,grouping_field,other_field,metric_field)
+  Strata_data=Calc_Strata(site_data,grouping_field,metric_field)
   
   #Build in flexibility to look at genus or taxon level
   Strata_data$GROUP<-Strata_data[,grouping_field]
-  
-  #Build in flexibility to look at other variables (e.g. morphology, size_class)
-  Strata_data$OTHER<-Strata_data[,other_field]
   
   DomainStr_NH=ddply(subset(Strata_data,GROUP=="SSSS"),.(ANALYSIS_YEAR,DOMAIN_SCHEMA),summarize,N_h=sum(N_h,na.rm=TRUE)) #total possible sites in a domain
   Strata_data$DomainSumN_h=DomainStr_NH$N_h[match(Strata_data$DOMAIN_SCHEMA,DomainStr_NH$DOMAIN_SCHEMA)] # add previous to strata data
   Strata_data$w_h=Strata_data$N_h/Strata_data$DomainSumN_h
   
-  Domain_roll=ddply(Strata_data,.(ANALYSIS_YEAR,DOMAIN_SCHEMA,OTHER,GROUP),summarize,
+  Domain_roll=ddply(Strata_data,.(ANALYSIS_YEAR,DOMAIN_SCHEMA,GROUP),summarize,
                     D._st=sum(w_h*D._h,na.rm=TRUE), #Domain weighted estimate (sum of Weighted strata density)
                     varD._st=sum(w_h^2*varD._h,na.rm=TRUE), #Domain weighted variance estimate
                     Y._st=sum(Y._h,na.rm=TRUE), #Domain total abundance (sum of extrapolated strata abundance)
@@ -553,34 +600,31 @@ Calc_Domain=function(site_data,grouping_field="S_ORDER",other_field="DUMMY",metr
   
   colnames(Domain_roll)[which(colnames(Domain_roll) == 'GROUP')] <- grouping_field #change group to whatever your grouping field is.
   
-  colnames(Domain_roll)[which(colnames(Domain_roll) == 'OTHER')] <- other_field #change group to whatever your grouping field is.
-  
+
   return(Domain_roll)
 }
 
+###POOLING FUNCTIONS FOR PREVALENCE DATA----
 
-
-#####Need to have different functions for strat and domain rolls up for proportional metrics (e.g. % cover, % dead)
-#add proprtion occurence
-
-
-#Roll up functions for Benthic Cover Estimates
 #STRATA ROLL UP FUNCTION-This function calculates mean, var, SE and CV at the strata level. I've built in flexilbity to use either genus or taxoncode
 # You can input any metric you would like (eg. adult density, mean % old dead,etc). Note that for any metric that does not involve density of colonies, 
 # Y._h (total colony abundance in stratum),varY._h (variance in total abundance), SE_Y._h and CV_Y._h are meaningless-DO NOT USE
 #Note: for whatever reason, the grouping, other and metric fields need to be in this order. If you don't want to include an other field then add "DUMMY" as the second variable when you are running this function.
 #e.g. st<-Calc_Strata(data.mon,"GENUS_CODE","DUMMY","ColDen")
 
-Calc_Strata_Cover=function(site_data,metric_field=c("CCA","CORAL","TURF","MA","RBratio"),M_hi=250){
+Calc_Strata_Prevalence=function(site_data,grouping_field,metric_field){
+  
+  #Build in flexibility to look at genus or taxon level
+  site_data$GROUP<-site_data[,grouping_field]
   
   #Build in flexibility to summarized different metrics
   site_data$METRIC<-site_data[,metric_field]
   site_data$METRIC<-as.numeric(site_data$METRIC)
   
   #For a Given ANALYSIS_SCHEMA, we need to pool N_h, and generate w_h
-  Strata_NH<-ddply(site_data,.(OBS_YEAR,DOMAIN_SCHEMA,ANALYSIS_SCHEMA,STRATANAME),summarize,N_h=median(NH,na.rm=TRUE)) #calculate # of possible sites in a given stratum
-  Schema_NH<-ddply(Strata_NH,.(OBS_YEAR,DOMAIN_SCHEMA,ANALYSIS_SCHEMA),summarize,N_h=sum(N_h,na.rm=TRUE))#calculate # of possible sites in a given schema
-  Dom_NH<-ddply(Schema_NH,.(OBS_YEAR,DOMAIN_SCHEMA),summarize,Dom_N_h=sum(N_h,na.rm=TRUE))#calculate # of possible sites in a given domain
+  Strata_NH<-ddply(subset(site_data,GROUP=="SSSS"),.(ANALYSIS_YEAR,DOMAIN_SCHEMA,ANALYSIS_SCHEMA,STRATANAME),summarize,N_h=median(NH,na.rm=TRUE)) #calculate # of possible sites in a given stratum
+  Schema_NH<-ddply(Strata_NH,.(ANALYSIS_YEAR,DOMAIN_SCHEMA,ANALYSIS_SCHEMA),summarize,N_h=sum(N_h,na.rm=TRUE))#calculate # of possible sites in a given schema
+  Dom_NH<-ddply(Schema_NH,.(ANALYSIS_YEAR,DOMAIN_SCHEMA),summarize,Dom_N_h=sum(N_h,na.rm=TRUE))#calculate # of possible sites in a given domain
   Schema_NH$Dom_N_h<-Dom_NH$Dom_N_h[match(Schema_NH$DOMAIN_SCHEMA,Dom_NH$DOMAIN_SCHEMA)]# add Dom_N_h to schema dataframe
   Schema_NH$w_h<-Schema_NH$N_h/Schema_NH$Dom_N_h # add schema weighting factor to schema dataframe
   
@@ -588,30 +632,34 @@ Calc_Strata_Cover=function(site_data,metric_field=c("CCA","CORAL","TURF","MA","R
   site_data$N_h.as<-Schema_NH$N_h[match(site_data$ANALYSIS_SCHEMA,Schema_NH$ANALYSIS_SCHEMA)]
   site_data$w_h.as<-Schema_NH$w_h[match(site_data$ANALYSIS_SCHEMA,Schema_NH$ANALYSIS_SCHEMA)]
   
+  #site_data$Mhi<-250 - Still having issues using Mhi as a variable in dataframe
   #Calculate summary metrics at the stratum level (rolled up from site level)
-  Strata_roll=ddply(site_data,.(OBS_YEAR,DOMAIN_SCHEMA,ANALYSIS_SCHEMA),summarize,
+  Strata_roll=ddply(site_data,.(ANALYSIS_YEAR,DOMAIN_SCHEMA,ANALYSIS_SCHEMA,GROUP),summarize,
                     n_h=length(SITE),# No. of Sites surveyed in a Strata
-                    N_h=median(N_h.as,na.rm=T),# Strata Area (as N 50x50 grids)
-                    w_h=median(w_h.as,na.rm=T),# weigting factor for a given stratum
-                    D._h=mean(METRIC,na.rm=T), # Mean of Site-Level Density in a Stratum
-                    S1_h=var(METRIC,na.rm=T), #sample variance in density between sites
-                    varD._h=(1-(n_h/N_h))*S1_h/n_h, #Strata level  variance of mean density
-                    Y._h=D._h*N_h*250, #total colony abundance in stratum (Mhi=250)
-                    varY._h=varD._h*N_h^2, #variance in total abundance 
-                    SE_D._h=sqrt(varD._h),
-                    CV_D._h=SE_D._h/D._h,
-                    SE_Y._h=sqrt(varY._h),
-                    CV_Y._h=SE_Y._h/Y._h)
-  
+                    N_h=median(N_h.as,na.rm=T),# Strata Area (as N 50x50 grids) - median allows you to pick 1 value
+                    w_h=median(w_h.as,na.rm=T),# weigting factor for a given stratum- median allows you to pick 1 value
+                    C_h=mean(BLE,na.rm=T), # Mean density colonies with specific condition in a Stratum
+                    S1C_h=var(BLE,na.rm=T), #sample variance in condition density between sites
+                    varC_h=(1-(n_h/N_h))*S1C_h/n_h, #Strata level  variance of mean condition density
+                    C_abun_h=C_h*N_h*250, # abundance of colonies with a condition in stratum 
+                    varC_abun_h=varC_h*N_h^2, #variance in total abundance 
+                    SE_C_abun_h=sqrt(varC_abun_h),
+                    acd_h=mean(AdColDen,na.rm=T), # Mean of Site-Level all colonies in a Stratum
+                    acd_abun_h=acd_h*N_h*250, #strata-level abundnace of all colonies
+                    prev=C_abun_h/acd_abun_h, # prevalence of condition at stratum level
+                    SEprev=SE_C_abun_h/acd_abun_h)#SE of condition at stratum level 
+
   Strata_roll$M_hi=250 #define total possible transects in a site
-  Strata_roll=Strata_roll[,c("OBS_YEAR","DOMAIN_SCHEMA","ANALYSIS_SCHEMA",
-                             "M_hi","n_h","N_h","w_h",
-                             "D._h","S1_h","varD._h","SE_D._h","CV_D._h",
-                             "Y._h","varY._h","SE_Y._h","CV_Y._h")]
+  Strata_roll=Strata_roll[,c("ANALYSIS_YEAR","DOMAIN_SCHEMA","ANALYSIS_SCHEMA","GROUP",
+                             "M_hi","n_h","N_h","w_h","C_h","acd_h","varC_h","C_abun_h","varC_abun_h","acd_h","acd_abun_h",
+                             "prev","SEprev")]
   
   #remove strata that have only 1 site because you can't calculate variance
   Strata_roll<-Strata_roll[Strata_roll$n_h>1,]
-
+  
+  colnames(Strata_roll)[which(colnames(Strata_roll) == 'GROUP')] <- grouping_field #change group to whatever your grouping field is.
+  
+  
   return(Strata_roll)
 }
 
@@ -619,28 +667,39 @@ Calc_Strata_Cover=function(site_data,metric_field=c("CCA","CORAL","TURF","MA","R
 #DOMAIN ROLL UP FUNCTION-This function calculates mean, var, SE and CV at the DOMAIN level. I've built in flexilbity to use either genus or taxoncode as well as other metrics (size class, morph)
 # You can input any metric you would like (eg. adult density, mean % old dead,etc). Note that for any metric that does not involve density of colonies, 
 # Y._h (total colony abundance in stratum),varY._h (variance in total abundance), SE_Y._h and CV_Y._h are meaningless-DO NOT USE
-Calc_Domain_Cover=function(site_data,metric_field=c("CCA","CORAL","TURF","MA","RBratio")){
+Calc_Domain_Prevalence=function(site_data,grouping_field="S_ORDER",metric_field){
   
-  Strata_data=Calc_Strata_Cover(site_data,metric_field)
+  Strata_data=Calc_Strata(site_data,grouping_field,metric_field)
   
-  DomainStr_NH=ddply(Strata_data,.(OBS_YEAR,DOMAIN_SCHEMA),summarize,N_h=sum(N_h,na.rm=TRUE)) #total possible sites in a domain
+  #Build in flexibility to look at genus or taxon level
+  Strata_data$GROUP<-Strata_data[,grouping_field]
+  
+  DomainStr_NH=ddply(subset(Strata_data,GROUP=="SSSS"),.(ANALYSIS_YEAR,DOMAIN_SCHEMA),summarize,N_h=sum(N_h,na.rm=TRUE)) #total possible sites in a domain
   Strata_data$DomainSumN_h=DomainStr_NH$N_h[match(Strata_data$DOMAIN_SCHEMA,DomainStr_NH$DOMAIN_SCHEMA)] # add previous to strata data
   Strata_data$w_h=Strata_data$N_h/Strata_data$DomainSumN_h
   
-  Domain_roll=ddply(Strata_data,.(OBS_YEAR,DOMAIN_SCHEMA),summarize,
-                    D._st=sum(w_h*D._h,na.rm=TRUE), #Domain weighted estimate (sum of Weighted strata density)
-                    varD._st=sum(w_h^2*varD._h,na.rm=TRUE), #Domain weighted variance estimate
-                    Y._st=sum(Y._h,na.rm=TRUE), #Domain total abundance (sum of extrapolated strata abundance)
-                    varY._st=sum(varY._h,na.rm=TRUE),#Domain variance total abundance (sum of extrapolated strata varaiance abundance)
+  Domain_roll=ddply(Strata_data,.(ANALYSIS_YEAR,DOMAIN_SCHEMA,GROUP),summarize,
+                    C_st=sum(w_h*C_h,na.rm=TRUE), #Domain weighted estimate (sum of Weighted strata density)
+                    varC_st=sum(w_h^2*varC_h,na.rm=TRUE), #Domain weighted variance estimate
+                    C_abun_st=sum(C_abun_h,na.rm=TRUE), #Domain total abundance (sum of extrapolated strata abundance)
+                    varC_abun_st=sum(varC_abun_h,na.rm=TRUE),#Domain variance total abundance (sum of extrapolated strata varaiance abundance)
                     n=sum(n_h,na.rm=TRUE), #total sites surveyed in domain
                     N=sum(N_h,na.rm=TRUE), #total possible sites in domain
-                    SE_varD._st=sqrt(varD._st), #SE of domain metric estimate
-                    CV_varD._st=SE_varD._st/D._st, #CV of domain metric estimate
-                    SE_varY._st=sqrt(varY._st),#SE of domain abundance estimate
-                    CV_varY._st=SE_varY._st/Y._st)#CV of domain abundnace estimate
+                    SE_varC_st=sqrt(varC_st), #SE of domain metric estimate
+                    CV_varC_st=SE_varC_st/C_st, #CV of domain metric estimate
+                    SE_varC_abun_st=sqrt(varC_abun_st),#SE of domain abundance estimate
+                    CV_varC_abun_st=SE_varC_abun_st/C_abun_st,#CV of domain abundnace estimate
+                    acd_st=sum(w_h*acd_h,na.rm=TRUE), # Mean of Site-Level all colonies in a Stratum
+                    acd_abun_abun_st=sum(acd_abun_h,na.rm=TRUE), #strata-level abundnace of all colonies
+                    prev=C_abun_st/acd_abun_h, # prevalence of condition at stratum level
+                    SEprev=SE_C_abun_h/acd_abun_h,#SE of condition at stratum level 
+                    CVprev=SEprev/prev) #CV of prevalence
+  
+  colnames(Domain_roll)[which(colnames(Domain_roll) == 'GROUP')] <- grouping_field #change group to whatever your grouping field is.
   
   return(Domain_roll)
 }
+
 
 
 
