@@ -104,106 +104,44 @@ Calc_SurveyArea_By_Site<-function(data){
 
 #This function calculates colony density at the transect scale by first calculating the total survey area (using Calc_SurveyArea_By_Transect) then calcuating colony density
 Calc_ColDen_Transect<-function(data, grouping_field="GENUS_CODE"){
-  
-  trarea<-Calc_SurveyArea_By_Transect(awd2)
-  
-  #Remove scleractinan adult colony fragments
-  scl<-subset(awd2,Fragment==0) #move this to after transpose
-  
-  scl$GROUP<-scl[,grouping_field]
 
-  a<-ddply(awd2, .(SITE,SITEVISITID,TRANSECT, S_ORDER,GENUS_CODE,Fragment),
+  data$GROUP<-data[,grouping_field] #assign a grouping field for taxa
+  
+  #Calculate # of colonies for each variable. You need to have S_ORDER and Fragment here so you can incorporate zeros properly
+  a<-ddply(data, .(SITE,SITEVISITID,TRANSECT, S_ORDER,GROUP,Fragment),
            summarise,
            ColCount=length(COLONYID)) #change to count
   
-  colden2<-merge(trarea,a, by=c("SITE","SITEVISITID","TRANSECT"),all.x=TRUE)
+  #Convert from long to wide and insert 0s for taxa that weren't found at each site. 
+  ca<-dcast(a, formula=SITE + SITEVISITID +TRANSECT +Fragment+S_ORDER~ GROUP, value.var="ColCount",fill=0)
+  data.cols<-names(ca[6:dim(ca)[2]]) #define your data coloumns
+  field.cols<-c("SITE", "SITEVISITID", "TRANSECT","Fragment") #define field columns
   
-  #colden2$ColCount[is.na(colden2$ColCount)]<-0
-  
-  
-  cd<-dcast(colden2, formula=SITE + SITEVISITID +TRANSECT +Fragment+S_ORDER~ GENUS_CODE, value.var="ColDen",fill=0)
-  ca<-dcast(colden2, formula=SITE + SITEVISITID +TRANSECT +Fragment+S_ORDER~ GENUS_CODE, value.var="ColCount",fill=0)
+  #change colony counts for fragments to 0 so that we account for the transects that only had fragments
+  ca[which(ca$Fragment <0), data.cols]<-0 
+
+  #At this point you will have multiple rows for each site/transect so sum data by site and transect. This will help you properly insert 0s
+  field.cols<-c("SITE", "SITEVISITID", "TRANSECT")
+  ca<-aggregate(ca[,data.cols], by=ca[,field.cols], sum) 
   
   #Create a list of scleractinian taxa that are in the dataframe as columns then sum across just those taxa to get total scl
-  b<-subset(awd2,S_ORDER=="Scleractinia");taxalist<-as.character(unique(b$GENUS_CODE))
-  cd$SSSS<-rowSums(cd[,taxalist,drop=FALSE]) #calculate total colony density
-  # cd$site_frag_order<-paste(cd$SITE,cd$SITEVISITID,cd$TRANSECT,cd$Fragment,cd$S_ORDER,sep="_")
-  # cd[grep("0_Scleractinia", cd$site_frag_order), ]
-  cd <- gather(cd, GENUS_CODE, ColDen, names(cd[6:dim(cd)[2]]), factor_key=TRUE) #convert wide to long format
-
+  b<-subset(data,S_ORDER=="Scleractinia");taxalist<-as.character(unique(b$GROUP))
   ca$SSSS<-rowSums(ca[,taxalist,drop=FALSE]) #calculate total colony density
-  ca <- gather(ca, GENUS_CODE, ColCount, names(ca[6:dim(ca)[2]]), factor_key=TRUE) #convert wide to long format
+  ca <- gather(ca, GROUP, ColCount, names(ca[4:dim(ca)[2]]), factor_key=TRUE) #convert wide to long format
   
-  out<-merge(cd,ca, by=c("SITE","SITEVISITID","TRANSECT","GENUS_CODE","Fragment","S_ORDER"))
-  
-  out<-subset(out,S_ORDER =="Scleractinia" & Fragment ==0)
-  
-  test2<-merge(trarea,out, by=c("SITE","SITEVISITID","TRANSECT"),all.x=TRUE)
-  
-  colden2$ColDen<-colden2$ColCount/colden2$TRANSECTAREA
-  
-  write.csv(test2,"test2.csv")
-  
-  write.csv(cd,"test.csv")
-  
-  colnames(out)[which(colnames(out) == 'GROUP')] <- grouping_field #change group to whatever your grouping field is.
+  #Remove everything that isn't a scleractinian
+  taxalist2<-c(taxalist,"SSSS")
+  ca<-ca[ca$GROUP %in% taxalist2,]
 
-  return(out)
-}
-
-#MESSING WITH COLONY DENSITY 
-#This function calculates colony density at the transect scale by first calculating the total survey area (using Calc_SurveyArea_By_Transect) then calcuating colony density
-Calc_ColDen_Transect<-function(data, grouping_field="GENUS_CODE"){
-  
-  trarea<-Calc_SurveyArea_By_Transect(awd2)
-  
-  #Remove scleractinan adult colony fragments
-  scl<-subset(awd2,Fragment==0) #move this to after transpose
-  
-  scl$GROUP<-scl[,grouping_field]
-  
-  a<-ddply(awd2, .(SITE,SITEVISITID,TRANSECT, S_ORDER,GENUS_CODE,Fragment),
-           summarise,
-           ColCount=length(COLONYID)) #change to count
-  
-  
-  ca<-dcast(a, formula=SITE + SITEVISITID +TRANSECT +Fragment+S_ORDER~ GENUS_CODE, value.var="ColCount",fill=0)
-  
-  #Create a list of scleractinian taxa that are in the dataframe as columns then sum across just those taxa to get total scl
-  b<-subset(awd2,S_ORDER=="Scleractinia");taxalist<-as.character(unique(b$GENUS_CODE))
-  ca$SSSS<-rowSums(ca[,taxalist,drop=FALSE]) #calculate total colony density
-  ca <- gather(ca, GENUS_CODE, ColDen, names(ca[6:dim(ca)[2]]), factor_key=TRUE) #convert wide to long format
-  
-  ca$frag_order<-paste(ca$Fragment,ca$S_ORDER,sep="_")
-  ca$S_ORDER<-"Scleractinia"
-  #out<-ca[grep("0_Scleractinia", ca$frag_order), ] THE ISSUE IS HERE. 
-
-              out<-out[out$GENUS_CODE %in% taxalist,]
-  
-  #### STILL ISN'T WORKING
-              
-              
-  test2<-merge(trarea,out, by=c("SITE","SITEVISITID","TRANSECT"),all.x=TRUE)
-  
-  is.na(test2$GENUS_CODE)<-"SSSS"
-  #Change NA to 0
-  
-  colden2$ColDen<-colden2$ColCount/colden2$TRANSECTAREA
-  #colden2$ColCount[is.na(colden2$ColCount)]<-0
-
-  write.csv(out,"test2.csv")
-  
-  write.csv(cd,"test.csv")
-  
+  #Calculate transect area surveyed and colony density
+  trarea<-Calc_SurveyArea_By_Transect(data)
+  out<-merge(trarea,ca, by=c("SITE","SITEVISITID","TRANSECT"),all.x=TRUE)
+  out$ColDen<-out$ColCount/out$TRANSECTAREA
+  out<-subset(out,select=-c(TRANSECTAREA))#remove transect area column
   colnames(out)[which(colnames(out) == 'GROUP')] <- grouping_field #change group to whatever your grouping field is.
   
   return(out)
 }
-
-
-
-
-
 
 
 #Change percent to proportion
