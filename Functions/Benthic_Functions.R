@@ -559,7 +559,7 @@ Calc_Condden_Site<-function(data, grouping_field="S_ORDER"){
 #Note: for whatever reason, the grouping, other and metric fields need to be in this order. If you don't want to include an other field then add "DUMMY" as the second variable when you are running this function.
 #e.g. st<-Calc_Strata(data.mon,"GENUS_CODE","DUMMY","ColDen")
 
-Calc_Strata=function(site_data,grouping_field,metric_field=c("AdColDen","JuvColDen","Ave.od","Ave.rd","Condabun"),M_hi=250){
+Calc_Strata=function(site_data,grouping_field,metric_field=c("AdColDen","JuvColDen","Ave.od","Ave.rd","Condabun","CORAL"),M_hi=250){
   
   #Build in flexibility to look at genus or taxon level
   site_data$GROUP<-site_data[,grouping_field]
@@ -642,6 +642,67 @@ Calc_Domain=function(site_data,grouping_field="S_ORDER",metric_field=c("AdColDen
 
   return(Domain_roll)
 }
+
+###POOLING FUNCTIONS FOR COVER DATA----
+Calc_Strata_Cover=function(site_data,metric_field=c("CORAL","CCA","MA","TURF"),M_hi=250){
+  
+  #Build in flexibility to summarized different metrics
+  site_data$METRIC<-site_data[,metric_field]
+  site_data$METRIC<-as.numeric(site_data$METRIC)
+  
+  #For a Given ANALYSIS_SCHEMA, we need to pool N_h, and generate w_h
+  Strata_NH<-ddply(site_data,.(OBS_YEAR,DOMAIN_SCHEMA,ANALYSIS_SCHEMA,STRATANAME),summarize,N_h=median(NH,na.rm=TRUE)) #calculate # of possible sites in a given stratum
+  Schema_NH<-ddply(Strata_NH,.(OBS_YEAR,DOMAIN_SCHEMA,ANALYSIS_SCHEMA),summarize,N_h=sum(N_h,na.rm=TRUE))#calculate # of possible sites in a given schema
+  Dom_NH<-ddply(Schema_NH,.(OBS_YEAR,DOMAIN_SCHEMA),summarize,Dom_N_h=sum(N_h,na.rm=TRUE))#calculate # of possible sites in a given domain
+  Schema_NH$Dom_N_h<-Dom_NH$Dom_N_h[match(Schema_NH$DOMAIN_SCHEMA,Dom_NH$DOMAIN_SCHEMA)]# add Dom_N_h to schema dataframe
+  Schema_NH$w_h<-Schema_NH$N_h/Schema_NH$Dom_N_h # add schema weighting factor to schema dataframe
+  
+  #Now add back the Analysis_Schema Nh and wh to site_data
+  site_data$N_h.as<-Schema_NH$N_h[match(site_data$ANALYSIS_SCHEMA,Schema_NH$ANALYSIS_SCHEMA)]
+  site_data$w_h.as<-Schema_NH$w_h[match(site_data$ANALYSIS_SCHEMA,Schema_NH$ANALYSIS_SCHEMA)]
+  
+  #Calculate summary metrics at the stratum level (rolled up from site level)
+  Strata_roll=ddply(site_data,.(OBS_YEAR,DOMAIN_SCHEMA,ANALYSIS_SCHEMA),summarize,
+                    n_h=length(SITE),# No. of Sites surveyed in a Strata
+                    N_h=median(N_h.as,na.rm=T),# Strata Area (as N 50x50 grids) - median allows you to pick 1 value
+                    w_h=median(w_h.as,na.rm=T),# weigting factor for a given stratum- median allows you to pick 1 value
+                    D._h=mean(METRIC,na.rm=T), # Mean of Site-Level metric in a Stratum
+                    S1_h=var(METRIC,na.rm=T), #sample variance in metric between sites
+                    varD._h=(1-(n_h/N_h))*S1_h/n_h, #Strata level  variance of mean density
+                    SE_D._h=sqrt(varD._h),
+                    CV_D._h=SE_D._h/D._h)
+  
+  Strata_roll$M_hi=250 #define total possible transects in a site
+  Strata_roll=Strata_roll[,c("OBS_YEAR","DOMAIN_SCHEMA","ANALYSIS_SCHEMA",
+                             "M_hi","n_h","N_h","w_h",
+                             "D._h","S1_h","varD._h","SE_D._h","CV_D._h")]
+  
+  #remove strata that have only 1 site because you can't calculate variance
+  Strata_roll<-Strata_roll[Strata_roll$n_h>1,]
+  
+  return(Strata_roll)
+}
+
+
+Calc_Domain_Cover=function(site_data,metric_field=c("CORAL","CCA","MA","TURF")){
+  
+  Strata_data=Calc_Strata_Cover(site_data,metric_field)
+  
+  DomainStr_NH=ddply(Strata_data,.(OBS_YEAR,DOMAIN_SCHEMA),summarize,N_h=sum(N_h,na.rm=TRUE)) #total possible sites in a domain
+  Strata_data$DomainSumN_h=DomainStr_NH$N_h[match(Strata_data$DOMAIN_SCHEMA,DomainStr_NH$DOMAIN_SCHEMA)] # add previous to strata data
+  Strata_data$w_h=Strata_data$N_h/Strata_data$DomainSumN_h
+  
+  Domain_roll=ddply(Strata_data,.(OBS_YEAR,DOMAIN_SCHEMA),summarize,
+                    D._st=sum(w_h*D._h,na.rm=TRUE), #Domain weighted estimate (sum of Weighted strata density)
+                    varD._st=sum(w_h^2*varD._h,na.rm=TRUE), #Domain weighted variance estimate
+                    n=sum(n_h,na.rm=TRUE), #total sites surveyed in domain
+                    Ntot=sum(N_h,na.rm=TRUE), #total possible sites in domain
+                    SE_D._st=sqrt(varD._st), #SE of domain metric estimate
+                    CV_D._st=SE_D._st/D._st) #CV of domain metric estimate
+  
+  return(Domain_roll)
+}
+
 
 ###POOLING FUNCTIONS FOR PREVALENCE DATA----
 
@@ -811,6 +872,8 @@ Calc_IslDepthmetrics_BSR<-function(data, grouping_field="GENUS_CODE"){
   return(out)
 }
 
+
+#reef zone function
 
 
 
