@@ -292,7 +292,7 @@ Calc_RDden_Transect<-function(data, grouping_field="S_ORDER"){
 #Transform RD1 and RD2 from long to wide format, remove other site AND TRANSECT level info
 
 Calc_RDabun_Transect<-function(data, grouping_field="S_ORDER"){
-  scl<-subset(awd,COLONYLENGTH>5&S_ORDER=="Scleractinia")
+  scl<-subset(data,COLONYLENGTH>5&S_ORDER=="Scleractinia")
   
   #add and "S" to the general cause code so that we distiguish it from specific cause codes
   scl$GENRD1<-paste(scl$GENRD1,"S",sep="");scl$GENRD2<-paste(scl$GENRD2,"S",sep="")
@@ -324,26 +324,24 @@ Calc_RDabun_Transect<-function(data, grouping_field="S_ORDER"){
   
   #Convert back to wide format
   out<-dcast(a, formula=SITEVISITID +SITE + TRANSECT+GROUP~ RDCond, value.var="RDabun",sum,fill=0)
+  colnames(out)[colnames(out)=="DZGNS"]<-"AcuteDZ" #rename column 
   
   colnames(out)[which(colnames(out) == 'GROUP')] <- grouping_field #change group to whatever your grouping field is.
   
-  return(out)
+  cd<-Calc_ColDen_Transect(data,grouping_field)[,-c(6)]
+  out2<-merge(out,cd,by=c("SITEVISITID","SITE","TRANSECT",grouping_field))
+  
+  return(out2)
 }
 
 
 
-#This function calculate abundance of conditions conditions by transect and taxonomic group
-#Transform RD1 and RD2 from long to wide format, remove other site AND TRANSECT level info
-
-#STILL NEED TO INCORPORATE FRAGMENT AND SCL CHANGES INTO THIS FUNCTION
-
-
+#This function calculates DENSITY of conditions conditions by transect and taxonomic group
 Calc_Condden_Transect<-function(data, grouping_field="S_ORDER"){
   #Remove scleractinan adult colony fragments
-  scl<-subset(data,COLONYLENGTH>5&S_ORDER=="Scleractinia"&Adult_juv=="A")
+  scl<-subset(data,COLONYLENGTH>5&S_ORDER=="Scleractinia")
   
   c<-dcast(scl, formula=SITEVISITID + SITE+TRANSECT+COLONYID ~ COND, value.var="COND",length,fill=0)
-  c$ChronicDZ<-c$PDS+c$FUG+c$SGA+c$PTR
   c <- subset(c, select = -c(NDZ)) #remove columns
   a<-merge(survey_colony,c, by=c("SITE","SITEVISITID","TRANSECT","COLONYID"))
   long <- gather(a, COND, Condabun, names(a[22:dim(a)[2]]), factor_key=TRUE) #convert wide to long format by condition
@@ -360,7 +358,6 @@ Calc_Condden_Transect<-function(data, grouping_field="S_ORDER"){
   a<-rbind(longsum,out1)
   a<-subset(a,COND!="NONE")
   
-
   #convert wide to long
   abun<-dcast(a, formula=SITEVISITID +SITE+ TRANSECT+GROUP~ COND, value.var="Condabun",sum,fill=0)
   
@@ -379,173 +376,36 @@ Calc_Condden_Transect<-function(data, grouping_field="S_ORDER"){
   return(out)
 }
 
-
-## SITE LEVEL SUMMARY FUNCTIONS #######
-
-#This function calculates colony density at the site scale by first calculating the total survey area (using Calc_SurveyArea_By_Transect) then calcuating colony density
-#Use the grouping field to identify whether you want to look at GENUS_CODE or TAXONCODE
-#Use the other field to for summarizing data such as colony size bins, morphology, etc. Note: you will need to add a DUMMY column to the dataframe prior to using this funciton.
-#If you don't want to pass a variable into the other_field then the function will just spit out a DUMMY collumn that can be removed later. 
-Calc_ColDen_Site<-function(data, grouping_field="S_ORDER"){
-  
-  trarea<-Calc_SurveyArea_By_Site(data)
-  
-  #Remove scleractinan adult colony fragments
-  scl<-subset(data,Fragment==0)
-  
-  scl$GROUP<-scl[,grouping_field]
-
-  a<-ddply(scl, .(SITE,SITEVISITID, S_ORDER,GROUP), #change colabun to COUNT
-                summarise,
-           ColCount=length(COLONYID)) #change to count
-  
-  colden2<-merge(trarea,a, by=c("SITE","SITEVISITID"),all.x=TRUE)
-  
-  colden2$ColCount[is.na(colden2$ColCount)]<-0
-  
-  colden2$ColDen<-colden2$ColCount/colden2$TRANSECTAREA
-  
-  colden2<-subset(colden2,S_ORDER=="Scleractinia")
-  
-  cd<-dcast(colden2, formula=SITE + SITEVISITID  ~ GROUP, value.var="ColDen",fill=0)
-  ca<-dcast(colden2, formula=SITE + SITEVISITID  ~ GROUP, value.var="ColCount",fill=0)
-
-  cd$SSSS<-rowSums(cd[,names(cd[3:dim(cd)[2]]),drop=FALSE]) #calculate total colony density DOUBLE CHECK COMMAS
-  cd <- gather(cd, GROUP, ColDen, names(cd[3:dim(cd)[2]]), factor_key=TRUE) #convert wide to long format
-  
-  ca$SSSS<-rowSums(ca[,names(ca[3:dim(ca)[2]]),drop=FALSE]) #calculate total colony density
-  ca <- gather(ca, GROUP, ColCount, names(ca[3:dim(ca)[2]]), factor_key=TRUE) #convert wide to long format
-  
-  out<-merge(cd,ca, by=c("SITE","SITEVISITID","GROUP"))
-  
-  colnames(out)[which(colnames(out) == 'GROUP')] <- grouping_field #change group to whatever your grouping field is.
-  
-  return(out)
-}
-
-##This function calculates mean colony legnth, % recent dead, % old dead, condition severity or condition extent to the transect level
-Calc_ColMetric_Site<-function(data, grouping_field="S_ORDER",pool_fields=c("COLONYLENGTH","RDEXTENT1", "RDEXTENT2","OLDDEAD","SEVERITY","EXTENT")){
-  
-  scl<-subset(data,S_ORDER=="Scleractinia")
-  scl$GROUP<-scl[,grouping_field]
-  scl$y <- rowSums(scl[,pool_fields,drop=FALSE], na.rm=TRUE) #this will allow you to add the 2 recent dead columns if you are looking at this metric
-  
-  rd<-ddply(scl, .(SITE,SITEVISITID,GROUP),
-            summarise,
-            Ave.y=mean(y, na.rm=TRUE))
-  
-  rdtot<-ddply(scl, .(SITE,SITEVISITID),
-               summarise,
-               Ave.y=mean(y, na.rm=TRUE))
-  rdtot$GROUP<-"SSSS"; rdtot <- rdtot[c(1,2,4,3)]
-  # rd_wide<-dcast(rd, formula=SITE + SITEVISITID +OTHER ~ GROUP, value.var="Ave.y",fill=0)
-  # rd_long <- gather(rd_wide, GROUP, Ave.y, names(rd_wide[4:dim(rd_wide)[2]]), factor_key=TRUE) #convert wide to long format
-  rd_long<-rbind(rd_long,rdtot)
-  
-  colnames(rd_long)[which(colnames(rd_long) == 'GROUP')] <- grouping_field #change group to whatever your grouping field is.
-  
-  return(rd_long)
-}
-
-#This function calculate abundance  then the density of recent dead conditions by transect and taxonomic group
-#Transform RD1 and RD2 from long to wide format, remove other site AND TRANSECT level info
-
-Calc_RDden_Site<-function(data, grouping_field="S_ORDER"){
+#This function calculate ABUNDANCE of conditions conditions by transect and taxonomic group
+Calc_Condabun_Transect<-function(data, grouping_field="S_ORDER"){
   #Remove scleractinan adult colony fragments
   scl<-subset(data,COLONYLENGTH>5&S_ORDER=="Scleractinia")
   
-  rd1<-dcast(scl, formula=SITEVISITID + SITE+COLONYID ~ RD1, value.var="RD1",length,fill=0);names(rd1)<-gsub("DZGN","DZGNS",names(rd1),fixed = TRUE)#; rd1<-rd1[,-c(1:3)]
-  rd2<-dcast(scl, formula=SITEVISITID + SITE+COLONYID ~ RD2, value.var="RD2",length,fill=0) ;names(rd2)<-gsub("DZGN","DZGNS",names(rd2),fixed = TRUE)#; rd2<-rd2[,-c(1:3)]
-  rd3<-dcast(scl, formula=SITEVISITID + SITE+COLONYID ~ GENRD1, value.var="GENRD1",length,fill=0);colnames(rd3)[4:ncol(rd3)]<-paste("All",colnames(rd3[,c(4:ncol(rd3))]),sep="_") 
-  rd4<-dcast(scl, formula=SITEVISITID + SITE+COLONYID ~ GENRD2, value.var="GENRD2",length,fill=0);colnames(rd4)[4:ncol(rd4)]<-paste("All",colnames(rd4[,c(4:ncol(rd4))]),sep="_") 
-  
-  #merge all dataframes together
-  a<-merge(rd1,rd2,by=c("SITEVISITID","SITE","COLONYID"),all=TRUE)
-  b<-merge(a,rd3,by=c("SITEVISITID","SITE","COLONYID"),all=TRUE)
-  allrd<-merge(b,rd4,by=c("SITEVISITID","SITE","COLONYID"),all=TRUE)
-  
-  allrd<-allrd[,-c(1:2)] #remove all metadata except colonyid
-  
-  #R will add .x and .y to column names because there are columns that are identically names
-  # this will remove .x and .y so that we can sum identifically named columns
-  names(allrd)<-gsub(".x","",names(allrd),fixed = TRUE)
-  names(allrd)<-gsub(".y","",names(allrd),fixed = TRUE)
-  head(allrd)
-  
-  #Sum identically named columns and remove the no data column
-  allrd2<-as.data.frame(sapply(unique(colnames(allrd)), 
-                               function(x) rowSums(allrd[, colnames(allrd) == x, drop = FALSE])));allrd2<-allrd2[,!(colnames(allrd2) =="All_NONE")]
-  
-  #merge data with colony level metadata and sum conditions by transect and taxoncode
-  allrd3<-merge(survey_colony,allrd2, by="COLONYID")
-  long <- gather(allrd3, RDCond, abun, names(allrd3[22:dim(allrd3)[2]]), factor_key=TRUE) #convert wide to long format by condition
-  long$GROUP<-long[,grouping_field]
-  longsum<-ddply(long, .(SITE,SITEVISITID,GROUP,RDCond), #calc total colonies by taxon and condition
-                 summarise,
-                 RDabun=sum(abun))
-  out1<-ddply(longsum, .(SITE,SITEVISITID,RDCond), #calc total colonies by condition
-              summarise,
-              RDabun=sum(RDabun))
-  out1$GROUP<-"SSSS"; out1 <- out1[c(1,2,5,3,4)] #add total colony code
-  a<-rbind(longsum,out1)
-  a<-subset(a,RDCond!="NONE")
-  
-  #Convert back to wide format
-  abun<-dcast(a, formula=SITEVISITID +SITE + GROUP~ RDCond, value.var="RDabun",sum,fill=0)
-
-  trarea<-Calc_SurveyArea_By_Site(data) #calculate survey area/site
-  
-  #merge dataframes
-  ab.tr<-merge(trarea,abun,by=c("SITEVISITID","SITE"),all=TRUE)
-  ab.tr[is.na(ab.tr)]<-0
-
-  #calcualte density of each condition
-  cd<-ab.tr[, 5:ncol(ab.tr)]/ab.tr$TRANSECTAREA # selects every row and 2nd to last columns
-  out<-cbind(ab.tr[,1:4],cd)
- 
-  colnames(out)[which(colnames(out) == 'GROUP')] <- grouping_field #change group to whatever your grouping field is.
-  
-  return(out)
-}
-
-
-#This function calculate abundance then density of conditions conditions by transect and taxonomic group
-#Transform RD1 and RD2 from long to wide format, remove other site AND TRANSECT level info
-#WORK WITH IVOR TO BUILD IN MORE FLEXIBILITY FOR CONDITIONS
-Calc_Condden_Site<-function(data, grouping_field="S_ORDER"){
-  #Remove scleractinan adult colony fragments
-  scl<-subset(data,COLONYLENGTH>5&S_ORDER=="Scleractinia"&Adult_juv=="A")
-  
-  c<-dcast(scl, formula=SITEVISITID + SITE+COLONYID ~ COND, value.var="COND",length,fill=0)
-  c$ChronicDZ<-c$PDS+c$FUG+c$SGA
+  c<-dcast(scl, formula=SITEVISITID + SITE+TRANSECT+COLONYID ~ COND, value.var="COND",length,fill=0)
   c <- subset(c, select = -c(NDZ)) #remove columns
-  a<-merge(survey_colony,c, by=c("SITE","SITEVISITID","COLONYID"))
+  a<-merge(survey_colony,c, by=c("SITE","SITEVISITID","TRANSECT","COLONYID"))
   long <- gather(a, COND, Condabun, names(a[22:dim(a)[2]]), factor_key=TRUE) #convert wide to long format by condition
   
   #merge data with colony level metadata and sum conditions by transect and taxoncode
   long$GROUP<-long[,grouping_field]
-  longsum<-ddply(long, .(SITE,SITEVISITID,GROUP,COND),
+  longsum<-ddply(long, .(SITE,SITEVISITID,TRANSECT,GROUP,COND),
                  summarise,
                  Condabun=sum(Condabun))
-  out1<-ddply(longsum, .(SITE,SITEVISITID,COND), #calc total colonies by condition
+  out1<-ddply(longsum, .(SITE,SITEVISITID,TRANSECT,COND), #calc total colonies by condition
               summarise,
               Condabun=sum(Condabun))
-  out1$GROUP<-"SSSS"; out1 <- out1[c(1,2,3,5,4)] #add total colony code
+  out1$GROUP<-"SSSS"; out1 <- out1[c(1,2,3,6,4,5)] #add total colony code
   a<-rbind(longsum,out1)
+  a<-subset(a,COND!="NONE")
   
-  abun<-dcast(a, formula=SITEVISITID +SITE +GROUP~ COND, value.var="Condabun",sum,fill=0)
-
-  trarea<-Calc_SurveyArea_By_Site(data) #calculate survey area/site
   
-  #merge dataframes
-  ab.tr<-merge(trarea,abun,by=c("SITEVISITID","SITE"),all=TRUE)
-  ab.tr[is.na(ab.tr)]<-0
+  #convert wide to long
+  abun<-dcast(a, formula=SITEVISITID +SITE+ TRANSECT+GROUP~ COND, value.var="Condabun",sum,fill=0)
   
-  #calcualte density of each condition
-  cd<-ab.tr[, 5:ncol(ab.tr)]/ab.tr$TRANSECTAREA # selects every row and 2nd to last columns
-  out<-cbind(ab.tr[,1:4],cd)
+  colnames(abun)[which(colnames(abun) == 'GROUP')] <- grouping_field #change group to whatever your grouping field is.
   
-  colnames(out)[which(colnames(out) == 'GROUP')] <- grouping_field #change group to whatever your grouping field is.
+  cd<-Calc_ColDen_Transect(data,grouping_field)[,-c(6)]
+  out<-merge(abun,cd,by=c("SITEVISITID","SITE","TRANSECT",grouping_field))
   
   return(out)
 }
