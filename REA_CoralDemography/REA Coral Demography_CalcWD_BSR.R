@@ -237,109 +237,84 @@ awd2<-subset(awd,REGION=="SAMOA")
 jwd2<-subset(jwd,REGION=="SAMOA")
 
 #Create a look a table of all of the colony attributes- you will need this for the Calc_RDden and Calc_Condden functions
-SURVEY_INFO<-c("SITEVISITID", "OBS_YEAR", "REGION", "REGION_NAME", "ISLAND","ISLANDCODE","SEC_NAME", "SITE", "DATE_", "REEF_ZONE",
+SURVEY_INFO<-c("SITEVISITID", "OBS_YEAR", "REGION", "REGION_NAME", "ISLAND","ISLANDCODE","SITE", "DATE_", "REEF_ZONE",
                "DEPTH_BIN", "LATITUDE", "LONGITUDE","SITE_MIN_DEPTH_FT","SITE_MAX_DEPTH_FT","TRANSECT","COLONYID","GENUS_CODE","SPCODE","MORPH_CODE","COLONYLENGTH")
 survey_colony<-Aggregate_InputTable(awd2, SURVEY_INFO)
 
-SURVEY_INFO<-c("SITEVISITID", "OBS_YEAR", "REGION", "REGION_NAME", "ISLAND","ISLANDCODE","SEC_NAME", "SITE", "DATE_", "REEF_ZONE",
+SURVEY_INFO<-c("SITEVISITID", "OBS_YEAR", "REGION", "REGION_NAME", "ISLAND","ISLANDCODE", "SITE", "DATE_", "REEF_ZONE",
                "DEPTH_BIN", "LATITUDE", "LONGITUDE","SITE_MIN_DEPTH_FT","SITE_MAX_DEPTH_FT","TRANSECT")
 survey_transect<-Aggregate_InputTable(awd2, SURVEY_INFO)
 
-SURVEY_INFO<-c("SITEVISITID", "OBS_YEAR", "REGION", "REGION_NAME", "ISLAND","ISLANDCODE","SEC_NAME", "SITE", "DATE_", "REEF_ZONE",
+SURVEY_INFO<-c("SITEVISITID", "OBS_YEAR", "REGION", "REGION_NAME", "ISLAND","ISLANDCODE", "SITE", "DATE_", "REEF_ZONE",
                "DEPTH_BIN", "LATITUDE", "LONGITUDE","SITE_MIN_DEPTH_FT","SITE_MAX_DEPTH_FT")
 survey_site<-Aggregate_InputTable(awd2, SURVEY_INFO)
 
 
 # GENERATE SUMMARY METRICS at the transect-level for genus and spcode --------
 acd.gen<-Calc_ColDen_Transect(awd2,"GENUS_CODE");colnames(acd.gen)[colnames(acd.gen)=="ColCount"]<-"AdColCount";colnames(acd.gen)[colnames(acd.gen)=="ColDen"]<-"AdColDen"# calculate density at genus level as well as total
-rdden.gen<-Calc_RDden_Transect(awd2,"GENUS_CODE") # Density of recent dead colonies by condition, you will need to subset which ever condition you want
-condden.gen<-Calc_Condden_Transect(awd,"GENUS_CODE")# Density of condition colonies by condition, you will need to subset which ever condition you want
-ble.gen<-subset(condden.gen,select = c(SITEVISITID,SITE,TRANSECT,GENUS_CODE,BLE)) #subset just bleached colonies
+rdabun.gen<-Calc_RDabun_Transect(awd2,"GENUS_CODE") # abundance of recent dead colonies by condition, you will need to subset which ever condition you want
+condabun.gen<-Calc_Condabun_Transect(awd2,"GENUS_CODE")# abundance of condition colonies by condition, you will need to subset which ever condition you want
 jcd.gen<-Calc_ColDen_Transect(jwd2,"GENUS_CODE"); colnames(jcd.gen)[colnames(jcd.gen)=="ColCount"]<-"JuvColCount";colnames(jcd.gen)[colnames(jcd.gen)=="ColDen"]<-"JuvColDen"
 
 
 #at SPCODE level
-acd.tax<-Calc_ColDen_Transect(awd,"SPCODE");colnames(acd.tax)[colnames(acd.tax)=="ColCount"]<-"AdColCount";colnames(acd.tax)[colnames(acd.tax)=="ColDen"]<-"AdColDen"# calculate density at genus level as well as total
-rdden.tax<-Calc_RDden_Transect(awd,"SPCODE") 
-condden.tax<-Calc_Condden_Transect(awd,"GENUS_CODE")
-jcd.tax<-Calc_ColDen_Transect(jwd,"SPCODE"); colnames(jcd.tax)[colnames(jcd.tax)=="ColCount"]<-"JuvColCount";colnames(jcd.tax)[colnames(jcd.tax)=="ColDen"]<-"JuvColDen"
+acd.tax<-Calc_ColDen_Transect(awd2,"SPCODE");colnames(acd.tax)[colnames(acd.tax)=="ColCount"]<-"AdColCount";colnames(acd.tax)[colnames(acd.tax)=="ColDen"]<-"AdColDen"# calculate density at genus level as well as total
+rdabun.tax<-Calc_RDabun_Transect(awd2,"SPCODE") # abundance of recent dead colonies by condition, you will need to subset which ever condition you want
+condabun.tax<-Calc_Condabun_Transect(awd2,"SPCODE")# abundance of condition colonies by condition, you will need to subset which ever condition you want
+jcd.tax<-Calc_ColDen_Transect(jwd2,"SPCODE"); colnames(jcd.tax)[colnames(jcd.tax)=="ColCount"]<-"JuvColCount";colnames(jcd.tax)[colnames(jcd.tax)=="ColDen"]<-"JuvColDen"
 
-##Merge together recent dead, condition and adult density for GENUS CODE
-rd<-merge(m1,m2, by=c("SITE","SITEVISITID","TRANSECT","GENUS_CODE"),all.x=TRUE)
-con<-merge(m1,m3, by=c("SITE","SITEVISITID","TRANSECT","GENUS_CODE"),all.x=TRUE)
-con$Condabun[is.na(con$Condabun)]<-0 # Change NA to 0
-rd$RDabun[is.na(rd$RDabun)]<-0 # Change NA to 0
+#Calculate Chronic disease abudance
+condabun.gen$ChronicDZ<-condabun.gen$FUG+condabun.gen$SGA+condabun.gen$PDS+condabun.gen$PTR
+condabun.tax$ChronicDZ<-condabun.tax$FUG+condabun.tax$SGA+condabun.tax$PDS+condabun.tax$PTR
 
-head(con);head(rd)
-rd$rdprev<-rd$RDabun/rd$Colabun*100 #calculate prevalence
-con$condprev<-con$Condabun/con$Colabun*100 #calculate prevalence
+##Calculate Prevalence of whatever conditions you want
+rdabun.gen$AcuteDZprev<-rdabun.gen$AcuteDZ/rdabun.gen$ColCount*100 #calculate prevalence
+rdabun.gen$COTSprev<-rdabun.gen$COTS/rdabun.gen$ColCount*100 #calculate prevalence
+condabun.gen$ChronicDZprev<-condabun.gen$ChronicDZ/condabun.gen$ColCount*100 #calculate prevalence
+condabun.gen$BLEprev<-condabun.gen$BLE/condabun.gen$ColCount*100 #calculate prevalence
 
-AcuteDZ<-subset(rd,RDCond=="All_DZGN");colnames(AcuteDZ)[colnames(AcuteDZ)=="RDabun"]<-"AcuteDZabun";colnames(AcuteDZ)[colnames(AcuteDZ)=="rdprev"]<-"AcuteDZprev" #Change column name
-ChronicDZ<-subset(con,COND=="ChronicDZ");colnames(ChronicDZ)[colnames(ChronicDZ)=="Condabun"]<-"ChronicDZabun";colnames(ChronicDZ)[colnames(ChronicDZ)=="condprev"]<-"ChronicDZprev" #Change column name
-COTS<-subset(rd,RDCond=="COTS");colnames(COTS)[colnames(COTS)=="RDabun"]<-"COTSabun";colnames(COTS)[colnames(COTS)=="rdprev"]<-"COTSprev" #Change column name
-BLE<-subset(con,COND=="BLE");colnames(BLE)[colnames(BLE)=="Condabun"]<-"BLEabun";colnames(BLE)[colnames(BLE)=="condprev"]<-"BLEprev" #Change column name
-head(ChronicDZ)
-
-
-a1<-merge(AcuteDZ,ChronicDZ, by=c("DEPTH_BIN","REEF_ZONE","SITE","SITEVISITID","TRANSECT","GENUS_CODE","Colabun","ColDen"),all=TRUE) # THIS CODE GENERATES NAS IN THE RDCOND COLUMN FOR TAXA THAT AREN'T PRESENT ON TRANSECT. SPEAK WITH IVOR
-a2<-merge(a1,BLE, by=c("DEPTH_BIN","REEF_ZONE","SITE","SITEVISITID","TRANSECT","GENUS_CODE","Colabun","ColDen"),all=TRUE) # THIS CODE GENERATES NAS IN THE RDCOND COLUMN FOR TAXA THAT AREN'T PRESENT ON TRANSECT. SPEAK WITH IVOR
-a3<-merge(a2,COTS, by=c("DEPTH_BIN","REEF_ZONE","SITE","SITEVISITID","TRANSECT","GENUS_CODE","Colabun","ColDen"),all=TRUE) # THIS CODE GENERATES NAS IN THE RDCOND COLUMN FOR TAXA THAT AREN'T PRESENT ON TRANSECT. SPEAK WITH IVOR
-head(a3)
-
-a3$TotDZabun<-a3$AcuteDZabun+a3$ChronicDZabun
-a3$TotDZprev<-a3$TotDZabun/a3$Colabun
-colnames(a3)[colnames(a3)=="Colabun"]<-"AdultColabun"
-colnames(a3)[colnames(a3)=="ColDen"]<-"AdultColDen"
+##Calculate Prevalence of whatever conditions you want
+rdabun.tax$AcuteDZprev<-rdabun.tax$AcuteDZ/rdabun.tax$ColCount*100 #calculate prevalence
+rdabun.tax$COTSprev<-rdabun.tax$COTS/rdabun.tax$ColCount*100 #calculate prevalence
+condabun.tax$ChronicDZprev<-condabun.tax$ChronicDZ/condabun.tax$ColCount*100 #calculate prevalence
+condabun.tax$BLEprev<-condabun.tax$BLE/condabun.tax$ColCount*100 #calculate prevalence
 
 
-a3<- subset(a3, select=-c(RDCond.x,RDCond.y,COND.x,COND.y)) #remove extra columns
-gen<-merge(a3,m7,by =c("DEPTH_BIN","REEF_ZONE","SITE","SITEVISITID","TRANSECT","GENUS_CODE"),all=TRUE) #merge adult data with juv data
-gen[is.na(gen)]<-0 
-#gen<-merge(gen,survey_transect,by =c("DEPTH_BIN","REEF_ZONE","SITE","SITEVISITID","TRANSECT")) #merge adult data with juv data
+#Merging together genus-level metrics
+MyMerge <- function(x, y){
+  df <- merge(x, y, by= c("SITE","SITEVISITID","TRANSECT","GENUS_CODE"), all.x= TRUE, all.y= TRUE)
+  return(df)
+}
+data.gen<-Reduce(MyMerge, list(acd.gen,rdabun.gen,condabun.gen,jcd.gen))
+data.gen$TotDZprev<-(data.gen$AcuteDZ+data.gen$ChronicDZ)/data.gen$ColCount.x #Calculate total disease prevalence
+
+#Subset columns needed for analysis
+data.gen<-subset(data.gen,select=c("SITE","SITEVISITID","TRANSECT","GENUS_CODE","AdColDen",
+                                   "JuvColDen","BLEprev","TotDZprev","AcuteDZprev","ChronicDZprev","COTSprev"))
+
+#Merging together genus-level metrics
+MyMerge <- function(x, y){
+  df <- merge(x, y, by= c("SITE","SITEVISITID","TRANSECT","SPCODE"), all.x= TRUE, all.y= TRUE)
+  return(df)
+}
+data.tax<-Reduce(MyMerge, list(acd.tax,rdabun.tax,condabun.tax,jcd.tax))
+data.tax$TotDZprev<-(data.tax$AcuteDZ+data.tax$ChronicDZ)/data.tax$ColCount.x #Calculate total disease prevalence
+
+#Subset columns needed for analysis
+data.tax<-subset(data.tax,select=c("SITE","SITEVISITID","TRANSECT","SPCODE","AdColDen",
+                                   "JuvColDen","BLEprev","TotDZprev","AcuteDZprev","ChronicDZprev","COTSprev"))
 
 
-
-##Merge together recent dead, condition and adult density for SPCODE
-rd<-merge(m4,m5, by=c("SITE","SITEVISITID","TRANSECT","SPCODE"),all.x=TRUE)
-con<-merge(m4,m6, by=c("SITE","SITEVISITID","TRANSECT","SPCODE"),all.x=TRUE) # THIS CODE GENERATES NAS IN THE RDCOND COLUMN FOR TAXA THAT AREN'T PRESENT ON TRANSECT. SPEAK WITH IVOR
-#rd.<-ifelse(rd$Colabun==0& rd$RDCond=="NA",rd$RDabun=="NA",ifelse(rd$Colabun>0 & rd$RDabun=="NA",rd$RDabun==0,rd$RDabun==rd$RDabun))####this isn't working
-con$Condabun[is.na(con$Condabun)]<-0
-rd$RDabun[is.na(rd$RDabun)]<-0
-
-head(con);head(rd)
-rd$rdprev<-rd$RDabun/rd$Colabun*100 #calculate prevalence
-con$condprev<-con$Condabun/con$Colabun*100 #calculate prevalence
-
-AcuteDZ<-subset(rd,RDCond=="All_DZGN");colnames(AcuteDZ)[colnames(AcuteDZ)=="RDabun"]<-"AcuteDZabun";colnames(AcuteDZ)[colnames(AcuteDZ)=="rdprev"]<-"AcuteDZprev" #Change column name
-ChronicDZ<-subset(con,COND=="ChronicDZ");colnames(ChronicDZ)[colnames(ChronicDZ)=="Condabun"]<-"ChronicDZabun";colnames(ChronicDZ)[colnames(ChronicDZ)=="condprev"]<-"ChronicDZprev" #Change column name
-COTS<-subset(rd,RDCond=="COTS");colnames(COTS)[colnames(COTS)=="RDabun"]<-"COTSabun";colnames(COTS)[colnames(COTS)=="rdprev"]<-"COTSprev" #Change column name
-BLE<-subset(con,COND=="BLE");colnames(BLE)[colnames(BLE)=="Condabun"]<-"BLEabun";colnames(BLE)[colnames(BLE)=="condprev"]<-"BLEprev" #Change column name
-head(ChronicDZ)
-
-
-a1<-merge(AcuteDZ,ChronicDZ, by=c("DEPTH_BIN","REEF_ZONE","SITE","SITEVISITID","TRANSECT","SPCODE","Colabun","ColDen"),all=TRUE) # THIS CODE GENERATES NAS IN THE RDCOND COLUMN FOR TAXA THAT AREN'T PRESENT ON TRANSECT. SPEAK WITH IVOR
-a2<-merge(a1,BLE, by=c("DEPTH_BIN","REEF_ZONE","SITE","SITEVISITID","TRANSECT","SPCODE","Colabun","ColDen"),all=TRUE) # THIS CODE GENERATES NAS IN THE RDCOND COLUMN FOR TAXA THAT AREN'T PRESENT ON TRANSECT. SPEAK WITH IVOR
-a3<-merge(a2,COTS, by=c("DEPTH_BIN","REEF_ZONE","SITE","SITEVISITID","TRANSECT","SPCODE","Colabun","ColDen"),all=TRUE) # THIS CODE GENERATES NAS IN THE RDCOND COLUMN FOR TAXA THAT AREN'T PRESENT ON TRANSECT. SPEAK WITH IVOR
-head(a3)
-
-a3$TotDZabun<-a3$AcuteDZabun+a3$ChronicDZabun #Total abunadance of acute and chronic diseases
-a3$TotDZprev<-a3$TotDZabun/a3$Colabun #calculate prevalence
-colnames(a3)[colnames(a3)=="Colabun"]<-"AdultColabun" #change column names
-colnames(a3)[colnames(a3)=="ColDen"]<-"AdultColDen"
-
-
-a3<- subset(a3, select=-c(RDCond.x,RDCond.y,COND.x,COND.y)) #remove extra columns
-tax<-merge(a3,m8,by =c("DEPTH_BIN","REEF_ZONE","SITE","SITEVISITID","TRANSECT","SPCODE"),all=TRUE) #merge adult data with juv data
-tax[is.na(tax)]<-0 
-head(tax)
 
 ##Unweighted Summaries for Benthic Summary Reports
-bsrSITEg<-Calc_Sitemetrics_BSR(gen,"GENUS_CODE")
+bsrSITEg<-Calc_Sitemetrics_BSR(data.gen,"GENUS_CODE")
 bsrISg<-Calc_Islmetrics_BSR(bsrSITEg,"GENUS_CODE")
 bsrDEPTHg<-Calc_IslDepthmetrics_BSR(bsrSITEg,"GENUS_CODE")
-bsrSITEt<-Calc_Sitemetrics_BSR(tax,"SPCODE")
+bsrREEFZONEg<-Calc_IslReefZonemetrics_BSR(bsrSITEg,"GENUS_CODE")
+bsrSITEt<-Calc_Sitemetrics_BSR(data.tax,"SPCODE")
 bsrISt<-Calc_Islmetrics_BSR(bsrSITEt,"SPCODE")
 bsrDEPTHt<-Calc_IslDepthmetrics_BSR(bsrSITEt,"SPCODE")
+bsrREEFZONEt<-Calc_IslReefZonemetrics_BSR(bsrSITEt,"SPCODE")
 
 ##Create table for island level summaries for total sclerarctinans
 TotalScl_SITE<-subset(bsrSITEg,GENUS_CODE=="SSSS")

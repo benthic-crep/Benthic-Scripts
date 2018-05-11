@@ -5,6 +5,7 @@ library(data.table)
 library(plyr)
 library(gdata)
 library(tidyr)
+library(plotrix)
 
 
 
@@ -17,10 +18,6 @@ MyMerge <- function(x, y){
   return(df)
 }
 
-#standard error
-se<-function(e) {sd(e)/sqrt(length(e))}
-
-
 #Convert SPCODE in raw colony data to taxoncode.We use taxoncode because some taxa can not be reliably identified 
 #to species-level across observers and need to be rolled up to genus. -generates a look up table
 Convert_to_Taxoncode<-function(data){
@@ -28,7 +25,7 @@ Convert_to_Taxoncode<-function(data){
            summarise,
            count=length(COLONYID))
   b<-merge(a,taxa,by=c("REGION","OBS_YEAR","SPCODE"),all.x=T)
-  b$TAXONCODE<-ifelse(b$S_ORDER!="Scleractinia",as.character(b$SPCODE),ifelse(is.na(b$TAXON_NAME), as.character(b$GENUS_CODE),as.character(b$SPCODE))) #Change spcode to genus code if we do not uniformly id that taxon to species level
+  b$TAXONCODE<-ifelstd.error(b$S_ORDER!="Scleractinia",as.character(b$SPCODE),ifelstd.error(is.na(b$TAXON_NAME), as.character(b$GENUS_CODE),as.character(b$SPCODE))) #Change spcode to genus code if we do not uniformly id that taxon to species level
   b$TAXONCODE[b$TAXONCODE==""] <- "UNKN" #Convert unknown species or codes that aren't in our taxa list to unknown
   out<-merge(data,b,by=c("REGION","OBS_YEAR","GENUS_CODE","SPCODE","S_ORDER"))
   out<-subset(out,select=-c(count,TAXON_NAME,TAXAGROUP)) #merge to master taxa list
@@ -670,16 +667,17 @@ Calc_Domain_Prevalence=function(site_data,grouping_field="S_ORDER",metric_field)
 
 
 Calc_Sitemetrics_BSR<-function(data, grouping_field){
-  a<-merge(data,survey_transect,by=c("DEPTH_BIN","REEF_ZONE","SITE","SITEVISITID","TRANSECT"))
+  a<-merge(data,survey_transect,by=c("SITE","SITEVISITID","TRANSECT"))
   a$GROUP<-a[,grouping_field]
-  out<-ddply(a, .(OBS_YEAR,REGION,ISLAND,SITE,LATITUDE,LONGITUDE,DEPTH_BIN,GROUP),
+  out<-ddply(a, .(OBS_YEAR,REGION,ISLAND,SITE,LATITUDE,LONGITUDE,REEF_ZONE,DEPTH_BIN,GROUP),
                 summarise,
-                ACD=mean(AdultColDen),
-                JCD=mean(JuvColDen),
-                BLE=mean(BLEprev),
-                DZ=mean(TotDZprev),
-                AcuteDZ=mean(AcuteDZprev),
-                ChrDZ=mean(ChronicDZprev))
+                ACD=mean(AdColDen,na.rm = TRUE),
+                JCD=mean(JuvColDen,na.rm = TRUE),
+                BLE=mean(BLEprev,na.rm = TRUE),
+                COTS=mean(COTSprev,na.rm=TRUE),
+                DZ=mean(TotDZprev,na.rm = TRUE),
+                AcuteDZ=mean(AcuteDZprev,na.rm = TRUE),
+                ChrDZ=mean(ChronicDZprev,na.rm = TRUE))
   
   colnames(out)[which(colnames(out) == 'GROUP')] <- grouping_field #change group to whatever your grouping field is.
   
@@ -690,18 +688,18 @@ Calc_Islmetrics_BSR<-function(data, grouping_field="GENUS_CODE"){
   data$GROUP<-data[,grouping_field]
   out<-ddply(data, .(OBS_YEAR,REGION,ISLAND,GROUP),
                 summarise,
-                meanAdultColDen=mean(ACD),
-                meanJuvColDen=mean(JCD),
-                meanBLE=mean(BLE),
-                meanAcuteDZ=mean(AcuteDZ),
-                meanChrDZ=mean(ChrDZ),
-                meanDZ=mean(DZ),
-                seAdultColDen=se(ACD),
-                seJuvColDen=se(JCD),
-                seBLE=se(BLE),
-                seAcuteDZ=se(AcuteDZ),
-                seChrDZ=se(ChrDZ),
-                seDZ=se(DZ),
+                meanAdultColDen=mean(ACD,na.rm = TRUE),
+                meanJuvColDen=mean(JCD,na.rm = TRUE),
+                meanBLE=mean(BLE,na.rm = TRUE),
+                meanAcuteDZ=mean(AcuteDZ,na.rm = TRUE),
+                meanChrDZ=mean(ChrDZ,na.rm = TRUE),
+                meanDZ=mean(DZ,na.rm = TRUE),
+                seAdultColDen=std.error(ACD,na.rm=TRUE),
+                seJuvColDen=std.error(JCD,na.rm=TRUE),
+                seBLE=std.error(BLE,na.rm=TRUE),
+                seAcuteDZ=std.error(AcuteDZ,na.rm=TRUE),
+                seChrDZ=std.error(ChrDZ,na.rm=TRUE),
+                seDZ=std.error(DZ,na.rm=TRUE),
                 ntot=length(SITE))
   
   colnames(out)[which(colnames(out) == 'GROUP')] <- grouping_field #change group to whatever your grouping field is.
@@ -713,18 +711,18 @@ Calc_IslDepthmetrics_BSR<-function(data, grouping_field="GENUS_CODE"){
   data$GROUP<-data[,grouping_field]
   out<-ddply(data, .(OBS_YEAR,REGION,ISLAND,DEPTH_BIN,GROUP),
              summarise,
-             meanAdultColDen=mean(ACD),
-             meanJuvColDen=mean(JCD),
-             meanBLE=mean(BLE),
-             meanAcuteDZ=mean(AcuteDZ),
-             meanChrDZ=mean(ChrDZ),
-             meanDZ=mean(DZ),
-             seAdultColDen=se(ACD),
-             seJuvColDen=se(JCD),
-             seBLE=se(BLE),
-             seAcuteDZ=se(AcuteDZ),
-             seChrDZ=se(ChrDZ),
-             seDZ=se(DZ),
+             meanAdultColDen=mean(ACD,na.rm=TRUE),
+             meanJuvColDen=mean(JCD,na.rm=TRUE),
+             meanBLE=mean(BLE,na.rm=TRUE),
+             meanAcuteDZ=mean(AcuteDZ,na.rm=TRUE),
+             meanChrDZ=mean(ChrDZ,na.rm=TRUE),
+             meanDZ=mean(DZ,na.rm=TRUE),
+             seAdultColDen=std.error(ACD,na.rm=TRUE),
+             seJuvColDen=std.error(JCD,na.rm=TRUE),
+             seBLE=std.error(BLE,na.rm=TRUE),
+             seAcuteDZ=std.error(AcuteDZ,na.rm=TRUE),
+             seChrDZ=std.error(ChrDZ,na.rm=TRUE),
+             seDZ=std.error(DZ,na.rm=TRUE),
              ntot=length(SITE))
   
   colnames(out)[which(colnames(out) == 'GROUP')] <- grouping_field #change group to whatever your grouping field is.
@@ -732,8 +730,28 @@ Calc_IslDepthmetrics_BSR<-function(data, grouping_field="GENUS_CODE"){
   return(out)
 }
 
-
-#reef zone function
+Calc_IslReefZonemetrics_BSR<-function(data, grouping_field="GENUS_CODE"){
+  data$GROUP<-data[,grouping_field]
+  out<-ddply(data, .(OBS_YEAR,REGION,ISLAND,REEF_ZONE,GROUP),
+             summarise,
+             meanAdultColDen=mean(ACD,na.rm=TRUE),
+             meanJuvColDen=mean(JCD,na.rm=TRUE),
+             meanBLE=mean(BLE,na.rm=TRUE),
+             meanAcuteDZ=mean(AcuteDZ,na.rm=TRUE),
+             meanChrDZ=mean(ChrDZ,na.rm=TRUE),
+             meanDZ=mean(DZ,na.rm=TRUE),
+             seAdultColDen=std.error(ACD,na.rm=TRUE),
+             seJuvColDen=std.error(JCD,na.rm=TRUE),
+             seBLE=std.error(BLE,na.rm=TRUE),
+             seAcuteDZ=std.error(AcuteDZ,na.rm=TRUE),
+             seChrDZ=std.error(ChrDZ,na.rm=TRUE),
+             seDZ=std.error(DZ,na.rm=TRUE),
+             ntot=length(SITE))
+  
+  colnames(out)[which(colnames(out) == 'GROUP')] <- grouping_field #change group to whatever your grouping field is.
+  
+  return(out)
+}
 
 
 
