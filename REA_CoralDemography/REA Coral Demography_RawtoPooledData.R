@@ -320,11 +320,10 @@ head(awd)
 
 ##Change Transects 3 and 4 in the juvenile data to 1 and 2 so we can merge with adult data
 #BE CAREFUL- because we survey different areas for adults and juveniles you can not merge together ad and juvs until AFTER you calculate density
-jwd$TRANSECT[jwd$TRANSECT == "3"] <- "1"
 jwd$TRANSECT[jwd$TRANSECT == "4"] <- "2"
 
 
-#test functions on HAWAII ISLAND data to test code
+# #test functions on HAWAII ISLAND data to test code
 awd2<-subset(awd,REGION=="MHI")
 jwd2<-subset(jwd,REGION=="MHI")
 
@@ -333,17 +332,33 @@ SURVEY_INFO<-c("SITEVISITID", "OBS_YEAR", "REGION", "REGION_NAME", "ISLAND","ISL
                "DEPTH_BIN", "LATITUDE", "LONGITUDE","SITE_MIN_DEPTH_FT","SITE_MAX_DEPTH_FT","TRANSECT","COLONYID","GENUS_CODE","TAXONCODE","MORPH_CODE","COLONYLENGTH")
 survey_colony<-Aggregate_InputTable(awd2, SURVEY_INFO)
 
+SURVEY_INFO<-c("SITEVISITID", "OBS_YEAR", "REGION", "REGION_NAME", "ISLAND","ISLANDCODE","SEC_NAME", "SITE", "DATE_", "REEF_ZONE",
+               "DEPTH_BIN", "LATITUDE", "LONGITUDE","SITE_MIN_DEPTH_FT","SITE_MAX_DEPTH_FT")
+survey_site<-Aggregate_InputTable(jwd, SURVEY_INFO)
 
 # GENERATE SUMMARY METRICS at the transect-level  --------------------------------------------------
 
 acd.gen<-Calc_ColDen_Transect(awd,"GENUS_CODE");colnames(acd.gen)[colnames(acd.gen)=="ColCount"]<-"AdColCount";colnames(acd.gen)[colnames(acd.gen)=="ColDen"]<-"AdColDen"# calculate density at genus level as well as total
-size.gen<-Calc_ColMetric_Transect(awd2,"GENUS_CODE","COLONYLENGTH"); colnames(size.gen)[colnames(size.gen)=="Ave.y"]<-"Ave.size" #Average colony length
-od.gen<-Calc_ColMetric_Transect(awd2,"GENUS_CODE","OLDDEAD"); colnames(od.gen)[colnames(od.gen)=="Ave.y"]<-"Ave.od" #Average % old dead
-rd.gen<-Calc_ColMetric_Transect(awd2,"GENUS_CODE",c("RDEXTENT1", "RDEXTENT2")); colnames(rd.gen)[colnames(rd.gen)=="Ave.y"]<-"Ave.rd" #Average % recent dead
-rdden.gen<-Calc_RDden_Transect(awd2,"GENUS_CODE") # Density of recent dead colonies by condition, you will need to subset which ever condition you want
-condden.gen<-Calc_Condden_Transect(awd2,"GENUS_CODE")# Density of condition colonies by condition, you will need to subset which ever condition you want
+size.gen<-Calc_ColMetric_Transect(awd,"GENUS_CODE","COLONYLENGTH"); colnames(size.gen)[colnames(size.gen)=="Ave.y"]<-"Ave.size" #Average colony length
+od.gen<-Calc_ColMetric_Transect(awd,"GENUS_CODE","OLDDEAD"); colnames(od.gen)[colnames(od.gen)=="Ave.y"]<-"Ave.od" #Average % old dead
+rd.gen<-Calc_ColMetric_Transect(awd,"GENUS_CODE",c("RDEXTENT1", "RDEXTENT2")); colnames(rd.gen)[colnames(rd.gen)=="Ave.y"]<-"Ave.rd" #Average % recent dead
+rdden.gen<-Calc_RDden_Transect(awd,"GENUS_CODE") # Density of recent dead colonies by condition, you will need to subset which ever condition you want
+condden.gen<-Calc_Condden_Transect(awd,"GENUS_CODE")# Density of condition colonies by condition, you will need to subset which ever condition you want
 ble.gen<-subset(condden.gen,select = c(SITEVISITID,SITE,TRANSECT,GENUS_CODE,BLE)) #subset just bleached colonies
-jcd.gen<-Calc_ColDen_Transect(jwd2,"GENUS_CODE"); colnames(jcd.gen)[colnames(jcd.gen)=="ColCount"]<-"JuvColCount";colnames(jcd.gen)[colnames(jcd.gen)=="ColDen"]<-"JuvColDen"
+jcd.gen<-Calc_ColDen_Transect(jwd,"GENUS_CODE"); colnames(jcd.gen)[colnames(jcd.gen)=="ColCount"]<-"JuvColCount";colnames(jcd.gen)[colnames(jcd.gen)=="ColDen"]<-"JuvColDen"
+
+#convert from long to wide and change to genus name
+load("ALL_REA_JUVCORAL_RAW.rdata");head(df)
+SURVEY_INFO<-c("GENUS_CODE","GENUS")
+taxa<-Aggregate_InputTable(df, SURVEY_INFO)
+a<-data.frame("SSSS","Total_Scleractinia")
+names(a)<-c("GENUS_CODE","GENUS")
+taxa<-rbind(taxa,a)
+jcd.gen<-merge(taxa,jcd.gen,by=c("GENUS_CODE"),all.y=TRUE)
+
+jcd.gen.wide<-dcast(jcd.gen, formula=SITEVISITID + SITE ~ GENUS, value.var="JuvColDen",sum);head(jcd.gen.long)
+jcd.all<-merge(survey_site,jcd.gen.wide,by=c("SITEVISITID", "SITE"))
+write.csv(jcd.all,"AllCoralJuvenile_bysite.csv")
 
 
 #at TAXONCODE level
