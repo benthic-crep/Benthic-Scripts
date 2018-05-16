@@ -25,7 +25,7 @@ Convert_to_Taxoncode<-function(data){
            summarise,
            count=length(COLONYID))
   b<-merge(a,taxa,by=c("REGION","OBS_YEAR","SPCODE"),all.x=T)
-  b$TAXONCODE<-ifelstd.error(b$S_ORDER!="Scleractinia",as.character(b$SPCODE),ifelstd.error(is.na(b$TAXON_NAME), as.character(b$GENUS_CODE),as.character(b$SPCODE))) #Change spcode to genus code if we do not uniformly id that taxon to species level
+  b$TAXONCODE<-ifelse(b$S_ORDER!="Scleractinia",as.character(b$SPCODE),ifelse(is.na(b$TAXON_NAME), as.character(b$GENUS_CODE),as.character(b$SPCODE))) #Change spcode to genus code if we do not uniformly id that taxon to species level
   b$TAXONCODE[b$TAXONCODE==""] <- "UNKN" #Convert unknown species or codes that aren't in our taxa list to unknown
   out<-merge(data,b,by=c("REGION","OBS_YEAR","GENUS_CODE","SPCODE","S_ORDER"))
   out<-subset(out,select=-c(count,TAXON_NAME,TAXAGROUP)) #merge to master taxa list
