@@ -65,6 +65,7 @@ head(x)
 # 
 
 
+
 #read in list of taxa that we feel comfortable identifying to species or genus level. Note, taxa lists vary by year and region. This will need to be updated through time.
 taxa<-read.csv("2013-17_Taxa_MASTER.csv")
 
@@ -73,11 +74,21 @@ nrow(x)
 #Convert SPCODE in raw colony data to TAXONCODE -generates a look up table
 x.<-Convert_to_Taxoncode(x)
 
-#There are some SPCODES that were a combination of taxa and weren't included in the complete taxa list
-#Change these unknown genus or taxoncodes to the spcode and the remaining NAs in the Taxon and genus code to AAAA
+#Check to see whether there are hard corals that have a SPCODE and GENUSCODE but no S_ORDER
+test<-x.[is.na(x.$S_ORDER),]
+levels(test$SPCODE) #there should be not hard corals in this list
+
+#Change columns to character
 x.$GENUS_CODE<-as.character(x.$GENUS_CODE)
 x.$SPCODE<-as.character(x.$SPCODE)
 x.$TAXONCODE<-as.character(x.$TAXONCODE)
+x.$S_ORDER<-as.character(x.$S_ORDER)
+
+#This will fix errors where there is missing s_order for hard corals
+x.$S_ORDER<-ifelse(x.$GENUS_CODE %in% taxa$SPCODE,"Scleractinia",x.$S_ORDER)
+
+#There are some SPCODES that were a combination of taxa and weren't included in the complete taxa list
+#Change these unknown genus or taxoncodes to the spcode and the remaining NAs in the Taxon and genus code to AAAA
 
 x.$GENUS_CODE<-ifelse(is.na(x.$GENUS_CODE)&x.$S_ORDER=="Scleractinia",x.$SPCODE,x.$GENUS_CODE)
 x.$TAXONCODE<-ifelse(is.na(x.$TAXONCODE)&x.$S_ORDER=="Scleractinia",x.$SPCODE,x.$TAXONCODE)
