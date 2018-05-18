@@ -2,12 +2,12 @@
 # This script will calculate unweighted estimates for benthic summary reports at the site, strata, and island level
 
 bsr <- "single" # choose single or multi -- if single, enter island name; multi, enter region name
-isl <- "WAK"
+isl <- "Wake"
 reg <- "PRIAs" # choose region (options: MHI, MARIAN, PRIAs, NWHI, SAMOA)
   # reg_mar <- "SMAR" or "NMAR" -- if choosing the Mariana Archipelago, specify if you want to focus on the northern or southern islands ** OPTIONAL **
 yr <- 2017 # choose year
-targ_sp <- c("FSTE", "PDUE", "PMEA", "PVAR") # choose target species
-targ_gen <- c("ACSP", "MOSP", "POCS", "POSP") # choose target genera
+targ_sp <- c("ABRE", "FMAT", "PMEA", "PVAR") # choose target species
+targ_gen <- c("FAVS", "GONS", "MOSP", "POCS", "POSP") # choose target genera
 
 # set working directory
 setwd("T:/Benthic/Data/REA Coral Demography/Raw from Oracle")
@@ -28,16 +28,23 @@ jwd_c$ISLAND <- as.character(jwd_c$ISLAND)
 jwd_c$ISLAND[jwd_c$ISLAND == "Farallon de Pajaros"] <- "FDP"
 jwd_c$ISLAND <- as.factor(jwd_c$ISLAND)
 
-# subset to REGION and YEAR of interest
+# subset to REGION/ISLAND and YEAR of interest
+if(bsr == "multi"){
 awd_c <- awd_c[ (awd_c$REGION == reg & awd_c$OBS_YEAR == yr),]
 jwd_c <- jwd_c[ (jwd_c$REGION == reg & jwd_c$OBS_YEAR == yr),]
+  if(reg_mar == "SMAR"){
+    awd_c <- awd_c[ (awd_c$ISLAND %in% island_order(SMAR_order)),]
+  }
+  if(reg_mar == "NMAR"){
+    awd_c <- awd_c[ (awd_c$ISLAND %in% island_order(NMAR_order)),]
+  }
+}
 
-if(reg_mar == "SMAR"){
-  awd_c <- awd_c[ (awd_c$ISLAND %in% island_order(SMAR_order)),]
+if(bsr == "single"){
+  awd_c <- awd_c[ (awd_c$ISLAND == isl & awd_c$OBS_YEAR == yr),]
+  jwd_c <- jwd_c[ (jwd_c$ISLAND == isl & jwd_c$OBS_YEAR == yr),]
 }
-if(reg_mar == "NMAR"){
-  awd_c <- awd_c[ (awd_c$ISLAND %in% island_order(NMAR_order)),]
-}
+
 
 # create table of all of the colony attributes - need this for the Calc_RDden and Calc_Condden functions
 SURVEY_INFO<-c("SITEVISITID", "OBS_YEAR", "REGION", "REGION_NAME", "ISLAND","ISLANDCODE","SITE", "DATE_", "REEF_ZONE",
@@ -59,7 +66,7 @@ write.csv(survey_site, paste(reg, yr, "surveySite.csv", sep = "_"))
 awd_c <- awd_c[ which(awd_c$REEF_ZONE == "Forereef"),]
 jwd_c <- jwd_c[ which(jwd_c$REEF_ZONE == "Forereef"),]
 
-# GENERATE SUMMARY METRICS at the transect-level for genus and spcode --------
+# GENERATE SUMMARY METRICS at the transect-level for genus and spcode -------- 
 acd.gen<-Calc_ColDen_Transect(awd_c,"GENUS_CODE");colnames(acd.gen)[colnames(acd.gen)=="ColCount"]<-"AdColCount";colnames(acd.gen)[colnames(acd.gen)=="ColDen"]<-"AdColDen"# calculate density at genus level as well as total
 rdabun.gen<-Calc_RDabun_Transect(awd_c,"GENUS_CODE") # abundance of recent dead colonies by condition, you will need to subset which ever condition you want
 condabun.gen<-Calc_Condabun_Transect(awd_c,"GENUS_CODE")# abundance of condition colonies by condition, you will need to subset which ever condition you want
@@ -71,7 +78,15 @@ rdabun.tax<-Calc_RDabun_Transect(awd_c,"SPCODE") # abundance of recent dead colo
 condabun.tax<-Calc_Condabun_Transect(awd_c,"SPCODE")# abundance of condition colonies by condition, you will need to subset which ever condition you want
 jcd.tax<-Calc_ColDen_Transect(jwd_c,"SPCODE"); colnames(jcd.tax)[colnames(jcd.tax)=="ColCount"]<-"JuvColCount";colnames(jcd.tax)[colnames(jcd.tax)=="ColDen"]<-"JuvColDen"
 
-# Calculate Chronic disease abudance
+# Calculate Chronic disease abudance 
+#### this is where I am encoutering problems-- Calc_Condabun_Transect does not seem to be working properly
+      # I am getting rows of NAs, and the following workaround I made for calculating total chronic disease prevalence is not working
+      # I had to make the workaround to begin with because Calc_Condabun only creates columns with conditions that were observed in the awd data
+      # However to calculate the total chronic disease prev we need there to be columns containing zero values for the conditions that were not observed
+      # This worked when I was calculating condition prev for PRIAs 2015 as a whole, but my test for Wake 2017 is not working.
+      # I can see that there were occurences of FUG at Wake in 2017, but Calc_Condabun does not seem to be recognizing them because they are not showing up in the condabun.gen/tax data frames
+      # ^ this issue is also happening for other condition codes like ALG
+
 chrdiz <- c("FUG", "SGA", "PDS", "PTR")
 
 for(i in c(1:length(chrdiz))){
@@ -79,7 +94,6 @@ for(i in c(1:length(chrdiz))){
   if(nrow(awd_c[ which(awd_c$COND == chrdiz[i]),]) == 0){
     condabun.gen[chrdiz[i]] <- 0 # if no occurences of a chronic disease condition -- need to add in a column of zeros for the code to work
     condabun.tax[chrdiz[i]] <- 0 # if no occurences of a chronic disease condition -- need to add in a column of zeros for the code to work
-    
   }
 }
 condabun.gen$ChronicDZ<-condabun.gen$FUG+condabun.gen$SGA+condabun.gen$PDS+condabun.gen$PTR
