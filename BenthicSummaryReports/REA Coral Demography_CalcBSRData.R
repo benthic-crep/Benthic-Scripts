@@ -1,12 +1,13 @@
 # CREATE UNWEIGHTED ESTIMATES BSR STEP 2 #
 # This script will calculate unweighted estimates for benthic summary reports at the site, strata, and island level
 
+bsr <- "single" # choose single or multi -- if single, enter island name; multi, enter region name
+isl <- "WAK"
 reg <- "PRIAs" # choose region (options: MHI, MARIAN, PRIAs, NWHI, SAMOA)
   # reg_mar <- "SMAR" or "NMAR" -- if choosing the Mariana Archipelago, specify if you want to focus on the northern or southern islands ** OPTIONAL **
-yr <- 2015 # choose year
+yr <- 2017 # choose year
 targ_sp <- c("FSTE", "PDUE", "PMEA", "PVAR") # choose target species
 targ_gen <- c("ACSP", "MOSP", "POCS", "POSP") # choose target genera
-
 
 # set working directory
 setwd("T:/Benthic/Data/REA Coral Demography/Raw from Oracle")
