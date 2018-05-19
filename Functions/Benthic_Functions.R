@@ -252,7 +252,7 @@ Calc_RDden_Transect<-function(data, grouping_field="S_ORDER"){
   
   #merge data with colony level metadata and sum conditions by transect and taxoncode
   allrd3<-merge(survey_colony,rd.new, by=c("SITEVISITID","SITE","TRANSECT","COLONYID"))
-  long <- gather(allrd3, RDCond, abun, names(allrd3[22:dim(allrd3)[2]]), factor_key=TRUE) #convert wide to long format by condition
+  long <- gather(allrd3, RDCond, abun, names(allrd3[21:dim(allrd3)[2]]), factor_key=TRUE) #convert wide to long format by condition
   long$GROUP<-long[,grouping_field]
   longsum<-ddply(long, .(SITE,SITEVISITID,TRANSECT,GROUP,RDCond), #calc total colonies by taxon and condition
                  summarise,
@@ -307,7 +307,7 @@ Calc_RDabun_Transect<-function(data, grouping_field="S_ORDER"){
   
   #merge data with colony level metadata and sum conditions by transect and taxoncode
   allrd3<-merge(survey_colony,rd.new, by=c("SITEVISITID","SITE","TRANSECT","COLONYID"))
-  long <- gather(allrd3, RDCond, abun, names(allrd3[22:dim(allrd3)[2]]), factor_key=TRUE) #convert wide to long format by condition
+  long <- gather(allrd3, RDCond, abun, names(allrd3[21:dim(allrd3)[2]]), factor_key=TRUE) #convert wide to long format by condition
   long$GROUP<-long[,grouping_field]
   longsum<-ddply(long, .(SITE,SITEVISITID,TRANSECT,GROUP,RDCond), #calc total colonies by taxon and condition
                  summarise,
@@ -341,7 +341,7 @@ Calc_Condden_Transect<-function(data, grouping_field="S_ORDER"){
   c<-dcast(scl, formula=SITEVISITID + SITE+TRANSECT+COLONYID ~ COND, value.var="COND",length,fill=0)
   c <- subset(c, select = -c(NDZ)) #remove columns
   a<-merge(survey_colony,c, by=c("SITE","SITEVISITID","TRANSECT","COLONYID"))
-  long <- gather(a, COND, Condabun, names(a[22:dim(a)[2]]), factor_key=TRUE) #convert wide to long format by condition
+  long <- gather(a, COND, Condabun, names(a[21:dim(a)[2]]), factor_key=TRUE) #convert wide to long format by condition
   
   #merge data with colony level metadata and sum conditions by transect and taxoncode
   long$GROUP<-long[,grouping_field]
@@ -381,7 +381,7 @@ Calc_Condabun_Transect<-function(data, grouping_field="S_ORDER"){
   c<-dcast(scl, formula=SITEVISITID + SITE+TRANSECT+COLONYID ~ COND, value.var="COND",length,fill=0)
   c <- subset(c, select = -c(NDZ)) #remove columns
   a<-merge(survey_colony,c, by=c("SITE","SITEVISITID","TRANSECT","COLONYID"))
-  long <- gather(a, COND, Condabun, names(a[22:dim(a)[2]]), factor_key=TRUE) #convert wide to long format by condition
+  long <- gather(a, COND, Condabun, names(a[21:dim(a)[2]]), factor_key=TRUE) #convert wide to long format by condition
   
   #merge data with colony level metadata and sum conditions by transect and taxoncode
   long$GROUP<-long[,grouping_field]
