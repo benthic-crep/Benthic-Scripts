@@ -6,8 +6,7 @@ library(plyr)
 library(gdata)
 library(tidyr)
 library(plotrix)
-
-
+library(scales)  # for pretty_breaks() function
 
 
 # GENERAL FUNCTIONS -------------------------------------------------------

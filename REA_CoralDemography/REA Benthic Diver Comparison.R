@@ -8,21 +8,12 @@
 # currently this is set up to specify the following data: data, date 1, date 2, date 3; e.g. divervsdiver(working.data, date1="2015-03-27", date2="2015-03-28", date3="2015-03-29")
 # divervsdiver function saves one png containing 1 graph for each benthic REA summary metric in the working directory
 
-
-library(reshape2)
-library(ggplot2)  ## to create the diver vs diver graphs
-library(data.table)
-library(plyr)  # rename() function
-library(gdata)
-library(tidyr)
-library(scales)  # for pretty_breaks() function
-
 # clear workspace 
 rm(list=ls()) # clear all variables
 
 # Need to source benthic team functions for functions to run throughout this script. Change directory to wherever files are located on personal computer
-source("~/Documents/GitHub/Benthic-Scripts/Functions/Benthic_functions.R")
-source("~/Documents/GitHub/Benthic-Scripts/Functions/core_functions.R")
+source("C:/Users/Courtney.S.Couch/Documents/GitHub/Benthic-Scripts/Functions/Benthic_Functions.R")
+source("C:/Users/Courtney.S.Couch/Documents/GitHub/Benthic-Scripts/Functions/core_functions.R")
   
 
 
@@ -33,7 +24,7 @@ source("~/Documents/GitHub/Benthic-Scripts/Functions/core_functions.R")
 # This script will clean the raw benthic REA data using method E (2013-present) and prepare it for analysis
 ######################################################################
 ## LOAD benthic data
-load("C:/Users/Courtney.S.Couch/Documents/Courtney's Files/R Files/ESD/Benthic REAALL_REA_ADULTCORAL_RAW.rdata") #from oracle
+load("C:/Users/Courtney.S.Couch/Documents/Courtney's Files/R Files/ESD/Benthic REA/ALL_REA_ADULTCORAL_RAW.rdata") #from oracle
 x<-df #leave this as df
 
 x$SITE<-SiteNumLeadingZeros(x$SITE) # Change site number such as MAR-22 to MAR-0022
@@ -159,7 +150,7 @@ awd<-droplevels(x)
 
 ## CREATE JUVENILE CLEAN ANALYSIS READY DATA ----
 
-load("ALL_REA_JUVCORAL_RAW.rdata")
+load("C:/Users/Courtney.S.Couch/Documents/Courtney's Files/R Files/ESD/Benthic REA/ALL_REA_JUVCORAL_RAW.rdata")
 x<-df
 x$SITE<-SiteNumLeadingZeros(x$SITE)
 
@@ -281,21 +272,25 @@ survey_site<-Aggregate_InputTable(awd2, SURVEY_INFO)
 
 ## Calculate density for adults
 compdata2 <- Calc_ColDen_Seg(data=awd2, grouping_field="GENUS_CODE")
-compdata2 <- rename(compdata2, c("ColCount"="ColCount.ad", "ColDen"="ColDen.ad")) # rename columns for merging with juv data (later)
+setnames(compdata2, old = c("ColCount","ColDen"), new = c("ColCount.ad","ColDen.ad"))
+
 ## Calculate density for juvs
 compdata2.juv <- Calc_ColDen_Seg(data=jwd2, grouping_field="GENUS_CODE")
-compdata2.juv <- rename(compdata2.juv, c("ColCount"="ColCount.juv", "ColDen"="ColDen.juv")) # rename columns for merging with adult data (later)
+setnames(compdata2.juv, old = c("ColCount","ColDen"), new = c("ColCount.juv","ColDen.juv"))
 
 ## Calculate colony length for adults
 compdata3 <- Calc_ColMetric_Seg(data=awd2, grouping_field="GENUS_CODE", pool_fields="COLONYLENGTH") 
-compdata3 <- rename(compdata3, c("AvgCOLONYLENGTH"="AvgCOLONYLENGTH.ad")) # rename columns for merging with juv data (later)
+setnames(compdata3, old = c("AvgCOLONYLENGTH"), new = c("AvgCOLONYLENGTH.ad"))
+
 ## Calculate colony length for juvs
 compdata3.juv <- Calc_ColMetric_Seg(data=jwd2, grouping_field="GENUS_CODE", pool_fields="COLONYLENGTH") 
-compdata3.juv <- rename(compdata3.juv, c("AvgCOLONYLENGTH"="AvgCOLONYLENGTH.juv")) # rename columns for merging with adult data (later)
+setnames(compdata3.juv, old = c("AvgCOLONYLENGTH"), new = c("AvgCOLONYLENGTH.juv"))
 
 ## Calculate % recent dead for adults
 compdata4 <- Calc_ColMetric_Seg(data=awd2, grouping_field="GENUS_CODE", pool_fields="RDEXTENT1") 
 compdata4 <- rename(compdata4, c("AvgRDEXTENT1"="AvgRDEXTENT1.ad")) # rename columns for merging with juv data (later)
+setnames(compdata3.juv, old = c("AvgCOLONYLENGTH"), new = c("AvgCOLONYLENGTH.juv"))
+
 
 ## Calculate % old dead for adults
 compdata5 <- Calc_ColMetric_Seg(data=awd2, grouping_field="GENUS_CODE", pool_fields="OLDDEAD") 
