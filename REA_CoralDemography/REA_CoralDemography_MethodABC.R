@@ -92,7 +92,7 @@ methodb<-b
 ## LOAD benthic data
 setwd("T:/Benthic/Data/REA Coral Demography/Raw from Oracle")
 load("ALL_REA_METHODC_RAW.Rdata");c<-df
-c$SITE<-SiteNumLeadingZeros(x$SITE) # Change site number such as MAR-22 to MAR-0022
+c$SITE<-SiteNumLeadingZeros(c$SITE) # Change site number such as MAR-22 to MAR-0022
 
 
 # HOUSEKEEPING ------------------------------------------------------------
@@ -133,7 +133,7 @@ nrow(c)
 c[is.na(c)]<-"UNKNOWN"
 
 #Remove transects with less than 5m surveyed and check how many rows were removed
-c<-subset(c,TRANAREA>=5) 
+c<-subset(c,TRANSECTAREA>=5) 
 nrow(c)
 head(c)
 levels(c$OBS_YEAR)
