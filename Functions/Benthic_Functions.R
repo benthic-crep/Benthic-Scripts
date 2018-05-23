@@ -1140,9 +1140,11 @@ Calc_Domain_Cover=function(site_data,metric_field=c("CORAL","CCA","MA","TURF")){
                     D._st=sum(w_h*D._h,na.rm=TRUE), #Domain weighted estimate (sum of Weighted strata density)
                     varD._st=sum(w_h^2*varD._h,na.rm=TRUE), #Domain weighted variance estimate
                     n=sum(n_h,na.rm=TRUE), #total sites surveyed in domain
+                    nstrat=length(n_h), #total number of strata in a domain
                     Ntot=sum(N_h,na.rm=TRUE), #total possible sites in domain
                     SE_D._st=sqrt(varD._st), #SE of domain metric estimate
                     CV_D._st=SE_D._st/D._st) #CV of domain metric estimate
+  
   
   return(Domain_roll)
 }
