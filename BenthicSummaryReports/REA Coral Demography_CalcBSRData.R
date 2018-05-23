@@ -60,7 +60,8 @@ SURVEY_INFO<-c("SITEVISITID", "OBS_YEAR", "REGION", "REGION_NAME", "ISLAND","ISL
 survey_site<-Aggregate_InputTable(awd_c, SURVEY_INFO)
 
 setwd("T:/Benthic/Data/REA Coral Demography/WorkingData_forBSRs")
-write.csv(survey_site, paste(reg, yr, "surveySite.csv", sep = "_"))
+if(bsr == "single"){write.csv(survey_site, paste(isl, yr, "surveySite.csv", sep = "_"))}
+if(bsr == "multi"){write.csv(survey_site, paste(reg, yr, "surveySite.csv", sep = "_"))}
 
 ## subset to forereef
 awd_c <- awd_c[ which(awd_c$REEF_ZONE == "Forereef"),]

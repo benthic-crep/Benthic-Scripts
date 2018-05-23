@@ -11,7 +11,7 @@ source("C:/Users/Morgan.Winston/Documents/GitHub/fish-paste/lib/core_functions.R
 
 ## ADULT DATA ----
 setwd("T:/Benthic/Data/REA Coral Demography")
-load("T:/Benthic/Data/REA Coral Demography/Raw_fromOracle/ALL_REA_ADULTCORAL_RAW.rdata") #from oracle
+load("T:/Benthic/Data/REA Coral Demography/Raw from Oracle/ALL_REA_ADULTCORAL_RAW.rdata") #from oracle
 x<-df #leave this as df
 
 x$SITE<-SiteNumLeadingZeros(x$SITE) # Change site number such as MAR-22 to MAR-0022
@@ -47,10 +47,16 @@ colnames(x)[colnames(x)=="DZCODE"]<-"COND" #Change column name
 
 head(x)
 
-# There are some SPCODES that were a combination of taxa and weren't included in the complete taxa list
-# Change these unknown genus to the spcode and the remaining NAs in the Taxon and genus code to AAAA
+#Change columns to character
 x$GENUS_CODE<-as.character(x$GENUS_CODE)
 x$SPCODE<-as.character(x$SPCODE)
+x$S_ORDER<-as.character(x$S_ORDER)
+
+setwd("T:/Benthic/Data")
+taxa<-read.csv("2013-17_Taxa_MASTER.csv")
+
+#This will fix errors where there is missing s_order for hard corals
+x$S_ORDER<-ifelse(x$GENUS_CODE %in% taxa$SPCODE,"Scleractinia",x$S_ORDER)
 
 x$GENUS_CODE<-ifelse(is.na(x$GENUS_CODE)&x$S_ORDER=="Scleractinia",x$SPCODE,x$GENUS_CODE)
 
@@ -116,7 +122,7 @@ head(x)
 awd<-droplevels(x)
 
 # Save clean working data
-setwd("T:/Benthic/Data/REA Coral Demography_Raw from Oracle")
+setwd("T:/Benthic/Data/REA Coral Demography/Raw from Oracle")
 write.csv(awd, "ALL_REA_ADULTCORAL_RAW_cleanWD.csv")
 
 
@@ -142,6 +148,8 @@ colnames(x)[colnames(x)=="TRANWIDTH"]<-"SEGWIDTH" # Change column name
 colnames(x)[colnames(x)=="TRANLENGTH"]<-"SEGLENGTH" # Change column name
 colnames(x)[colnames(x)=="SITE_MIN_DEPTH"]<-"SITE_MIN_DEPTH_FT" # Change column name
 colnames(x)[colnames(x)=="SITE_MAX_DEPTH"]<-"SITE_MAX_DEPTH_FT" # Change column name
+
+
 
 # There are some SPCODES that were a combination of taxa and weren't included in the complete taxa list
 # Change these unknown genus to the spcode and the remaining NAs in the Taxon and genus code to AAAA
