@@ -39,6 +39,11 @@ DATA_COLS<-c("MISSIONID","REGION","REGION_NAME","ISLAND","ISLANDCODE","SITE","LA
 head(x[,DATA_COLS])
 x<-x[,DATA_COLS]
 
+SURVEY_INFO<-c("SITEVISITID", "OBS_YEAR", "REGION", "REGION_NAME", "ISLAND","ISLANDCODE","SEC_NAME", "SITE", "DATE_", "REEF_ZONE",
+               "DEPTH_BIN", "LATITUDE", "LONGITUDE","SITE_MIN_DEPTH_FT","SITE_MAX_DEPTH_FT")
+survey_site<-Aggregate_InputTable(jwd, SURVEY_INFO)
+
+
 #Double check level and class of variables to make sure there aren't any errors
 sapply(x,levels)
 sapply(x,class)##Change column names to make code easier to code

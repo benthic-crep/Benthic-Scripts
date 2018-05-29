@@ -258,494 +258,6 @@ Calc_Condabun_Segment<-function(data, grouping_field="GENUS_CODE") {
 }
 
 
-### DIVERVSDIVER FUNCTION: ADULTS + JUVS ###
-
-# May need to add 'x_range' within function argument list to manipulate x-axis on plots if outliers too big (will need to turn on scale_y_continuous() in each ggplot within function)
-# For conditions, divervsdiver function currently plots for: BLEprev, TotDZprev, AcuteDZprev, ChronicDZprev, COTSprev. If want to look at additional conditions, will need to add these levels within divervsdiver function to plot
-
-divervsdiver<-function(data, date1, date2, date3) {  
-  #data<-compdata.all
-  #date1-3<-"2015-02-26","2015-02-27","2015-02-28"  
-  #x_range<-10
-  x<-data[data$DATE_ == date1,] ## select date
-  y<-data[data$DATE_ == date2,] ## select date
-  z<-data[data$DATE_ == date3,] ## select date
-  size_comp<-rbind(x,y,z)
-  size_comp<-droplevels(size_comp)
-  
-  divers<-levels(size_comp$DIVER)
-  ######## diver vs diver: ADULT coral colony density ########
-  
-  scr<-size_comp[,c("SITEVISITID", "DIVER", "ColDen.ad")] ### stripped down
-  msd<-data.frame(with(scr, tapply(ColDen.ad, list(SITEVISITID, DIVER), mean))) ## mean colony density estimate per diver per site
-  
-  thenas<-data.frame(is.na(msd)) ## id all the locations of nas in dataset
-  
-  toplot<-list()
-  
-  for(i in 1:length(divers)){
-    ##i<-(divers)[7]
-    diver<-which(thenas[,i] == FALSE)
-    
-    ##select out the sites for diver from the dataframe
-    diverdata<-msd[diver,i]
-    
-    ## get the other diver estimates per site (take mean b/c sometimes more than one other diver at a site)
-    otherdiver<-rowMeans(msd[diver, !(colnames(msd) %in% divers[i])], na.rm = TRUE)
-    
-    ## for diver 1 create a site level colony density ratio, the density of diver 1 / the density of the other divers
-    x<-as.vector(diverdata - otherdiver)
-    toplot[[i]]<-x
-    
-  }
-  
-  toplot<-(melt(toplot))
-  
-  names(toplot)<-c("colonydensity_ratio", "diver")
-  toplot$diver<-as.factor(toplot$diver)
-  
-  # Plot difference in density ratio between divers
-  dens <- ggplot(toplot, aes(factor(diver), colonydensity_ratio))
-  dens <- dens + 
-    geom_boxplot() + 
-    coord_flip() + 
-    geom_jitter(colour = "red", size =1, alpha = 0.4) + 
-    theme_bw() +
-    #scale_y_continuous(limits=c(-x_range,x_range))+
-    labs(y = expression(paste("Difference in adult colony density (count/ ", m^-2,") relative to buddy")), x = "Diver") + 
-    scale_x_discrete(breaks = 1:length(levels(size_comp$DIVER)), labels = levels(size_comp$DIVER))
-  suppressMessages(ggsave(filename =paste("divervsdiver_adultcolonydensity_",date1,",",substr(date2, 9, 10),",",substr(date3, 9, 10), ".png", sep = ""), width=13, height = 14.0, units = c("cm")))
-  
-  ######## diver vs diver: ADULT colony size ########
-  
-  scr<-size_comp[,c("SITEVISITID", "DIVER", "AvgCOLONYLENGTH.ad")] ### stripped down
-  msd<-data.frame(with(scr, tapply(AvgCOLONYLENGTH.ad, list(SITEVISITID, DIVER), mean))) ## mean size estimate per diver per site
-  
-  thenas<-data.frame(is.na(msd)) ## id all the locations of nas in dataset
-  
-  toplot<-list()
-  
-  for(i in 1:length(divers)){
-    ##i<-(divers)[7]
-    diver<-which(thenas[,i] == FALSE)
-    
-    ##select out the sites for diver from the dataframe
-    diverdata<-msd[diver,i]
-    
-    ## get the other diver estimates per site (take mean b/c sometimes more than one other diver at a site)
-    otherdiver<-rowMeans(msd[diver, !(colnames(msd) %in% divers[i])], na.rm = TRUE)
-    
-    ## for diver 1 create a site level size ratio, the size of diver 1 / the size of the other divers
-    x<-as.vector(diverdata - otherdiver)
-    toplot[[i]]<-x
-    
-  }
-  
-  toplot<-(melt(toplot))
-  
-  names(toplot)<-c("size_ratio", "diver")
-  toplot$diver<-as.factor(toplot$diver)
-  
-  # Plot difference in size ratio between divers
-  size <- ggplot(toplot, aes(factor(diver), size_ratio))
-  size <- size + 
-    geom_boxplot() + 
-    coord_flip() + 
-    geom_jitter(colour = "red", size =1, alpha = 0.4) + 
-    theme_bw() +
-    #scale_y_continuous(limits=c(-x_range,x_range))+
-    labs(y = expression(paste("Difference in average adult size (cm) relative to buddy")), x = "Diver") + 
-    scale_x_discrete(breaks = 1:length(levels(size_comp$DIVER)), labels = levels(size_comp$DIVER))
-  suppressMessages(ggsave(filename =paste("divervsdiver_adultsize_",date1,",",substr(date2, 9, 10),",",substr(date3, 9, 10), ".png", sep = ""), width=13, height = 14.0, units = c("cm")))
-  
-  ######## diver vs diver: ADULT old dead ########
-  
-  scr<-size_comp[,c("SITEVISITID", "DIVER", "AvgOLDDEAD.ad")] ### stripped down
-  msd<-data.frame(with(scr, tapply(AvgOLDDEAD.ad, list(SITEVISITID, DIVER), mean))) ## mean old dead estimate per diver per site
-  
-  thenas<-data.frame(is.na(msd)) ## id all the locations of nas in dataset
-  
-  toplot<-list()
-  
-  for(i in 1:length(divers)){
-    ##i<-(divers)[7]
-    diver<-which(thenas[,i] == FALSE)
-    
-    ##select out the sites for diver from the dataframe
-    diverdata<-msd[diver,i]
-    
-    ## get the other diver estimates per site (take mean b/c sometimes more than one other diver at a site)
-    otherdiver<-rowMeans(msd[diver, !(colnames(msd) %in% divers[i])], na.rm = TRUE)
-    
-    ## for diver 1 create a site level old dead ratio, the old dead of diver 1 / the old dead of the other divers
-    x<-as.vector(diverdata - otherdiver)
-    toplot[[i]]<-x
-    
-  }
-  
-  toplot<-(melt(toplot))
-  
-  names(toplot)<-c("olddead_ratio", "diver")
-  toplot$diver<-as.factor(toplot$diver)
-  
-  # Plot difference in old dead ratio between divers
-  od <- ggplot(toplot, aes(factor(diver), olddead_ratio))
-  od <- od + 
-    geom_boxplot() + 
-    coord_flip() + 
-    geom_jitter(colour = "red", size =1, alpha = 0.4) + 
-    theme_bw() +
-    #scale_y_continuous(limits=c(-x_range,x_range))+
-    labs(y = expression(paste("Difference in average old dead (%) relative to buddy")), x = "Diver") + 
-    scale_x_discrete(breaks = 1:length(levels(size_comp$DIVER)), labels = levels(size_comp$DIVER))
-  suppressMessages(ggsave(filename =paste("divervsdiver_olddead_",date1,",",substr(date2, 9, 10),",",substr(date3, 9, 10), ".png", sep = ""), width=13, height = 14.0, units = c("cm")))
-  
-  ######## diver vs diver: ADULT recent dead ########
-  
-  scr<-size_comp[,c("SITEVISITID", "DIVER", "AvgRDEXTENT1.ad")] ### stripped down
-  msd<-data.frame(with(scr, tapply(AvgRDEXTENT1.ad, list(SITEVISITID, DIVER), mean))) ## mean recent dead estimate per diver per site
-  
-  thenas<-data.frame(is.na(msd)) ## id all the locations of nas in dataset
-  
-  toplot<-list()
-  
-  for(i in 1:length(divers)){
-    ##i<-(divers)[7]
-    diver<-which(thenas[,i] == FALSE)
-    
-    ##select out the sites for diver from the dataframe
-    diverdata<-msd[diver,i]
-    
-    ## get the other diver estimates per site (take mean b/c sometimes more than one other diver at a site)
-    otherdiver<-rowMeans(msd[diver, !(colnames(msd) %in% divers[i])], na.rm = TRUE)
-    
-    ## for diver 1 create a site level recent dead ratio, the recent dead of diver 1 / the recent dead of the other divers
-    x<-as.vector(diverdata - otherdiver)
-    toplot[[i]]<-x
-    
-  }
-  
-  toplot<-(melt(toplot))
-  
-  names(toplot)<-c("rctdead_ratio", "diver")
-  toplot$diver<-as.factor(toplot$diver)
-  
-  # Plot difference in recent dead ratio between divers
-  rd <- ggplot(toplot, aes(factor(diver), rctdead_ratio))
-  rd <- rd + 
-    geom_boxplot() + 
-    coord_flip() + 
-    geom_jitter(colour = "red", size =1, alpha = 0.4) + 
-    theme_bw() +
-    #scale_y_continuous(limits=c(-x_range,x_range))+
-    labs(y = expression(paste("Difference in average recent dead (%) relative to buddy")), x = "Diver") + 
-    scale_x_discrete(breaks = 1:length(levels(size_comp$DIVER)), labels = levels(size_comp$DIVER))
-  suppressMessages(ggsave(filename =paste("divervsdiver_recentdead_",date1,",",substr(date2, 9, 10),",",substr(date3, 9, 10), ".png", sep = ""), width=13, height = 14.0, units = c("cm")))
-  
-  
-  ######## diver vs diver: JUV coral colony density ########
-  
-  scr<-size_comp[,c("SITEVISITID", "DIVER", "ColDen.juv")] ### stripped down
-  msd<-data.frame(with(scr, tapply(ColDen.juv, list(SITEVISITID, DIVER), mean))) ## mean colony density estimate per diver per site
-  
-  thenas<-data.frame(is.na(msd)) ## id all the locations of nas in dataset
-  
-  toplot<-list()
-  
-  for(i in 1:length(divers)){
-    ##i<-(divers)[7]
-    diver<-which(thenas[,i] == FALSE)
-    
-    ##select out the sites for diver from the dataframe
-    diverdata<-msd[diver,i]
-    
-    ## get the other diver estimates per site (take mean b/c sometimes more than one other diver at a site)
-    otherdiver<-rowMeans(msd[diver, !(colnames(msd) %in% divers[i])], na.rm = TRUE)
-    
-    ## for diver 1 create a site level colony density ratio, the density of diver 1 / the density of the other divers
-    x<-as.vector(diverdata - otherdiver)
-    toplot[[i]]<-x
-    
-  }
-  
-  toplot<-(melt(toplot))
-  
-  names(toplot)<-c("colonydensity_ratio", "diver")
-  toplot$diver<-as.factor(toplot$diver)
-  
-  # Plot difference in density ratio between divers
-  dens <- ggplot(toplot, aes(factor(diver), colonydensity_ratio))
-  dens <- dens + 
-    geom_boxplot() + 
-    coord_flip() + 
-    geom_jitter(colour = "red", size =1, alpha = 0.4) + 
-    theme_bw() +
-    #scale_y_continuous(limits=c(-x_range,x_range))+
-    labs(y = expression(paste("Difference in juv colony density (count/ ", m^-2,") relative to buddy")), x = "Diver") + 
-    scale_x_discrete(breaks = 1:length(levels(size_comp$DIVER)), labels = levels(size_comp$DIVER))
-  suppressMessages(ggsave(filename =paste("divervsdiver_juvcolonydensity_",date1,",",substr(date2, 9, 10),",",substr(date3, 9, 10), ".png", sep = ""), width=13, height = 14.0, units = c("cm")))
-  
-  
-  ######## diver vs diver: JUV colony size ########
-  
-  scr<-size_comp[,c("SITEVISITID", "DIVER", "AvgCOLONYLENGTH.juv")] ### stripped down
-  msd<-data.frame(with(scr, tapply(AvgCOLONYLENGTH.juv, list(SITEVISITID, DIVER), mean))) ## mean size estimate per diver per site
-  
-  thenas<-data.frame(is.na(msd)) ## id all the locations of nas in dataset
-  
-  toplot<-list()
-  
-  for(i in 1:length(divers)){
-    ##i<-(divers)[7]
-    diver<-which(thenas[,i] == FALSE)
-    
-    ##select out the sites for diver from the dataframe
-    diverdata<-msd[diver,i]
-    
-    ## get the other diver estimates per site (take mean b/c sometimes more than one other diver at a site)
-    otherdiver<-rowMeans(msd[diver, !(colnames(msd) %in% divers[i])], na.rm = TRUE)
-    
-    ## for diver 1 create a site level size ratio, the size of diver 1 / the size of the other divers
-    x<-as.vector(diverdata - otherdiver)
-    toplot[[i]]<-x
-    
-  }
-  
-  toplot<-(melt(toplot))
-  
-  names(toplot)<-c("size_ratio", "diver")
-  toplot$diver<-as.factor(toplot$diver)
-  
-  # Plot difference in size ratio between divers
-  size <- ggplot(toplot, aes(factor(diver), size_ratio))
-  size <- size + 
-    geom_boxplot() + 
-    coord_flip() + 
-    geom_jitter(colour = "red", size =1, alpha = 0.4) + 
-    theme_bw() +
-    #scale_y_continuous(limits=c(-x_range,x_range))+
-    labs(y = expression(paste("Difference in average juv size (cm) relative to buddy")), x = "Diver") + 
-    scale_x_discrete(breaks = 1:length(levels(size_comp$DIVER)), labels = levels(size_comp$DIVER))
-  suppressMessages(ggsave(filename =paste("divervsdiver_juvsize_",date1,",",substr(date2, 9, 10),",",substr(date3, 9, 10),".png", sep = ""), width=13, height = 14.0, units = c("cm")))
-  
-  
-  ######## diver vs diver: BLE prevalence ########
-  
-  scr<-size_comp[,c("SITEVISITID", "DIVER", "BLEprev")] ### stripped down
-  msd<-data.frame(with(scr, tapply(BLEprev, list(SITEVISITID, DIVER), mean))) ## mean BLE prevalence estimate per diver per site
-  
-  thenas<-data.frame(is.na(msd)) ## id all the locations of nas in dataset
-  
-  toplot<-list()
-  
-  for(i in 1:length(divers)){
-    ##i<-(divers)[7]
-    diver<-which(thenas[,i] == FALSE)
-    
-    ##select out the sites for diver from the dataframe
-    diverdata<-msd[diver,i]
-    
-    ## get the other diver estimates per site (take mean b/c sometimes more than one other diver at a site)
-    otherdiver<-rowMeans(msd[diver, !(colnames(msd) %in% divers[i])], na.rm = TRUE)
-    
-    ## for diver 1 create a site level size ratio, the size of diver 1 / the size of the other divers
-    x<-as.vector(diverdata - otherdiver)
-    toplot[[i]]<-x
-    
-  }
-  
-  toplot<-(melt(toplot))
-  
-  names(toplot)<-c("BLE", "diver")
-  toplot$diver<-as.factor(toplot$diver)
-  
-  # Plot difference in BLE ratio between divers
-  ble <- ggplot(toplot, aes(factor(diver), BLE))
-  ble <- ble + 
-    geom_boxplot() + 
-    coord_flip() + 
-    geom_jitter(colour = "red", size =1, alpha = 0.4) + 
-    theme_bw() +
-    #scale_y_continuous(limits=c(-x_range,x_range))+
-    labs(y = expression(paste("Difference in average BLE prevalence relative to buddy")), x = "Diver") + 
-    scale_x_discrete(breaks = 1:length(levels(size_comp$DIVER)), labels = levels(size_comp$DIVER))
-  suppressMessages(ggsave(filename =paste("divervsdiver_BLEprev_",date1,",",substr(date2, 9, 10),",",substr(date3, 9, 10),".png", sep = ""), width=13, height = 14.0, units = c("cm")))
-  
-  
-  ######## diver vs diver: Tot DZ prevalence ########
-  
-  scr<-size_comp[,c("SITEVISITID", "DIVER", "TotDZprev")] ### stripped down
-  msd<-data.frame(with(scr, tapply(TotDZprev, list(SITEVISITID, DIVER), mean))) ## mean Tot DZ prevalence estimate per diver per site
-  
-  thenas<-data.frame(is.na(msd)) ## id all the locations of nas in dataset
-  
-  toplot<-list()
-  
-  for(i in 1:length(divers)){
-    ##i<-(divers)[7]
-    diver<-which(thenas[,i] == FALSE)
-    
-    ##select out the sites for diver from the dataframe
-    diverdata<-msd[diver,i]
-    
-    ## get the other diver estimates per site (take mean b/c sometimes more than one other diver at a site)
-    otherdiver<-rowMeans(msd[diver, !(colnames(msd) %in% divers[i])], na.rm = TRUE)
-    
-    ## for diver 1 create a site level size ratio, the size of diver 1 / the size of the other divers
-    x<-as.vector(diverdata - otherdiver)
-    toplot[[i]]<-x
-    
-  }
-  
-  toplot<-(melt(toplot))
-  
-  names(toplot)<-c("TotDZ", "diver")
-  toplot$diver<-as.factor(toplot$diver)
-  
-  # Plot difference in Tot DZ ratio between divers
-  dz <- ggplot(toplot, aes(factor(diver), TotDZ))
-  dz <- dz + 
-    geom_boxplot() + 
-    coord_flip() + 
-    geom_jitter(colour = "red", size =1, alpha = 0.4) + 
-    theme_bw() +
-    #scale_y_continuous(limits=c(-x_range,x_range))+
-    labs(y = expression(paste("Difference in average tot DZ prevalence relative to buddy")), x = "Diver") + 
-    scale_x_discrete(breaks = 1:length(levels(size_comp$DIVER)), labels = levels(size_comp$DIVER))
-  suppressMessages(ggsave(filename =paste("divervsdiver_TotDZprev_",date1,",",substr(date2, 9, 10),",",substr(date3, 9, 10),".png", sep = ""), width=13, height = 14.0, units = c("cm")))
-  
-  
-  ######## diver vs diver: Acute DZ prevalence ########
-  
-  scr<-size_comp[,c("SITEVISITID", "DIVER", "AcuteDZprev")] ### stripped down
-  msd<-data.frame(with(scr, tapply(AcuteDZprev, list(SITEVISITID, DIVER), mean))) ## mean Acute DZ prevalence estimate per diver per site
-  
-  thenas<-data.frame(is.na(msd)) ## id all the locations of nas in dataset
-  
-  toplot<-list()
-  
-  for(i in 1:length(divers)){
-    ##i<-(divers)[7]
-    diver<-which(thenas[,i] == FALSE)
-    
-    ##select out the sites for diver from the dataframe
-    diverdata<-msd[diver,i]
-    
-    ## get the other diver estimates per site (take mean b/c sometimes more than one other diver at a site)
-    otherdiver<-rowMeans(msd[diver, !(colnames(msd) %in% divers[i])], na.rm = TRUE)
-    
-    ## for diver 1 create a site level size ratio, the size of diver 1 / the size of the other divers
-    x<-as.vector(diverdata - otherdiver)
-    toplot[[i]]<-x
-    
-  }
-  
-  toplot<-(melt(toplot))
-  
-  names(toplot)<-c("AcuteDZ", "diver")
-  toplot$diver<-as.factor(toplot$diver)
-  
-  # Plot difference in Acute DZ ratio between divers
-  adz <- ggplot(toplot, aes(factor(diver), AcuteDZ))
-  adz <- adz + 
-    geom_boxplot() + 
-    coord_flip() + 
-    geom_jitter(colour = "red", size =1, alpha = 0.4) + 
-    theme_bw() +
-    #scale_y_continuous(limits=c(-x_range,x_range))+
-    labs(y = expression(paste("Difference in average acute DZ prevalence relative to buddy")), x = "Diver") + 
-    scale_x_discrete(breaks = 1:length(levels(size_comp$DIVER)), labels = levels(size_comp$DIVER))
-  suppressMessages(ggsave(filename =paste("divervsdiver_AcuteDZprev_",date1,",",substr(date2, 9, 10),",",substr(date3, 9, 10),".png", sep = ""), width=13, height = 14.0, units = c("cm")))
-  
-  
-  ######## diver vs diver: Chronic DZ prevalence ########
-  
-  scr<-size_comp[,c("SITEVISITID", "DIVER", "ChronicDZprev")] ### stripped down
-  msd<-data.frame(with(scr, tapply(ChronicDZprev, list(SITEVISITID, DIVER), mean))) ## mean Chronic DZ prevalence estimate per diver per site
-  
-  thenas<-data.frame(is.na(msd)) ## id all the locations of nas in dataset
-  
-  toplot<-list()
-  
-  for(i in 1:length(divers)){
-    ##i<-(divers)[7]
-    diver<-which(thenas[,i] == FALSE)
-    
-    ##select out the sites for diver from the dataframe
-    diverdata<-msd[diver,i]
-    
-    ## get the other diver estimates per site (take mean b/c sometimes more than one other diver at a site)
-    otherdiver<-rowMeans(msd[diver, !(colnames(msd) %in% divers[i])], na.rm = TRUE)
-    
-    ## for diver 1 create a site level size ratio, the size of diver 1 / the size of the other divers
-    x<-as.vector(diverdata - otherdiver)
-    toplot[[i]]<-x
-    
-  }
-  
-  toplot<-(melt(toplot))
-  
-  names(toplot)<-c("ChronicDZ", "diver")
-  toplot$diver<-as.factor(toplot$diver)
-  
-  # Plot difference in Chronic DZ ratio between divers
-  cdz <- ggplot(toplot, aes(factor(diver), ChronicDZ))
-  cdz <- cdz + 
-    geom_boxplot() + 
-    coord_flip() + 
-    geom_jitter(colour = "red", size =1, alpha = 0.4) + 
-    theme_bw() +
-    #scale_y_continuous(limits=c(-x_range,x_range))+
-    labs(y = expression(paste("Difference in average chronic DZ prevalence relative to buddy")), x = "Diver") + 
-    scale_x_discrete(breaks = 1:length(levels(size_comp$DIVER)), labels = levels(size_comp$DIVER))
-  suppressMessages(ggsave(filename =paste("divervsdiver_chronicDZprev_",date1,",",substr(date2, 9, 10),",",substr(date3, 9, 10),".png", sep = ""), width=13, height = 14.0, units = c("cm")))
-  
-  
-  ######## diver vs diver: COTS prevalence ########
-  
-  scr<-size_comp[,c("SITEVISITID", "DIVER", "COTSprev")] ### stripped down
-  msd<-data.frame(with(scr, tapply(COTSprev, list(SITEVISITID, DIVER), mean))) ## mean COTS prevalence estimate per diver per site
-  
-  thenas<-data.frame(is.na(msd)) ## id all the locations of nas in dataset
-  
-  toplot<-list()
-  
-  for(i in 1:length(divers)){
-    ##i<-(divers)[7]
-    diver<-which(thenas[,i] == FALSE)
-    
-    ##select out the sites for diver from the dataframe
-    diverdata<-msd[diver,i]
-    
-    ## get the other diver estimates per site (take mean b/c sometimes more than one other diver at a site)
-    otherdiver<-rowMeans(msd[diver, !(colnames(msd) %in% divers[i])], na.rm = TRUE)
-    
-    ## for diver 1 create a site level size ratio, the size of diver 1 / the size of the other divers
-    x<-as.vector(diverdata - otherdiver)
-    toplot[[i]]<-x
-    
-  }
-  
-  toplot<-(melt(toplot))
-  
-  names(toplot)<-c("COTS", "diver")
-  toplot$diver<-as.factor(toplot$diver)
-  
-  # Plot difference in COTSprev ratio between divers
-  cots <- ggplot(toplot, aes(factor(diver), COTS))
-  cots <- cots + 
-    geom_boxplot() + 
-    coord_flip() + 
-    geom_jitter(colour = "red", size =1, alpha = 0.4) + 
-    theme_bw() +
-    #scale_y_continuous(limits=c(-x_range,x_range))+
-    labs(y = expression(paste("Difference in average COTS prevalence relative to buddy")), x = "Diver") + 
-    scale_x_discrete(breaks = 1:length(levels(size_comp$DIVER)), labels = levels(size_comp$DIVER))
-  suppressMessages(ggsave(filename =paste("divervsdiver_COTSprev_",date1,",",substr(date2, 9, 10),",",substr(date3, 9, 10),".png", sep = ""), width=13, height = 14.0, units = c("cm")))
-  
-}        ## divervsdiver 
-
-
 
 ## TRANSECT LEVEL SUMMARY FUNCTIONS #######
 
@@ -1406,3 +918,497 @@ spe_name_fun <- function(spe){ # function to return genera name given abbreviati
   return(spec)  
   
 }
+
+
+
+### DIVERVSDIVER FUNCTION: ADULTS + JUVS ###
+
+# May need to add 'x_range' within function argument list to manipulate x-axis on plots if outliers too big (will need to turn on scale_y_continuous() in each ggplot within function)
+# For conditions, divervsdiver function currently plots for: BLEprev, TotDZprev, AcuteDZprev, ChronicDZprev, COTSprev. If want to look at additional conditions, will need to add these levels within divervsdiver function to plot
+
+divervsdiver<-function(data, date1, date2, date3) {  
+  #data<-compdata.all
+  #date1-3<-"2015-02-26","2015-02-27","2015-02-28"  
+  #x_range<-10
+  x<-data[data$DATE_ == date1,] ## select date
+  y<-data[data$DATE_ == date2,] ## select date
+  z<-data[data$DATE_ == date3,] ## select date
+  size_comp<-rbind(x,y,z)
+  size_comp<-droplevels(size_comp)
+  
+  divers<-levels(size_comp$DIVER)
+  ######## diver vs diver: ADULT coral colony density ########
+  
+  scr<-size_comp[,c("SITEVISITID", "DIVER", "ColDen.ad")] ### stripped down
+  msd<-data.frame(with(scr, tapply(ColDen.ad, list(SITEVISITID, DIVER), mean))) ## mean colony density estimate per diver per site
+  
+  thenas<-data.frame(is.na(msd)) ## id all the locations of nas in dataset
+  
+  toplot<-list()
+  
+  for(i in 1:length(divers)){
+    ##i<-(divers)[7]
+    diver<-which(thenas[,i] == FALSE)
+    
+    ##select out the sites for diver from the dataframe
+    diverdata<-msd[diver,i]
+    
+    ## get the other diver estimates per site (take mean b/c sometimes more than one other diver at a site)
+    otherdiver<-rowMeans(msd[diver, !(colnames(msd) %in% divers[i])], na.rm = TRUE)
+    
+    ## for diver 1 create a site level colony density ratio, the density of diver 1 / the density of the other divers
+    x<-as.vector(diverdata - otherdiver)
+    toplot[[i]]<-x
+    
+  }
+  
+  toplot<-(melt(toplot))
+  
+  names(toplot)<-c("colonydensity_ratio", "diver")
+  toplot$diver<-as.factor(toplot$diver)
+  
+  # Plot difference in density ratio between divers
+  dens <- ggplot(toplot, aes(factor(diver), colonydensity_ratio))
+  dens <- dens + 
+    geom_boxplot() + 
+    coord_flip() + 
+    geom_jitter(colour = "red", size =1, alpha = 0.4) + 
+    theme_bw() +
+    #scale_y_continuous(limits=c(-x_range,x_range))+
+    labs(y = expression(paste("Difference in adult colony density (count/ ", m^-2,") relative to buddy")), x = "Diver") + 
+    scale_x_discrete(breaks = 1:length(levels(size_comp$DIVER)), labels = levels(size_comp$DIVER))
+  suppressMessages(ggsave(filename =paste("divervsdiver_adultcolonydensity_",date1,",",substr(date2, 9, 10),",",substr(date3, 9, 10), ".png", sep = ""), width=13, height = 14.0, units = c("cm")))
+  
+  ######## diver vs diver: ADULT colony size ########
+  
+  scr<-size_comp[,c("SITEVISITID", "DIVER", "AvgCOLONYLENGTH.ad")] ### stripped down
+  msd<-data.frame(with(scr, tapply(AvgCOLONYLENGTH.ad, list(SITEVISITID, DIVER), mean))) ## mean size estimate per diver per site
+  
+  thenas<-data.frame(is.na(msd)) ## id all the locations of nas in dataset
+  
+  toplot<-list()
+  
+  for(i in 1:length(divers)){
+    ##i<-(divers)[7]
+    diver<-which(thenas[,i] == FALSE)
+    
+    ##select out the sites for diver from the dataframe
+    diverdata<-msd[diver,i]
+    
+    ## get the other diver estimates per site (take mean b/c sometimes more than one other diver at a site)
+    otherdiver<-rowMeans(msd[diver, !(colnames(msd) %in% divers[i])], na.rm = TRUE)
+    
+    ## for diver 1 create a site level size ratio, the size of diver 1 / the size of the other divers
+    x<-as.vector(diverdata - otherdiver)
+    toplot[[i]]<-x
+    
+  }
+  
+  toplot<-(melt(toplot))
+  
+  names(toplot)<-c("size_ratio", "diver")
+  toplot$diver<-as.factor(toplot$diver)
+  
+  # Plot difference in size ratio between divers
+  size <- ggplot(toplot, aes(factor(diver), size_ratio))
+  size <- size + 
+    geom_boxplot() + 
+    coord_flip() + 
+    geom_jitter(colour = "red", size =1, alpha = 0.4) + 
+    theme_bw() +
+    #scale_y_continuous(limits=c(-x_range,x_range))+
+    labs(y = expression(paste("Difference in average adult size (cm) relative to buddy")), x = "Diver") + 
+    scale_x_discrete(breaks = 1:length(levels(size_comp$DIVER)), labels = levels(size_comp$DIVER))
+  suppressMessages(ggsave(filename =paste("divervsdiver_adultsize_",date1,",",substr(date2, 9, 10),",",substr(date3, 9, 10), ".png", sep = ""), width=13, height = 14.0, units = c("cm")))
+  
+  ######## diver vs diver: ADULT old dead ########
+  
+  scr<-size_comp[,c("SITEVISITID", "DIVER", "AvgOLDDEAD.ad")] ### stripped down
+  msd<-data.frame(with(scr, tapply(AvgOLDDEAD.ad, list(SITEVISITID, DIVER), mean))) ## mean old dead estimate per diver per site
+  
+  thenas<-data.frame(is.na(msd)) ## id all the locations of nas in dataset
+  
+  toplot<-list()
+  
+  for(i in 1:length(divers)){
+    ##i<-(divers)[7]
+    diver<-which(thenas[,i] == FALSE)
+    
+    ##select out the sites for diver from the dataframe
+    diverdata<-msd[diver,i]
+    
+    ## get the other diver estimates per site (take mean b/c sometimes more than one other diver at a site)
+    otherdiver<-rowMeans(msd[diver, !(colnames(msd) %in% divers[i])], na.rm = TRUE)
+    
+    ## for diver 1 create a site level old dead ratio, the old dead of diver 1 / the old dead of the other divers
+    x<-as.vector(diverdata - otherdiver)
+    toplot[[i]]<-x
+    
+  }
+  
+  toplot<-(melt(toplot))
+  
+  names(toplot)<-c("olddead_ratio", "diver")
+  toplot$diver<-as.factor(toplot$diver)
+  
+  # Plot difference in old dead ratio between divers
+  od <- ggplot(toplot, aes(factor(diver), olddead_ratio))
+  od <- od + 
+    geom_boxplot() + 
+    coord_flip() + 
+    geom_jitter(colour = "red", size =1, alpha = 0.4) + 
+    theme_bw() +
+    #scale_y_continuous(limits=c(-x_range,x_range))+
+    labs(y = expression(paste("Difference in average old dead (%) relative to buddy")), x = "Diver") + 
+    scale_x_discrete(breaks = 1:length(levels(size_comp$DIVER)), labels = levels(size_comp$DIVER))
+  suppressMessages(ggsave(filename =paste("divervsdiver_olddead_",date1,",",substr(date2, 9, 10),",",substr(date3, 9, 10), ".png", sep = ""), width=13, height = 14.0, units = c("cm")))
+  
+  ######## diver vs diver: ADULT recent dead ########
+  
+  scr<-size_comp[,c("SITEVISITID", "DIVER", "AvgRDEXTENT1.ad")] ### stripped down
+  msd<-data.frame(with(scr, tapply(AvgRDEXTENT1.ad, list(SITEVISITID, DIVER), mean))) ## mean recent dead estimate per diver per site
+  
+  thenas<-data.frame(is.na(msd)) ## id all the locations of nas in dataset
+  
+  toplot<-list()
+  
+  for(i in 1:length(divers)){
+    ##i<-(divers)[7]
+    diver<-which(thenas[,i] == FALSE)
+    
+    ##select out the sites for diver from the dataframe
+    diverdata<-msd[diver,i]
+    
+    ## get the other diver estimates per site (take mean b/c sometimes more than one other diver at a site)
+    otherdiver<-rowMeans(msd[diver, !(colnames(msd) %in% divers[i])], na.rm = TRUE)
+    
+    ## for diver 1 create a site level recent dead ratio, the recent dead of diver 1 / the recent dead of the other divers
+    x<-as.vector(diverdata - otherdiver)
+    toplot[[i]]<-x
+    
+  }
+  
+  toplot<-(melt(toplot))
+  
+  names(toplot)<-c("rctdead_ratio", "diver")
+  toplot$diver<-as.factor(toplot$diver)
+  
+  # Plot difference in recent dead ratio between divers
+  rd <- ggplot(toplot, aes(factor(diver), rctdead_ratio))
+  rd <- rd + 
+    geom_boxplot() + 
+    coord_flip() + 
+    geom_jitter(colour = "red", size =1, alpha = 0.4) + 
+    theme_bw() +
+    #scale_y_continuous(limits=c(-x_range,x_range))+
+    labs(y = expression(paste("Difference in average recent dead (%) relative to buddy")), x = "Diver") + 
+    scale_x_discrete(breaks = 1:length(levels(size_comp$DIVER)), labels = levels(size_comp$DIVER))
+  suppressMessages(ggsave(filename =paste("divervsdiver_recentdead_",date1,",",substr(date2, 9, 10),",",substr(date3, 9, 10), ".png", sep = ""), width=13, height = 14.0, units = c("cm")))
+  
+  
+  ######## diver vs diver: JUV coral colony density ########
+  
+  scr<-size_comp[,c("SITEVISITID", "DIVER", "ColDen.juv")] ### stripped down
+  msd<-data.frame(with(scr, tapply(ColDen.juv, list(SITEVISITID, DIVER), mean))) ## mean colony density estimate per diver per site
+  
+  thenas<-data.frame(is.na(msd)) ## id all the locations of nas in dataset
+  
+  toplot<-list()
+  
+  for(i in 1:length(divers)){
+    ##i<-(divers)[7]
+    diver<-which(thenas[,i] == FALSE)
+    
+    ##select out the sites for diver from the dataframe
+    diverdata<-msd[diver,i]
+    
+    ## get the other diver estimates per site (take mean b/c sometimes more than one other diver at a site)
+    otherdiver<-rowMeans(msd[diver, !(colnames(msd) %in% divers[i])], na.rm = TRUE)
+    
+    ## for diver 1 create a site level colony density ratio, the density of diver 1 / the density of the other divers
+    x<-as.vector(diverdata - otherdiver)
+    toplot[[i]]<-x
+    
+  }
+  
+  toplot<-(melt(toplot))
+  
+  names(toplot)<-c("colonydensity_ratio", "diver")
+  toplot$diver<-as.factor(toplot$diver)
+  
+  # Plot difference in density ratio between divers
+  dens <- ggplot(toplot, aes(factor(diver), colonydensity_ratio))
+  dens <- dens + 
+    geom_boxplot() + 
+    coord_flip() + 
+    geom_jitter(colour = "red", size =1, alpha = 0.4) + 
+    theme_bw() +
+    #scale_y_continuous(limits=c(-x_range,x_range))+
+    labs(y = expression(paste("Difference in juv colony density (count/ ", m^-2,") relative to buddy")), x = "Diver") + 
+    scale_x_discrete(breaks = 1:length(levels(size_comp$DIVER)), labels = levels(size_comp$DIVER))
+  suppressMessages(ggsave(filename =paste("divervsdiver_juvcolonydensity_",date1,",",substr(date2, 9, 10),",",substr(date3, 9, 10), ".png", sep = ""), width=13, height = 14.0, units = c("cm")))
+  
+  
+  ######## diver vs diver: JUV colony size ########
+  
+  scr<-size_comp[,c("SITEVISITID", "DIVER", "AvgCOLONYLENGTH.juv")] ### stripped down
+  msd<-data.frame(with(scr, tapply(AvgCOLONYLENGTH.juv, list(SITEVISITID, DIVER), mean))) ## mean size estimate per diver per site
+  
+  thenas<-data.frame(is.na(msd)) ## id all the locations of nas in dataset
+  
+  toplot<-list()
+  
+  for(i in 1:length(divers)){
+    ##i<-(divers)[7]
+    diver<-which(thenas[,i] == FALSE)
+    
+    ##select out the sites for diver from the dataframe
+    diverdata<-msd[diver,i]
+    
+    ## get the other diver estimates per site (take mean b/c sometimes more than one other diver at a site)
+    otherdiver<-rowMeans(msd[diver, !(colnames(msd) %in% divers[i])], na.rm = TRUE)
+    
+    ## for diver 1 create a site level size ratio, the size of diver 1 / the size of the other divers
+    x<-as.vector(diverdata - otherdiver)
+    toplot[[i]]<-x
+    
+  }
+  
+  toplot<-(melt(toplot))
+  
+  names(toplot)<-c("size_ratio", "diver")
+  toplot$diver<-as.factor(toplot$diver)
+  
+  # Plot difference in size ratio between divers
+  size <- ggplot(toplot, aes(factor(diver), size_ratio))
+  size <- size + 
+    geom_boxplot() + 
+    coord_flip() + 
+    geom_jitter(colour = "red", size =1, alpha = 0.4) + 
+    theme_bw() +
+    #scale_y_continuous(limits=c(-x_range,x_range))+
+    labs(y = expression(paste("Difference in average juv size (cm) relative to buddy")), x = "Diver") + 
+    scale_x_discrete(breaks = 1:length(levels(size_comp$DIVER)), labels = levels(size_comp$DIVER))
+  suppressMessages(ggsave(filename =paste("divervsdiver_juvsize_",date1,",",substr(date2, 9, 10),",",substr(date3, 9, 10),".png", sep = ""), width=13, height = 14.0, units = c("cm")))
+  
+  
+  ######## diver vs diver: BLE prevalence ########
+  
+  scr<-size_comp[,c("SITEVISITID", "DIVER", "BLEprev")] ### stripped down
+  msd<-data.frame(with(scr, tapply(BLEprev, list(SITEVISITID, DIVER), mean))) ## mean BLE prevalence estimate per diver per site
+  
+  thenas<-data.frame(is.na(msd)) ## id all the locations of nas in dataset
+  
+  toplot<-list()
+  
+  for(i in 1:length(divers)){
+    ##i<-(divers)[7]
+    diver<-which(thenas[,i] == FALSE)
+    
+    ##select out the sites for diver from the dataframe
+    diverdata<-msd[diver,i]
+    
+    ## get the other diver estimates per site (take mean b/c sometimes more than one other diver at a site)
+    otherdiver<-rowMeans(msd[diver, !(colnames(msd) %in% divers[i])], na.rm = TRUE)
+    
+    ## for diver 1 create a site level size ratio, the size of diver 1 / the size of the other divers
+    x<-as.vector(diverdata - otherdiver)
+    toplot[[i]]<-x
+    
+  }
+  
+  toplot<-(melt(toplot))
+  
+  names(toplot)<-c("BLE", "diver")
+  toplot$diver<-as.factor(toplot$diver)
+  
+  # Plot difference in BLE ratio between divers
+  ble <- ggplot(toplot, aes(factor(diver), BLE))
+  ble <- ble + 
+    geom_boxplot() + 
+    coord_flip() + 
+    geom_jitter(colour = "red", size =1, alpha = 0.4) + 
+    theme_bw() +
+    #scale_y_continuous(limits=c(-x_range,x_range))+
+    labs(y = expression(paste("Difference in average BLE prevalence relative to buddy")), x = "Diver") + 
+    scale_x_discrete(breaks = 1:length(levels(size_comp$DIVER)), labels = levels(size_comp$DIVER))
+  suppressMessages(ggsave(filename =paste("divervsdiver_BLEprev_",date1,",",substr(date2, 9, 10),",",substr(date3, 9, 10),".png", sep = ""), width=13, height = 14.0, units = c("cm")))
+  
+  
+  ######## diver vs diver: Tot DZ prevalence ########
+  
+  scr<-size_comp[,c("SITEVISITID", "DIVER", "TotDZprev")] ### stripped down
+  msd<-data.frame(with(scr, tapply(TotDZprev, list(SITEVISITID, DIVER), mean))) ## mean Tot DZ prevalence estimate per diver per site
+  
+  thenas<-data.frame(is.na(msd)) ## id all the locations of nas in dataset
+  
+  toplot<-list()
+  
+  for(i in 1:length(divers)){
+    ##i<-(divers)[7]
+    diver<-which(thenas[,i] == FALSE)
+    
+    ##select out the sites for diver from the dataframe
+    diverdata<-msd[diver,i]
+    
+    ## get the other diver estimates per site (take mean b/c sometimes more than one other diver at a site)
+    otherdiver<-rowMeans(msd[diver, !(colnames(msd) %in% divers[i])], na.rm = TRUE)
+    
+    ## for diver 1 create a site level size ratio, the size of diver 1 / the size of the other divers
+    x<-as.vector(diverdata - otherdiver)
+    toplot[[i]]<-x
+    
+  }
+  
+  toplot<-(melt(toplot))
+  
+  names(toplot)<-c("TotDZ", "diver")
+  toplot$diver<-as.factor(toplot$diver)
+  
+  # Plot difference in Tot DZ ratio between divers
+  dz <- ggplot(toplot, aes(factor(diver), TotDZ))
+  dz <- dz + 
+    geom_boxplot() + 
+    coord_flip() + 
+    geom_jitter(colour = "red", size =1, alpha = 0.4) + 
+    theme_bw() +
+    #scale_y_continuous(limits=c(-x_range,x_range))+
+    labs(y = expression(paste("Difference in average tot DZ prevalence relative to buddy")), x = "Diver") + 
+    scale_x_discrete(breaks = 1:length(levels(size_comp$DIVER)), labels = levels(size_comp$DIVER))
+  suppressMessages(ggsave(filename =paste("divervsdiver_TotDZprev_",date1,",",substr(date2, 9, 10),",",substr(date3, 9, 10),".png", sep = ""), width=13, height = 14.0, units = c("cm")))
+  
+  
+  ######## diver vs diver: Acute DZ prevalence ########
+  
+  scr<-size_comp[,c("SITEVISITID", "DIVER", "AcuteDZprev")] ### stripped down
+  msd<-data.frame(with(scr, tapply(AcuteDZprev, list(SITEVISITID, DIVER), mean))) ## mean Acute DZ prevalence estimate per diver per site
+  
+  thenas<-data.frame(is.na(msd)) ## id all the locations of nas in dataset
+  
+  toplot<-list()
+  
+  for(i in 1:length(divers)){
+    ##i<-(divers)[7]
+    diver<-which(thenas[,i] == FALSE)
+    
+    ##select out the sites for diver from the dataframe
+    diverdata<-msd[diver,i]
+    
+    ## get the other diver estimates per site (take mean b/c sometimes more than one other diver at a site)
+    otherdiver<-rowMeans(msd[diver, !(colnames(msd) %in% divers[i])], na.rm = TRUE)
+    
+    ## for diver 1 create a site level size ratio, the size of diver 1 / the size of the other divers
+    x<-as.vector(diverdata - otherdiver)
+    toplot[[i]]<-x
+    
+  }
+  
+  toplot<-(melt(toplot))
+  
+  names(toplot)<-c("AcuteDZ", "diver")
+  toplot$diver<-as.factor(toplot$diver)
+  
+  # Plot difference in Acute DZ ratio between divers
+  adz <- ggplot(toplot, aes(factor(diver), AcuteDZ))
+  adz <- adz + 
+    geom_boxplot() + 
+    coord_flip() + 
+    geom_jitter(colour = "red", size =1, alpha = 0.4) + 
+    theme_bw() +
+    #scale_y_continuous(limits=c(-x_range,x_range))+
+    labs(y = expression(paste("Difference in average acute DZ prevalence relative to buddy")), x = "Diver") + 
+    scale_x_discrete(breaks = 1:length(levels(size_comp$DIVER)), labels = levels(size_comp$DIVER))
+  suppressMessages(ggsave(filename =paste("divervsdiver_AcuteDZprev_",date1,",",substr(date2, 9, 10),",",substr(date3, 9, 10),".png", sep = ""), width=13, height = 14.0, units = c("cm")))
+  
+  
+  ######## diver vs diver: Chronic DZ prevalence ########
+  
+  scr<-size_comp[,c("SITEVISITID", "DIVER", "ChronicDZprev")] ### stripped down
+  msd<-data.frame(with(scr, tapply(ChronicDZprev, list(SITEVISITID, DIVER), mean))) ## mean Chronic DZ prevalence estimate per diver per site
+  
+  thenas<-data.frame(is.na(msd)) ## id all the locations of nas in dataset
+  
+  toplot<-list()
+  
+  for(i in 1:length(divers)){
+    ##i<-(divers)[7]
+    diver<-which(thenas[,i] == FALSE)
+    
+    ##select out the sites for diver from the dataframe
+    diverdata<-msd[diver,i]
+    
+    ## get the other diver estimates per site (take mean b/c sometimes more than one other diver at a site)
+    otherdiver<-rowMeans(msd[diver, !(colnames(msd) %in% divers[i])], na.rm = TRUE)
+    
+    ## for diver 1 create a site level size ratio, the size of diver 1 / the size of the other divers
+    x<-as.vector(diverdata - otherdiver)
+    toplot[[i]]<-x
+    
+  }
+  
+  toplot<-(melt(toplot))
+  
+  names(toplot)<-c("ChronicDZ", "diver")
+  toplot$diver<-as.factor(toplot$diver)
+  
+  # Plot difference in Chronic DZ ratio between divers
+  cdz <- ggplot(toplot, aes(factor(diver), ChronicDZ))
+  cdz <- cdz + 
+    geom_boxplot() + 
+    coord_flip() + 
+    geom_jitter(colour = "red", size =1, alpha = 0.4) + 
+    theme_bw() +
+    #scale_y_continuous(limits=c(-x_range,x_range))+
+    labs(y = expression(paste("Difference in average chronic DZ prevalence relative to buddy")), x = "Diver") + 
+    scale_x_discrete(breaks = 1:length(levels(size_comp$DIVER)), labels = levels(size_comp$DIVER))
+  suppressMessages(ggsave(filename =paste("divervsdiver_chronicDZprev_",date1,",",substr(date2, 9, 10),",",substr(date3, 9, 10),".png", sep = ""), width=13, height = 14.0, units = c("cm")))
+  
+  
+  ######## diver vs diver: COTS prevalence ########
+  
+  scr<-size_comp[,c("SITEVISITID", "DIVER", "COTSprev")] ### stripped down
+  msd<-data.frame(with(scr, tapply(COTSprev, list(SITEVISITID, DIVER), mean))) ## mean COTS prevalence estimate per diver per site
+  
+  thenas<-data.frame(is.na(msd)) ## id all the locations of nas in dataset
+  
+  toplot<-list()
+  
+  for(i in 1:length(divers)){
+    ##i<-(divers)[7]
+    diver<-which(thenas[,i] == FALSE)
+    
+    ##select out the sites for diver from the dataframe
+    diverdata<-msd[diver,i]
+    
+    ## get the other diver estimates per site (take mean b/c sometimes more than one other diver at a site)
+    otherdiver<-rowMeans(msd[diver, !(colnames(msd) %in% divers[i])], na.rm = TRUE)
+    
+    ## for diver 1 create a site level size ratio, the size of diver 1 / the size of the other divers
+    x<-as.vector(diverdata - otherdiver)
+    toplot[[i]]<-x
+    
+  }
+  
+  toplot<-(melt(toplot))
+  
+  names(toplot)<-c("COTS", "diver")
+  toplot$diver<-as.factor(toplot$diver)
+  
+  # Plot difference in COTSprev ratio between divers
+  cots <- ggplot(toplot, aes(factor(diver), COTS))
+  cots <- cots + 
+    geom_boxplot() + 
+    coord_flip() + 
+    geom_jitter(colour = "red", size =1, alpha = 0.4) + 
+    theme_bw() +
+    #scale_y_continuous(limits=c(-x_range,x_range))+
+    labs(y = expression(paste("Difference in average COTS prevalence relative to buddy")), x = "Diver") + 
+    scale_x_discrete(breaks = 1:length(levels(size_comp$DIVER)), labels = levels(size_comp$DIVER))
+  suppressMessages(ggsave(filename =paste("divervsdiver_COTSprev_",date1,",",substr(date2, 9, 10),",",substr(date3, 9, 10),".png", sep = ""), width=13, height = 14.0, units = c("cm")))
+  
+}        ## divervsdiver 
+
+
+
+
+

@@ -11,6 +11,8 @@
 # clear workspace 
 rm(list=ls()) # clear all variables
 
+setwd("C:/Users/Courtney.S.Couch/Documents/Courtney's Files/R Files/ESD/Benthic REA")
+
 # Need to source benthic team functions for functions to run throughout this script. Change directory to wherever files are located on personal computer
 source("C:/Users/Courtney.S.Couch/Documents/GitHub/Benthic-Scripts/Functions/Benthic_Functions.R")
 source("C:/Users/Courtney.S.Couch/Documents/GitHub/Benthic-Scripts/Functions/core_functions.R")
@@ -288,13 +290,12 @@ setnames(compdata3.juv, old = c("AvgCOLONYLENGTH"), new = c("AvgCOLONYLENGTH.juv
 
 ## Calculate % recent dead for adults
 compdata4 <- Calc_ColMetric_Seg(data=awd2, grouping_field="GENUS_CODE", pool_fields="RDEXTENT1") 
-compdata4 <- rename(compdata4, c("AvgRDEXTENT1"="AvgRDEXTENT1.ad")) # rename columns for merging with juv data (later)
-setnames(compdata3.juv, old = c("AvgCOLONYLENGTH"), new = c("AvgCOLONYLENGTH.juv"))
+setnames(compdata4, old = c("AvgRDEXTENT1"), new = c("AvgRDEXTENT1.ad"))
 
 
 ## Calculate % old dead for adults
 compdata5 <- Calc_ColMetric_Seg(data=awd2, grouping_field="GENUS_CODE", pool_fields="OLDDEAD") 
-compdata5 <- rename(compdata5, c("AvgOLDDEAD"="AvgOLDDEAD.ad")) # rename columns for merging with juv data (later)
+setnames(compdata5, old = c("AvgOLDDEAD"), new = c("AvgOLDDEAD.ad"))
 
 ## Calculate abundance of recent dead colonies by condition for adults
 rdabun.gen<-Calc_RDabun_Segment(awd2,"GENUS_CODE")  #Note: you will need to subset which ever condition you want
@@ -303,7 +304,7 @@ rdabun.gen<-Calc_RDabun_Segment(awd2,"GENUS_CODE")  #Note: you will need to subs
 condabun.gen<-Calc_Condabun_Segment(awd2,"GENUS_CODE")  #Note: you will need to subset which ever condition you want
 
 ## Calculate Chronic disease abundance
-condabun.gen$ChronicDZ<-condabun.gen$FUG+condabun.gen$SGA+condabun.gen$PDS+condabun.gen$PTR
+condabun.gen$ChronicDZ<-condabun.gen$FUG+condabun.gen$SGA+condabun.gen$PTR
 
 ## Calculate Prevalence of whatever conditions you want
 rdabun.gen$AcuteDZprev<-rdabun.gen$AcuteDZ/rdabun.gen$ColCount*100  #calculate prevalence
@@ -332,6 +333,7 @@ data.gen<-subset(data.gen, GENUS_CODE == "SSSS", select=c("DATE_","SITEVISITID",
 ## TEST function on range of dates:
 divervsdiver(data=data.gen, date1="2015-03-27", date2="2015-03-28", date3="2015-03-29")
 #divervsdiver(data=data.gen, date1="2015-03-27", date2="2015-03-28", date3="2015-03-29", x_range=20)  # may need to adjust x_range to match scaling for each benthic metric
+
 
 
 ###################################################################
