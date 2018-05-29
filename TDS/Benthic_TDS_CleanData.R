@@ -18,7 +18,8 @@ tds <- read.csv("VS_BENT_TDS_DATA_VIEW.csv")
 setwd("T:/Benthic/Data/TDS_Raw/Depths")
 
 # need to assign depths to segments missing this - read in supplemental data:
-  # MEAN = MULTI data; MEAN_1 = SAT data
+  # for PRIAs: MEAN = MULTI data; MEAN_1 = SAT data
+  # still need to add in depths for MARIAN, SAMOA, MHI, and NWHI
 
 bak <- read.csv("segments_bak_zonal_join.csv")
   bak <- bak[,c("DiveID", "SegmentID", "DiveYear", "Island", "MEAN", "MEAN_1")]
