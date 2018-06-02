@@ -548,13 +548,15 @@ Calc_Strata=function(site_data,grouping_field,metric_field=c("AdColDen","JuvColD
                     SE_D._h=sqrt(varD._h),
                     CV_D._h=SE_D._h/D._h,
                     SE_Y._h=sqrt(varY._h),
-                    CV_Y._h=SE_Y._h/Y._h)
+                    CV_Y._h=SE_Y._h/Y._h,
+                    Adprop.occur=sum(Adpres.abs)/n_h,
+                    Juvprop.occur=sum(Juvpres.abs)/n_h)
   
   Strata_roll$M_hi=250 #define total possible transects in a site
   Strata_roll=Strata_roll[,c("ANALYSIS_YEAR","DOMAIN_SCHEMA","ANALYSIS_SCHEMA","GROUP",
                              "M_hi","n_h","N_h","w_h",
                              "D._h","S1_h","varD._h","SE_D._h","CV_D._h",
-                             "Y._h","varY._h","SE_Y._h","CV_Y._h")]
+                             "Y._h","varY._h","SE_Y._h","CV_Y._h","Adprop.occur","Juvprop.occur")]
   
   #remove strata that have only 1 site because you can't calculate variance
   Strata_roll<-Strata_roll[Strata_roll$n_h>1,]
