@@ -31,6 +31,43 @@ Convert_to_Taxoncode<-function(data){
   return(out)
 }
 
+scl_genus_list<-function(data){
+  data<-subset(data,S_ORDER=="Scleractinia")
+  a<-ddply(data,.(GENUS_CODE,GENUS), #create a list of Genera and Species by region and year
+           summarize,
+           dummy=length(COLONYID))
+  a<-subset(a,select=-c(dummy))
+  df<-data.frame("SSSS","All Scleractinia")
+  names(df)<-c("GENUS_CODE","GENUS")
+  a <- rbind(a, df)
+  a<-a[complete.cases(a), ]
+  
+  return(a)
+}
+
+scl_taxonname_list<-function(data){
+  data<-subset(data,S_ORDER=="Scleractinia")
+  a<-ddply(data,.(SPECIES,TAXONNAME), #create a list of Genera and Species by region and year
+           summarize,
+           dummy=length(COLONYID))
+  a<-subset(a,select=-c(dummy))
+  colnames(a)[colnames(a)=="SPECIES"]<-"TAXONCODE" #Change column name
+  df<-data.frame("SSSS","All Scleractinia")
+  names(df)<-c("TAXONCODE","TAXONNAME")
+  a <- rbind(a, df)
+  return(a)
+}
+
+scl_taxonname_list_ISLAND<-function(data){
+  data<-subset(data,S_ORDER=="Scleractinia")
+  a<-ddply(data,.(ISLAND,SPECIES,TAXONNAME), #create a list of Genera and Species by region and year
+           summarize,
+           dummy=length(COLONYID))
+  a<-subset(a,select=-c(dummy))
+  colnames(a)[colnames(a)=="SPECIES"]<-"TAXONCODE" #Change column name
+  return(a)
+}
+
 ##Calcuate segment and transect area and add column for transect area for methods c,e,f
 Transectarea<-function(data,s.df){
 data$SEGAREA<-data$SEGLENGTH*data$SEGWIDTH # Calculate segment area
@@ -480,7 +517,7 @@ Calc_Condabun_Transect<-function(data, grouping_field="S_ORDER"){
   c<-dcast(scl, formula=SITEVISITID + SITE+TRANSECT+COLONYID ~ COND, value.var="COND",length,fill=0)
   c <- subset(c, select = -c(NDZ)) #remove columns
   a<-merge(survey_colony,c, by=c("SITE","SITEVISITID","TRANSECT","COLONYID"))
-  long <- gather(a, COND, Condabun, names(a[21:dim(a)[2]]), factor_key=TRUE) #convert wide to long format by condition
+  long <- gather(a, COND, Condabun, names(a[22:dim(a)[2]]), factor_key=TRUE) #convert wide to long format by condition
   
   #merge data with colony level metadata and sum conditions by transect and taxoncode
   long$GROUP<-long[,grouping_field]
