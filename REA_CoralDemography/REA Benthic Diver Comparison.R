@@ -26,8 +26,7 @@ source("C:/Users/Courtney.S.Couch/Documents/GitHub/Benthic-Scripts/Functions/cor
 # This script will clean the raw benthic REA data using method E (2013-present) and prepare it for analysis
 ######################################################################
 ## LOAD benthic data
-load("C:/Users/Courtney.S.Couch/Documents/Courtney's Files/R Files/ESD/Benthic REA/ALL_REA_ADULTCORAL_RAW.rdata") #from oracle
-x<-df #leave this as df
+x<-read.csv("C:/Users/Courtney.S.Couch/Documents/Courtney's Files/R Files/ESD/Benthic REA/ASRAMP2018_leg2Adultdata.csv") 
 
 x$SITE<-SiteNumLeadingZeros(x$SITE) # Change site number such as MAR-22 to MAR-0022
 
@@ -37,12 +36,14 @@ tail(x)
 
 
 #Create vector of column names to include then exclude unwanted columns from dataframe
-DATA_COLS<-c("MISSIONID","REGION","REGION_NAME","ISLAND","ISLANDCODE","SITE","LATITUDE",	"LONGITUDE","REEF_ZONE","DEPTH_BIN","OBS_YEAR",
-             "DATE_","SITE_MIN_DEPTH","SITE_MAX_DEPTH","SITEVISITID","HABITAT_CODE","DIVER","TRANSECT","SEGMENT","TRANWIDTH",
-             "TRANLENGTH","EXCLUDE_FLAG","NO_SURVEY_YN","COLONYID","SPECIES","MORPH_CODE","COLONYLENGTH","OLDDEAD",
-             "RECENTDEAD","RECENT_GENERAL_CAUSE_CODE","RECENT_SPECIFIC_CAUSE_CODE",
-             "RECENTDEAD_2",	"RECENT_GENERAL_CAUSE_CODE_2","RECENT_SPECIFIC_CAUSE_CODE_2","DZCODE",
-             "EXTENT",	"SEVERITY","GENUS_CODE","S_ORDER","TAXONNAME")
+DATA_COLS<-c("MISSIONID","REGION_NAME","ISLAND","SITE","REEF_ZONE","DEPTH_BIN","OBS_YEAR",
+             "DATE_","SITEVISITID","DIVER","TRANSECT","SEGMENT","SEGWIDTH",
+             "SEGLENGTH","COLONYID","SPECIES","MORPH_CODE","COLONYLENGTH","OLDDEAD",
+             "RECENTDEAD","RECENT_GENERAL_CAUSE_CODE","RECENT_SPECIFIC_CAUSE_CODE","RECENT_SPECIFIC_CAUSE_CODE_2",
+             "RECENT_GENERAL_CAUSE_CODE_2","CONDITION_1",
+             "EXTENT","CONDITION_2",
+             "EXTENT_2","CONDITION_3",
+             "EXTENT_3","GENUS_CODE","S_ORDER")
 
 #remove extraneous columns
 head(x[,DATA_COLS])
@@ -52,18 +53,16 @@ x<-x[,DATA_COLS]
 sapply(x,levels)
 sapply(x,class)##Change column names to make code easier to code
 
-colnames(x)[colnames(x)=="TRANWIDTH"]<-"SEGWIDTH" #Change column name
-colnames(x)[colnames(x)=="TRANLENGTH"]<-"SEGLENGTH" #Change column name
 colnames(x)[colnames(x)=="SPECIES"]<-"SPCODE" #Change column name
+colnames(x)[colnames(x)=="GENUS"]<-"GENUS_CODE" #Change column name
 colnames(x)[colnames(x)=="RECENTDEAD"]<-"RDEXTENT1" #Change column name
 colnames(x)[colnames(x)=="RECENT_GENERAL_CAUSE_CODE"]<-"GENRD1" #Change column name
 colnames(x)[colnames(x)=="RECENT_SPECIFIC_CAUSE_CODE"]<-"RD1" #Change column name
+colnames(x)[colnames(x)=="RECENT_SPECIFIC_CAUSE_CODE_1"]<-"RD2" #Change column name
 colnames(x)[colnames(x)=="RECENTDEAD_2"]<-"RDEXTENT2" #Change column name
 colnames(x)[colnames(x)=="RECENT_GENERAL_CAUSE_CODE_2"]<-"GENRD2" #Change column name
-colnames(x)[colnames(x)=="RECENT_SPECIFIC_CAUSE_CODE_2"]<-"RD2" #Change column name
-colnames(x)[colnames(x)=="SITE_MIN_DEPTH"]<-"SITE_MIN_DEPTH_FT" #Change column name
-colnames(x)[colnames(x)=="SITE_MAX_DEPTH"]<-"SITE_MAX_DEPTH_FT" #Change column name
-colnames(x)[colnames(x)=="DZCODE"]<-"COND" #Change column name
+colnames(x)[colnames(x)=="REGION_NAME"]<-"REGION" #Change column name
+
 
 head(x)
 
@@ -73,35 +72,35 @@ head(x)
 # pq<-subset(pq_only,NO_SURVEY_YN==-1)
 # 
 
-
-#There are some SPCODES that were a combination of taxa and weren't included in the complete taxa list
-#Change these unknown genus to the spcode and the remaining NAs in the Taxon and genus code to AAAA
-x$GENUS_CODE<-as.character(x$GENUS_CODE)
-x$SPCODE<-as.character(x$SPCODE)
-
-x$GENUS_CODE<-ifelse(is.na(x$GENUS_CODE)&x$S_ORDER=="Scleractinia",x$SPCODE,x$GENUS_CODE)
-
-x$GENUS_CODE[is.na(x$GENUS_CODE)]<-"AAAA"#change nas to AAAA
-#utils::View(x.) #view data in separate window
-
-#Check that Unknown scl were changed correctly
-test<-subset(x,GENUS_CODE=="UNKN"&S_ORDER=="Scleractinia");head(test)
-test<-subset(x,GENUS_CODE=="AAAA");head(test)
-
-
-
-#Test whether there are missing values in the NO_SURVEY_YN column. The value should be 0 or -1
-x.na<-x[is.na(x$NO_SURVEY_YN),]
-test<-ddply(x.na,.(SITE),
-            summarize,
-            SEG=length(unique(SEGMENT)))
-test
-
-#Convert NAs to 0 and remove trasects with no surveys
-x$EXCLUDE_FLAG<-is.na(x$EXCLUDE_FLAG)<-0 #Change NAs (blank cells) to 0
-x$NO_SURVEY_YN<-is.na(x$NO_SURVEY_YN)<-0 #Change NAs (blank cells) to 0
-x<-subset(x,NO_SURVEY_YN>-1) #Exclude rows -1
-x<-subset(x,SEGLENGTH!="NA") #Remove segments that were not surveyed for coral demography
+# 
+# #There are some SPCODES that were a combination of taxa and weren't included in the complete taxa list
+# #Change these unknown GENUS_CODE to the spcode and the remaining NAs in the Taxon and GENUS_CODE code to AAAA
+# x$GENUS_CODE<-as.character(x$GENUS_CODE)
+# x$SPCODE<-as.character(x$SPCODE)
+# 
+# x$GENUS_CODE<-ifelse(is.na(x$GENUS_CODE)&x$S_ORDER=="Scleractinia",x$SPCODE,x$GENUS_CODE)
+# 
+# x$GENUS_CODE[is.na(x$GENUS_CODE)]<-"AAAA"#change nas to AAAA
+# #utils::View(x.) #view data in separate window
+# 
+# #Check that Unknown scl were changed correctly
+# test<-subset(x,GENUS_CODE=="UNKN"&S_ORDER=="Scleractinia");head(test)
+# test<-subset(x,GENUS_CODE=="AAAA");head(test)
+# 
+# 
+# 
+# #Test whether there are missing values in the NO_SURVEY_YN column. The value should be 0 or -1
+# x.na<-x[is.na(x$NO_SURVEY_YN),]
+# test<-ddply(x.na,.(SITE),
+#             summarize,
+#             SEG=length(unique(SEGMENT)))
+# test
+# 
+# #Convert NAs to 0 and remove trasects with no surveys
+# x$EXCLUDE_FLAG<-is.na(x$EXCLUDE_FLAG)<-0 #Change NAs (blank cells) to 0
+# x$NO_SURVEY_YN<-is.na(x$NO_SURVEY_YN)<-0 #Change NAs (blank cells) to 0
+# x<-subset(x,NO_SURVEY_YN>-1) #Exclude rows -1
+# x<-subset(x,SEGLENGTH!="NA") #Remove segments that were not surveyed for coral demography
 
 
 
@@ -114,8 +113,8 @@ nrow(x)
 
 ## CLEAN UP NAs ##
 
-x[x=="."]<-NA #fix this
-x[x=="-9"]<-NA
+x[x=="-"]<-NA #fix this
+#x[x=="-9"]<-NA
 tmp.lev<-levels(x$GENRD1); head(tmp.lev)
 levels(x$GENRD1)<-c(tmp.lev, "NONE") # change to NONE
 x[is.na(x$GENRD1),"GENRD1"]<-"NONE"
@@ -132,94 +131,104 @@ tmp.lev<-levels(x$RD2); head(tmp.lev)
 levels(x$RD2)<-c(tmp.lev, "NONE")
 x[is.na(x$RD2),"RD2"]<-"NONE"
 
-tmp.lev<-levels(x$SITE_MIN_DEPTH_FT); head(tmp.lev)
-levels(x$SITE_MIN_DEPTH_FT)<-c(tmp.lev, "NONE")
-x[is.na(x$SITE_MIN_DEPTH_FT),"SITE_MIN_DEPTH_FT"]<-"NONE"
+tmp.lev<-levels(x$CONDITION_1); head(tmp.lev)
+levels(x$CONDITION_1)<-c(tmp.lev, "NONE") # change to NONE
+x[is.na(x$CONDITION_1),"CONDITION_1"]<-"NONE"
 
-tmp.lev<-levels(x$SITE_MAX_DEPTH_FT); head(tmp.lev)
-levels(x$SITE_MAX_DEPTH_FT)<-c(tmp.lev, "NONE")
-x[is.na(x$SITE_MAX_DEPTH_FT),"SITE_MAX_DEPTH_FT"]<-"NONE"
+tmp.lev<-levels(x$CONDITION_2); head(tmp.lev)
+levels(x$CONDITION_2)<-c(tmp.lev, "NONE") # change to NONE
+x[is.na(x$CONDITION_2),"CONDITION_2"]<-"NONE"
 
-tmp.lev<-levels(x$Estab_Yr); head(tmp.lev)
-levels(x$Estab_Yr)<-c(tmp.lev, "NONE")
-x[is.na(x$Estab_Yr),"Estab_Yr"]<-"NONE"
-
+tmp.lev<-levels(x$CONDITION_3); head(tmp.lev)
+levels(x$CONDITION_3)<-c(tmp.lev, "NONE") # change to NONE
+x[is.na(x$CONDITION_3),"CONDITION_3"]<-"NONE"
+# 
+# tmp.lev<-levels(x$SITE_MIN_DEPTH_FT); head(tmp.lev)
+# levels(x$SITE_MIN_DEPTH_FT)<-c(tmp.lev, "NONE")
+# x[is.na(x$SITE_MIN_DEPTH_FT),"SITE_MIN_DEPTH_FT"]<-"NONE"
+# 
+# tmp.lev<-levels(x$SITE_MAX_DEPTH_FT); head(tmp.lev)
+# levels(x$SITE_MAX_DEPTH_FT)<-c(tmp.lev, "NONE")
+# x[is.na(x$SITE_MAX_DEPTH_FT),"SITE_MAX_DEPTH_FT"]<-"NONE"
+# 
+# tmp.lev<-levels(x$Estab_Yr); head(tmp.lev)
+# levels(x$Estab_Yr)<-c(tmp.lev, "NONE")
+# x[is.na(x$Estab_Yr),"Estab_Yr"]<-"NONE"
+# 
 head(x)
 
 awd<-droplevels(x)
 
-
-
 ## CREATE JUVENILE CLEAN ANALYSIS READY DATA ----
-
-load("C:/Users/Courtney.S.Couch/Documents/Courtney's Files/R Files/ESD/Benthic REA/ALL_REA_JUVCORAL_RAW.rdata")
-x<-df
-x$SITE<-SiteNumLeadingZeros(x$SITE)
-
-
-#Create vector of column names to include then exclude unwanted columns from dataframe
-DATA_COLS<-c("MISSIONID","REGION","REGION_NAME","ISLAND","ISLANDCODE","SITE","LATITUDE",	"LONGITUDE","REEF_ZONE","DEPTH_BIN","OBS_YEAR",
-             "DATE_","SITE_MIN_DEPTH","SITE_MAX_DEPTH","SITEVISITID","HABITAT_CODE","DIVER","EXCLUDE_FLAG","TRANSECT","SEGMENT","TRANWIDTH",
-             "TRANLENGTH","COLONYID","SPECIES","MORPH_CODE","COLONYLENGTH","COLONYWIDTH","GENUS_CODE","S_ORDER")
-
-head(x[,DATA_COLS])
-x<-x[,DATA_COLS]
-
-
-#Double check level and class of variables to make sure there aren't any errors
-sapply(x,levels)
-sapply(x,class)##Change column names to make code easier to code
-colnames(x)[colnames(x)=="SPECIES"]<-"SPCODE" #Change column name
-colnames(x)[colnames(x)=="TRANWIDTH"]<-"SEGWIDTH" #Change column name
-colnames(x)[colnames(x)=="TRANLENGTH"]<-"SEGLENGTH" #Change column name
-colnames(x)[colnames(x)=="SITE_MIN_DEPTH"]<-"SITE_MIN_DEPTH_FT" #Change column name
-colnames(x)[colnames(x)=="SITE_MAX_DEPTH"]<-"SITE_MAX_DEPTH_FT" #Change column name
-
-
-#There are some SPCODES that were a combination of taxa and weren't included in the complete taxa list
-#Change these unknown genus to the spcode and the remaining NAs in the Taxon and genus code to AAAA
-x$GENUS_CODE<-as.character(x$GENUS_CODE)
-x$SPCODE<-as.character(x$SPCODE)
-
-x$GENUS_CODE<-ifelse(is.na(x$GENUS_CODE)&x$S_ORDER=="Scleractinia",x$SPCODE,x$GENUS_CODE)
-
-x$GENUS_CODE[is.na(x$GENUS_CODE)]<-"AAAA"#change nas to AAAA
-#utils::View(x.) #view data in separate window
-
-#Check that Unknown scl were changed correctly
-test<-subset(x,GENUS_CODE=="UNKN"&S_ORDER=="Scleractinia");head(test)
-test<-subset(x,GENUS_CODE=="AAAA");head(test)
-
-
-
-#Remove specfic colonies and segments
-x$EXCLUDE_FLAG<-is.na(x$EXCLUDE_FLAG)<-0 #Change NAs (blank cells) to 0
-x<-subset(x,EXCLUDE_FLAG>-1);summary(x$EXCLUDE_FLAG) #Exclude rows -1
-x<-subset(x,SEGLENGTH!="NA") #Remove segments that were not surveyed for juveniles
-nrow(x)
-
-
-##Calcuating segment and transect area and add column for transect area
-x<-Transectarea(x)
-sapply(x,levels)
-head(x)
-nrow(x)
-
-
-## CLEAN UP NAs 
-
-tmp.lev<-levels(x$SITE_MIN_DEPTH_FT); head(tmp.lev)
-levels(x$SITE_MIN_DEPTH_FT)<-c(tmp.lev, "NONE")
-x[is.na(x$SITE_MIN_DEPTH_FT),"SITE_MIN_DEPTH_FT"]<-"NONE"
-
-tmp.lev<-levels(x$SITE_MAX_DEPTH_FT); head(tmp.lev)
-levels(x$SITE_MAX_DEPTH_FT)<-c(tmp.lev, "NONE")
-x[is.na(x$SITE_MAX_DEPTH_FT),"SITE_MAX_DEPTH_FT"]<-"NONE"
-
-head(x)
-
-jwd<-droplevels(x)
-
+# 
+# load("C:/Users/Courtney.S.Couch/Documents/Courtney's Files/R Files/ESD/Benthic REA/ALL_REA_JUVCORAL_RAW.rdata")
+# x<-df
+# x$SITE<-SiteNumLeadingZeros(x$SITE)
+# 
+# 
+# #Create vector of column names to include then exclude unwanted columns from dataframe
+# DATA_COLS<-c("MISSIONID","REGION","REGION_NAME","ISLAND","ISLANDCODE","SITE","LATITUDE",	"LONGITUDE","REEF_ZONE","DEPTH_BIN","OBS_YEAR",
+#              "DATE_","SITE_MIN_DEPTH","SITE_MAX_DEPTH","SITEVISITID","HABITAT_CODE","DIVER","EXCLUDE_FLAG","TRANSECT","SEGMENT","TRANWIDTH",
+#              "TRANLENGTH","COLONYID","SPECIES","MORPH_CODE","COLONYLENGTH","COLONYWIDTH","GENUS_CODE","S_ORDER")
+# 
+# head(x[,DATA_COLS])
+# x<-x[,DATA_COLS]
+# 
+# 
+# #Double check level and class of variables to make sure there aren't any errors
+# sapply(x,levels)
+# sapply(x,class)##Change column names to make code easier to code
+# colnames(x)[colnames(x)=="SPECIES"]<-"SPCODE" #Change column name
+# colnames(x)[colnames(x)=="TRANWIDTH"]<-"SEGWIDTH" #Change column name
+# colnames(x)[colnames(x)=="TRANLENGTH"]<-"SEGLENGTH" #Change column name
+# colnames(x)[colnames(x)=="SITE_MIN_DEPTH"]<-"SITE_MIN_DEPTH_FT" #Change column name
+# colnames(x)[colnames(x)=="SITE_MAX_DEPTH"]<-"SITE_MAX_DEPTH_FT" #Change column name
+# 
+# 
+# #There are some SPCODES that were a combination of taxa and weren't included in the complete taxa list
+# #Change these unknown GENUS_CODE to the spcode and the remaining NAs in the Taxon and GENUS_CODE code to AAAA
+# x$GENUS_CODE<-as.character(x$GENUS_CODE)
+# x$SPCODE<-as.character(x$SPCODE)
+# 
+# x$GENUS_CODE<-ifelse(is.na(x$GENUS_CODE)&x$S_ORDER=="Scleractinia",x$SPCODE,x$GENUS_CODE)
+# 
+# x$GENUS_CODE[is.na(x$GENUS_CODE)]<-"AAAA"#change nas to AAAA
+# #utils::View(x.) #view data in separate window
+# 
+# #Check that Unknown scl were changed correctly
+# test<-subset(x,GENUS_CODE=="UNKN"&S_ORDER=="Scleractinia");head(test)
+# test<-subset(x,GENUS_CODE=="AAAA");head(test)
+# 
+# 
+# 
+# #Remove specfic colonies and segments
+# x$EXCLUDE_FLAG<-is.na(x$EXCLUDE_FLAG)<-0 #Change NAs (blank cells) to 0
+# x<-subset(x,EXCLUDE_FLAG>-1);summary(x$EXCLUDE_FLAG) #Exclude rows -1
+# x<-subset(x,SEGLENGTH!="NA") #Remove segments that were not surveyed for juveniles
+# nrow(x)
+# 
+# 
+# ##Calcuating segment and transect area and add column for transect area
+# x<-Transectarea(x)
+# sapply(x,levels)
+# head(x)
+# nrow(x)
+# 
+# 
+# ## CLEAN UP NAs 
+# 
+# tmp.lev<-levels(x$SITE_MIN_DEPTH_FT); head(tmp.lev)
+# levels(x$SITE_MIN_DEPTH_FT)<-c(tmp.lev, "NONE")
+# x[is.na(x$SITE_MIN_DEPTH_FT),"SITE_MIN_DEPTH_FT"]<-"NONE"
+# 
+# tmp.lev<-levels(x$SITE_MAX_DEPTH_FT); head(tmp.lev)
+# levels(x$SITE_MAX_DEPTH_FT)<-c(tmp.lev, "NONE")
+# x[is.na(x$SITE_MAX_DEPTH_FT),"SITE_MAX_DEPTH_FT"]<-"NONE"
+# 
+# head(x)
+# 
+# jwd<-droplevels(x)
+# 
 #######################################################
 
 ### Final Tweaks before generating diver vs. diver comparisons -------------------------------------------------
@@ -228,12 +237,12 @@ jwd<-droplevels(x)
 # Double check that there are no NAs in GENUS_CODE- change
 new_DF <- awd[is.na(awd$GENUS_CODE),] 
 new_DF
-new_DF2 <- jwd[is.na(jwd$GENUS_CODE),] 
-new_DF2
+# new_DF2 <- jwd[is.na(jwd$GENUS_CODE),] 
+# new_DF2
 
 # Add a column for adult fragments so we can remove them from the dataset later (-1 indicates fragment)
 awd$Fragment<-ifelse(awd$COLONYLENGTH < 5 & awd$S_ORDER == "Scleractinia", -1, 0)
-jwd$Fragment<-0 # you need to add this column so that you can use the site level functions correctly
+#jwd$Fragment<-0 # you need to add this column so that you can use the site level functions correctly
 
 # Remove transects with less than 5m surveyed and check how many rows were removed
 nrow(awd)
@@ -250,30 +259,126 @@ jwd$TRANSECT[jwd$TRANSECT == "4"] <- "2"
 
 ############################################################
 
-# test functions on SAMOA data to test code
-awd2 <- awd[which(awd$REGION == "SAMOA"), ]
-jwd2 <- jwd[which(jwd$REGION == "SAMOA"), ]
 
 #Create a look a table of all of the colony attributes- you will need this for the Calc_RDden and Calc_Condden functions
-SURVEY_INFO<-c("SITEVISITID", "OBS_YEAR", "REGION", "REGION_NAME", "ISLAND","ISLANDCODE","SITE", "DATE_", "REEF_ZONE",
-               "DEPTH_BIN", "LATITUDE", "LONGITUDE","SITE_MIN_DEPTH_FT","SITE_MAX_DEPTH_FT","TRANSECT","SEGMENT","DIVER","COLONYID","GENUS_CODE","SPCODE","MORPH_CODE","COLONYLENGTH")
-survey_colony<-Aggregate_InputTable(awd2, SURVEY_INFO)
+SURVEY_INFO<-c("MISSIONID","SITEVISITID", "OBS_YEAR", "REGION", "ISLAND","SITE", "DATE_", "REEF_ZONE",
+               "DEPTH_BIN", "TRANSECT","SEGMENT","DIVER","COLONYID","GENUS_CODE","SPCODE","MORPH_CODE","COLONYLENGTH")
+survey_colony<-Aggregate_InputTable(awd, SURVEY_INFO)
 
-SURVEY_INFO<-c("SITEVISITID", "OBS_YEAR", "REGION", "REGION_NAME", "ISLAND","ISLANDCODE", "SITE", "DATE_", "REEF_ZONE",
-               "DEPTH_BIN", "LATITUDE", "LONGITUDE","SITE_MIN_DEPTH_FT","SITE_MAX_DEPTH_FT","TRANSECT","SEGMENT")
-survey_segment<-Aggregate_InputTable(awd2, SURVEY_INFO)
+SURVEY_INFO<-c("MISSIONID","SITEVISITID", "OBS_YEAR", "REGION", "ISLAND","SITE", "DATE_", "REEF_ZONE",
+               "DEPTH_BIN", "TRANSECT","DIVER")
+survey_transect<-Aggregate_InputTable(awd, SURVEY_INFO)
 
-SURVEY_INFO<-c("SITEVISITID", "OBS_YEAR", "REGION", "REGION_NAME", "ISLAND","ISLANDCODE", "SITE", "DATE_", "REEF_ZONE",
-               "DEPTH_BIN", "LATITUDE", "LONGITUDE","SITE_MIN_DEPTH_FT","SITE_MAX_DEPTH_FT")
-survey_site<-Aggregate_InputTable(awd2, SURVEY_INFO)
+SURVEY_INFO<-c("MISSIONID","SITEVISITID", "OBS_YEAR", "REGION", "ISLAND","SITE", "DATE_", "REEF_ZONE",
+               "DEPTH_BIN","DIVER")
+survey_site<-Aggregate_InputTable(awd, SURVEY_INFO)
+
+
+rd<-Calc_RDabun_Transect(awd,"DIVER");rd<-rd[-c(25)];rd<-subset(rd,DIVER!="SSSS")
+
+#Calcaulte prevalence
+rd[, -(1:4)] <- sweep(rd[, -(1:4)], 1, rd[, 25], "/");rd<-rd[-c(25)]
+
+rdlong <- gather(rd, RDCond, prevalence, names(rd[5:dim(rd)[2]]), factor_key=TRUE) #convert wide to long format by condition
+rd.all<-merge(rdlong,survey_transect, by=c("SITEVISITID","SITE","TRANSECT","DIVER"))
+
+
+rd.allsum<-ddply(rd.all,.(DIVER,RDCond),
+            summarise,
+            Prevalence=mean(prevalence)*100)
+
+rd.allsum_is<-ddply(rd.all,.(ISLAND,DIVER,RDCond),
+                 summarise,
+                 Prevalence=mean(prevalence)*100)
+
+library(ggplot2)
+p1<-ggplot(rd.allsum, aes(x = RDCond, y = Prevalence, fill = DIVER)) + 
+  geom_bar(stat = "identity")+
+  #facet_wrap(~GENUS_CODE,scales="free")+
+  theme(axis.text.x = element_text(angle = 90, hjust = 1,size=7))+
+  ggtitle("Recent Dead")
+
+ggsave(file="T:/Cruise/CruiseData/HA1801_AmSamoa/Project Group/Benthic/Diver_Comparisons/Samoa2018_RDall.pdf",width=10,height=8,p1)
+
+
+p2<-ggplot(rd.allsum_is, aes(x = RDCond, y = Prevalence, fill = DIVER)) + 
+  geom_bar(stat = "identity")+
+  facet_wrap(~ISLAND,scales="free")+
+  theme(axis.text.x = element_text(angle = 90, hjust = 1,size=7))+
+  ggtitle("Recent Dead by Island")
+
+ggsave(file="T:/Cruise/CruiseData/HA1801_AmSamoa/Project Group/Benthic/Diver_Comparisons/Samoa2018_RD_island.pdf",width=10,height=8,p2)
+
+###Condition
+cond<-Calc_CONDabunNEW_Transect(awd,"DIVER");cond<-subset(cond,DIVER!="SSSS")
+
+#Calcaulte prevalence
+cond[, -(1:4)] <- sweep(cond[, -(1:4)], 1, cond[, 15], "/");cond<-cond[-c(15)]
+
+condlong <- gather(cond, COND, prevalence, names(cond[5:dim(cond)[2]]), factor_key=TRUE) #convert wide to long format by condition
+cond.all<-merge(condlong,survey_transect, by=c("SITEVISITID","SITE","TRANSECT","DIVER"))
+
+
+cond.allsum<-ddply(cond.all,.(DIVER,COND),
+                 summarise,
+                 Prevalence=mean(prevalence)*100)
+
+cond.allsum_is<-ddply(cond.all,.(ISLAND,DIVER,COND),
+                    summarise,
+                    Prevalence=mean(prevalence)*100)
+
+library(ggplot2)
+p3<-ggplot(cond.allsum, aes(x = COND, y = Prevalence, fill = DIVER)) + 
+  geom_bar(stat = "identity")+
+  #facet_wrap(~GENUS_CODE,scales="free")+
+  theme(axis.text.x = element_text(angle = 90, hjust = 1,size=7))+
+  ggtitle("Condition")
+
+ggsave(file="T:/Cruise/CruiseData/HA1801_AmSamoa/Project Group/Benthic/Diver_Comparisons/Samoa2018_Conditionall.pdf",width=10,height=8,p3)
+
+
+p4<-ggplot(cond.allsum_is, aes(x = COND, y = Prevalence, fill = DIVER)) + 
+  geom_bar(stat = "identity")+
+  facet_wrap(~ISLAND,scales="free")+
+  theme(axis.text.x = element_text(angle = 90, hjust = 1,size=7))+
+  ggtitle("Condition by Island")
+
+ggsave(file="T:/Cruise/CruiseData/HA1801_AmSamoa/Project Group/Benthic/Diver_Comparisons/Samoa2018_Condition_island.pdf",width=10,height=8,p4)
+
+
+#Calculate Proportion of colonies surveyed by species for each diver
+awd<-subset(awd,S_ORDER=="Scleractinia")
+sp<-ddply(awd, .(DATE_,ISLAND,SITE,SITEVISITID,TRANSECT,SEGMENT,DIVER,S_ORDER,SPCODE,GENUS_CODE),
+          summarise,
+          ColCount=length(COLONYID)) #change to count
+all<-ddply(sp,.(DATE_,ISLAND,SITE,SITEVISITID,TRANSECT,SEGMENT,DIVER,S_ORDER,GENUS_CODE),
+           summarise,
+           Total=sum(ColCount)) #change to count)
+
+spden<-merge(sp,all, by=c("DATE_","ISLAND","SITE","SITEVISITID","TRANSECT","SEGMENT","DIVER","S_ORDER","GENUS_CODE"))
+spden$prop<-spden$ColCount/spden$Total*100
+spden$Density<-spden$ColCount/2.5
+
+all.<-ddply(spden,.(DIVER,SPCODE,GENUS_CODE),
+            summarise,
+            mean=mean(Density))
+
+
+library(ggplot2)
+ggplot(all., aes(x = SPCODE, y = mean, fill = DIVER)) + 
+  geom_bar(stat = "identity")+
+  facet_wrap(~GENUS_CODE,scales="free")+
+  theme(axis.text.x = element_text(angle = 90, hjust = 1,size=7))
+
+
 
 ###################################################################
 
 
-### GENERATE SUMMARY METRICS at the segment-level for genus  --------
+### GENERATE SUMMARY METRICS at the segment-level for GENUS_CODE  --------
 
 ## Calculate density for adults
-compdata2 <- Calc_ColDen_Seg(data=awd2, grouping_field="GENUS_CODE")
+compdata2 <- Calc_ColDen_Seg(data=awd, grouping_field="GENUS_CODE")
 setnames(compdata2, old = c("ColCount","ColDen"), new = c("ColCount.ad","ColDen.ad"))
 
 ## Calculate density for juvs
@@ -281,7 +386,7 @@ compdata2.juv <- Calc_ColDen_Seg(data=jwd2, grouping_field="GENUS_CODE")
 setnames(compdata2.juv, old = c("ColCount","ColDen"), new = c("ColCount.juv","ColDen.juv"))
 
 ## Calculate colony length for adults
-compdata3 <- Calc_ColMetric_Seg(data=awd2, grouping_field="GENUS_CODE", pool_fields="COLONYLENGTH") 
+compdata3 <- Calc_ColMetric_Seg(data=awd, grouping_field="GENUS_CODE", pool_fields="COLONYLENGTH") 
 setnames(compdata3, old = c("AvgCOLONYLENGTH"), new = c("AvgCOLONYLENGTH.ad"))
 
 ## Calculate colony length for juvs
@@ -289,19 +394,19 @@ compdata3.juv <- Calc_ColMetric_Seg(data=jwd2, grouping_field="GENUS_CODE", pool
 setnames(compdata3.juv, old = c("AvgCOLONYLENGTH"), new = c("AvgCOLONYLENGTH.juv"))
 
 ## Calculate % recent dead for adults
-compdata4 <- Calc_ColMetric_Seg(data=awd2, grouping_field="GENUS_CODE", pool_fields="RDEXTENT1") 
+compdata4 <- Calc_ColMetric_Seg(data=awd, grouping_field="GENUS_CODE", pool_fields="RDEXTENT1") 
 setnames(compdata4, old = c("AvgRDEXTENT1"), new = c("AvgRDEXTENT1.ad"))
 
 
 ## Calculate % old dead for adults
-compdata5 <- Calc_ColMetric_Seg(data=awd2, grouping_field="GENUS_CODE", pool_fields="OLDDEAD") 
+compdata5 <- Calc_ColMetric_Seg(data=awd, grouping_field="GENUS_CODE", pool_fields="OLDDEAD") 
 setnames(compdata5, old = c("AvgOLDDEAD"), new = c("AvgOLDDEAD.ad"))
 
 ## Calculate abundance of recent dead colonies by condition for adults
-rdabun.gen<-Calc_RDabun_Segment(awd2,"GENUS_CODE")  #Note: you will need to subset which ever condition you want
+rdabun.gen<-Calc_RDabun_Segment(awd,"GENUS_CODE")  #Note: you will need to subset which ever condition you want
 
 ## Calculate abundance of condition colonies by condition for adults
-condabun.gen<-Calc_Condabun_Segment(awd2,"GENUS_CODE")  #Note: you will need to subset which ever condition you want
+condabun.gen<-Calc_Condabun_Segment(awd,"GENUS_CODE")  #Note: you will need to subset which ever condition you want
 
 ## Calculate Chronic disease abundance
 condabun.gen$ChronicDZ<-condabun.gen$FUG+condabun.gen$SGA+condabun.gen$PTR
@@ -313,7 +418,7 @@ condabun.gen$ChronicDZprev<-condabun.gen$ChronicDZ/condabun.gen$ColCount*100  #c
 condabun.gen$BLEprev<-condabun.gen$BLE/condabun.gen$ColCount*100  #calculate prevalence
 
 
-## Merging together genus-level metrics
+## Merging together GENUS_CODE-level metrics
 MyMerge <- function(x, y){
   df <- merge(x, y, by= c("DATE_","SITEVISITID","SITE","TRANSECT","SEGMENT","DIVER","GENUS_CODE"), all.x= TRUE, all.y= TRUE)
   return(df)
@@ -339,14 +444,14 @@ divervsdiver(data=data.gen, date1="2015-03-27", date2="2015-03-28", date3="2015-
 ###################################################################
 ########################-------------------------------------
 
-## FROM IVOR: code below allows you to do size comparisons for a given species between divers (usually run after whole leg of a cruise...the more data points the more accurate estimates will be & can make proper comparisons between divers). Should do this for common species/genus of interest. E.g. can do for Porites lobata (MD). There is more room to make errors with this species b/c of their morphology and size make them difficult to measure.
+## FROM IVOR: code below allows you to do size comparisons for a given species between divers (usually run after whole leg of a cruise...the more data points the more accurate estimates will be & can make proper comparisons between divers). Should do this for common species/GENUS_CODE of interest. E.g. can do for Porites lobata (MD). There is more room to make errors with this species b/c of their morphology and size make them difficult to measure.
 
 ####################################################
 ### ADD'TL SIZE COMPARISONS ###################
 ####################################################
 
 # Test on data: TUT 2015
-awd3 <- awd2[which(awd2$ISLANDCODE == "TUT" & awd2$OBS_YEAR == 2015), ]
+awd3 <- awd[which(awd$ISLANDCODE == "TUT" & awd$OBS_YEAR == 2015), ]
 
 # Identify & designate adult species of interest (may be different for each region)
 levels(as.factor(awd3$SPCODE))

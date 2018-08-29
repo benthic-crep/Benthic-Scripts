@@ -11,11 +11,14 @@ library(plyr)
 library(reshape)
 
 # set working directory
-setwd("T:/Benthic/Data")
+setwd("C:/Users/Courtney.S.Couch/Documents/Courtney's Files/R Files/ESD/Benthic REA")
 
 # source functions
-source("C:/Users/Morgan.Winston/Documents/GitHub/Benthic-Scripts/Functions/core_functions.R")
-source("C:/Users/Morgan.Winston/Documents/GitHub/Benthic-Scripts/Functions/Benthic_Functions.R")
+source("C:/Users/Courtney.S.Couch/Documents/GitHub/Benthic-Scripts/Functions/Benthic_Functions.R")
+source("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/lib/core_functions.R")
+source("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/lib/fish_team_functions.R")
+source("C:/Users/Courtney.S.Couch/Documents/Courtney's Files/R Files/ESD/Islandwide Mean&Variance Functions.R")
+
 stderr <- function(x) sd(x)/sqrt(length(x))
 
 
