@@ -195,7 +195,7 @@ head(x)
 
 awd<-droplevels(x)
 
-#save(awd, file="TMPBenthicREA_Adultwd_V2.Rdata")  #Save clean working data
+save(awd, file="TMPBenthicREA_Adultwd_V2.Rdata")  #Save clean working data
 
 
 
@@ -333,6 +333,10 @@ awd<-subset(awd,TRANSECTAREA>=5)
 jwd<-subset(jwd,TRANSECTAREA>=1)
 nrow(awd)
 head(awd)
+
+save(awd, file="ESD2013-2017_AdultCoral.Rdata")  #Save clean working data
+save(jwd, file="ESD2013-2017_JuvenileCoral.Rdata")  #Save clean working data
+
 
 ##Change Transects 3 and 4 in the juvenile data to 1 and 2 so we can merge with adult data
 #BE CAREFUL- because we survey different areas for adults and juveniles you can not merge together ad and juvs until AFTER you calculate density

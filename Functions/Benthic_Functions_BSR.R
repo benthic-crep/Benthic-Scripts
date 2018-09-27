@@ -908,7 +908,8 @@ Calc_Sitemetrics_BSR<-function(data, grouping_field){
              COTS=mean(COTSprev,na.rm=TRUE),
              DZ=mean(TotDZprev,na.rm = TRUE),
              AcuteDZ=mean(AcuteDZprev,na.rm = TRUE),
-             ChrDZ=mean(ChronicDZprev,na.rm = TRUE))
+             ChrDZ=mean(ChronicDZprev,na.rm = TRUE),
+             PM=mean(AllDead,na.rm=TRUE))
   
   colnames(out)[which(colnames(out) == 'GROUP')] <- grouping_field #change group to whatever your grouping field is.
   
@@ -926,6 +927,7 @@ Calc_Islmetrics_BSR<-function(data, grouping_field="GENUS_CODE"){
              meanChrDZ=mean(ChrDZ,na.rm = TRUE),
              meanDZ=mean(DZ,na.rm = TRUE),
              meanCOTS=mean(COTS,na.rm = TRUE),
+             meanAllDead=mean(PM,na.rm=TRUE),
              seCOTS=std.error(COTS,na.rm=TRUE),
              seAdultColDen=std.error(ACD,na.rm=TRUE),
              seJuvColDen=std.error(JCD,na.rm=TRUE),
@@ -933,6 +935,7 @@ Calc_Islmetrics_BSR<-function(data, grouping_field="GENUS_CODE"){
              seAcuteDZ=std.error(AcuteDZ,na.rm=TRUE),
              seChrDZ=std.error(ChrDZ,na.rm=TRUE),
              seDZ=std.error(DZ,na.rm=TRUE),
+             seAllDead=std.error(PM,na.rm=TRUE),
              ntot=length(SITE))
   
   colnames(out)[which(colnames(out) == 'GROUP')] <- grouping_field #change group to whatever your grouping field is.
@@ -1010,10 +1013,10 @@ reg_name <- function(x){ # this function returns the full name of an abbreviated
 }
 
 island_order <- function(x){ # this function will return a list of the island names properly ordered for figures
-  PRIAorder <- c("Johnston", "Baker", "Howland", "Jarvis", "Kingman", "Palmyra")
+  PRIAorder <- c("Johnston", "Howland", "Baker", "Jarvis", "Palmyra", "Kingman")
   NMARorder <- c("FDP", "Maug", "Asuncion", "Alamagan", "Pagan", "Agrihan", "Guguan", "Sarigan")
   SMARorder <- c("Saipan", "Tinian", "Aguijan", "Rota", "Guam")
-  samoaorder <- c("Ofu & Olosega", "Rose", "Swains", "Tau", "Tutuila")
+  samoaorder <- c("Swains","Tutuila","Ofu & Olosega", "Tau", "Rose")
   MHIorder <- c("Hawaii", "Maui", "Kahoolawe", "Lanai", "Molokai", "Oahu", "Kauai", "Niihau")
   NWHIorder <- c("Necker", "French Frigate", "Gardner", "Maro", "Laysan", "Lisianski", "Pearl & Hermes", "Midway", "Kure")
   MARIANorder <- c("FDP", "Maug", "Asuncion", "Alamagan", "Pagan", "Agrihan", "Guguan", "Sarigan", "Saipan", "Tinian", "Aguijan", "Rota", "Guam")
@@ -1034,7 +1037,7 @@ island_order <- function(x){ # this function will return a list of the island na
 gen_name_fun <- function(gen){ # function to return genera name given abbreviation
   
   gen <- as.character(gen)
-  lookup <-  read.csv("T:/Benthic/Data/SpGen_Reference/AllGenList.csv")
+  lookup <-  read.csv("T:/Benthic/Data/SpGen_Reference/AllGenList_v2.csv")
   genera <- as.character(lookup[ which(lookup$Genus.code == gen),]$Genus)
   return(genera)  
   
