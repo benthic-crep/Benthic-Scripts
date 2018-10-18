@@ -1,0 +1,300 @@
+---
+output:
+  word_document:
+    reference_docx: word-styles-reference-02.docx
+    fig_caption: yes
+---
+
+```{r setup, include=FALSE}
+### FILL IN THIS METADATA BEFORE RUNNING SCRIPT ###
+reg = "PRIAs" # unabbreviated region
+subreg_mar = "no"
+## subreg_mar = "NMAR" or "SMAR" --- optional
+survyr = "2018" # format: "20XX" (enter manually)
+###################################################
+
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_knit$set(root.dir = "T:/Benthic/Data/REA Coral Demography/WorkingData_forBSRs")
+
+# load library functions
+source("C:/Users/Morgan.Winston/Documents/GitHub/Benthic-Scripts/Functions/Benthic_Functions_BSR.R")
+library(ggplot2)
+library(plyr)
+library(reshape2)
+library(RColorBrewer)
+library(vegan)
+library(car)
+library(dplyr)
+library(gridExtra)
+library(foreign)
+library(haven)
+library(knitr)
+library(png)
+library(grid)
+library(knitr)
+# rounds the y-axis labels
+fmt <- function(){
+  f <- function(x) as.character(round(x,2))
+  f
+}
+
+# for figures:
+element_grob.element_custom <- function(element, label="", ...)  {
+  disect <- strsplit(label, "\\n")[[1]]
+  g1 <- tableGrob(as.matrix(disect), parse=TRUE,
+                  theme=theme.list(gpar.corefill = gpar(fill = NA, col = NA),
+                                   core.just = "center"))
+  gTree(children=gList(g1), height=grobHeight(g1), cl = "custom_strip")
+}
+# gTrees don't know their size and ggplot would condense it, so give it room
+grobHeight.custom_strip = heightDetails.custom_axis = function(x, ...)
+  x$height
+# wrapper to fool ggplot2's checks...
+facet_custom <- function(...){
+  structure(
+    list(...), # this ... information is not used
+    class = c("element_custom","element_blank", "element") # inheritance test workaround
+  ) 
+}
+
+# read in data
+getwd()
+surveysites <- read.csv(paste("T:/Benthic/Data/REA Coral Demography/WorkingData_forBSRs/", reg, "_", survyr, "_surveySite_v2.csv", sep = ""))
+area <- read.csv(paste("T:/Benthic/Data/REA Coral Demography/WorkingData_forBSRs/", reg, "_sectorArea.csv", sep = ""))
+# totscl_depth <- read.csv(paste("T:/Benthic/Data/REA Coral Demography/WorkingData_forBSRs/", reg, "_", survyr, "_IslandDepth_metrics_totalscl.csv", sep = ""))
+gen_isl <- read.csv(paste("T:/Benthic/Data/REA Coral Demography/WorkingData_forBSRs/", reg, "_", survyr, "_Islandmetrics_targetgenera.csv", sep = ""))
+totscl_isl <- read.csv(paste("T:/Benthic/Data/REA Coral Demography/WorkingData_forBSRs/", reg, "_", survyr, "_Islandmetrics_totalscl.csv", sep = ""))
+allgen_isl <- rbind(gen_isl, totscl_isl)
+      # island order: (for figures)
+      islaord <- island_order(reg)
+  allgen_isl <- allgen_isl[ order(match(allgen_isl$ISLAND, islaord)),]
+  allgen_isl$ISLAND<-as.character(allgen_isl$ISLAND)
+  allgen_isl$ISLAND<-factor(allgen_isl$ISLAND, levels = islaord)
+  
+totscl_site <- read.csv(paste("T:/Benthic/Data/REA Coral Demography/WorkingData_forBSRs/", reg, "_", survyr, "_Sitemetrics_totalscl.csv", sep = ""))
+totscl_site<-totscl_site[c(4,5,10,12,13)]; colnames(totscl_site)<-c("Island","Site","Depth","Adults","Juveniles")
+totscl_site<-gather(totscl_site,Method,Density,Adults:Juveniles) #Convert to long format to allow us to facet wrap
+
+totscl_site <- totscl_site[ order(match(totscl_site$Island, islaord)),]
+totscl_site$Island<-as.character(totscl_site$Island)
+totscl_site$Island<-factor(totscl_site$Island, levels = islaord)
+
+# sp_isl <- read.csv(paste("T:/Benthic/Data/REA Coral Demography/WorkingData_forBSRs/", reg, "_", survyr, "_Islandmetrics_targettaxon.csv", sep = ""))
+#   totscl_isl2 <- totscl_isl
+#   colnames(totscl_isl2)[5] <- "SPCODE"  
+#   allsp_isl <- rbind(sp_isl, totscl_isl2)
+#   allsp_isl <- allsp_isl[ order(match(allsp_isl$ISLAND, islaord)),]
+#   allsp_isl$ISLAND<-as.character(allsp_isl$ISLAND)
+#   allsp_isl$ISLAND<-factor(allsp_isl$ISLAND, levels = islaord)
+#   head(allsp_isl)
+
+  
+## variables to fill
+# survey dates: (survdates)
+surveysites$DATE_ <- as.Date((surveysites$DATE_),format = "%d-%B-%Y")
+  mind <- min(surveysites$DATE_)
+  maxd <- max(surveysites$DATE_)
+    survdates = paste(format(mind, "%B"), format(mind, "%d"), "-", format(maxd, "%B"), format(maxd, "%d"), sep = " ") # survey dates- format: "Month Day - Month Day"
+# genus full names and title: (for figures)
+genera <- unique(gen_isl[ which(gen_isl$GENUS_CODE != "SSSS"),]$GENUS_CODE)
+gen1 <- gen_name_fun(genera[1])
+gen2 <- gen_name_fun(genera[2])
+gen3 <- gen_name_fun(genera[3])
+gen4 <- gen_name_fun(genera[4])
+gen5 <- gen_name_fun(genera[5])
+
+title_gen <- c(substitute(expr = italic(gen1), env = list(gen1=gen1)), substitute(expr = italic(gen2), env = list(gen2=gen2)), substitute(expr = italic(gen3), env = list(gen3=gen3)), substitute(expr = italic(gen4), env = list(gen4=gen4)),substitute(expr = italic(gen5), env = list(gen5=gen5)), "plain('       Total\nScleractinians')")
+# # species full names and title: (for figures)
+# species <- unique(sp_isl[ which(sp_isl$SPCODE != "SSSS"),]$SPCODE)
+# spe1 <- spe_name_fun(species[1])
+# spe2 <- spe_name_fun(species[2])
+# spe3 <- spe_name_fun(species[3])
+# spe4 <- spe_name_fun(species[4])
+# title_sp <- c(substitute(expr = italic(spe1), env = list(spe1=spe1)), substitute(expr = italic(spe2), env = list(spe2=spe2)), substitute(expr = italic(spe3), env = list(spe3=spe3)), substitute(expr = italic(spe4), env = list(spe4=spe4)), "plain('       Total\nScleractinians')")
+
+```
+# Benthic monitoring summary: `r reg_name(reg)` `r survyr`
+
+## About this summary
+The purpose of this document is to provide a brief summary of the most recent survey efforts performed in the `r reg_name(reg)` in `r survyr` by the Ecosystem Sciences Division (ESD) of the NOAA Pacific Islands Fisheries Science Center as part of the Pacific Reef Assessment and Monitoring Program (Pacific RAMP). A more detailed assessment of the coral populations and reef community structure from the `r reg_name(reg)` will be summarized in future publications.
+
+## Sampling effort 
+* Ecological monitoring in the `r reg_name(reg)` was performed from `r survdates`, `r survyr`.
+* Benthic surveys were conducted at `r nrow(surveysites)` sites around `r unique(surveysites$ISLAND)`.
+* Coral demography, partial mortality, and condition were surveyed using belt transects; benthic community structure will be assessed from photoquadrat digital images.
+
+###### Table 1. Reef zone (FRF = Forereef, BRF = Backreef, LAG = Lagoon, PRS = Protected Slope), area (hectare), and number of sites surveyed (n) within shallow (0 - 6 m), mid (>6 - 12 m) and deep (>18 - 30 m) strata, respectively, surveyed in the `r reg_name(reg)`.
+```{r, echo = FALSE}
+# produce a table showing the number of sites by depth strata, as well as the area (km2) of each strata (report all reef zones here)
+
+# area table
+area$REEF_ZONE <- as.character(area$REEF_ZONE)
+#area$REEF_ZONE[area$REEF_ZONE == "PRS"] <- "Forereef"
+area$REEF_ZONE <- as.factor(area$REEF_ZONE)
+area_ha <- aggregate(AREA_HA ~ ISLAND + REEF_ZONE + DEPTH_BIN, data = area, FUN = sum)
+area_ha <- spread(area_ha[,c("REEF_ZONE", "ISLAND", "DEPTH_BIN", "AREA_HA")], DEPTH_BIN, AREA_HA)
+colnames(area_ha) <- c("Zone", "Island", "Deep", "Mid", "Shallow")
+area_ha[, 3:5][is.na(area_ha[, 3:5])] <- 0
+area_ha <- area_ha[ order(match(area_ha$Zone, zone_ord)),]
+
+# site table
+surveysites$REEF_ZONE <- as.character(surveysites$REEF_ZONE)
+#surveysites$REEF_ZONE[surveysites$REEF_ZONE == "PRS" | surveysites$REEF_ZONE == "Protected Slope"] 
+surveysites$REEF_ZONE <- as.factor(surveysites$REEF_ZONE)
+surveysites <- aggregate(SITE ~ ISLAND + REEF_ZONE + DEPTH_BIN, data = surveysites, FUN = length)
+site_n <- spread(surveysites[,c("REEF_ZONE", "ISLAND", "DEPTH_BIN", "SITE")], DEPTH_BIN, SITE)
+colnames(site_n) <- c("Zone", "Island", "ndeep", "nmid", "nshallow")
+site_n[, 3:5][is.na(site_n[, 3:5])] <- 0
+site_n <- site_n[ order(match(site_n$Zone, zone_ord)),]
+
+# merge the area and site tables together
+area_n <- merge(area_ha, site_n, by = c("Island", "Zone"))
+area_n <- area_n[c(1,2,5,8,4,7,3,6)]
+area_n <- area_n[ order(match(area_n$Zone, zone_ord)),]
+area_n <- cbind(area_n[1],area_n[2], round(area_n[-c(1:2)], 2))
+row.names(area_n)<-NULL
+area_n$Zone<-gsub("Forereef","FRF",area_n$Zone);area_n$Zone<-gsub("Backreef","BRF",area_n$Zone)
+area_n$Zone<-gsub("Lagoon","LAG",area_n$Zone);area_n$Zone<-gsub("Protected Slope","PRS",area_n$Zone)
+kable(area_n)
+
+```
+
+## Overview of data collected 
+
+```{r, echo = FALSE}
+### fig. 1, 2: bubble plot coral dens by site
+# produce bubble plots of adult and juvenile coral density at survey sites in ArcMap - will use site level metrics
+```
+
+###### Figure 1. Mean density of all adult coral colonies (Scleractinia, >= 5 cm) at survey sites.  
+
+###### Figure 2. Mean density of all juvenile coral colonies (Scleractinia, < 5 cm) at survey sites.  
+
+```{r, warning = FALSE, message = FALSE, echo = FALSE, fig.width=3.78, fig.height=3.13}
+### fig. 3: bar graph coral dens by strata
+
+ad<-subset(totscl_site,Method=="Juveniles")
+ad$Depth_m <- ad$Depth * 0.3048
+Fig3plot<-ggplot(ad, aes(x=Depth_m, y=Density,group=Island)) + 
+  geom_point(aes(color=Island), size=2) + 
+  facet_wrap(~Island)+
+  theme_bw()  + 
+  theme(plot.background = element_blank(),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        axis.title.x = element_text(vjust = -.0001)) +
+  scale_x_continuous(breaks=seq(10,80,by=20))+
+  scale_y_continuous(labels = fmt()) + 
+  theme(text = element_text(size=10)) + 
+  theme(strip.text.y = element_text(angle=0)) + 
+  ylab(expression(bold("Juvenile Density (no.colonies"*~m^"-2"*")"))) + xlab(expression(bold("Maximum Depth (m)")))+
+  theme(legend.title=element_blank()) +     theme(legend.position="none")
+  
+Fig3plot    
+```
+
+###### Figure 3. Density of juvenile coral colonies grouped by island across maximum site depth (m).
+
+```{r, echo = FALSE, fig.width=3.78, fig.height=3.13}
+### fig. 4: bar graph coral dens by genera (adults)
+allgen_isl_ads <- allgen_isl[,c("ISLAND", "GENUS_CODE", "meanAdultColDen", "seAdultColDen"),] # drop unnecessary columns
+allgen_isl_ads$GENUS_CODE <- factor(allgen_isl_ads$GENUS_CODE, labels=title_gen)
+
+Fig4plot <- ggplot(allgen_isl_ads, aes(x=ISLAND, y=meanAdultColDen, fill=GENUS_CODE)) + geom_bar(position=position_dodge(), stat="identity", color="black") + 
+  guides(fill=FALSE) + facet_grid(GENUS_CODE ~ ., scales="fixed", labeller=label_parsed) + theme_bw() +
+  theme(
+    plot.background = element_blank()
+    ,panel.grid.major = element_blank()
+    ,panel.grid.minor = element_blank()
+    ,axis.ticks.x = element_blank() # no x axis ticks
+    ,axis.title.x = element_text( vjust = -.0001) # adjust x axis to lower the same amount as the genus labels
+    ,legend.position="none"
+  ) + scale_x_discrete(expand = c(0.005, 0.005)) + scale_y_continuous(labels = fmt()) + theme(text = element_text(size=10)) +
+    theme(panel.spacing = unit(0.5, "lines"))+
+  theme(strip.text.y = element_text(angle=0)) + 
+  geom_errorbar(aes(ymin=meanAdultColDen-seAdultColDen, ymax=meanAdultColDen+seAdultColDen),width=.15, position=position_dodge(.9)) + 
+  ylab(expression(bold("Adult Density (no. colonies"*~m^"-2"*")"))) + xlab(expression(bold(Island))) + 
+  scale_fill_manual(values=c("plum","red3", "wheat3", "aquamarine3", "turquoise4", "darkblue")) 
+
+if(subreg_mar == "NMAR"){
+  Fig4plot <- Fig4plot +
+      theme(axis.text.x = element_text(angle = 40, hjust = 1))
+}
+
+Fig4plot
+```
+
+###### Figure 4. Mean island-wide density of adult colonies (± SE) for total scleractinians and the four most abundant genera: `r strsplit(gen1," ")[[1]][1]`, `r strsplit(gen2," ")[[1]][1]`, `r strsplit(gen3," ")[[1]][1]`, `r strsplit(gen4," ")[[1]][1]`,and `r strsplit(gen5," ")[[1]][1]`. Note: total scleractinian density includes all genera observed.
+
+```{r, echo = FALSE, fig.width=3.78, fig.height=3.13}
+### fig. 5: bar graph coral dens by genera (juveniles)
+allgen_isl_juv <- allgen_isl[,c("ISLAND", "GENUS_CODE", "meanJuvColDen", "seJuvColDen"),] # drop unnecessary columns
+allgen_isl_juv$GENUS_CODE <- factor(allgen_isl_juv$GENUS_CODE, labels=title_gen)
+
+Fig5plot <- ggplot(allgen_isl_juv, aes(x=ISLAND, y=meanJuvColDen, fill=GENUS_CODE)) + geom_bar(position=position_dodge(), stat="identity", color="black") + 
+  guides(fill=FALSE) + facet_grid(GENUS_CODE ~ ., scales="fixed", labeller=label_parsed) + theme_bw() +
+  theme(
+    plot.background = element_blank()
+    ,panel.grid.major = element_blank()
+    ,panel.grid.minor = element_blank()
+    ,axis.ticks.x = element_blank() # no x axis ticks
+    ,axis.title.x = element_text( vjust = -.0001) # adjust x axis to lower the same amount as the genus labels
+    ,legend.position="none"
+  ) + scale_x_discrete(expand = c(0.005, 0.005)) + scale_y_continuous(labels = fmt()) + theme(text = element_text(size=10)) +
+theme(panel.spacing = unit(0.5, "lines"))+
+theme(strip.text.y = element_text(angle=0)) + 
+  geom_errorbar(aes(ymin=meanJuvColDen-seJuvColDen, ymax=meanJuvColDen+seJuvColDen),width=.15, position=position_dodge(.9)) + 
+  ylab(expression(bold("Juvenile Density (no. colonies"*~m^"-2"*")"))) + xlab(expression(bold(Island))) + 
+  scale_fill_manual(values=c("plum","red2", "wheat2", "aquamarine2", "turquoise3", "blue3"))  
+
+if(subreg_mar == "NMAR"){
+  Fig5plot <- Fig5plot +
+      theme(axis.text.x = element_text(angle = 40, hjust = 1))
+}
+
+Fig5plot
+```
+###### Figure 5. Mean island-wide density of juvenile colonies (± SE) for total scleractinians and the four most abundant genera: `r strsplit(gen1," ")[[1]][1]`, `r strsplit(gen2," ")[[1]][1]`, `r strsplit(gen3," ")[[1]][1]`,`r strsplit(gen4," ")[[1]][1]`,and `r strsplit(gen5," ")[[1]][1]`. Note: total scleractinian density includes all genera observed.
+
+*Coral condition and threatened species*- The percent of adult coral colonies exhibiting signs of bleaching, disease, or crown-of-thorns sea star (COTS) predation lesions as well as the mean percent of each colony with partial mortality are shown in Table 2. Bleaching included any loss of pigmentation. Acute Disease was defined diseases resulting in tissue mortality. Chronic Disease refers to diseases that do not result in tissue loss. COTS was defined as recent coral mortality attributable to COTS predation. Endangered Species Act (ESA) listed coral species were not observed.
+ 
+###### Table 2. Percent of adult coral colonies that exhibited bleaching (BLE), acute and chronic disease, crown-of-thorns sea star (COTS) predation lesions and partial mortality (including old and recent).
+
+```{r echo=FALSE}
+### bleaching, disease, COTS prevalence - tab. 2
+tab2 <- totscl_isl[,c(4,8,9,10,12,13)]
+tab2 <- tab2[c(1,2,3,4,5,6)]
+tab2 <- cbind(tab2[1], round(tab2[-1], 2))
+row.names(tab2)<-NULL
+kable(tab2)
+```
+
+## Preliminary observations
+
+## Survey design & methods 
+A single-stage stratified random sampling design was employed to survey American Samoa. The stratification scheme incorporated all forereef, hard-bottom habitats, and sampled across three depth strata: shallow (0-6 m), mid (>6-18 m) and deep (>18-30 m). Allocation of sampling effort was proportional to total strata area. Sites (geographic coordinates) were randomly selected within each stratum.
+
+Coral demography surveys at each site were conducted along one belt transect. Adult coral colonies (??? 5 cm) were surveyed within 10 m2 and juvenile coral colonies (< 5 cm) were surveyed within 3 m2 on each transect. Colonies were identified to the lowest taxonomic level possible, measured (maximum diameter to the nearest cm), and morphology was noted. In addition, partial mortality and condition of each colony was assessed. Partial colony mortality was quantified as the percent of old and recent dead tissue, and attributed to cause of mortality when known. Conditions affecting each colony (i.e., disease and bleaching) were noted, along with the extent (percent of colony affected) and severity (ranging from moderate to acute). See https://repository.library.noaa.gov/view/noaa/18267 for details on survey methodology
+
+The present summary focuses only on colony density and initial estimates of bleaching, disease, and COTS predation occurrence. The island-scale estimates presented here are generated from site-level means and are not weighted by reef area within depth strata, statistical analyses are forthcoming. 
+
+## About the monitoring program  
+Pacific RAMP forms a key part of the National Coral Reef Monitoring Program of NOAA's Coral Reef Conservation Program (CRCP), providing integrated, consistent, and comparable data across US Pacific islands and atolls. CRCP monitoring efforts have these aims:  
+
+-	Document the status of reef species of ecological and economic importance
+-	Track and assess  the status and trends of US coral reef ecosystems in response to environmental stressors and human activities
+-	Evaluate the effectiveness of specific management strategies and identify actions for future and adaptive responses
+
+In addition to benthic data, Pacific RAMP efforts include monitoring of oceanographic conditions, fish population and assemblages, invertebrate diversity and abundance, coral reef habitat assessments and mapping, and studies of the effects of climate change and ocean acidification. 
+
+## For more information
+Coral Reef Conservation Program:  
+http://coralreef.noaa.gov  
+NMFS Pacific Islands Fisheries Science Center:  
+http://www.pifsc.noaa.gov  
+Additional information:  
+http://www.pifsc.noaa.gov/cred/benthic_monitoring.php  
+Benthic team lead:  
+bernardo.vargasangel@noaa.gov  
+Benthic survey data requests:  
+courtney.s.couch@noaa.gov
