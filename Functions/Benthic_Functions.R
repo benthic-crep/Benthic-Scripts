@@ -1038,7 +1038,7 @@ gen_name_fun <- function(gen){ # function to return genera name given abbreviati
   
   gen <- as.character(gen)
   lookup <-  read.csv("T:/Benthic/Data/SpGen_Reference/AllGenList.csv")
-  genera <- as.character(lookup[ which(lookup$Genus.code == gen),]$Genus)
+  genera <- as.character(lookup[ which(lookup$GENUS_CODE == gen),]$Genus)
   return(genera)  
   
 }
