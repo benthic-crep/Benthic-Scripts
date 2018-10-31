@@ -45,6 +45,7 @@ scl_genus_list<-function(data){
   return(a)
 }
 
+
 scl_taxonname_list<-function(data){
   data<-subset(data,S_ORDER=="Scleractinia")
   a<-ddply(data,.(SPECIES,TAXONNAME), #create a list of Genera and Species by region and year

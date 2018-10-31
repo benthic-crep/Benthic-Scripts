@@ -11,7 +11,7 @@
 # clear workspace 
 rm(list=ls()) # clear all variables
 
-setwd("C:/Users/Courtney.S.Couch/Documents/Courtney's Files/R Files/ESD/Benthic REA")
+setwd("C:/Users/Courtney.S.Couch/Documents/Courtney's Files/R Files/ESD/ASRAMP 2018")
 
 # Need to source benthic team functions for functions to run throughout this script. Change directory to wherever files are located on personal computer
 source("C:/Users/Courtney.S.Couch/Documents/GitHub/Benthic-Scripts/Functions/Benthic_Functions.R")
@@ -26,7 +26,7 @@ source("C:/Users/Courtney.S.Couch/Documents/GitHub/Benthic-Scripts/Functions/cor
 # This script will clean the raw benthic REA data using method E (2013-present) and prepare it for analysis
 ######################################################################
 ## LOAD benthic data
-x<-read.csv("C:/Users/Courtney.S.Couch/Documents/Courtney's Files/R Files/ESD/Benthic REA/ASRAMP2018_leg2Adultdata.csv") 
+x<-read.csv("C:/Users/Courtney.S.Couch/Documents/Courtney's Files/R Files/ESD/ASRAMP 2018/ASRAMP2018_adults.csv") 
 
 x$SITE<-SiteNumLeadingZeros(x$SITE) # Change site number such as MAR-22 to MAR-0022
 
@@ -159,76 +159,75 @@ head(x)
 
 awd<-droplevels(x)
 
-## CREATE JUVENILE CLEAN ANALYSIS READY DATA ----
-# 
-# load("C:/Users/Courtney.S.Couch/Documents/Courtney's Files/R Files/ESD/Benthic REA/ALL_REA_JUVCORAL_RAW.rdata")
-# x<-df
-# x$SITE<-SiteNumLeadingZeros(x$SITE)
-# 
-# 
-# #Create vector of column names to include then exclude unwanted columns from dataframe
-# DATA_COLS<-c("MISSIONID","REGION","REGION_NAME","ISLAND","ISLANDCODE","SITE","LATITUDE",	"LONGITUDE","REEF_ZONE","DEPTH_BIN","OBS_YEAR",
-#              "DATE_","SITE_MIN_DEPTH","SITE_MAX_DEPTH","SITEVISITID","HABITAT_CODE","DIVER","EXCLUDE_FLAG","TRANSECT","SEGMENT","TRANWIDTH",
-#              "TRANLENGTH","COLONYID","SPECIES","MORPH_CODE","COLONYLENGTH","COLONYWIDTH","GENUS_CODE","S_ORDER")
-# 
-# head(x[,DATA_COLS])
-# x<-x[,DATA_COLS]
-# 
-# 
-# #Double check level and class of variables to make sure there aren't any errors
-# sapply(x,levels)
-# sapply(x,class)##Change column names to make code easier to code
-# colnames(x)[colnames(x)=="SPECIES"]<-"SPCODE" #Change column name
-# colnames(x)[colnames(x)=="TRANWIDTH"]<-"SEGWIDTH" #Change column name
-# colnames(x)[colnames(x)=="TRANLENGTH"]<-"SEGLENGTH" #Change column name
-# colnames(x)[colnames(x)=="SITE_MIN_DEPTH"]<-"SITE_MIN_DEPTH_FT" #Change column name
-# colnames(x)[colnames(x)=="SITE_MAX_DEPTH"]<-"SITE_MAX_DEPTH_FT" #Change column name
-# 
-# 
-# #There are some SPCODES that were a combination of taxa and weren't included in the complete taxa list
-# #Change these unknown GENUS_CODE to the spcode and the remaining NAs in the Taxon and GENUS_CODE code to AAAA
-# x$GENUS_CODE<-as.character(x$GENUS_CODE)
-# x$SPCODE<-as.character(x$SPCODE)
-# 
-# x$GENUS_CODE<-ifelse(is.na(x$GENUS_CODE)&x$S_ORDER=="Scleractinia",x$SPCODE,x$GENUS_CODE)
-# 
-# x$GENUS_CODE[is.na(x$GENUS_CODE)]<-"AAAA"#change nas to AAAA
-# #utils::View(x.) #view data in separate window
-# 
-# #Check that Unknown scl were changed correctly
-# test<-subset(x,GENUS_CODE=="UNKN"&S_ORDER=="Scleractinia");head(test)
-# test<-subset(x,GENUS_CODE=="AAAA");head(test)
-# 
-# 
-# 
-# #Remove specfic colonies and segments
-# x$EXCLUDE_FLAG<-is.na(x$EXCLUDE_FLAG)<-0 #Change NAs (blank cells) to 0
-# x<-subset(x,EXCLUDE_FLAG>-1);summary(x$EXCLUDE_FLAG) #Exclude rows -1
-# x<-subset(x,SEGLENGTH!="NA") #Remove segments that were not surveyed for juveniles
-# nrow(x)
-# 
-# 
-# ##Calcuating segment and transect area and add column for transect area
-# x<-Transectarea(x)
-# sapply(x,levels)
-# head(x)
-# nrow(x)
-# 
-# 
-# ## CLEAN UP NAs 
-# 
-# tmp.lev<-levels(x$SITE_MIN_DEPTH_FT); head(tmp.lev)
-# levels(x$SITE_MIN_DEPTH_FT)<-c(tmp.lev, "NONE")
-# x[is.na(x$SITE_MIN_DEPTH_FT),"SITE_MIN_DEPTH_FT"]<-"NONE"
-# 
-# tmp.lev<-levels(x$SITE_MAX_DEPTH_FT); head(tmp.lev)
-# levels(x$SITE_MAX_DEPTH_FT)<-c(tmp.lev, "NONE")
-# x[is.na(x$SITE_MAX_DEPTH_FT),"SITE_MAX_DEPTH_FT"]<-"NONE"
-# 
-# head(x)
-# 
-# jwd<-droplevels(x)
-# 
+# CREATE JUVENILE CLEAN ANALYSIS READY DATA ----
+
+x<-read.csv("ASRAMP2018_juveniles.csv")
+x$SITE<-SiteNumLeadingZeros(x$SITE)
+
+
+#Create vector of column names to include then exclude unwanted columns from dataframe
+DATA_COLS<-c("MISSIONID","REGION","REGION_NAME","ISLAND","ISLANDCODE","SITE","LATITUDE",	"LONGITUDE","REEF_ZONE","DEPTH_BIN","OBS_YEAR",
+             "DATE_","SITE_MIN_DEPTH","SITE_MAX_DEPTH","SITEVISITID","HABITAT_CODE","DIVER","EXCLUDE_FLAG","TRANSECT","SEGMENT","TRANWIDTH",
+             "TRANLENGTH","COLONYID","SPECIES","MORPH_CODE","COLONYLENGTH","COLONYWIDTH","GENUS_CODE","S_ORDER")
+
+head(x[,DATA_COLS])
+x<-x[,DATA_COLS]
+
+
+#Double check level and class of variables to make sure there aren't any errors
+sapply(x,levels)
+sapply(x,class)##Change column names to make code easier to code
+colnames(x)[colnames(x)=="SPECIES"]<-"SPCODE" #Change column name
+colnames(x)[colnames(x)=="TRANWIDTH"]<-"SEGWIDTH" #Change column name
+colnames(x)[colnames(x)=="TRANLENGTH"]<-"SEGLENGTH" #Change column name
+colnames(x)[colnames(x)=="SITE_MIN_DEPTH"]<-"SITE_MIN_DEPTH_FT" #Change column name
+colnames(x)[colnames(x)=="SITE_MAX_DEPTH"]<-"SITE_MAX_DEPTH_FT" #Change column name
+
+
+#There are some SPCODES that were a combination of taxa and weren't included in the complete taxa list
+#Change these unknown GENUS_CODE to the spcode and the remaining NAs in the Taxon and GENUS_CODE code to AAAA
+x$GENUS_CODE<-as.character(x$GENUS_CODE)
+x$SPCODE<-as.character(x$SPCODE)
+
+x$GENUS_CODE<-ifelse(is.na(x$GENUS_CODE)&x$S_ORDER=="Scleractinia",x$SPCODE,x$GENUS_CODE)
+
+x$GENUS_CODE[is.na(x$GENUS_CODE)]<-"AAAA"#change nas to AAAA
+#utils::View(x.) #view data in separate window
+
+#Check that Unknown scl were changed correctly
+test<-subset(x,GENUS_CODE=="UNKN"&S_ORDER=="Scleractinia");head(test)
+test<-subset(x,GENUS_CODE=="AAAA");head(test)
+
+
+
+#Remove specfic colonies and segments
+x$EXCLUDE_FLAG<-is.na(x$EXCLUDE_FLAG)<-0 #Change NAs (blank cells) to 0
+x<-subset(x,EXCLUDE_FLAG>-1);summary(x$EXCLUDE_FLAG) #Exclude rows -1
+x<-subset(x,SEGLENGTH!="NA") #Remove segments that were not surveyed for juveniles
+nrow(x)
+
+
+##Calcuating segment and transect area and add column for transect area
+x<-Transectarea(x)
+sapply(x,levels)
+head(x)
+nrow(x)
+
+
+## CLEAN UP NAs
+
+tmp.lev<-levels(x$SITE_MIN_DEPTH_FT); head(tmp.lev)
+levels(x$SITE_MIN_DEPTH_FT)<-c(tmp.lev, "NONE")
+x[is.na(x$SITE_MIN_DEPTH_FT),"SITE_MIN_DEPTH_FT"]<-"NONE"
+
+tmp.lev<-levels(x$SITE_MAX_DEPTH_FT); head(tmp.lev)
+levels(x$SITE_MAX_DEPTH_FT)<-c(tmp.lev, "NONE")
+x[is.na(x$SITE_MAX_DEPTH_FT),"SITE_MAX_DEPTH_FT"]<-"NONE"
+
+head(x)
+
+jwd<-droplevels(x)
+
 #######################################################
 
 ### Final Tweaks before generating diver vs. diver comparisons -------------------------------------------------
@@ -276,74 +275,74 @@ survey_site<-Aggregate_InputTable(awd, SURVEY_INFO)
 
 rd<-Calc_RDabun_Transect(awd,"DIVER");rd<-rd[-c(25)];rd<-subset(rd,DIVER!="SSSS")
 
-#Calcaulte prevalence
-rd[, -(1:4)] <- sweep(rd[, -(1:4)], 1, rd[, 25], "/");rd<-rd[-c(25)]
-
-rdlong <- gather(rd, RDCond, prevalence, names(rd[5:dim(rd)[2]]), factor_key=TRUE) #convert wide to long format by condition
-rd.all<-merge(rdlong,survey_transect, by=c("SITEVISITID","SITE","TRANSECT","DIVER"))
-
-
-rd.allsum<-ddply(rd.all,.(DIVER,RDCond),
-            summarise,
-            Prevalence=mean(prevalence)*100)
-
-rd.allsum_is<-ddply(rd.all,.(ISLAND,DIVER,RDCond),
-                 summarise,
-                 Prevalence=mean(prevalence)*100)
-
-library(ggplot2)
-p1<-ggplot(rd.allsum, aes(x = RDCond, y = Prevalence, fill = DIVER)) + 
-  geom_bar(stat = "identity")+
-  #facet_wrap(~GENUS_CODE,scales="free")+
-  theme(axis.text.x = element_text(angle = 90, hjust = 1,size=7))+
-  ggtitle("Recent Dead")
-
-ggsave(file="T:/Cruise/CruiseData/HA1801_AmSamoa/Project Group/Benthic/Diver_Comparisons/Samoa2018_RDall.pdf",width=10,height=8,p1)
-
-
-p2<-ggplot(rd.allsum_is, aes(x = RDCond, y = Prevalence, fill = DIVER)) + 
-  geom_bar(stat = "identity")+
-  facet_wrap(~ISLAND,scales="free")+
-  theme(axis.text.x = element_text(angle = 90, hjust = 1,size=7))+
-  ggtitle("Recent Dead by Island")
-
-ggsave(file="T:/Cruise/CruiseData/HA1801_AmSamoa/Project Group/Benthic/Diver_Comparisons/Samoa2018_RD_island.pdf",width=10,height=8,p2)
-
-###Condition
-cond<-Calc_CONDabunNEW_Transect(awd,"DIVER");cond<-subset(cond,DIVER!="SSSS")
-
-#Calcaulte prevalence
-cond[, -(1:4)] <- sweep(cond[, -(1:4)], 1, cond[, 15], "/");cond<-cond[-c(15)]
-
-condlong <- gather(cond, COND, prevalence, names(cond[5:dim(cond)[2]]), factor_key=TRUE) #convert wide to long format by condition
-cond.all<-merge(condlong,survey_transect, by=c("SITEVISITID","SITE","TRANSECT","DIVER"))
-
-
-cond.allsum<-ddply(cond.all,.(DIVER,COND),
-                 summarise,
-                 Prevalence=mean(prevalence)*100)
-
-cond.allsum_is<-ddply(cond.all,.(ISLAND,DIVER,COND),
-                    summarise,
-                    Prevalence=mean(prevalence)*100)
-
-library(ggplot2)
-p3<-ggplot(cond.allsum, aes(x = COND, y = Prevalence, fill = DIVER)) + 
-  geom_bar(stat = "identity")+
-  #facet_wrap(~GENUS_CODE,scales="free")+
-  theme(axis.text.x = element_text(angle = 90, hjust = 1,size=7))+
-  ggtitle("Condition")
-
-ggsave(file="T:/Cruise/CruiseData/HA1801_AmSamoa/Project Group/Benthic/Diver_Comparisons/Samoa2018_Conditionall.pdf",width=10,height=8,p3)
-
-
-p4<-ggplot(cond.allsum_is, aes(x = COND, y = Prevalence, fill = DIVER)) + 
-  geom_bar(stat = "identity")+
-  facet_wrap(~ISLAND,scales="free")+
-  theme(axis.text.x = element_text(angle = 90, hjust = 1,size=7))+
-  ggtitle("Condition by Island")
-
-ggsave(file="T:/Cruise/CruiseData/HA1801_AmSamoa/Project Group/Benthic/Diver_Comparisons/Samoa2018_Condition_island.pdf",width=10,height=8,p4)
+# #Calcaulte prevalence
+# rd[, -(1:4)] <- sweep(rd[, -(1:4)], 1, rd[, 25], "/");rd<-rd[-c(25)]
+# 
+# rdlong <- gather(rd, RDCond, prevalence, names(rd[5:dim(rd)[2]]), factor_key=TRUE) #convert wide to long format by condition
+# rd.all<-merge(rdlong,survey_transect, by=c("SITEVISITID","SITE","TRANSECT","DIVER"))
+# 
+# 
+# rd.allsum<-ddply(rd.all,.(DIVER,RDCond),
+#             summarise,
+#             Prevalence=mean(prevalence)*100)
+# 
+# rd.allsum_is<-ddply(rd.all,.(ISLAND,DIVER,RDCond),
+#                  summarise,
+#                  Prevalence=mean(prevalence)*100)
+# 
+# library(ggplot2)
+# p1<-ggplot(rd.allsum, aes(x = RDCond, y = Prevalence, fill = DIVER)) + 
+#   geom_bar(stat = "identity")+
+#   #facet_wrap(~GENUS_CODE,scales="free")+
+#   theme(axis.text.x = element_text(angle = 90, hjust = 1,size=7))+
+#   ggtitle("Recent Dead")
+# 
+# ggsave(file="T:/Cruise/CruiseData/HA1801_AmSamoa/Project Group/Benthic/Diver_Comparisons/Samoa2018_RDall.pdf",width=10,height=8,p1)
+# 
+# 
+# p2<-ggplot(rd.allsum_is, aes(x = RDCond, y = Prevalence, fill = DIVER)) + 
+#   geom_bar(stat = "identity")+
+#   facet_wrap(~ISLAND,scales="free")+
+#   theme(axis.text.x = element_text(angle = 90, hjust = 1,size=7))+
+#   ggtitle("Recent Dead by Island")
+# 
+# ggsave(file="T:/Cruise/CruiseData/HA1801_AmSamoa/Project Group/Benthic/Diver_Comparisons/Samoa2018_RD_island.pdf",width=10,height=8,p2)
+# 
+# ###Condition
+# cond<-Calc_CONDabunNEW_Transect(awd,"DIVER");cond<-subset(cond,DIVER!="SSSS")
+# 
+# #Calcaulte prevalence
+# cond[, -(1:4)] <- sweep(cond[, -(1:4)], 1, cond[, 15], "/");cond<-cond[-c(15)]
+# 
+# condlong <- gather(cond, COND, prevalence, names(cond[5:dim(cond)[2]]), factor_key=TRUE) #convert wide to long format by condition
+# cond.all<-merge(condlong,survey_transect, by=c("SITEVISITID","SITE","TRANSECT","DIVER"))
+# 
+# 
+# cond.allsum<-ddply(cond.all,.(DIVER,COND),
+#                  summarise,
+#                  Prevalence=mean(prevalence)*100)
+# 
+# cond.allsum_is<-ddply(cond.all,.(ISLAND,DIVER,COND),
+#                     summarise,
+#                     Prevalence=mean(prevalence)*100)
+# 
+# library(ggplot2)
+# p3<-ggplot(cond.allsum, aes(x = COND, y = Prevalence, fill = DIVER)) + 
+#   geom_bar(stat = "identity")+
+#   #facet_wrap(~GENUS_CODE,scales="free")+
+#   theme(axis.text.x = element_text(angle = 90, hjust = 1,size=7))+
+#   ggtitle("Condition")
+# 
+# ggsave(file="T:/Cruise/CruiseData/HA1801_AmSamoa/Project Group/Benthic/Diver_Comparisons/Samoa2018_Conditionall.pdf",width=10,height=8,p3)
+# 
+# 
+# p4<-ggplot(cond.allsum_is, aes(x = COND, y = Prevalence, fill = DIVER)) + 
+#   geom_bar(stat = "identity")+
+#   facet_wrap(~ISLAND,scales="free")+
+#   theme(axis.text.x = element_text(angle = 90, hjust = 1,size=7))+
+#   ggtitle("Condition by Island")
+# 
+# ggsave(file="T:/Cruise/CruiseData/HA1801_AmSamoa/Project Group/Benthic/Diver_Comparisons/Samoa2018_Condition_island.pdf",width=10,height=8,p4)
 
 
 #Calculate Proportion of colonies surveyed by species for each diver
@@ -368,7 +367,33 @@ library(ggplot2)
 ggplot(all., aes(x = SPCODE, y = mean, fill = DIVER)) + 
   geom_bar(stat = "identity")+
   facet_wrap(~GENUS_CODE,scales="free")+
-  theme(axis.text.x = element_text(angle = 90, hjust = 1,size=7))
+  theme(axis.text.x = element_text(angle = 90, hjust = 1,size=7))+
+  ggtitle("Proportion of Adults")
+
+#Juveniles
+jwd<-subset(jwd,S_ORDER=="Scleractinia")
+sp<-ddply(jwd, .(DATE_,ISLAND,SITE,SITEVISITID,TRANSECT,SEGMENT,DIVER,S_ORDER,SPCODE,GENUS_CODE),
+          summarise,
+          ColCount=length(COLONYID)) #change to count
+all<-ddply(sp,.(DATE_,ISLAND,SITE,SITEVISITID,TRANSECT,SEGMENT,DIVER,S_ORDER,GENUS_CODE),
+           summarise,
+           Total=sum(ColCount)) #change to count)
+
+spden<-merge(sp,all, by=c("DATE_","ISLAND","SITE","SITEVISITID","TRANSECT","SEGMENT","DIVER","S_ORDER","GENUS_CODE"))
+spden$prop<-spden$ColCount/spden$Total*100
+spden$Density<-spden$ColCount/2.5
+
+all.<-ddply(spden,.(DIVER,SPCODE,GENUS_CODE),
+            summarise,
+            mean=mean(Density))
+
+
+library(ggplot2)
+ggplot(all., aes(x = SPCODE, y = mean, fill = DIVER)) + 
+  geom_bar(stat = "identity")+
+  facet_wrap(~GENUS_CODE,scales="free")+
+  theme(axis.text.x = element_text(angle = 90, hjust = 1,size=7))+
+  ggtitle("Proportion of Juveniles")
 
 
 
