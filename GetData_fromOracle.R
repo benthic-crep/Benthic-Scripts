@@ -25,10 +25,10 @@ rawtables<-c(a,b,c,d)
 rawtables
 ##
 df <- sqlQuery(ch, paste("SELECT * FROM GISDAT.V0_CORAL_OBS_E")); head(df)
-save(df, file="ALL_REA_ADULTCORAL_RAW.rdata")
+save(df, file="ALL_REA_ADULTCORAL_RAW_new.rdata")
 
 df <- sqlQuery(ch, paste("SELECT * FROM GISDAT.V0_CORAL_OBS_F")); head(df)
-save(df, file="ALL_REA_JUVCORAL_RAW.rdata")
+save(df, file="ALL_REA_JUVCORAL_RAW_new.rdata")
 
 #BENTHIC Photoquad REA
 #photoquad data from CPCe

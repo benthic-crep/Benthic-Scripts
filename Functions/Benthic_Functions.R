@@ -721,9 +721,9 @@ Calc_Domain=function(site_data,grouping_field="S_ORDER",metric_field=c("AdColDen
                     n=sum(n_h,na.rm=TRUE), #total sites surveyed in domain
                     Ntot=sum(N_h,na.rm=TRUE), #total possible sites in domain
                     SE_D._st=sqrt(varD._st), #SE of domain metric estimate
-                    CV_D._st=SE_varD._st/D._st, #CV of domain metric estimate
+                    CV_D._st=SE_D._st/D._st, #CV of domain metric estimate
                     SE_Y._st=sqrt(varY._st),#SE of domain abundance estimate
-                    CV_Y._st=SE_varY._st/Y._st.)#CV of domain abundnace estimate
+                    CV_Y._st=SE_Y._st/Y._st)#CV of domain abundnace estimate
       #Add Weighted proportion occurance, se and cv)
   
   colnames(Domain_roll)[which(colnames(Domain_roll) == 'GROUP')] <- grouping_field #change group to whatever your grouping field is.
