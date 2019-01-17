@@ -313,10 +313,6 @@ Calc_ColDen_Transect<-function(data, grouping_field="GENUS_CODE"){
   
   data$GROUP<-data[,grouping_field] #assign a grouping field for taxa
   
-  #Talk with Dione about this!
-  # data$S_ORDER<-ifelse(data$GROUP=="TUSP",NA,data$S_ORDER)
-  # data$GROUP<-ifelse(data$GROUP=="TUSP",NA,data$GROUP)
-
   #Calculate # of colonies for each variable. You need to have S_ORDER and Fragment here so you can incorporate zeros properly later in the code
   a<-ddply(data, .(SITE,SITEVISITID,TRANSECT, S_ORDER,GROUP,Fragment),
            summarise,
@@ -599,11 +595,38 @@ Calc_Richness_Transect<-function(data,grouping_field="GENUS_CODE"){
            summarise,
            Richness=sum(Richness)) #change to count
   
-  a<-subset(a,select = -S_ORDER)
+  #Add in proportion occurance- add colomn 0 or 1
+  return(b)
+}
+
+#################TEST
+Calc_Richness_Dione<-function(data,grouping_field="GENUS_CODE"){
+  
+  data$GROUP<-data[,grouping_field] #assign a grouping field for taxa){
+  
+  
+  #Calculate # of colonies for each variable. You need to have S_ORDER and Fragment here so you can incorporate zeros properly later in the code
+  a<-ddply(data, .(SITE,SITEVISITID,S_ORDER,TRANSECT),
+           summarise,
+           Richness=length(unique(GROUP))) #change to count
+  
+  a$Richness<-ifelse(a$S_ORDER %in% c("Alcyonacea","Corallinales","Antipatharia"),0,a$Richness)#
+  b<-ddply(a, .(SITE,SITEVISITID,TRANSECT),
+           summarise,
+           Richness=sum(Richness)) #change to count
+  
+  b<-ddply(b, .(SITE,SITEVISITID),
+           summarise,
+           Richness=mean(Richness)) #change to count
   
   #Add in proportion occurance- add colomn 0 or 1
-  return(a)
+  return(b)
 }
+
+
+
+
+
 
 
 
@@ -625,15 +648,14 @@ Calc_Strata=function(site_data,grouping_field,metric_field=c("AdColDen","JuvColD
   site_data$METRIC<-as.numeric(site_data$METRIC)
   
   #For a Given ANALYSIS_SCHEMA, we need to pool N_h, and generate w_h
-  Strata_NH<-ddply(subset(site_data,GROUP=="SSSS"),.(REGION,ISLAND,ANALYSIS_YEAR,DOMAIN_SCHEMA,ANALYSIS_SCHEMA,STRATANAME),summarize,N_h=median(NH,na.rm=TRUE)) #calculate # of possible sites in a given stratum
-  Schema_NH<-ddply(Strata_NH,.(REGION,ISLAND,ANALYSIS_YEAR,DOMAIN_SCHEMA,ANALYSIS_SCHEMA),summarize,N_h=sum(N_h,na.rm=TRUE))#calculate # of possible sites in a given schema
-  Dom_NH<-ddply(Schema_NH,.(REGION,ISLAND,ANALYSIS_YEAR,DOMAIN_SCHEMA),summarize,Dom_N_h=sum(N_h,na.rm=TRUE))#calculate # of possible sites in a given domain
-  Schema_NH$Dom_N_h<-Dom_NH$Dom_N_h[match(Schema_NH$DOMAIN_SCHEMA,Dom_NH$DOMAIN_SCHEMA)]# add Dom_N_h to schema dataframe
-  Schema_NH$w_h<-Schema_NH$N_h/Schema_NH$Dom_N_h # add schema weighting factor to schema dataframe
+  Strata_NH<-ddply(subset(site_data,GROUP=="SSSS"),.(REGION,ISLAND,ANALYSIS_YEAR,DOMAIN_SCHEMA,ANALYSIS_SCHEMA),summarize,N_h=median(NH,na.rm=TRUE)) #calculate # of possible sites in a given stratum
+  Dom_NH<-ddply(Strata_NH,.(REGION,ISLAND,ANALYSIS_YEAR,DOMAIN_SCHEMA),summarize,Dom_N_h=sum(N_h,na.rm=TRUE))#calculate # of possible sites in a given domain
+  Strata_NH$Dom_N_h<-Dom_NH$Dom_N_h[match(Strata_NH$DOMAIN_SCHEMA,Dom_NH$DOMAIN_SCHEMA)]# add Dom_N_h to schema dataframe
+  Strata_NH$w_h<-Strata_NH$N_h/Strata_NH$Dom_N_h # add schema weighting factor to schema dataframe
   
   #Now add back the Analysis_Schema Nh and wh to site_data
-  site_data$N_h.as<-Schema_NH$N_h[match(site_data$ANALYSIS_SCHEMA,Schema_NH$ANALYSIS_SCHEMA)]
-  site_data$w_h.as<-Schema_NH$w_h[match(site_data$ANALYSIS_SCHEMA,Schema_NH$ANALYSIS_SCHEMA)]
+  site_data$N_h.as<-Strata_NH$N_h[match(site_data$ANALYSIS_SCHEMA,Strata_NH$ANALYSIS_SCHEMA)]
+  site_data$w_h.as<-Strata_NH$w_h[match(site_data$ANALYSIS_SCHEMA,Strata_NH$ANALYSIS_SCHEMA)]
   
   #Calculate summary metrics at the stratum level (rolled up from site level)
   Strata_roll=ddply(site_data,.(REGION,ISLAND,ANALYSIS_YEAR,DOMAIN_SCHEMA,ANALYSIS_SCHEMA,GROUP),summarize,
@@ -695,14 +717,7 @@ Calc_Domain=function(site_data,grouping_field="S_ORDER",metric_field=c("AdColDen
                     CV_Y._st=SE_Y._st/Y._st)#CV of domain abundnace estimate
   #Add Weighted proportion occurance, se and cv)
   
-  Domain_roll=Domain_roll[,c("REGION","ISLAND","ANALYSIS_YEAR","DOMAIN_SCHEMA","GROUP",
-                             "n","Ntot","D._st","SE_D._st","CV_D._st")]
-  
-  
   colnames(Domain_roll)[which(colnames(Domain_roll) == 'GROUP')] <- grouping_field #change group to whatever your grouping field is.
-  colnames(Domain_roll)[which(colnames(Domain_roll) == 'D._st')] <- paste0("Mean","_",metric_field) 
-  colnames(Domain_roll)[which(colnames(Domain_roll) == 'SE_D._st')] <- paste0("SE","_",metric_field) 
-  colnames(Domain_roll)[which(colnames(Domain_roll) == 'CV_D._st')] <- paste0("CV","_",metric_field) 
   
   
   return(Domain_roll)
@@ -717,15 +732,14 @@ Calc_Strata_Cover_Rich=function(site_data,metric_field=c("CORAL","CCA","MA","TUR
   site_data$METRIC<-as.numeric(site_data$METRIC)
 
   #For a Given ANALYSIS_SCHEMA, we need to pool N_h, and generate w_h
-  Strata_NH<-ddply(site_data,.(REGION,ISLAND,ANALYSIS_YEAR,DOMAIN_SCHEMA,ANALYSIS_SCHEMA,STRATANAME),summarize,N_h=sum(NH,na.rm=TRUE))#calculate # of possible sites in a given stratum
-  Schema_NH<-ddply(Strata_NH,.(REGION,ISLAND,ANALYSIS_YEAR,DOMAIN_SCHEMA,ANALYSIS_SCHEMA),summarize,N_h=sum(N_h,na.rm=TRUE))#calculate # of possible sites in a given schema
-  Dom_NH<-ddply(Schema_NH,.(REGION,ISLAND,ANALYSIS_YEAR,DOMAIN_SCHEMA),summarize,Dom_N_h=sum(N_h,na.rm=TRUE))#calculate # of possible sites in a given domain
-  Schema_NH$Dom_N_h<-Dom_NH$Dom_N_h[match(Schema_NH$DOMAIN_SCHEMA,Dom_NH$DOMAIN_SCHEMA)]# add Dom_N_h to schema dataframe
-  Schema_NH$w_h<-Schema_NH$N_h/Schema_NH$Dom_N_h # add schema weighting factor to schema dataframe
+  Strata_NH<-ddply(site_data,.(REGION,ISLAND,ANALYSIS_YEAR,DOMAIN_SCHEMA,ANALYSIS_SCHEMA),summarize,N_h=median(NH,na.rm=TRUE)) #calculate # of possible sites in a given stratum
+  Dom_NH<-ddply(Strata_NH,.(REGION,ISLAND,ANALYSIS_YEAR,DOMAIN_SCHEMA),summarize,Dom_N_h=sum(N_h,na.rm=TRUE))#calculate # of possible sites in a given domain
+  Strata_NH$Dom_N_h<-Dom_NH$Dom_N_h[match(Strata_NH$DOMAIN_SCHEMA,Dom_NH$DOMAIN_SCHEMA)]# add Dom_N_h to schema dataframe
+  Strata_NH$w_h<-Strata_NH$N_h/Strata_NH$Dom_N_h # add schema weighting factor to schema dataframe
   
   #Now add back the Analysis_Schema Nh and wh to site_data
-  site_data$N_h.as<-Schema_NH$N_h[match(site_data$ANALYSIS_SCHEMA,Schema_NH$ANALYSIS_SCHEMA)]
-  site_data$w_h.as<-Schema_NH$w_h[match(site_data$ANALYSIS_SCHEMA,Schema_NH$ANALYSIS_SCHEMA)]
+  site_data$N_h.as<-Strata_NH$N_h[match(site_data$ANALYSIS_SCHEMA,Strata_NH$ANALYSIS_SCHEMA)]
+  site_data$w_h.as<-Strata_NH$w_h[match(site_data$ANALYSIS_SCHEMA,Strata_NH$ANALYSIS_SCHEMA)]
   
   #Calculate summary metrics at the stratum level (rolled up from site level)
   Strata_roll=ddply(site_data,.(REGION,ISLAND,ANALYSIS_YEAR,DOMAIN_SCHEMA,ANALYSIS_SCHEMA),summarize,
@@ -767,13 +781,6 @@ Calc_Domain_Cover_Rich=function(site_data,metric_field=c("CORAL","CCA","MA","TUR
                     SE_D._st=sqrt(varD._st), #SE of domain metric estimate
                     CV_D._st=SE_D._st/D._st) #CV of domain metric estimate
   
-  Domain_roll=Domain_roll[,c("REGION","ISLAND","ANALYSIS_YEAR","DOMAIN_SCHEMA",
-                             "n","Ntot","D._st","SE_D._st")]
-  
-  
-  colnames(Domain_roll)[which(colnames(Domain_roll) == 'D._st')] <- paste0("Mean","_",metric_field) 
-  colnames(Domain_roll)[which(colnames(Domain_roll) == 'SE_D._st')] <- paste0("SE","_",metric_field) 
-
   
   return(Domain_roll)
 }
@@ -817,13 +824,12 @@ Calc_Strata_Prevalence=function(site_data,grouping_field,metric_field){
                     S1C_h=var(METRIC,na.rm=T), #sample variance in condition density between sites
                     varC_h=(1-(n_h/N_h))*S1C_h/n_h, #Strata level  variance of mean condition density
                     C_abun_h=C_h*N_h*250, # abundance of colonies with a condition in stratum 
-                    varC_abun_h=varC_h*N_h^2, #variance in total abundance of condition
-                    SE_C_abun_h=sqrt(varC_abun_h),#SE of total abundance of condition
+                    varC_abun_h=varC_h*N_h^2, #variance in total abundance 
+                    SE_C_abun_h=sqrt(varC_abun_h),
                     acd_h=mean(AdColDen,na.rm=T), # Mean of Site-Level all colonies in a Stratum
                     acd_abun_h=acd_h*N_h*250, #strata-level abundnace of all colonies
-                    prev=(C_abun_h/acd_abun_h)*100, # prevalence of condition at stratum level
-                    SEprev=(SE_C_abun_h/acd_abun_h)*100,#SE of condition at stratum level 
-                    CVprev=SEprev/prev) #CV of prevalence
+                    prev=C_abun_h/acd_abun_h, # prevalence of condition at stratum level
+                    SEprev=SE_C_abun_h/acd_abun_h)#SE of condition at stratum level 
   
   Strata_roll$M_hi=250 #define total possible transects in a site
   Strata_roll=Strata_roll[,c("REGION","ISLAND","ANALYSIS_YEAR","DOMAIN_SCHEMA","ANALYSIS_SCHEMA","GROUP",
@@ -860,24 +866,19 @@ Calc_Domain_Prevalence=function(site_data,grouping_field="S_ORDER",metric_field)
                     C_abun_st=sum(C_abun_h,na.rm=TRUE), #Domain total abundance of colonies with a given condition (sum of extrapolated strata abundance)
                     varC_abun_st=sum(varC_abun_h,na.rm=TRUE),#Domain variance total abundance of colonies with a given condition (sum of extrapolated strata varaiance abundance)
                     n=sum(n_h,na.rm=TRUE), #total sites surveyed in domain
-                    Ntot=sum(N_h,na.rm=TRUE), #total possible sites in domain
+                    N=sum(N_h,na.rm=TRUE), #total possible sites in domain
                     SE_varC_st=sqrt(varC_st), #SE of domain metric estimate
                     CV_varC_st=SE_varC_st/C_st, #CV of domain metric estimate
                     SE_varC_abun_st=sqrt(varC_abun_st),#SE of domain abundance estimate
                     CV_varC_abun_st=SE_varC_abun_st/C_abun_st,#CV of domain abundnace estimate
                     acd_st=sum(w_h*acd_h,na.rm=TRUE), # sum of all colony densities across all strata in a given domain
                     acd_abun_st=sum(acd_abun_h,na.rm=TRUE), #domain abundnace of all colonies
-                    prev=(C_abun_st/acd_abun_st)*100, # prevalence of condition at domain level
-                    SEprev=(SE_varC_abun_st/acd_abun_st)*100,#SE of condition at domain level 
+                    prev=C_abun_st/acd_abun_st, # prevalence of condition at domain level
+                    SEprev=SE_varC_abun_st/acd_abun_st,#SE of condition at domain level 
                     CVprev=SEprev/prev) #CV of prevalence
   
-  Domain_roll=Domain_roll[,c("REGION","ISLAND","ANALYSIS_YEAR","DOMAIN_SCHEMA","GROUP",
-                             "n","Ntot","prev","SEprev")]
-  
   colnames(Domain_roll)[which(colnames(Domain_roll) == 'GROUP')] <- grouping_field #change group to whatever your grouping field is.
-  colnames(Domain_roll)[which(colnames(Domain_roll) == 'prev')] <- paste0("Mean","_",metric_field) 
-  colnames(Domain_roll)[which(colnames(Domain_roll) == 'SEprev')] <- paste0("SE","_",metric_field) 
-
+  
   return(Domain_roll)
 }
 
