@@ -585,7 +585,6 @@ Calc_Richness_Transect<-function(data,grouping_field="GENUS_CODE"){
   
   data$GROUP<-data[,grouping_field] #assign a grouping field for taxa){
   
-  
   #Subset 1st 3 segments on transect 1. Remove transect 2 so that we can have a uniform plot size for calculating richness
   data<-subset(data,TRANSECT==1&SEGMENT!=7)
   
@@ -598,8 +597,6 @@ Calc_Richness_Transect<-function(data,grouping_field="GENUS_CODE"){
   b<-ddply(a, .(SITE,SITEVISITID),
            summarise,
            Richness=sum(Richness)) #change to count
-  
-  a<-subset(a,select = -S_ORDER)
   
   #Add in proportion occurance- add colomn 0 or 1
   return(a)
@@ -625,15 +622,14 @@ Calc_Strata=function(site_data,grouping_field,metric_field=c("AdColDen","JuvColD
   site_data$METRIC<-as.numeric(site_data$METRIC)
   
   #For a Given ANALYSIS_SCHEMA, we need to pool N_h, and generate w_h
-  Strata_NH<-ddply(subset(site_data,GROUP=="SSSS"),.(REGION,ISLAND,ANALYSIS_YEAR,DOMAIN_SCHEMA,ANALYSIS_SCHEMA,STRATANAME),summarize,N_h=median(NH,na.rm=TRUE)) #calculate # of possible sites in a given stratum
-  Schema_NH<-ddply(Strata_NH,.(REGION,ISLAND,ANALYSIS_YEAR,DOMAIN_SCHEMA,ANALYSIS_SCHEMA),summarize,N_h=sum(N_h,na.rm=TRUE))#calculate # of possible sites in a given schema
-  Dom_NH<-ddply(Schema_NH,.(REGION,ISLAND,ANALYSIS_YEAR,DOMAIN_SCHEMA),summarize,Dom_N_h=sum(N_h,na.rm=TRUE))#calculate # of possible sites in a given domain
-  Schema_NH$Dom_N_h<-Dom_NH$Dom_N_h[match(Schema_NH$DOMAIN_SCHEMA,Dom_NH$DOMAIN_SCHEMA)]# add Dom_N_h to schema dataframe
-  Schema_NH$w_h<-Schema_NH$N_h/Schema_NH$Dom_N_h # add schema weighting factor to schema dataframe
+  Strata_NH<-ddply(subset(site_data,GROUP=="SSSS"),.(REGION,ISLAND,ANALYSIS_YEAR,DOMAIN_SCHEMA,ANALYSIS_SCHEMA),summarize,N_h=median(NH,na.rm=TRUE)) #calculate # of possible sites in a given stratum
+  Dom_NH<-ddply(Strata_NH,.(REGION,ISLAND,ANALYSIS_YEAR,DOMAIN_SCHEMA),summarize,Dom_N_h=sum(N_h,na.rm=TRUE))#calculate # of possible sites in a given domain
+  Strata_NH$Dom_N_h<-Dom_NH$Dom_N_h[match(Strata_NH$DOMAIN_SCHEMA,Dom_NH$DOMAIN_SCHEMA)]# add Dom_N_h to schema dataframe
+  Strata_NH$w_h<-Strata_NH$N_h/Strata_NH$Dom_N_h # add schema weighting factor to schema dataframe
   
   #Now add back the Analysis_Schema Nh and wh to site_data
-  site_data$N_h.as<-Schema_NH$N_h[match(site_data$ANALYSIS_SCHEMA,Schema_NH$ANALYSIS_SCHEMA)]
-  site_data$w_h.as<-Schema_NH$w_h[match(site_data$ANALYSIS_SCHEMA,Schema_NH$ANALYSIS_SCHEMA)]
+  site_data$N_h.as<-Strata_NH$N_h[match(site_data$ANALYSIS_SCHEMA,Strata_NH$ANALYSIS_SCHEMA)]
+  site_data$w_h.as<-Strata_NH$w_h[match(site_data$ANALYSIS_SCHEMA,Strata_NH$ANALYSIS_SCHEMA)]
   
   #Calculate summary metrics at the stratum level (rolled up from site level)
   Strata_roll=ddply(site_data,.(REGION,ISLAND,ANALYSIS_YEAR,DOMAIN_SCHEMA,ANALYSIS_SCHEMA,GROUP),summarize,
@@ -696,13 +692,11 @@ Calc_Domain=function(site_data,grouping_field="S_ORDER",metric_field=c("AdColDen
   #Add Weighted proportion occurance, se and cv)
   
   Domain_roll=Domain_roll[,c("REGION","ISLAND","ANALYSIS_YEAR","DOMAIN_SCHEMA","GROUP",
-                             "n","Ntot","D._st","SE_D._st","CV_D._st")]
+                             "n","Ntot","D._st","SE_D._st")]
   
-  
-  colnames(Domain_roll)[which(colnames(Domain_roll) == 'GROUP')] <- grouping_field #change group to whatever your grouping field is.
   colnames(Domain_roll)[which(colnames(Domain_roll) == 'D._st')] <- paste0("Mean","_",metric_field) 
   colnames(Domain_roll)[which(colnames(Domain_roll) == 'SE_D._st')] <- paste0("SE","_",metric_field) 
-  colnames(Domain_roll)[which(colnames(Domain_roll) == 'CV_D._st')] <- paste0("CV","_",metric_field) 
+  colnames(Domain_roll)[which(colnames(Domain_roll) == 'GROUP')] <- grouping_field #change group to whatever your grouping field is.
   
   
   return(Domain_roll)
@@ -715,17 +709,16 @@ Calc_Strata_Cover_Rich=function(site_data,metric_field=c("CORAL","CCA","MA","TUR
   #Build in flexibility to summarized different metrics
   site_data$METRIC<-site_data[,metric_field]
   site_data$METRIC<-as.numeric(site_data$METRIC)
-
+  
   #For a Given ANALYSIS_SCHEMA, we need to pool N_h, and generate w_h
-  Strata_NH<-ddply(site_data,.(REGION,ISLAND,ANALYSIS_YEAR,DOMAIN_SCHEMA,ANALYSIS_SCHEMA,STRATANAME),summarize,N_h=sum(NH,na.rm=TRUE))#calculate # of possible sites in a given stratum
-  Schema_NH<-ddply(Strata_NH,.(REGION,ISLAND,ANALYSIS_YEAR,DOMAIN_SCHEMA,ANALYSIS_SCHEMA),summarize,N_h=sum(N_h,na.rm=TRUE))#calculate # of possible sites in a given schema
-  Dom_NH<-ddply(Schema_NH,.(REGION,ISLAND,ANALYSIS_YEAR,DOMAIN_SCHEMA),summarize,Dom_N_h=sum(N_h,na.rm=TRUE))#calculate # of possible sites in a given domain
-  Schema_NH$Dom_N_h<-Dom_NH$Dom_N_h[match(Schema_NH$DOMAIN_SCHEMA,Dom_NH$DOMAIN_SCHEMA)]# add Dom_N_h to schema dataframe
-  Schema_NH$w_h<-Schema_NH$N_h/Schema_NH$Dom_N_h # add schema weighting factor to schema dataframe
+  Strata_NH<-ddply(site_data,.(REGION,ISLAND,ANALYSIS_YEAR,DOMAIN_SCHEMA,ANALYSIS_SCHEMA),summarize,N_h=median(NH,na.rm=TRUE)) #calculate # of possible sites in a given stratum
+  Dom_NH<-ddply(Strata_NH,.(REGION,ISLAND,ANALYSIS_YEAR,DOMAIN_SCHEMA),summarize,Dom_N_h=sum(N_h,na.rm=TRUE))#calculate # of possible sites in a given domain
+  Strata_NH$Dom_N_h<-Dom_NH$Dom_N_h[match(Strata_NH$DOMAIN_SCHEMA,Dom_NH$DOMAIN_SCHEMA)]# add Dom_N_h to schema dataframe
+  Strata_NH$w_h<-Strata_NH$N_h/Strata_NH$Dom_N_h # add schema weighting factor to schema dataframe
   
   #Now add back the Analysis_Schema Nh and wh to site_data
-  site_data$N_h.as<-Schema_NH$N_h[match(site_data$ANALYSIS_SCHEMA,Schema_NH$ANALYSIS_SCHEMA)]
-  site_data$w_h.as<-Schema_NH$w_h[match(site_data$ANALYSIS_SCHEMA,Schema_NH$ANALYSIS_SCHEMA)]
+  site_data$N_h.as<-Strata_NH$N_h[match(site_data$ANALYSIS_SCHEMA,Strata_NH$ANALYSIS_SCHEMA)]
+  site_data$w_h.as<-Strata_NH$w_h[match(site_data$ANALYSIS_SCHEMA,Strata_NH$ANALYSIS_SCHEMA)]
   
   #Calculate summary metrics at the stratum level (rolled up from site level)
   Strata_roll=ddply(site_data,.(REGION,ISLAND,ANALYSIS_YEAR,DOMAIN_SCHEMA,ANALYSIS_SCHEMA),summarize,
@@ -770,10 +763,9 @@ Calc_Domain_Cover_Rich=function(site_data,metric_field=c("CORAL","CCA","MA","TUR
   Domain_roll=Domain_roll[,c("REGION","ISLAND","ANALYSIS_YEAR","DOMAIN_SCHEMA",
                              "n","Ntot","D._st","SE_D._st")]
   
-  
   colnames(Domain_roll)[which(colnames(Domain_roll) == 'D._st')] <- paste0("Mean","_",metric_field) 
   colnames(Domain_roll)[which(colnames(Domain_roll) == 'SE_D._st')] <- paste0("SE","_",metric_field) 
-
+  
   
   return(Domain_roll)
 }
@@ -797,15 +789,14 @@ Calc_Strata_Prevalence=function(site_data,grouping_field,metric_field){
   site_data$METRIC<-as.numeric(site_data$METRIC)
   
   #For a Given ANALYSIS_SCHEMA, we need to pool N_h, and generate w_h
-  Strata_NH<-ddply(subset(site_data,GROUP=="SSSS"),.(REGION,ISLAND,ANALYSIS_YEAR,DOMAIN_SCHEMA,ANALYSIS_SCHEMA,STRATANAME),summarize,N_h=median(NH,na.rm=TRUE)) #calculate # of possible sites in a given stratum
-  Schema_NH<-ddply(Strata_NH,.(REGION,ISLAND,ANALYSIS_YEAR,DOMAIN_SCHEMA,ANALYSIS_SCHEMA),summarize,N_h=sum(N_h,na.rm=TRUE))#calculate # of possible sites in a given schema
-  Dom_NH<-ddply(Schema_NH,.(REGION,ISLAND,ANALYSIS_YEAR,DOMAIN_SCHEMA),summarize,Dom_N_h=sum(N_h,na.rm=TRUE))#calculate # of possible sites in a given domain
-  Schema_NH$Dom_N_h<-Dom_NH$Dom_N_h[match(Schema_NH$DOMAIN_SCHEMA,Dom_NH$DOMAIN_SCHEMA)]# add Dom_N_h to schema dataframe
-  Schema_NH$w_h<-Schema_NH$N_h/Schema_NH$Dom_N_h # add schema weighting factor to schema dataframe
+  Strata_NH<-ddply(subset(site_data,GROUP=="SSSS"),.(REGION,ISLAND,ANALYSIS_YEAR,DOMAIN_SCHEMA,ANALYSIS_SCHEMA),summarize,N_h=median(NH,na.rm=TRUE)) #calculate # of possible sites in a given stratum
+  Dom_NH<-ddply(Strata_NH,.(REGION,ISLAND,ANALYSIS_YEAR,DOMAIN_SCHEMA),summarize,Dom_N_h=sum(N_h,na.rm=TRUE))#calculate # of possible sites in a given domain
+  Strata_NH$Dom_N_h<-Dom_NH$Dom_N_h[match(Strata_NH$DOMAIN_SCHEMA,Dom_NH$DOMAIN_SCHEMA)]# add Dom_N_h to schema dataframe
+  Strata_NH$w_h<-Strata_NH$N_h/Strata_NH$Dom_N_h # add schema weighting factor to schema dataframe
   
   #Now add back the Analysis_Schema Nh and wh to site_data
-  site_data$N_h.as<-Schema_NH$N_h[match(site_data$ANALYSIS_SCHEMA,Schema_NH$ANALYSIS_SCHEMA)]
-  site_data$w_h.as<-Schema_NH$w_h[match(site_data$ANALYSIS_SCHEMA,Schema_NH$ANALYSIS_SCHEMA)]
+  site_data$N_h.as<-Strata_NH$N_h[match(site_data$ANALYSIS_SCHEMA,Strata_NH$ANALYSIS_SCHEMA)]
+  site_data$w_h.as<-Strata_NH$w_h[match(site_data$ANALYSIS_SCHEMA,Strata_NH$ANALYSIS_SCHEMA)]
   
   #site_data$Mhi<-250 - Still having issues using Mhi as a variable in dataframe
   #Calculate summary metrics at the stratum level (rolled up from site level)

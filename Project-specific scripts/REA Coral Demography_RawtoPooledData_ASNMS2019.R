@@ -527,7 +527,7 @@ odG_is<-Calc_Domain(site.data.gen,"GENUS_CODE","Ave.od")
 rdG_st<-Calc_Strata(site.data.gen,"GENUS_CODE","Ave.rd") 
 rdG_is<-Calc_Domain(site.data.gen,"GENUS_CODE","Ave.rd")
 rich_st<-Calc_Strata_Cover_Rich(rich.data,"Richness")
-rich_is<-Calc_Domain_Cover_Rich(rich.data,"Richness")
+rich_is<-Calc_Domain_Cover_Rich(rich.data,"Richness");colnames(rich_is)[colnames(rich_is)=="DOMAIN_SCHEMA"]<-"Sector"
 
 ###############SE not working properly- check with Dione
 blG_st<-Calc_Strata_Prevalence(site.data.gen,"GENUS_CODE","BLE") 
@@ -547,10 +547,10 @@ is.data.gen<-Reduce(MyMerge, list(acdG_is,jcdG_is,odG_is,rdG_is,adzG_is,cdzG_is,
 is.data.gen<-subset(is.data.gen,GENUS_CODE %in% c("SSSS","ACSP","POCS","MOSP","POSP"))
 colnames(is.data.gen)[colnames(is.data.gen)=="DOMAIN_SCHEMA"]<-"Sector"
 
-is.data.gen<-subset(is.data.gen,DOMAIN_SCHEMA %in% c("Ofu & Olosega","ROS_SANCTUARY","SWA_SANCTUARY",
+is.data.gen<-subset(is.data.gen,Sector %in% c("Ofu & Olosega","ROS_SANCTUARY","SWA_SANCTUARY",
                                                      "TAU_OPEN","TUT_FAGALUA_FAGATELE","TUT_NE_OPEN",
                                                      "TUT_NW_OPEN"))
-rich_is<-subset(rich_is,DOMAIN_SCHEMA %in% c("Ofu & Olosega","ROS_SANCTUARY","SWA_SANCTUARY",
+rich_is<-subset(rich_is,Sector %in% c("Ofu & Olosega","ROS_SANCTUARY","SWA_SANCTUARY",
                                                      "TAU_OPEN","TUT_FAGALUA_FAGATELE","TUT_NE_OPEN",
                                                      "TUT_NW_OPEN"))
 write.csv(is.data.gen,"SAMOA_sectordemography.csv")
