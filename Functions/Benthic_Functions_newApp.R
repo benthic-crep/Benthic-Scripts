@@ -612,7 +612,7 @@ Calc_Richness_Transect<-function(data,grouping_field="GENUS_CODE"){
 #Note: for whatever reason, the grouping, other and metric fields need to be in this order. If you don't want to include an other field then add "DUMMY" as the second variable when you are running this function.
 #e.g. st<-Calc_Strata(data.mon,"GENUS_CODE","DUMMY","ColDen")
 
-Calc_Strata=function(site_data,grouping_field,metric_field=c("AdColDen","JuvColDen","Ave.od","Ave.rd","Condabun","CORAL"),M_hi=250){
+Calc_Strata=function(site_data,grouping_field,metric_field,M_hi=250){
   
   #Build in flexibility to look at genus or taxon level
   site_data$GROUP<-site_data[,grouping_field]
@@ -645,7 +645,7 @@ Calc_Strata=function(site_data,grouping_field,metric_field=c("AdColDen","JuvColD
                     CV_D._h=SE_D._h/D._h,
                     SE_Y._h=sqrt(varY._h),
                     CV_Y._h=SE_Y._h/Y._h,
-                    Adprop.occur=sum(Adpres.abs)/n_h,
+                    prop.occur=sum(Adpres.abs)/n_h,
                     Juvprop.occur=sum(Juvpres.abs)/n_h)
   
   Strata_roll$M_hi=250 #define total possible transects in a site
@@ -667,7 +667,7 @@ Calc_Strata=function(site_data,grouping_field,metric_field=c("AdColDen","JuvColD
 #DOMAIN ROLL UP FUNCTION-This function calculates mean, var, SE and CV at the DOMAIN level. I've built in flexilbity to use either genus or taxoncode as well as other metrics (size class, morph)
 # You can input any metric you would like (eg. adult density, mean % old dead,etc). Note that for any metric that does not involve density of colonies, 
 # Y._h (total colony abundance in stratum),varY._h (variance in total abundance), SE_Y._h and CV_Y._h are meaningless-DO NOT USE
-Calc_Domain=function(site_data,grouping_field="S_ORDER",metric_field=c("AdColDen","JuvColDen","Ave.od","Ave.rd")){
+Calc_Domain=function(site_data,grouping_field="S_ORDER",metric_field){
   
   Strata_data=Calc_Strata(site_data,grouping_field,metric_field)
   
@@ -689,6 +689,7 @@ Calc_Domain=function(site_data,grouping_field="S_ORDER",metric_field=c("AdColDen
                     CV_D._st=SE_D._st/D._st, #CV of domain metric estimate
                     SE_Y._st=sqrt(varY._st),#SE of domain abundance estimate
                     CV_Y._st=SE_Y._st/Y._st)#CV of domain abundnace estimate
+                    
   #Add Weighted proportion occurance, se and cv)
   
   Domain_roll=Domain_roll[,c("REGION","ISLAND","ANALYSIS_YEAR","DOMAIN_SCHEMA","GROUP",
