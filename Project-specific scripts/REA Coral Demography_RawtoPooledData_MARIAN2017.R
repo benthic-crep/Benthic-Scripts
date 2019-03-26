@@ -11,9 +11,9 @@ source("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/lib/GIS_functions.
 
 ## LOAD benthic data
 setwd("C:/Users/Courtney.S.Couch/Documents/Courtney's Files/R Files/ESD/Benthic REA")
-load("ALL_REA_ADULTCORAL_RAW_new.rdata") #from oracle
-x<-df #leave this as df
-#x<-read.csv("V0_CORAL_OBS_E_final.csv")
+#load("ALL_REA_ADULTCORAL_RAW_new.rdata") #from oracle
+#x<-df #leave this as df
+x<-read.csv("V0_CORAL_OBS_E_final.csv")
 
 x$SITE<-SiteNumLeadingZeros(x$SITE) # Change site number such as MAR-22 to MAR-0022
 
@@ -29,11 +29,11 @@ site_master$SITE<-SiteNumLeadingZeros(site_master$SITE)
 
 #Create vector of column names to include then exclude unwanted columns from dataframe
 DATA_COLS<-c("MISSIONID","REGION","REGION_NAME","ISLAND","ISLANDCODE","SITE","LATITUDE",	"LONGITUDE","REEF_ZONE","DEPTH_BIN","OBS_YEAR",
-             "DATE_","NO_SURVEY_YN","EXCLUDE_FLAG","SITEVISITID","HABITAT_CODE","DIVER","TRANSECTNUM","SEGMENT","SEGWIDTH","SEGLENGTH","FRAGMENT_YN",
-             "COLONYID","TAXONCODE","COLONYLENGTH","OLDDEAD",
+             "DATE_","NO_SURVEY_YN","EXCLUDE_FLAG","SITEVISITID","HABITAT_CODE","DIVER","TRANSECTNUM","SEGMENT","SEGWIDTH","SEGLENGTH",
+             "COLONYID","SPECIES","MORPH_CODE","COLONYLENGTH","OLDDEAD",
              "RECENTDEAD_1","RECENT_GENERAL_CAUSE_CODE_1","RECENT_SPECIFIC_CAUSE_CODE_1",
              "RECENTDEAD_2",	"RECENT_GENERAL_CAUSE_CODE_2","RECENT_SPECIFIC_CAUSE_CODE_2",	
-             "RECENT_GENERAL_CAUSE_CODE_3","RECENT_SPECIFIC_CAUSE_CODE_3","RECENTDEAD_3","COND",
+             "RECENT_GENERAL_CAUSE_CODE_3","RECENT_SPECIFIC_CAUSE_CODE_3","RECENTDEAD_3","CONDITION_1",
              "CONDITION_2","CONDITION_3","GENUS_CODE","S_ORDER","TAXONNAME","SITE_MIN_DEPTH","SITE_MAX_DEPTH")
 
 
@@ -46,7 +46,7 @@ x<-x[,DATA_COLS]
 sapply(x,levels)
 sapply(x,class)##Change column names to make code easier to code
 
-colnames(x)[colnames(x)=="TAXONCODE"]<-"SPCODE" #Change column name
+colnames(x)[colnames(x)=="SPECIES"]<-"SPCODE" #Change column name
 colnames(x)[colnames(x)=="TRANSECTNUM"]<-"TRANSECT" #Change column name
 colnames(x)[colnames(x)=="RECENTDEAD_1"]<-"RDEXTENT1" #Change column name
 colnames(x)[colnames(x)=="RECENT_GENERAL_CAUSE_CODE_1"]<-"GENRD1" #Change column name
@@ -57,8 +57,6 @@ colnames(x)[colnames(x)=="RECENT_GENERAL_CAUSE_CODE_2"]<-"GENRD2" #Change column
 colnames(x)[colnames(x)=="RECENT_SPECIFIC_CAUSE_CODE_2"]<-"RD2" #Change column name
 colnames(x)[colnames(x)=="RECENT_GENERAL_CAUSE_CODE_3"]<-"GENRD3" #Change column name
 colnames(x)[colnames(x)=="RECENT_SPECIFIC_CAUSE_CODE_3"]<-"RD3" #Change column name
-colnames(x)[colnames(x)=="FRAGMENT_YN"]<-"Fragment" #Change column name
-colnames(x)[colnames(x)=="COND"]<-"CONDITION_1" #Change column name
 
 head(x)
 
@@ -78,6 +76,7 @@ x<-subset(x,NO_SURVEY_YN==0)
 
 #TEMPORARY FIX-SPEAK WITH DM TO CORRECT IN ORACLE
 #Change all special missions to exclude flag =-1, right now they are 0 Then exclude these sites
+##Ask annette about special mission when archiving
 levels(x$MISSIONID)
 x$EXCLUDE_FLAG<-ifelse(x$MISSIONID %in% c("MP1410","MP1512","MP1602","SE1602"),-1,0)
 head(subset(x,EXCLUDE_FLAG==-1))
@@ -141,16 +140,17 @@ nrow(x)
 nrow(x.)
 x<-x.
 
-# #Create new colummns that combine species, genus and morphology
-# x$TAXMORPH<-paste(x$TAXONCODE,x$MORPH_CODE,sep="")
-# x$GENMORPH<-paste(x$GENUS_CODE,x$MORPH_CODE,sep="")
+#Create new colummns that combine species, genus and morphology
+x$TAXMORPH<-paste(x$TAXONCODE,x$MORPH_CODE,sep="")
+x$GENMORPH<-paste(x$GENUS_CODE,x$MORPH_CODE,sep="")
 
 
 #add SITE MASTER information to x 
+# 2014 and 2015 monument
 #x<-merge(x, site_master[,c("SITE", "SEC_NAME", "ANALYSIS_SEC", "ANALYSIS_YEAR", "ANALYSIS_SCHEME")], by="SITE", all.x=TRUE) #Fish team's original code, we may want to create analysis scheme later in the 
 length(unique(x$SITEVISITID)) #double check that sites weren't dropped
 nrow(subset(site_master,METHOD %in% c("CORALBELT_METHOD_E_F","CORALBELT_METHOD_F_PHOTOQUADS")))
-x<-merge(x, site_master[,c("OBS_YEAR","SITEVISITID","SITE","SEC_NAME","ANALYSIS_YEAR")], by=c("OBS_YEAR","SITEVISITID","SITE"),all.x=T)  
+x<-merge(x, site_master[,c("OBS_YEAR","SITEVISITID","SITE","SEC_NAME","BENTHIC_SEC_CODE","ANALYSIS_YEAR")], by=c("OBS_YEAR","SITEVISITID","SITE"),all.x=T)  
 length(unique(x$SITEVISITID)) #double check that sites weren't dropped
 head(x)
 
@@ -227,16 +227,16 @@ SURVEY_INFO<-c("S_ORDER","GENUS_CODE","TAXONCODE","TAXONNAME")
 test<-new_Aggregate_InputTable(awd, SURVEY_INFO)
 
 
-save(awd, file="TMPBenthicREA_Adultwd_022619.Rdata")  #Save clean working data
+save(awd, file="TMPBenthicREA_Adultwd_011019.Rdata")  #Save clean working data
 
 
 ## CREATE JUVENILE CLEAN ANALYSIS READY DATA ----
 ## LOAD benthic data
 setwd("C:/Users/Courtney.S.Couch/Documents/Courtney's Files/R Files/ESD/Benthic REA")
-load("ALL_REA_JUVCORAL_RAW_new.rdata") #from oracle
-x<-df #leave this as df
+# load("ALL_REA_JUVCORAL_RAW_new.rdata") #from oracle
+# x<-df #leave this as df
 
-#x<-read.csv("V0_CORAL_OBS_F_final.csv")
+x<-read.csv("V0_CORAL_OBS_F_final.csv")
 
 x$SITE<-SiteNumLeadingZeros(x$SITE) # Change site number such as MAR-22 to MAR-0022
 
@@ -255,7 +255,7 @@ site_master$SITE<-SiteNumLeadingZeros(site_master$SITE)
 #Create vector of column names to include then exclude unwanted columns from dataframe
 DATA_COLS<-c("MISSIONID","REGION","REGION_NAME","ISLAND","ISLANDCODE","SITE","LATITUDE",	"LONGITUDE","REEF_ZONE","DEPTH_BIN","OBS_YEAR",
              "DATE_","NO_SURVEY_YN","EXCLUD_FLAG","SITEVISITID","HABITAT_CODE","DIVER","TRANSECTNUM","SEGMENT","SEGWIDTH","SEGLENGTH",
-             "COLONYID","TAXONCODE","COLONYLENGTH","GENUS_CODE","S_ORDER","TAXONNAME","MINDEPTH","MAXDEPTH")
+             "COLONYID","SPECIES","MORPH_CODE","COLONYLENGTH","GENUS_CODE","S_ORDER","TAXONNAME","SITE_MIN_DEPTH","SITE_MAX_DEPTH")
 
 
 #remove extraneous columns
@@ -266,10 +266,8 @@ x<-x[,DATA_COLS]
 sapply(x,levels)
 sapply(x,class)##Change column names to make code easier to code
 
-colnames(x)[colnames(x)=="TAXONCODE"]<-"SPCODE" #Change column name
+colnames(x)[colnames(x)=="SPECIES"]<-"SPCODE" #Change column name
 colnames(x)[colnames(x)=="TRANSECTNUM"]<-"TRANSECT" #Change column name
-colnames(x)[colnames(x)=="MINDEPTH"]<-"SITE_MIN_DEPTH" #Change column name
-colnames(x)[colnames(x)=="MAXDEPTH"]<-"SITE_MAX_DEPTH" #Change column name
 
 head(x)
 
@@ -342,9 +340,9 @@ nrow(x)
 nrow(x.)
 x<-x.
 
-# #Create new colummns that combine species, genus and morphology
-# x$TAXMORPH<-paste(x$TAXONCODE,x$MORPH_CODE,sep="")
-# x$GENMORPH<-paste(x$GENUS_CODE,x$MORPH_CODE,sep="")
+#Create new colummns that combine species, genus and morphology
+x$TAXMORPH<-paste(x$TAXONCODE,x$MORPH_CODE,sep="")
+x$GENMORPH<-paste(x$GENUS_CODE,x$MORPH_CODE,sep="")
 
 
 #add SITE MASTER information to x 
@@ -392,11 +390,9 @@ jwd<-droplevels(x)
 #Colony fragments and scleractinans are subseted in the functions 
 
 #Add a column for adult fragments so we can remove them from the dataset later (-1 indicates fragment)
-# awd<-CreateFragment(awd)
-awd$Fragment<-ifelse(data$OBS_YEAR <2018 & data$COLONYLENGTH <5 & data$S_ORDER=="Scleractinia",-1,awd$Fragment)
-head(subset(awd,Fragment==-1& OBS_YEAR<2018)) #double check that pre 2018 fragments create
-awd$Fragment[is.na(awd$Fragment)] <- 0
-#head(subset(awd,Fragment==-1 & OBS_YEAR==2018))#double check that post 2018 fragments are created
+awd<-CreateFragment(awd)
+head(subset(awd,Fragment==-1& OBS_YEAR<2018)) #double check that pre 2018 fragments created
+head(subset(awd,Fragment==-1 & OBS_YEAR==2018))#double check that post 2018 fragments are created
 jwd$Fragment<-0 # you need to add this column so that you can use the site level functions correctly
 
 #Remove transects with less than 5m surveyed and check how many rows were removed
@@ -406,13 +402,13 @@ jwd<-subset(jwd,TRANSECTAREA>=1)
 nrow(awd)
 
 
-awd<-subset(awd,REGION=="SAMOA",OBS_YEAR!="2016")
-jwd<-subset(jwd,REGION=="SAMOA",OBS_YEAR!="2016")
+awd<-subset(awd,REGION=="MARIAN")
+jwd<-subset(jwd,REGION=="MARIAN")
 
 
 #Create a look a table of all of the colony attributes- you will need this for the Calc_RDden and Calc_Condden functions
 SURVEY_INFO<-c("SITEVISITID", "OBS_YEAR", "REGION", "REGION_NAME", "ISLAND","ISLANDCODE","SEC_NAME", "SITE", "REEF_ZONE",
-               "DEPTH_BIN", "LATITUDE", "LONGITUDE","SITE_MIN_DEPTH","SITE_MAX_DEPTH","TRANSECT","COLONYID","GENUS_CODE","TAXONCODE","COLONYLENGTH")
+               "DEPTH_BIN", "LATITUDE", "LONGITUDE","SITE_MIN_DEPTH","SITE_MAX_DEPTH","TRANSECT","COLONYID","GENUS_CODE","TAXONCODE","MORPH_CODE","COLONYLENGTH")
 survey_colony<-new_Aggregate_InputTable(awd, SURVEY_INFO)
 SURVEY_INFO<-c("SITEVISITID", "OBS_YEAR", "REGION", "REGION_NAME", "ISLAND","ISLANDCODE","SEC_NAME", "SITE", "REEF_ZONE",
                "DEPTH_BIN", "LATITUDE", "LONGITUDE","SITE_MIN_DEPTH","SITE_MAX_DEPTH")
@@ -465,9 +461,10 @@ data.cols<-c("AdColDen","Ave.size","Ave.od","Ave.rd","JuvColDen","BLE","ActueDZ"
 #This is still clunky, but works for now.
 site.data.gen<-ddply(data.gen, .(SITE,SITEVISITID,GENUS_CODE), #calc total colonies by condition
                      summarise,
-                     AdColCount=sum(AdColCount,na.rm=T),AdColDen=mean(AdColDen,na.rm = T),Ave.od=mean(Ave.od,na.rm = T),
+                     AdColCount=mean(AdColCount,na.rm=T),AdColDen=mean(AdColDen,na.rm = T),Ave.od=mean(Ave.od,na.rm = T),
                      Ave.rd=mean(Ave.rd,na.rm = T),JuvColDen=mean(JuvColDen,na.rm=T),BLE=mean(BLE,na.rm=T),AcuteDZ=mean(DZGNS,na.rm=T),ChronicDZ=mean(CHRO,na.rm=T))
 
+#or at transect level compare to site
 site.data.gen$Adpres.abs<-ifelse(site.data.gen$AdColDen>0,1,0)
 site.data.gen$Juvpres.abs<-ifelse(site.data.gen$JuvColDen>0,1,0)
 
@@ -475,7 +472,18 @@ site.data.gen$Juvpres.abs<-ifelse(site.data.gen$JuvColDen>0,1,0)
 # POOLING DATA from Site to Strata and Domain---------------------------------------------------
 
 # get strata and sectors data. Note, this is the benthic sector/area file. we are still working on properly merging fish and benthic files.
-sectors<-read.csv("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/data/Sectors-Strata-Areas.csv", stringsAsFactors=FALSE)
+sectors<-read.csv("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/data/Sectors-Strata-Areas.csv")
+
+#Create code that will combine sectors or strata rather than creating a new column that combines sectors and strata.
+#sectors$Ben.mar<-sectors$bA_BENTHIC_REP_CARD
+
+# ## TREAT GUGUAN, ALAMAGAN, SARIGAN AS ONE ISLAND  (REALLY ONE BASE REPORTING UNIT .. BUT SIMPLER TO STICK TO 'ISLAND')
+# SGA<-c("Guguan", "Alamagan", "Sarigan")
+# levels(sectors$ISLAND)<-c(levels(sectors$ISLAND), "AGS")
+# sectors[sectors$ISLAND %in% SGA,]$ISLAND<-"AGS"
+# sectors[sectors$ISLAND %in% SGA,]$ISLAND<-"AGS"
+
+
 
 #Generate a table of metadata at the transect and site level for ADULTS
 # SURVEY_INFO<-c("SITEVISITID", "ANALYSIS_YEAR","OBS_YEAR", "REGION", "REGION_NAME", "ISLAND","ISLANDCODE","SEC_NAME","SITE", "DATE_", "REEF_ZONE", "DEPTH_BIN", "LATITUDE", "LONGITUDE","SITE_MIN_DEPTH_FT","SITE_MAX_DEPTH_FT","TRANSECT")
@@ -489,38 +497,36 @@ write.csv(survey_site,"test2.csv")
 meta<-merge(survey_site,sectors,by=c("REGION","SEC_NAME","ISLAND","REEF_ZONE","DEPTH_BIN"),all.x=TRUE)
 meta[which(is.na(meta$AREA_HA)),]
 
+meta$DEPTH_BIN<-as.character(meta$DEPTH_BIN)
+meta$DEPTH_BIN<-ifelse(meta$ISLAND=="Alamagan" & meta$DEPTH_BIN=="Deep"|meta$ISLAND=="Alamagan" &meta$DEPTH_BIN=="Mid","Mid_Deep",meta$DEPTH_BIN)
+meta$DEPTH_BIN<-ifelse(meta$ISLAND=="Guguan","All",meta$DEPTH_BIN)
+meta$DEPTH_BIN<-ifelse(meta$ISLAND=="Sarigan" & meta$DEPTH_BIN=="Deep"|meta$ISLAND=="Sarigan" &meta$DEPTH_BIN=="Mid","Mid_Deep",meta$DEPTH_BIN)
+
+head(meta)
+
 #Merge site level data and meta data
 site.data.gen<-merge(site.data.gen,meta,by=c("SITEVISITID","SITE"),all.x=TRUE)
 
 #Merge site-level richness and meta data
 rich.data<-merge(rich.gen,meta,by=c("SITEVISITID","SITE"),all.x=TRUE)
 
-#Remove sectors that do not have enough sampling over space or time and export site level data for bubble maps
-site.data.gen<-subset(site.data.gen, REGION=="SAMOA"& !(BENTHIC_2018 %in% c("ROS_INNER", "TUT_AUNUU_A", "TUT_AUNUU_B","SWA_OPEN")))
-write.csv(site.data.gen,"SAMOA_demography_sitedata.csv")
-
-rich.data<-subset(rich.data, REGION=="SAMOA"& !(BENTHIC_2018 %in% c("ROS_INNER", "TUT_AUNUU_A", "TUT_AUNUU_B","SWA_OPEN")))
-write.csv(rich.data,"SAMOA_richness_sitedata.csv")
-
 
 #Create STRATANAME by idenityfing which ANALAYSIS SCHEME you want to use then concatinating with depth and reef zone that will be used to pool data
-site.data.gen$STRATANAME=paste0(site.data.gen$BENTHIC_2018,"_",site.data.gen$DEPTH_BIN,"_",site.data.gen$REEF_ZONE)
-rich.data$STRATANAME=paste0(rich.data$BENTHIC_2018,"_",rich.data$DEPTH_BIN,"_",rich.data$REEF_ZONE)
-new.site<-subset(site.data.gen,GENUS_CODE=="SSSS");new.site<-subset(new.site,select=c(SITE,ISLAND,LATITUDE,LONGITUDE,OBS_YEAR,BENTHIC_2018,DEPTH_BIN,STRATANAME))
-write.csv(new.site,"SAMOA_demography_sitelist.csv")
+site.data.gen$STRATANAME=paste0(site.data.gen$ISLAND,"_",site.data.gen$REEF_ZONE,"_",site.data.gen$DEPTH_BIN)
+rich.data$STRATANAME=paste0(rich.data$ISLAND,"_",rich.data$REEF_ZONE,"_",rich.data$DEPTH_BIN)
 
 
 #create a table of total number of sites surveyed by strata
-test<-subset(site.data.gen,OBS_YEAR=="2018"& GENUS_CODE=="SSSS")
+test<-subset(site.data.gen,OBS_YEAR=="2017"& GENUS_CODE=="SSSS")
 test<-droplevels(test)
 table(test$ISLAND,test$STRATANAME)
 
 #Mess with Backreef and depth pooling here import columns for stratum name for pooling
 #Set ANALYSIS_SCHEMA to STRATA and DOMAIN_SCHEMA to whatever the highest level you want estimates for (e.g. sector, island, region)
 site.data.gen$ANALYSIS_SCHEMA<-site.data.gen$STRATANAME
-site.data.gen$DOMAIN_SCHEMA<-site.data.gen$BENTHIC_2018
+site.data.gen$DOMAIN_SCHEMA<-site.data.gen$ISLAND
 rich.data$ANALYSIS_SCHEMA<-rich.data$STRATANAME
-rich.data$DOMAIN_SCHEMA<-rich.data$BENTHIC_2018
+rich.data$DOMAIN_SCHEMA<-rich.data$ISLAND
 
 #Calculate metrics at Strata-level-We need to work on combining metrics into 1 function
 
@@ -554,8 +560,6 @@ colnames(adzG_st)<-c("REGION","ISLAND","ANALYSIS_YEAR","Sector","Stratum","GENUS
 cdzG_st<-Calc_Strata_Prevalence(site.data.gen,"GENUS_CODE","ChronicDZ");cdzG_st=cdzG_st[,c.keep]
 colnames(cdzG_st)<-c("REGION","ISLAND","ANALYSIS_YEAR","Sector","Stratum","GENUS_CODE","n","Ntot","ChronicDZ","SE_ChronicDZ")  
 
-#Create a vector of strata to remove before calculating sector-level estimates for temporal comparisons. Some strata are missing from 1 year but not the other
-site.data.gen<-subset(site.data.gen,!ANALYSIS_SCHEMA %in% c("ROS_SANCTUARY_Deep_Forereef","SWA_SANCTUARY_Deep_Forereef","TAU_OPEN_Shallow_Forereef","TUT_NE_OPEN_Shallow_Forereef"))
 
 acdG_is<-Calc_Domain(site.data.gen,"GENUS_CODE","AdColDen","Adpres.abs")
 jcdG_is<-Calc_Domain(site.data.gen,"GENUS_CODE","JuvColDen","Juvpres.abs")
@@ -574,27 +578,18 @@ MyMerge <- function(x, y){
 is.data.gen<-Reduce(MyMerge, list(acdG_is,jcdG_is,odG_is,rdG_is,adzG_is,cdzG_is,blG_is))
 
 is.data.gen<-subset(is.data.gen,GENUS_CODE %in% c("SSSS","ACSP","POCS","MOSP","POSP"))
-colnames(is.data.gen)[colnames(is.data.gen)=="DOMAIN_SCHEMA"]<-"Sector"
+colnames(is.data.gen)[colnames(is.data.gen)=="DOMAIN_SCHEMA"]<-"ISLAND"
+is.data.gen<-subset(is.data.gen,GENUS_CODE=="SSSS")
+
 
 MyMerge <- function(x, y){
   df <- merge(x, y, by= c("REGION","ISLAND","ANALYSIS_YEAR","Sector","Stratum","GENUS_CODE","n","Ntot"), all.x= TRUE, all.y= TRUE)
   return(df)
 }
 st.data.gen<-Reduce(MyMerge, list(acdG_st,jcdG_st,odG_st,rdG_st,adzG_st,cdzG_st,blG_st))
-st.data.gen<-subset(st.data.gen,GENUS_CODE %in% c("SSSS","ACSP","POCS","MOSP","POSP"))
-
-sec.subset<-c("Ofu & Olosega","ROS_SANCTUARY","SWA_SANCTUARY",
-              "TAU_OPEN","TUT_FAGALUA_FAGATELE","TUT_NE_OPEN",
-              "TUT_NW_OPEN")
-
-is.data.gen<-subset(is.data.gen,Sector %in% sec.subset)
-st.data.gen<-subset(st.data.gen,Sector %in% sec.subset)
-rich_st<-subset(rich_st,Sector %in% sec.subset)
-rich_is<-subset(rich_is,Sector %in% sec.subset)
+st.data.gen<-subset(st.data.gen,GENUS_CODE=="SSSS")
 
 
-write.csv(st.data.gen,"SAMOA_stratademography.csv")
-write.csv(is.data.gen,"SAMOA_sectordemography.csv")
-write.csv(rich_is,"SAMOA_sectorrichness.csv")
-write.csv(rich_st,"SAMOA_stratarichness.csv")
+write.csv(is.data.gen,"Marian_islanddemography.csv")
+
 

@@ -313,9 +313,10 @@ Calc_ColDen_Transect<-function(data, grouping_field="GENUS_CODE"){
   
   data$GROUP<-data[,grouping_field] #assign a grouping field for taxa
   
-  #Talk with Dione about this!
+  #Remove Tubastrea
   # data$S_ORDER<-ifelse(data$GROUP=="TUSP",NA,data$S_ORDER)
   # data$GROUP<-ifelse(data$GROUP=="TUSP",NA,data$GROUP)
+
 
   #Calculate # of colonies for each variable. You need to have S_ORDER and Fragment here so you can incorporate zeros properly later in the code
   a<-ddply(data, .(SITE,SITEVISITID,TRANSECT, S_ORDER,GROUP,Fragment),
@@ -324,7 +325,7 @@ Calc_ColDen_Transect<-function(data, grouping_field="GENUS_CODE"){
   
   #Convert from long to wide and insert 0s for taxa that weren't found at each site. 
   ca<-dcast(a, formula=SITE + SITEVISITID +TRANSECT +Fragment+S_ORDER~ GROUP, value.var="ColCount",fill=0)
-  data.cols<-names(ca[7:dim(ca)[2]]) #define your data coloumns
+  data.cols<-names(ca[6:dim(ca)[2]]) #define your data coloumns
   field.cols<-c("SITE", "SITEVISITID", "TRANSECT","Fragment") #define field columns
   
   #change colony counts for fragments to 0 so that we account for the transects that only had fragments
@@ -343,16 +344,14 @@ Calc_ColDen_Transect<-function(data, grouping_field="GENUS_CODE"){
   taxalist2<-c(taxalist,"SSSS")
   ca<-ca[ca$GROUP %in% taxalist2,]
   
-  #Calculate transect area surveyed and colony density
+  #Calculate transect area surveyed and colony density***
   trarea<-Calc_SurveyArea_By_Transect(data)
   out<-merge(trarea,ca, by=c("SITE","SITEVISITID","TRANSECT"),all.x=TRUE)
   out$ColDen<-out$ColCount/out$TRANSECTAREA
   out<-subset(out,select=-c(TRANSECTAREA))#remove transect area column
   colnames(out)[which(colnames(out) == 'GROUP')] <- grouping_field #change group to whatever your grouping field is.
   
-  
-  #Add in proportion occurance- add colomn 0 or 1
-  return(out)
+    return(out)
 }
 
 
@@ -580,6 +579,10 @@ Calc_CONDabun_Transect<-function(data, grouping_field="S_ORDER"){
   return(out2)
 }
 
+#Richness pooled at the strata level- no SE at strata 
+#total island counts of genera
+#strata richness then weight by island or region
+
 #This function calculates hard coral richness at the transect scale by
 Calc_Richness_Transect<-function(data,grouping_field="GENUS_CODE"){
   
@@ -598,8 +601,7 @@ Calc_Richness_Transect<-function(data,grouping_field="GENUS_CODE"){
            summarise,
            Richness=sum(Richness)) #change to count
   
-  #Add in proportion occurance- add colomn 0 or 1
-  return(a)
+  return(b)
 }
 
 
@@ -612,7 +614,7 @@ Calc_Richness_Transect<-function(data,grouping_field="GENUS_CODE"){
 #Note: for whatever reason, the grouping, other and metric fields need to be in this order. If you don't want to include an other field then add "DUMMY" as the second variable when you are running this function.
 #e.g. st<-Calc_Strata(data.mon,"GENUS_CODE","DUMMY","ColDen")
 
-Calc_Strata=function(site_data,grouping_field,metric_field,M_hi=250){
+Calc_Strata=function(site_data,grouping_field,metric_field,pres.abs_field="Adpres.abs",M_hi=250){
   
   #Build in flexibility to look at genus or taxon level
   site_data$GROUP<-site_data[,grouping_field]
@@ -621,9 +623,11 @@ Calc_Strata=function(site_data,grouping_field,metric_field,M_hi=250){
   site_data$METRIC<-site_data[,metric_field]
   site_data$METRIC<-as.numeric(site_data$METRIC)
   
+  site_data$PRES.ABS<-site_data[,pres.abs_field]
+  
   #For a Given ANALYSIS_SCHEMA, we need to pool N_h, and generate w_h
   Strata_NH<-ddply(subset(site_data,GROUP=="SSSS"),.(REGION,ISLAND,ANALYSIS_YEAR,DOMAIN_SCHEMA,ANALYSIS_SCHEMA),summarize,N_h=median(NH,na.rm=TRUE)) #calculate # of possible sites in a given stratum
-  Dom_NH<-ddply(Strata_NH,.(REGION,ISLAND,ANALYSIS_YEAR,DOMAIN_SCHEMA),summarize,Dom_N_h=sum(N_h,na.rm=TRUE))#calculate # of possible sites in a given domain
+  Dom_NH<-ddply(Strata_NH,.(REGION,ISLAND,ANALYSIS_YEAR,DOMAIN_SCHEMA),summarize,Dom_N_h=sum(N_h,na.rm=TRUE))#calculate # of possible sites in a given domain, use this to calculate weighting factor
   Strata_NH$Dom_N_h<-Dom_NH$Dom_N_h[match(Strata_NH$DOMAIN_SCHEMA,Dom_NH$DOMAIN_SCHEMA)]# add Dom_N_h to schema dataframe
   Strata_NH$w_h<-Strata_NH$N_h/Strata_NH$Dom_N_h # add schema weighting factor to schema dataframe
   
@@ -639,25 +643,29 @@ Calc_Strata=function(site_data,grouping_field,metric_field,M_hi=250){
                     D._h=mean(METRIC,na.rm=T), # Mean of Site-Level metric in a Stratum
                     S1_h=var(METRIC,na.rm=T), #sample variance in metric between sites
                     varD._h=(1-(n_h/N_h))*S1_h/n_h, #Strata level  variance of mean density
-                    Y._h=D._h*N_h*250, #total colony abundance in stratum (Mhi=250) 
-                    varY._h=varD._h*N_h^2, #variance in total abundance 
+                    nmtot=(N_h*250), #total possible area
+                    th=10, #minimum sampling unit
+                    Y._h=D._h*nmtot*th,#total colony abundance in stratum **corrected using diones code
+                    varY._h=((nmtot^2)*varD._h*(th^2)), #variance in total abundance- corrected using diones code
                     SE_D._h=sqrt(varD._h),
-                    CV_D._h=SE_D._h/D._h,
+                    CV_D._h=(SE_D._h/D._h)*100,
                     SE_Y._h=sqrt(varY._h),
-                    CV_Y._h=SE_Y._h/Y._h,
-                    prop.occur=sum(Adpres.abs)/n_h,
-                    Juvprop.occur=sum(Juvpres.abs)/n_h)
+                    CV_Y._h=(SE_Y._h/Y._h)*100,
+                    avp=sum(PRES.ABS)/n_h,
+                    var_prop=(n_h/(n_h-1)*avp*(1-avp)),
+                    SEprop=sqrt(var_prop))
   
   Strata_roll$M_hi=250 #define total possible transects in a site
   Strata_roll=Strata_roll[,c("REGION","ISLAND","ANALYSIS_YEAR","DOMAIN_SCHEMA","ANALYSIS_SCHEMA","GROUP",
                              "M_hi","n_h","N_h","w_h",
                              "D._h","S1_h","varD._h","SE_D._h","CV_D._h",
-                             "Y._h","varY._h","SE_Y._h","CV_Y._h","Adprop.occur","Juvprop.occur")]
+                             "Y._h","varY._h","SE_Y._h","CV_Y._h","avp","var_prop","SEprop")]
   
   #remove strata that have only 1 site because you can't calculate variance
   Strata_roll<-Strata_roll[Strata_roll$n_h>1,]
   
   colnames(Strata_roll)[which(colnames(Strata_roll) == 'GROUP')] <- grouping_field #change group to whatever your grouping field is.
+  colnames(Strata_roll)[which(colnames(Strata_roll) == 'prop.occur')] <- pres.abs_field #change group to whatever your grouping field is.
   
   
   return(Strata_roll)
@@ -667,18 +675,19 @@ Calc_Strata=function(site_data,grouping_field,metric_field,M_hi=250){
 #DOMAIN ROLL UP FUNCTION-This function calculates mean, var, SE and CV at the DOMAIN level. I've built in flexilbity to use either genus or taxoncode as well as other metrics (size class, morph)
 # You can input any metric you would like (eg. adult density, mean % old dead,etc). Note that for any metric that does not involve density of colonies, 
 # Y._h (total colony abundance in stratum),varY._h (variance in total abundance), SE_Y._h and CV_Y._h are meaningless-DO NOT USE
-Calc_Domain=function(site_data,grouping_field="S_ORDER",metric_field){
+Calc_Domain=function(site_data,grouping_field="S_ORDER",metric_field,pres.abs_field="Adpres.abs"){
   
-  Strata_data=Calc_Strata(site_data,grouping_field,metric_field)
+  Strata_data=Calc_Strata(site_data,grouping_field,metric_field,pres.abs_field)
   
   #Build in flexibility to look at genus or taxon level
   Strata_data$GROUP<-Strata_data[,grouping_field]
+
   
-  DomainStr_NH=ddply(subset(Strata_data,GROUP=="SSSS"),.(REGION,ISLAND,ANALYSIS_YEAR,DOMAIN_SCHEMA),summarize,N_h=sum(N_h,na.rm=TRUE)) #total possible sites in a domain
+  DomainStr_NH=ddply(subset(Strata_data,GROUP=="SSSS"),.(ANALYSIS_YEAR,DOMAIN_SCHEMA),summarize,N_h=sum(N_h,na.rm=TRUE)) #total possible sites in a domain
   Strata_data$DomainSumN_h=DomainStr_NH$N_h[match(Strata_data$DOMAIN_SCHEMA,DomainStr_NH$DOMAIN_SCHEMA)] # add previous to strata data
   Strata_data$w_h=Strata_data$N_h/Strata_data$DomainSumN_h
   
-  Domain_roll=ddply(Strata_data,.(REGION,ISLAND,ANALYSIS_YEAR,DOMAIN_SCHEMA,GROUP),summarize,
+  Domain_roll=ddply(Strata_data,.(ANALYSIS_YEAR,DOMAIN_SCHEMA,GROUP),summarize,
                     D._st=sum(w_h*D._h,na.rm=TRUE), #Domain weighted estimate (sum of Weighted strata density)
                     varD._st=sum(w_h^2*varD._h,na.rm=TRUE), #Domain weighted variance estimate
                     Y._st=sum(Y._h,na.rm=TRUE), #Domain total abundance (sum of extrapolated strata abundance)
@@ -686,15 +695,18 @@ Calc_Domain=function(site_data,grouping_field="S_ORDER",metric_field){
                     n=sum(n_h,na.rm=TRUE), #total sites surveyed in domain
                     Ntot=sum(N_h,na.rm=TRUE), #total possible sites in domain
                     SE_D._st=sqrt(varD._st), #SE of domain metric estimate
-                    CV_D._st=SE_D._st/D._st, #CV of domain metric estimate
+                    CV_D._st=(SE_D._st/D._st)*100, #CV of domain metric estimate
                     SE_Y._st=sqrt(varY._st),#SE of domain abundance estimate
-                    CV_Y._st=SE_Y._st/Y._st)#CV of domain abundnace estimate
+                    CV_Y._st=(SE_Y._st/Y._st)*100,#CV of domain abundnace estimate
+                    po._st=sum(w_h*avp,na.rm=TRUE), #Domain weighted estimate 
+                    varpo._st=sum(w_h^2*var_prop,na.rm=TRUE), #Domain weighted variance estimate
+                    SE_po._st=sqrt(varpo._st), #SE of domain metric estimate
+                    CV_po._st=SE_po._st/po._st) #CV of domain metric estimate
                     
-  #Add Weighted proportion occurance, se and cv)
-  
-  Domain_roll=Domain_roll[,c("REGION","ISLAND","ANALYSIS_YEAR","DOMAIN_SCHEMA","GROUP",
-                             "n","Ntot","D._st","SE_D._st")]
-  
+#need to double check calculations with Dione
+  # Domain_roll=Domain_roll[,c("REGION","ISLAND","ANALYSIS_YEAR","DOMAIN_SCHEMA","GROUP",
+  #                            "n","Ntot","D._st","SE_D._st")]
+  # 
   colnames(Domain_roll)[which(colnames(Domain_roll) == 'D._st')] <- paste0("Mean","_",metric_field) 
   colnames(Domain_roll)[which(colnames(Domain_roll) == 'SE_D._st')] <- paste0("SE","_",metric_field) 
   colnames(Domain_roll)[which(colnames(Domain_roll) == 'GROUP')] <- grouping_field #change group to whatever your grouping field is.
@@ -799,7 +811,7 @@ Calc_Strata_Prevalence=function(site_data,grouping_field,metric_field){
   site_data$N_h.as<-Strata_NH$N_h[match(site_data$ANALYSIS_SCHEMA,Strata_NH$ANALYSIS_SCHEMA)]
   site_data$w_h.as<-Strata_NH$w_h[match(site_data$ANALYSIS_SCHEMA,Strata_NH$ANALYSIS_SCHEMA)]
   
-  #site_data$Mhi<-250 - Still having issues using Mhi as a variable in dataframe
+
   #Calculate summary metrics at the stratum level (rolled up from site level)
   Strata_roll=ddply(site_data,.(REGION,ISLAND,ANALYSIS_YEAR,DOMAIN_SCHEMA,ANALYSIS_SCHEMA,GROUP),summarize,
                     n_h=length(SITE),# No. of Sites surveyed in a Strata
@@ -808,14 +820,16 @@ Calc_Strata_Prevalence=function(site_data,grouping_field,metric_field){
                     C_h=mean(METRIC,na.rm=T), # Mean density colonies with specific condition in a Stratum
                     S1C_h=var(METRIC,na.rm=T), #sample variance in condition density between sites
                     varC_h=(1-(n_h/N_h))*S1C_h/n_h, #Strata level  variance of mean condition density
-                    C_abun_h=C_h*N_h*250, # abundance of colonies with a condition in stratum 
-                    varC_abun_h=varC_h*N_h^2, #variance in total abundance of condition
+                    nmtot=(N_h*250), #total possible area
+                    th=10, #minimum sampling unit
+                    C_abun_h=C_h*nmtot*th, # abundance of colonies with a condition in stratum 
+                    varC_abun_h=((nmtot^2)*varC_h*(th^2)), #variance in total abundance of condition
                     SE_C_abun_h=sqrt(varC_abun_h),#SE of total abundance of condition
                     acd_h=mean(AdColDen,na.rm=T), # Mean of Site-Level all colonies in a Stratum
-                    acd_abun_h=acd_h*N_h*250, #strata-level abundnace of all colonies
+                    acd_abun_h=acd_h*nmtot*th, #strata-level abundnace of all colonies
                     prev=(C_abun_h/acd_abun_h)*100, # prevalence of condition at stratum level
                     SEprev=(SE_C_abun_h/acd_abun_h)*100,#SE of condition at stratum level 
-                    CVprev=SEprev/prev) #CV of prevalence
+                    CVprev=(SEprev/prev)*100) #CV of prevalence
   
   Strata_roll$M_hi=250 #define total possible transects in a site
   Strata_roll=Strata_roll[,c("REGION","ISLAND","ANALYSIS_YEAR","DOMAIN_SCHEMA","ANALYSIS_SCHEMA","GROUP",
