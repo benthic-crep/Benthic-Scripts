@@ -605,6 +605,88 @@ Calc_Richness_Transect<-function(data,grouping_field="GENUS_CODE"){
 }
 
 
+#Revising Benthic REA (demography) Sector and Strata pooling
+PoolSecStrat=function(site_data){
+  
+  #Create STRATANAME by idenityfing which ANALAYSIS SCHEME you want to use then concatinating with depth and reef zone that will be used to pool data
+  site_data$BEN_SEC<-site_data$SEC_NAME
+  
+  #Changing sector pooling SAMOA
+  site_data$BEN_SEC<-ifelse(site_data$OBS_YEAR=="2018"& site_data$ISLAND =="Tutuila","TUT",as.character(site_data$BEN_SEC))
+  site_data$BEN_SEC<-ifelse(site_data$OBS_YEAR=="2018"&site_data$BEN_SEC %in% c("TAU_OPEN","TAU_SANCTUARY"),"TAU",as.character(site_data$BEN_SEC))
+  site_data$BEN_SEC<-ifelse(site_data$OBS_YEAR=="2018"&site_data$BEN_SEC %in% c("SWA_OPEN","SWA_SANCTUARY"),"SWA",as.character(site_data$BEN_SEC))
+  site_data$BEN_SEC<-ifelse(site_data$OBS_YEAR=="2015"&site_data$BEN_SEC %in% c("TAU_OPEN","TAU_SANCTUARY"),"TAU",as.character(site_data$BEN_SEC))
+  site_data$BEN_SEC<-ifelse(site_data$OBS_YEAR=="2015"&site_data$BEN_SEC %in% c("TUT_NE","TUT_AUNUU_A"),"TUT_NE",as.character(site_data$BEN_SEC))
+  site_data$BEN_SEC<-ifelse(site_data$OBS_YEAR=="2015"&site_data$BEN_SEC %in% c("TUT_SW","TUT_FAGALUA"),"TUT_SW",as.character(site_data$BEN_SEC))
+  
+  #Changing sector pooling PRIA
+  site_data <- site_data[!(site_data$OBS_YEAR == "2018" & site_data$ISLAND=="Kingman" & site_data$REEF_ZONE=="Backreef"),] 
+  
+  
+  #Changing sector pooling structure for GUAM & CNMI
+  site_data <- site_data[!(site_data$ISLAND=="Maug" & site_data$REEF_ZONE=="Lagoon"),] 
+  site_data$BEN_SEC<-ifelse(site_data$SEC_NAME %in% c("GUA_ACHANG","GUA_EAST_OPEN","GUA_PATI_POINT"),"GUAEAALL",as.character(site_data$BEN_SEC))
+  site_data$BEN_SEC<-ifelse(site_data$SEC_NAME %in% c("GUA_HARBOR","GUA_WEST_OPEN","GUA_PITI_BOMB","GUA_SASA_BAY","GUA_TUMON"),"GUAWEALL",as.character(site_data$BEN_SEC))
+  site_data$BEN_SEC<-ifelse(site_data$SEC_NAME %in% c("Guguan", "Alamagan", "Sarigan"),"AGS",as.character(site_data$BEN_SEC))
+  site_data$ISLAND<-ifelse(site_data$SEC_NAME %in% c("Guguan", "Alamagan", "Sarigan"),"AGS",as.character(site_data$ISLAND))
+  
+  #Changing sector pooling structure for MHI- did not combine other islands and structure together because they did not have more than 1 sector (e.g. HAW_KONA_CR is the only coral rich sector on hawaii island)
+  site_data$BEN_SEC<-ifelse(site_data$ISLANDCODE =="HAW"& site_data$bGEN_MHI_STRUCTURE=="CM","HAW_CM",as.character(site_data$BEN_SEC))
+  site_data$BEN_SEC<-ifelse(site_data$ISLANDCODE =="MAI"& site_data$bGEN_MHI_STRUCTURE=="CM","MAI_CM",as.character(site_data$BEN_SEC))
+  site_data$BEN_SEC<-ifelse(site_data$ISLANDCODE =="MAI"& site_data$bGEN_MHI_STRUCTURE=="SI","MAI_SI",as.character(site_data$BEN_SEC))
+  site_data$BEN_SEC<-ifelse(site_data$ISLANDCODE =="MOL"& site_data$bGEN_MHI_STRUCTURE=="SI","MOL_SI",as.character(site_data$BEN_SEC))
+  site_data$BEN_SEC<-ifelse(site_data$ISLANDCODE =="NII"& site_data$bGEN_MHI_STRUCTURE=="SI","NII_SI",as.character(site_data$BEN_SEC))
+  
+  
+  #Specific Changes to depth bin and reef zone
+  site_data <- site_data[!(site_data$ISLAND=="Johnston" & site_data$REEF_ZONE=="Lagoon"),] 
+  site_data$REEF_ZONE<-ifelse(site_data$REEF_ZONE %in% c("Protected Slope","Forereef"),"Forereef",as.character(site_data$REEF_ZONE))
+  site_data$DEPTH_BIN<-ifelse(site_data$ISLAND =="Kingman" & site_data$REEF_ZONE=="Lagoon","ALL",as.character(site_data$DEPTH_BIN))
+  site_data$DEPTH_BIN<-ifelse(site_data$OBS_YEAR=="2015" & site_data$ISLAND =="Rose" & site_data$REEF_ZONE=="Backreef","ALL",as.character(site_data$DEPTH_BIN))
+  
+  #Create Strataname
+  site_data$DB_RZ<-paste(substring(site_data$REEF_ZONE,1,1), substring(site_data$DEPTH_BIN,1,1), sep="")
+  site_data$STRATANAME=paste0(site_data$BEN_SEC,"_",site_data$DB_RZ)
+  
+  #Changing STRATA pooling structure for SAMOA
+  site_data$STRATANAME<-ifelse(site_data$OBS_YEAR=="2015"&site_data$STRATANAME %in% c("TUT_AUNUU_B_FM","TUT_AUNUU_B_FS"),"TUT_AUNUU_B_FMS",as.character(site_data$STRATANAME))
+  site_data$STRATANAME<-ifelse(site_data$OBS_YEAR=="2015"&site_data$BEN_SEC=="ROS_SANCTUARY"&site_data$DB_RZ %in% c("FM","FD"), "ROS_FMD",as.character(site_data$STRATANAME))
+  
+  #Changing STRATA pooling structure for PRIA
+  site_data$STRATANAME<-ifelse(site_data$BEN_SEC=="Johnston"&site_data$DB_RZ %in% c("BM","BD"), "Johnston_BMD",as.character(site_data$STRATANAME))
+  site_data$STRATANAME<-ifelse(site_data$BEN_SEC=="Johnston"&site_data$DB_RZ %in% c("FM","FS"), "Johnston_FMS",as.character(site_data$STRATANAME))
+  site_data$STRATANAME<-ifelse(site_data$BEN_SEC=="Johnston"&site_data$REEF_ZONE =="Lagoon", "Johnston_LA",as.character(site_data$STRATANAME))
+  
+  #Changing STRATA pooling structure for Guam and CNMI
+  site_data$STRATANAME<-ifelse(site_data$OBS_YEAR=="2014"&site_data$STRATANAME %in% c("Aguijan_FD","Aguijan_FM"),"Aguijan_FMD",as.character(site_data$STRATANAME))
+  
+  #Changing STRATA pooling structure for MHI
+  site_data$STRATANAME<-ifelse(site_data$STRATANAME %in% c("LAN_NORTH_FD","LAN_NORTH_FM"),"LAN_NORTH_FMD",as.character(site_data$STRATANAME))
+  site_data$STRATANAME<-ifelse(site_data$OBS_YEAR=="2016"& site_data$BEN_SEC=="NII_SI"&site_data$DB_RZ %in% c("FM","FD"), "NII_SI_FMD",as.character(site_data$STRATANAME))
+  site_data$STRATANAME<-ifelse(site_data$OBS_YEAR=="2016"& site_data$BEN_SEC=="OAH_NE"&site_data$DB_RZ %in% c("FM","FD"), "OAH_NE_FMD",as.character(site_data$STRATANAME))
+  site_data$STRATANAME<-ifelse(site_data$BEN_SEC=="KAH_SO"&site_data$DB_RZ %in% c("FM","FD"), "KAH_SO_FMD",as.character(site_data$STRATANAME))
+  site_data$STRATANAME<-ifelse(site_data$OBS_YEAR=="2013"&site_data$BEN_SEC=="MAI_CM"&site_data$DB_RZ %in% c("FM","FD"), "MAI_CM_FMD",as.character(site_data$STRATANAME))
+  
+  site_data$STRATANAME<-ifelse(site_data$BEN_SEC=="MAI_SI", "MAI_SI_A",as.character(site_data$STRATANAME))
+  site_data$STRATANAME<-ifelse(site_data$OBS_YEAR=="2016"&site_data$BEN_SEC=="MOL_PALI", "MOL_PALI_A",as.character(site_data$STRATANAME))
+  site_data$STRATANAME<-ifelse(site_data$OBS_YEAR=="2016"&site_data$BEN_SEC=="MOL_SOUTH", "MOL_SOUTH_ALL",as.character(site_data$STRATANAME))
+  site_data$STRATANAME<-ifelse(site_data$OBS_YEAR=="2016"&site_data$BEN_SEC=="MOL_SI"&site_data$DB_RZ %in% c("FM","FD"), "MOL_SI_FMD",as.character(site_data$STRATANAME))
+  
+  #Changing STRATA pooling structure for NWHI
+  site_data$STRATANAME<-ifelse(site_data$OBS_YEAR %in% c("2014","2015")& site_data$BEN_SEC=="Laysan"&site_data$DB_RZ %in% c("FM","FS"), "Laysan_FMS",as.character(site_data$STRATANAME))
+  site_data$STRATANAME<-ifelse(site_data$OBS_YEAR %in% c("2014","2015")& site_data$BEN_SEC=="Maro"&site_data$DB_RZ %in% c("FM","FD"), "Maro_FMD",as.character(site_data$STRATANAME))
+  site_data$STRATANAME<-ifelse(site_data$OBS_YEAR %in% c("2014","2015")& site_data$BEN_SEC=="Pearl & Hermes"&site_data$DB_RZ %in% c("FM","FS"), "Pearl & Hermes_FMS",as.character(site_data$STRATANAME))
+  
+  
+  #Modify Analysis Year############CORRECT THIS IN THE FUTURE TO MAKE IT MORE STREAMLINE!!!!!!!!!!!!!!!!!
+  site_data$ANALYSIS_YEAR<-site_data$OBS_YEAR
+  site_data$OBS_YEAR<-ifelse(site_data$OBS_YEAR %in% c("2014","2015")& site_data$REGION=="NWHI", "2014-15",as.character(site_data$OBS_YEAR))
+  
+  return(site_data)
+}
+
+
+
 
 ## POOLING FUNCTIONS TO GENERATE ESTIMATES #######
 
@@ -626,7 +708,8 @@ Calc_Strata=function(site_data,grouping_field,metric_field,pres.abs_field="Adpre
   site_data$PRES.ABS<-site_data[,pres.abs_field]
   
   #For a Given ANALYSIS_SCHEMA, we need to pool N_h, and generate w_h
-  Strata_NH<-ddply(subset(site_data,GROUP=="SSSS"),.(REGION,ISLAND,ANALYSIS_YEAR,DOMAIN_SCHEMA,ANALYSIS_SCHEMA),summarize,N_h=median(NH,na.rm=TRUE)) #calculate # of possible sites in a given stratum
+  strat.temp<-ddply(subset(site_data,GROUP=="SSSS"),.(REGION,ISLAND,ANALYSIS_YEAR,DOMAIN_SCHEMA,ANALYSIS_SCHEMA,NH),summarize,temp=sum(NH,na.rm=TRUE)) #calculate # of possible sites in a given stratum
+  Strata_NH<-ddply(strat.temp,.(REGION,ISLAND,ANALYSIS_YEAR,DOMAIN_SCHEMA,ANALYSIS_SCHEMA),summarize,N_h=sum(NH,na.rm=TRUE)) #calculate # of possible sites in a given stratum
   Dom_NH<-ddply(Strata_NH,.(REGION,ISLAND,ANALYSIS_YEAR,DOMAIN_SCHEMA),summarize,Dom_N_h=sum(N_h,na.rm=TRUE))#calculate # of possible sites in a given domain, use this to calculate weighting factor
   Strata_NH$Dom_N_h<-Dom_NH$Dom_N_h[match(Strata_NH$DOMAIN_SCHEMA,Dom_NH$DOMAIN_SCHEMA)]# add Dom_N_h to schema dataframe
   Strata_NH$w_h<-Strata_NH$N_h/Strata_NH$Dom_N_h # add schema weighting factor to schema dataframe
@@ -671,6 +754,67 @@ Calc_Strata=function(site_data,grouping_field,metric_field,pres.abs_field="Adpre
   return(Strata_roll)
 }
 
+#This function is very similar to Calc_Strata, but calculates the Domain NH by adding up all possible strata in a domain rather than just the ones that were sampled to calculate 
+#total domain area and strata weights
+Calc_Analysis_Strata=function(site_data,sec,grouping_field,metric_field,pres.abs_field="Adpres.abs",M_hi=250){
+  
+  #Build in flexibility to look at genus or taxon level
+  site_data$GROUP<-site_data[,grouping_field]
+  
+  #Build in flexibility to summarized different metrics
+  site_data$METRIC<-site_data[,metric_field]
+  site_data$METRIC<-as.numeric(site_data$METRIC)
+  
+  site_data$PRES.ABS<-site_data[,pres.abs_field]
+  
+  #For a Given ANALYSIS_SCHEMA, we need to pool N_h, and generate w_h
+  strat.temp<-ddply(subset(site_data,GROUP=="SSSS"),.(REGION,ISLAND,ANALYSIS_YEAR,DOMAIN_SCHEMA,ANALYSIS_SCHEMA,NH),summarize,temp=sum(NH,na.rm=TRUE)) #calculate # of possible sites in a given stratum
+  Strata_NH<-ddply(strat.temp,.(REGION,ISLAND,ANALYSIS_YEAR,DOMAIN_SCHEMA,ANALYSIS_SCHEMA),summarize,N_h=sum(NH,na.rm=TRUE)) #calculate # of possible sites in a given stratum
+  Dom_NH<-ddply(sec,.(DOMAIN_SCHEMA),summarize,Dom_N_h=sum(NH,na.rm=TRUE))#calculate # of possible sites in a given domain (entire domain even if you didn't sample some of the strata), use this to calculate weighting factor
+  Strata_NH$Dom_N_h<-Dom_NH$Dom_N_h[match(Strata_NH$DOMAIN_SCHEMA,Dom_NH$DOMAIN_SCHEMA)]# add Dom_N_h to schema dataframe
+  Strata_NH$w_h<-Strata_NH$N_h/Strata_NH$Dom_N_h # add schema weighting factor to schema dataframe
+  
+  #Now add back the Analysis_Schema Nh and wh to site_data
+  site_data$N_h.as<-Strata_NH$N_h[match(site_data$ANALYSIS_SCHEMA,Strata_NH$ANALYSIS_SCHEMA)]
+  site_data$w_h.as<-Strata_NH$w_h[match(site_data$ANALYSIS_SCHEMA,Strata_NH$ANALYSIS_SCHEMA)]
+  site_data$Dom_N_h<-Strata_NH$Dom_N_h[match(site_data$ANALYSIS_SCHEMA,Strata_NH$ANALYSIS_SCHEMA)]
+  
+  #Calculate summary metrics at the stratum level (rolled up from site level)
+  Strata_roll=ddply(site_data,.(REGION,ISLAND,ANALYSIS_YEAR,DOMAIN_SCHEMA,ANALYSIS_SCHEMA,GROUP,Dom_N_h),summarize,
+                    n_h=length(SITE),# No. of Sites surveyed in a Strata
+                    N_h=median(N_h.as,na.rm=T),# Strata Area (as N 50x50 grids) - median allows you to pick 1 value
+                    w_h=median(w_h.as,na.rm=T),# weigting factor for a given stratum- median allows you to pick 1 value
+                    D._h=mean(METRIC,na.rm=T), # Mean of Site-Level metric in a Stratum
+                    S1_h=var(METRIC,na.rm=T), #sample variance in metric between sites
+                    varD._h=(1-(n_h/N_h))*S1_h/n_h, #Strata level  variance of mean density
+                    nmtot=(N_h*250), #total possible area
+                    th=10, #minimum sampling unit
+                    Y._h=D._h*nmtot*th,#total colony abundance in stratum **corrected using diones code
+                    varY._h=((nmtot^2)*varD._h*(th^2)), #variance in total abundance- corrected using diones code
+                    SE_D._h=sqrt(varD._h),
+                    CV_D._h=(SE_D._h/D._h)*100,
+                    SE_Y._h=sqrt(varY._h),
+                    CV_Y._h=(SE_Y._h/Y._h)*100,
+                    avp=sum(PRES.ABS)/n_h,
+                    var_prop=(n_h/(n_h-1)*avp*(1-avp)),
+                    SEprop=sqrt(var_prop))
+  
+  Strata_roll$M_hi=250 #define total possible transects in a site
+  Strata_roll=Strata_roll[,c("REGION","ISLAND","ANALYSIS_YEAR","DOMAIN_SCHEMA","ANALYSIS_SCHEMA","GROUP","Dom_N_h",
+                             "M_hi","n_h","N_h","w_h",
+                             "D._h","S1_h","varD._h","SE_D._h","CV_D._h",
+                             "Y._h","varY._h","SE_Y._h","CV_Y._h","avp","var_prop","SEprop")]
+  
+  #remove strata that have only 1 site because you can't calculate variance
+  Strata_roll<-Strata_roll[Strata_roll$n_h>1,]
+  
+  colnames(Strata_roll)[which(colnames(Strata_roll) == 'GROUP')] <- grouping_field #change group to whatever your grouping field is.
+  colnames(Strata_roll)[which(colnames(Strata_roll) == 'prop.occur')] <- pres.abs_field #change group to whatever your grouping field is.
+  
+  
+  return(Strata_roll)
+}
+
 
 #DOMAIN ROLL UP FUNCTION-This function calculates mean, var, SE and CV at the DOMAIN level. I've built in flexilbity to use either genus or taxoncode as well as other metrics (size class, morph)
 # You can input any metric you would like (eg. adult density, mean % old dead,etc). Note that for any metric that does not involve density of colonies, 
@@ -682,9 +826,8 @@ Calc_Domain=function(site_data,grouping_field="S_ORDER",metric_field,pres.abs_fi
   #Build in flexibility to look at genus or taxon level
   Strata_data$GROUP<-Strata_data[,grouping_field]
 
-  
-  DomainStr_NH=ddply(subset(Strata_data,GROUP=="SSSS"),.(ANALYSIS_YEAR,DOMAIN_SCHEMA),summarize,N_h=sum(N_h,na.rm=TRUE)) #total possible sites in a domain
-  Strata_data$DomainSumN_h=DomainStr_NH$N_h[match(Strata_data$DOMAIN_SCHEMA,DomainStr_NH$DOMAIN_SCHEMA)] # add previous to strata data
+  DomainStr_NH=ddply(subset(Strata_data,GROUP=="SSSS"),.(ANALYSIS_YEAR,DOMAIN_SCHEMA),summarize,DomainSumN_h=sum(N_h,na.rm=TRUE)) #total possible sites in a domain
+  Strata_data<-merge(Strata_data, DomainStr_NH,by=c("ANALYSIS_YEAR","DOMAIN_SCHEMA"))# add previous to strata data
   Strata_data$w_h=Strata_data$N_h/Strata_data$DomainSumN_h
   
   Domain_roll=ddply(Strata_data,.(ANALYSIS_YEAR,DOMAIN_SCHEMA,GROUP),summarize,
@@ -715,6 +858,42 @@ Calc_Domain=function(site_data,grouping_field="S_ORDER",metric_field,pres.abs_fi
   return(Domain_roll)
 }
 
+Calc_Analysis_Domain=function(site_data,sec,grouping_field="S_ORDER",metric_field,pres.abs_field="Adpres.abs"){
+  
+  Strata_data=Calc_Analysis_Strata(site_data,sec,grouping_field,metric_field,pres.abs_field)
+  
+  #Build in flexibility to look at genus or taxon level
+  Strata_data$GROUP<-Strata_data[,grouping_field]
+  
+  Domain_roll=ddply(Strata_data,.(ANALYSIS_YEAR,DOMAIN_SCHEMA,GROUP),summarize,
+                    D._st=sum(w_h*D._h,na.rm=TRUE), #Domain weighted estimate (sum of Weighted strata density)
+                    varD._st=sum(w_h^2*varD._h,na.rm=TRUE), #Domain weighted variance estimate
+                    Y._st=sum(Y._h,na.rm=TRUE), #Domain total abundance (sum of extrapolated strata abundance)
+                    varY._st=sum(varY._h,na.rm=TRUE),#Domain variance total abundance (sum of extrapolated strata varaiance abundance)
+                    n=sum(n_h,na.rm=TRUE), #total sites surveyed in domain
+                    Ntot=median(Dom_N_h),
+                    SE_D._st=sqrt(varD._st), #SE of domain metric estimate
+                    CV_D._st=(SE_D._st/D._st)*100, #CV of domain metric estimate
+                    SE_Y._st=sqrt(varY._st),#SE of domain abundance estimate
+                    CV_Y._st=(SE_Y._st/Y._st)*100,#CV of domain abundnace estimate
+                    po._st=sum(w_h*avp,na.rm=TRUE), #Domain weighted estimate 
+                    varpo._st=sum(w_h^2*var_prop,na.rm=TRUE), #Domain weighted variance estimate
+                    SE_po._st=sqrt(varpo._st), #SE of domain metric estimate
+                    CV_po._st=SE_po._st/po._st) #CV of domain metric estimate
+  
+  #need to double check calculations with Dione
+  # Domain_roll=Domain_roll[,c("REGION","ISLAND","ANALYSIS_YEAR","DOMAIN_SCHEMA","GROUP",
+  #                            "n","Ntot","D._st","SE_D._st")]
+  # 
+  colnames(Domain_roll)[which(colnames(Domain_roll) == 'D._st')] <- paste0("Mean","_",metric_field) 
+  colnames(Domain_roll)[which(colnames(Domain_roll) == 'SE_D._st')] <- paste0("SE","_",metric_field) 
+  colnames(Domain_roll)[which(colnames(Domain_roll) == 'GROUP')] <- grouping_field #change group to whatever your grouping field is.
+  
+  
+  return(Domain_roll)
+}
+
+
 ###POOLING FUNCTIONS FOR COVER and Richness DATA----
 #need to eventually modify this code to summarize tier 2 and 3 data
 Calc_Strata_Cover_Rich=function(site_data,metric_field=c("CORAL","CCA","MA","TURF","Richness"),M_hi=250){
@@ -724,7 +903,8 @@ Calc_Strata_Cover_Rich=function(site_data,metric_field=c("CORAL","CCA","MA","TUR
   site_data$METRIC<-as.numeric(site_data$METRIC)
   
   #For a Given ANALYSIS_SCHEMA, we need to pool N_h, and generate w_h
-  Strata_NH<-ddply(site_data,.(REGION,ISLAND,ANALYSIS_YEAR,DOMAIN_SCHEMA,ANALYSIS_SCHEMA),summarize,N_h=median(NH,na.rm=TRUE)) #calculate # of possible sites in a given stratum
+  strat.temp<-ddply(site_data,.(REGION,ISLAND,ANALYSIS_YEAR,DOMAIN_SCHEMA,ANALYSIS_SCHEMA,NH),summarize,temp=sum(NH,na.rm=TRUE)) #calculate # of possible sites in a given stratum
+  Strata_NH<-ddply(strat.temp,.(REGION,ISLAND,ANALYSIS_YEAR,DOMAIN_SCHEMA,ANALYSIS_SCHEMA),summarize,N_h=sum(NH,na.rm=TRUE)) #calculate # of possible sites in a given stratum
   Dom_NH<-ddply(Strata_NH,.(REGION,ISLAND,ANALYSIS_YEAR,DOMAIN_SCHEMA),summarize,Dom_N_h=sum(N_h,na.rm=TRUE))#calculate # of possible sites in a given domain
   Strata_NH$Dom_N_h<-Dom_NH$Dom_N_h[match(Strata_NH$DOMAIN_SCHEMA,Dom_NH$DOMAIN_SCHEMA)]# add Dom_N_h to schema dataframe
   Strata_NH$w_h<-Strata_NH$N_h/Strata_NH$Dom_N_h # add schema weighting factor to schema dataframe
@@ -760,8 +940,8 @@ Calc_Domain_Cover_Rich=function(site_data,metric_field=c("CORAL","CCA","MA","TUR
   
   Strata_data=Calc_Strata_Cover_Rich(site_data,metric_field)
   
-  DomainStr_NH=ddply(Strata_data,.(REGION,ISLAND,ANALYSIS_YEAR,DOMAIN_SCHEMA),summarize,N_h=sum(N_h,na.rm=TRUE)) #total possible sites in a domain
-  Strata_data$DomainSumN_h=DomainStr_NH$N_h[match(Strata_data$DOMAIN_SCHEMA,DomainStr_NH$DOMAIN_SCHEMA)] # add previous to strata data
+  DomainStr_NH=ddply(Strata_data,GROUP=="SSSS",.(ANALYSIS_YEAR,DOMAIN_SCHEMA),summarize,DomainSumN_h=sum(N_h,na.rm=TRUE)) #total possible sites in a domain
+  Strata_data<-merge(Strata_data, DomainStr_NH,by=c("ANALYSIS_YEAR","DOMAIN_SCHEMA"))# add previous to strata data
   Strata_data$w_h=Strata_data$N_h/Strata_data$DomainSumN_h
   
   Domain_roll=ddply(Strata_data,.(REGION,ISLAND,ANALYSIS_YEAR,DOMAIN_SCHEMA),summarize,

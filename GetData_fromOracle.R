@@ -52,3 +52,6 @@ write.csv(lpi,"ESD_BENTHIC_LPI.csv")
 tds<-sqlQuery(ch, paste("SELECT * FROM GISDAT.V0_BENT_TDS")); head(tds)
 write.csv(tds,"ESD_BENTHIC_TDS.csv")
 
+#All site visit data
+sv.all<-sqlQuery(ch, paste("SELECT * FROM GISDAT.V0_SITE_VISIT")); head(sv.all)
+write.csv(sv.all,"V0_SITE_VISIT_ALL.csv")
