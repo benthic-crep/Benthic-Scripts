@@ -123,11 +123,11 @@ test<-subset(x,GENUS_CODE=="AAAA");head(test)
 #x<-merge(x, site_master[,c("SITE", "SEC_NAME", "ANALYSIS_SEC", "ANALYSIS_YEAR", "ANALYSIS_SCHEME")], by="SITE", all.x=TRUE) #Fish team's original code, we may want to create analysis scheme later in the 
 length(unique(x$SITEVISITID)) #double check that sites weren't dropped
 nrow(subset(site_master,METHOD %in% c("CORALBELT_METHOD_E_F","CORALBELT_METHOD_F_PHOTOQUADS")))
-x<-merge(x, site_master[,c("OBS_YEAR","SITEVISITID","SITE","SEC_NAME","ANALYSIS_YEAR")], by=c("OBS_YEAR","SITEVISITID","SITE"),all.x=T)  
+
+x<-merge(x, site_master[,c("METHOD","OBS_YEAR","SITEVISITID","SITE","SEC_NAME","ANALYSIS_YEAR")], by=c("OBS_YEAR","SITEVISITID","SITE"),all.y=T)  
 length(unique(x$SITEVISITID)) #double check that sites weren't dropped
-head(x)
 
-
+write.csv(x,"test.csv")
 #CHECK THAT all SEC_NAME are present in the site_master file
 test<-x[is.na(x$SEC_NAME), c("MISSIONID","REGION", "SITE","OBS_YEAR"),]
 test<-droplevels(test);table(test$SITE,test$MISSIONID) #create a table of missing sites by missionid
@@ -139,8 +139,7 @@ miss.sites<-ddply(test,.(OBS_YEAR,SITEVISITID,SITE,MISSIONID,REGION,REGION_NAME,
                          REEF_ZONE,DEPTH_BIN,DATE_,EXCLUDE_FLAG,HABITAT_CODE),
                   summarize,temp=median(SITEVISITID),SITE_MAX_DEPTH=median(SITE_MAX_DEPTH),SITE_MIN_DEPTH=median(SITE_MIN_DEPTH))
 head(miss.sites,20)
-write.csv(miss.sites,"NWHImissingsites.csv")
-###NWHI 2014 and 2015, and a few Hawaii island 2013 sites are missing from SITE MASTER
+
 
 #If there are missing sectors, generate a table of missing sites, lat, long, reef zone and depth bins. Manually correct Site Master file
 a<-subset(x,is.na(x$SEC_NAME))
