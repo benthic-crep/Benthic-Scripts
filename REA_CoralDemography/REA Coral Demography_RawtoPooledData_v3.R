@@ -227,10 +227,7 @@ x[is.na(x$CONDITION_3),"CONDITION_3"]<-"NONE"
 head(x)
 
 awd<-droplevels(x)
-write.csv(awd,"CoralBelt_E_raw.csv")
-
-SURVEY_INFO<-c("S_ORDER","GENUS_CODE","TAXONCODE","TAXONNAME")
-test<-new_Aggregate_InputTable(awd, SURVEY_INFO)
+#write.csv(awd,"CoralBelt_E_raw.csv")
 
 
 ## CREATE JUVENILE CLEAN ANALYSIS READY DATA ----
@@ -394,7 +391,7 @@ x<-cbind(x,DATE_);head(x)
 head(x)
 
 jwd<-droplevels(x)
-write.csv(jwd,"CoralBelt_F_raw.csv")
+#write.csv(jwd,"CoralBelt_F_raw.csv")
 
 
 #Final Tweaks before calculating Site-level data-------------------------------------------------
@@ -501,9 +498,7 @@ rich.data<-merge(rich.gen,meta,by=c("SITEVISITID","SITE"),all.x=TRUE)
 site.data.gen2$Adpres.abs<-ifelse(site.data.gen2$AdColDen>0,1,0)
 site.data.gen2$Juvpres.abs<-ifelse(site.data.gen2$JuvColDen>0,1,0)
 
-write.csv(site.data.gen2,"BenthicREA_sitedata.csv")
-
-site.data.gen2<-read.csv("BenthicREA_sitedata.csv")
+write.csv(site.data.gen2,"BenthicREA_sitedata_SMtest.csv")
 
 # POOLING DATA from Site to Strata and Domain---------------------------------------------------
 site.data.gen2<-PoolSecStrat(site.data.gen2)
