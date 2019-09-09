@@ -11,7 +11,6 @@ source("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/lib/GIS_functions.
 ## LOAD benthic data
 setwd("C:/Users/Courtney.S.Couch/Documents/GitHub/Benthic-Scripts/SfM")
 x<-read.csv("Oahu_2019pilot_adults.csv")
-#x<-read.csv("V0_CORAL_OBS_E_final.csv")
 
 x$SITE<-SiteNumLeadingZeros(x$SITE) # Change site number such as MAR-22 to MAR-0022
 
@@ -387,3 +386,9 @@ site.data.gen2<-site.data.gen
 
 
 #QC Checks on SfM Data
+x<-read.csv("Oahu_2019pilot_adults.csv")
+
+x$SITE<-SiteNumLeadingZeros(x$SITE) # Change site number such as MAR-22 to MAR-0022
+
+
+

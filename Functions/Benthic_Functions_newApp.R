@@ -101,17 +101,6 @@ Transectarea_old<-function(data,s.df){
   return(data)
 }
 
-##Create a new column that designates certain colonies as fragments.
-CreateFragment<-function(data){
-  data[data=="DAMD"|data=="DAMA"|data=="DAMT"]<-"DAMB" #We consolidated damage categories in 2018 to DAMB- this code changes all damage to DAMB
-  data$Fragment<-ifelse(data$OBS_YEAR <2018 & data$COLONYLENGTH <5 & data$S_ORDER=="Scleractinia",-1,
-                        ifelse(data$OBS_YEAR >=2018 & data$GENRD1=="DAMB" & data$RDEXTENT1==0,-1,
-                               ifelse(data$OBS_YEAR >=2018 & data$GENRD2=="DAMB" & data$RDEXTENT2==0,-1,
-                                      ifelse(data$OBS_YEAR >=2018 & data$GENRD3=="DAMB" & data$RDEXTENT3==0,-1,
-                                             0))))
-  return(data)
-}
-
 
 
 
@@ -348,7 +337,6 @@ Calc_ColDen_Transect<-function(data, grouping_field="GENUS_CODE"){
   trarea<-Calc_SurveyArea_By_Transect(data)
   out<-merge(trarea,ca, by=c("SITE","SITEVISITID","TRANSECT"),all.x=TRUE)
   out$ColDen<-out$ColCount/out$TRANSECTAREA
-  out<-subset(out,select=-c(TRANSECTAREA))#remove transect area column
   colnames(out)[which(colnames(out) == 'GROUP')] <- grouping_field #change group to whatever your grouping field is.
   
     return(out)
@@ -391,8 +379,7 @@ Calc_RDden_Transect<-function(data, grouping_field="S_ORDER"){
   #Change varibles to factors
   factor_cols <- c("GENRD1","GENRD2","GENRD3","RD1","RD2","RD3")
   scl[factor_cols] <- lapply(scl[factor_cols], as.factor)
-  lapply(scl,class)
-  
+
   #collapse all general and specific cause code columns into 1 column so that we can count up # of colonies with each condition
   #this step will spit out an error message about attributes not being identical-ignore this. you did not lose data
   long <- gather(scl, RDcat, RDtype, c(GENRD1,RD1,GENRD2,RD2,GENRD3,RD3), factor_key=TRUE)
@@ -428,7 +415,6 @@ Calc_RDden_Transect<-function(data, grouping_field="S_ORDER"){
   ab.tr<-merge(trarea,abun,by=c("SITEVISITID","SITE","TRANSECT"),all=TRUE)
   ab.tr[is.na(ab.tr)]<-0
   new_DF <- ab.tr[rowSums(is.na(ab.tr)) > 0,] #identify which rows have NAs
-  
   
   #calcualte density of each condition
   cd<-ab.tr[, 6:ncol(ab.tr)]/ab.tr$TRANSECTAREA # selects every row and 2nd to last columns

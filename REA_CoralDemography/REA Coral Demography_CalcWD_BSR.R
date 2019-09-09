@@ -9,8 +9,7 @@ source("C:/Users/Courtney.S.Couch/Documents/GitHub/Benthic-Scripts/Functions/Ben
 source("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/lib/core_functions.R")
 
 ## LOAD benthic data
-setwd("C:/Users/Courtney.S.Couch/Documents/Courtney's Files/R Files/ESD/Benthic REA")
-load("ALL_REA_ADULTCORAL_RAW.rdata") #from oracle
+load("C:/Users/Courtney.S.Couch/Documents/Courtney's Files/R Files/ESD/Benthic REA/ALL_REA_ADULTCORAL_RAW.rdata") #from oracle
 x<-df #leave this as df
 
 x$SITE<-SiteNumLeadingZeros(x$SITE) # Change site number such as MAR-22 to MAR-0022
@@ -233,8 +232,8 @@ jwd$TRANSECT[jwd$TRANSECT == "4"] <- "2"
 
 
 #test functions on HAWAII ISLAND data to test code
-awd2<-subset(awd,REGION=="SAMOA")
-jwd2<-subset(jwd,REGION=="SAMOA")
+awd2<-subset(awd,REGION=="PRIAs")
+jwd2<-subset(jwd,REGION=="PRIAs")
 
 #Create a look a table of all of the colony attributes- you will need this for the Calc_RDden and Calc_Condden functions
 SURVEY_INFO<-c("SITEVISITID", "OBS_YEAR", "REGION", "REGION_NAME", "ISLAND","ISLANDCODE","SITE", "DATE_", "REEF_ZONE",
