@@ -11,7 +11,7 @@ setwd("C:/Users/Courtney.S.Couch/Documents/Courtney's Files/R Files/ESD/Benthic 
 Sys.setenv(ODBCINI = "/library/ODBC/odbc.ini")
 
 ##*******## jump down to Benthic REA WORKINGS if already saved as a .rfile
-ch <- odbcConnect("CRED_Oracle", uid = "ccouch", pwd = "cer#twu3Dribtus")
+ch <- odbcConnect("CRED_Oracle", uid = "ccouch", pwd = "XXXXXXX")
 ##
 ## #list available tables
 tv<-sqlTables(ch, tableType = "VIEW")
@@ -25,23 +25,23 @@ rawtables<-c(a,b,c,d)
 rawtables
 ##
 df <- sqlQuery(ch, paste("SELECT * FROM GISDAT.V0_CORAL_OBS_E_")); head(df) #V0_CORAL_OBS_E_ is 2013-2018, V0_CORAL_OBS_E is 2013-2017
-save(df, file="ALL_REA_ADULTCORAL_RAW_new.rdata")
+save(df, file="T:/Benthic/Data/REA Coral Demography & Cover/Raw from Oracle/ALL_REA_ADULTCORAL_RAW_new.rdata")
 
 df <- sqlQuery(ch, paste("SELECT * FROM GISDAT.V0_CORAL_OBS_F")); head(df)
-save(df, file="ALL_REA_JUVCORAL_RAW_new.rdata")
+save(df, file="T:/Benthic/Data/REA Coral Demography & Cover/Raw from Oracle/ALL_REA_JUVCORAL_RAW_new.rdata")
 
 #BENTHIC Photoquad REA
 #photoquad data from CPCe
 bia <- sqlQuery(ch, paste("SELECT * FROM GISDAT.V_BIA_PERC_COVER_PHOTO_STR_")); head(bia)
-save(bia, file="ALL_BIA_STR_RAW_NEW.rdata")
+save(bia, file="T:/Benthic\Data/REA Coral Demography & Cover/Raw from Oracle/ALL_BIA_STR_RAW_NEW.rdata")
 
 cli <- sqlQuery(ch, paste("SELECT * FROM GISDAT.V_BIA_PERC_COVER_PHOTO_CLI_")); head(cli)
-save(cli, file="ALL_BIA_CLIMATE_PERM.rdata")
+save(cli, file="T:/Benthic/Data/REA Coral Demography & Cover/Raw from Oracle/ALL_BIA_CLIMATE_PERM.rdata")
 
 
 # Coral Net Photoquad Data
 cnet <- sqlQuery(ch, paste("SELECT * FROM GISDAT.MV_BIA_CNET_ANALYSIS_DATA")); head(cnet)
-save(cnet, file="C:/Users/Courtney.S.Couch/Documents/Courtney's Files/R Files/ESD/BIA/ALL_BIA_STR_CNET.rdata")
+save(cnet, file="T:/Benthic/Data/REA Coral Demography & Cover/Raw from Oracle/ALL_BIA_STR_CNET.rdata")
 
 #LPI data 2002-2012
 lpi<-sqlQuery(ch, paste("SELECT * FROM GISDAT.V0_BENT_LPI")); head(lpi)

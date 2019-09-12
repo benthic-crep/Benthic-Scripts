@@ -486,17 +486,14 @@ head(data.gen)
 data.gen$JuvColCount[is.na(data.gen$JuvColCount)]<-0;data.gen$JuvColDen[is.na(data.gen$JuvColDen)]<-0
 data.gen$AdColCount[is.na(data.gen$AdColCount)]<-0;data.gen$AdColDen[is.na(data.gen$AdColDen)]<-0
 
-#Remove data from transects with less than 5m surveyed for adults and 1m for juvs.
-data.gen<-data.gen %>% mutate_at(.vars = c("AdColDen", "Ave.od", "Ave.rd","BLE_den","CHRO_den","DZGNS_den"), funs(ifelse(TRANSECTAREA_ad <5, NA, .)))
-data.gen<-data.gen %>% mutate_at(.vars = c("JuvColDen"), funs(ifelse(TRANSECTAREA_j <1, NA, .)))
-
-
 #Calculate site level prevalence for acute dz, chronic dz and bleaching
 data.gen$DZGNS_prev<-(data.gen$DZGNS_den*data.gen$TRANSECTAREA_ad)/data.gen$AdColCount*100
 data.gen$BLE_prev<-(data.gen$BLE_den*data.gen$TRANSECTAREA_ad)/data.gen$AdColCount*100
 data.gen$CHRO_prev<-(data.gen$CHRO_den*data.gen$TRANSECTAREA_ad)/data.gen$AdColCount*100
 
-
+#Remove data from transects with less than 5m surveyed for adults and 1m for juvs.
+data.gen<-data.gen %>% mutate_at(.vars = c("AdColCount","AdColDen", "Ave.od", "Ave.rd","BLE_den","CHRO_den","DZGNS_den","BLE_prev","CHRO_prev","DZGNS_prev"), funs(ifelse(TRANSECTAREA_ad <5, NA, .)))
+data.gen<-data.gen %>% mutate_at(.vars = c("JuvColDen"), funs(ifelse(TRANSECTAREA_j <1, NA, .)))
 
 #GENERATE SITE-LEVEL DATA BY AVERAGING TRANSECTS-----------------------------------
 #Since we are moving to a 1 stage design, we need to summarize the transects before rolling up to site.
@@ -534,7 +531,6 @@ rich.data<-merge(rich.gen,meta,by=c("SITEVISITID","SITE"),all.x=TRUE)
 site.data.gen2$Adpres.abs<-ifelse(site.data.gen2$AdColDen>0,1,0)
 site.data.gen2$Juvpres.abs<-ifelse(site.data.gen2$JuvColDen>0,1,0)
 
-write.csv(site.data.gen2,"test.csv")
 write.csv(site.data.gen2,file="T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/BenthicREA_sitedata.csv")
 
 # POOLING DATA from Site to Strata and Domain---------------------------------------------------

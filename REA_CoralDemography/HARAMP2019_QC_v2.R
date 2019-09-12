@@ -24,6 +24,14 @@ sort(colnames(ad))
 #Add a colony id (temporary)
 ad$COLONYID<-seq(1:length(ad$COLONYID))
 
+taxa<-read.csv("T:/Benthic/Data/SpGen_Reference/list_of_coral_species_0319.csv");taxa<-taxa[c(2,17)]
+#colnames(taxa)[colnames(taxa)=="SPECIES"]<-"Taxoncode" #Change column name
+head(taxa)
+taxa<-subset(taxa,HAWAII=="Yes")
+ad$sp_check<-ifelse(ad$Taxoncode %in% c(taxa$SPECIES),"ok","check")
+tmp<-merge(ad,taxa,by=c("Taxoncode"),all.x=T)
+tmp[is.na(tmp$Taxoncode),]
+write.csv(tmp,"test.csv")
 # Prepping Adult Data -----------------------------------------------------
 
 #BH: assume functions from core_functions
