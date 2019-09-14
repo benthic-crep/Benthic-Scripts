@@ -66,6 +66,11 @@ z<-cli[,FIELDS_TO_RETAIN]; head(z)
 
 ab<-rbind(x,y,z)
 
+#Generate a table of # of sites/region and year from original datasets before data cleaning takes place
+#use this later in the script to make sure sites haven't been dropped after data clean up.
+oracle.site<-ddply(ab,.(REGION,OBS_YEAR),summarize,nSite=length(unique(SITE)))
+oracle.site
+
 #write.csv(ab, file="tmp All BIA BOTH METHODS.csv")
 
 SURVEY_INFO<-c("OBS_YEAR", "REGION",  "ISLAND")
@@ -169,8 +174,14 @@ data.cols<-c(r_levels)
 
 wsd<-merge(sites, photo, by=c("METHOD", "OBS_YEAR", "SITE"), all.y=T)
 
+#Make sure that you have the correct # of sites/region and year
 test1<-ddply(wsd,.(OBS_YEAR),summarize,nSite=length(unique(SITE)))
+test2<-ddply(wsd,.(REGION,OBS_YEAR),summarize,nSite=length(unique(SITE)))
+
 test1
+test2
+oracle.site #check against original number of sites pulled from oracle
+
 
 ####################################################################################################################################################################
 #
@@ -182,16 +193,16 @@ sectors<-read.csv("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/data/Se
 sm<-read.csv("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/data/SURVEY MASTER.csv")
 sm$SITE<-SiteNumLeadingZeros(sm$SITE)
 
+
 #Merge Site master with wsd
-sm<-sm[,c("SITEVISITID","SITE","ANALYSIS_YEAR","ANALYSIS_SCHEME","OBS_YEAR","SEC_NAME","EXCLUDE_FLAG")]
+sm<-sm[,c("SITEVISITID","SITE","ANALYSIS_YEAR","ANALYSIS_SCHEME","OBS_YEAR","SEC_NAME","EXCLUDE_FLAG","TRANSECT_PHOTOS","Oceanography")]
 wsd_t1<-merge(wsd,sm,by=c("SITEVISITID","SITE","OBS_YEAR"),all.x=TRUE)
 head(wsd_t1)
 
-test2<-ddply(wsd_t1,.(OBS_YEAR),summarize,nSite=length(unique(SITE)))
+test<-wsd_t1[is.na(wsd_t1$TRANSECT_PHOTOS),]
+View(test) # none of the 2010 imagery has TRANSECT_PHOTOS assigned - ASK MICHAEL TO FIX
+wsd_t1$TRANSECT_PHOTOS<-"-1" #make sure that all rows = -1
 
-#make sure the number of sites by region and year match before and after merging with survey master
-test1
-test2
 
 #Save Tier 1 site data to t drive. This file has all sites (fish, benthic and OCC) that were annoated between 2010 and 2018
 write.csv(wsd_t1, file="T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/BIA_2010-2018_Tier1_SITE.csv")
@@ -217,8 +228,6 @@ data.cols<-c(r_levels)
 
 wsd<-merge(sites, photo, by=c("METHOD", "OBS_YEAR", "SITE"), all.y=T)
 
-test1<-ddply(wsd,.(OBS_YEAR),summarize,nSite=length(unique(SITE)))
-test1
 
 ####################################################################################################################################################################
 #
@@ -231,11 +240,13 @@ sm<-read.csv("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/data/SURVEY 
 sm$SITE<-SiteNumLeadingZeros(sm$SITE)
 
 #Merge Site master with wsd
-sm<-sm[,c("SITEVISITID","SITE","ANALYSIS_YEAR","ANALYSIS_SCHEME","OBS_YEAR","SEC_NAME","EXCLUDE_FLAG")]
+sm<-sm[,c("SITEVISITID","SITE","ANALYSIS_YEAR","ANALYSIS_SCHEME","OBS_YEAR","SEC_NAME","EXCLUDE_FLAG","TRANSECT_PHOTOS","Oceanography")]
 wsd_t3<-merge(wsd,sm,by=c("SITEVISITID","SITE","OBS_YEAR"),all.x=TRUE)
 head(wsd_t3)
 
-test2<-ddply(wsd_t3,.(REGION,OBS_YEAR),summarize,nSite=length(unique(SITE)))
+test<-wsd_t3[is.na(wsd_t3$TRANSECT_PHOTOS),]
+View(test) # none of the 2010 imagery has TRANSECT_PHOTOS assigned - ASK MICHAEL TO FIX
+wsd_t3$TRANSECT_PHOTOS<-"-1" #make sure that all rows = -1
 
 #make sure the number of sites by region and year match before and after merging with survey master
 test1
