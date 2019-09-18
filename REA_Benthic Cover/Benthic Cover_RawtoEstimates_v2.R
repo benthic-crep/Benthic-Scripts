@@ -1,4 +1,3 @@
-##########Summarize 2013-2017 data
 rm(list=ls())
 
 setwd("C:/Users/Courtney.S.Couch/Documents/Courtney's Files/R Files/ESD/BIA")
@@ -43,7 +42,9 @@ sm<-read.csv("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/data/SITE MA
 sm$SITE<-SiteNumLeadingZeros(sm$SITE)
 
 
-##### MERGE THEM TOGETHER - LOOKING LIKE BIA) #############
+
+# Merge together all Photoquad Datasets & make sure columns match ---------------------------------------
+
 bia$METHOD<-"CPCE"
 cli$METHOD<-"CPCE"
 #bia$FUNCTIONAL_GROUP<-"BIA"    #ACTUALLY FUNCTIONAL_GROUP SEEMS A BIT MIXED UP ... FROM QUICK LOOK AT CNET FILE, IT CAN TAKE DIFFERENT VALUES FOR SAME CODES (eg ALGAE or Hare Substrate) - SO GOING TO IGNORE IT!
@@ -88,7 +89,9 @@ ab<-droplevels(ab)
 #all.tab<-aggregate(ab$POINTS, by=ab[,c("METHOD", "TIER_1", "CATEGORY_NAME", "TIER_2", "SUBCATEGORY_NAME", "TIER_3", "GENERA_NAME")], FUN=length)
 #write.csv(all.tab, file="tmp All CATEGORIES BOTH METHODS.csv")
 
-### SOME CLEAN UP
+
+# Reclassify EMA and Halimeda --------------------------------------------
+
 
 #CREATING CLASS EMA "Encrusting Macroalgae
 levels(ab$TIER_1)<-c(levels(ab$TIER_1), "EMA")
@@ -137,23 +140,14 @@ ab[is.na(ab$REEF_ZONE),]$REEF_ZONE<-"UNKNOWN"
 ab[is.na(ab$HABITAT_CODE),]$HABITAT_CODE<-"UNKNOWN"
 
 
-#### NB THERE ARE SEVERAL UNCLASSIFIED CATEGORIES  - HIGHLIGHTING THOSE HERE
-UNIDENTIFIED_T1<-c("TW", "MF", "UC")
-UNIDENTIFIED_T2<-c("MOBF", "TAPE", "UNK", "WAND", "SHAD")
-
-length(unique(ab$SITE))
-
-test<-ddply(ab,.(REGION,OBS_YEAR),summarize,nSite=length(unique(SITE)))
-test
-
 #Generate a SITE table
 sites<-ddply(ab,.(METHOD,REGION,OBS_YEAR,ISLAND,PERM_SITE,CLIMATE_STATION_YN,SITE,LATITUDE,LONGITUDE,REEF_ZONE,DEPTH_BIN),
              summarize,x=sum(POINTS))
 sites$x<-NULL
 dim(sites)
 
-### GENERATE DATA AT SITE LEVEL AND FOR ALL HARD_CORAL
-## FIRST T1
+
+# Generate Site-level Data at TIER 1 level--------------
 
 photo<-dcast(ab, formula=METHOD + OBS_YEAR + SITEVISITID + SITE  ~ TIER_1, value.var="POINTS", sum, fill=0)
 head(photo)
@@ -182,33 +176,26 @@ test1
 test2
 oracle.site #check against original number of sites pulled from oracle
 
+#Merge Tier 1 data with SURVEY MASTER FILE
+#Remember this will have all the sites ever surveyed not just StRS sites
+#You will need TRANSECT_PHOTOS, EXCLUDE FLAG and Oceanography from the SM file to be able to filter out OCC and Special Project sites
 
-####################################################################################################################################################################
-#
-#     CHECK THAT DATA IS READY FOR POOLING AND DO SOME FINAL CLEAN UPS, EG SET BACKREEF DEPTH_ZONE TO ALL, CREATE THE "SGA" LOCATION
-#
-####################################################################################################################################################################
-## NOW POOL UP TO Stratum AND YEAR
-sectors<-read.csv("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/data/Sectors-Strata-Areas.csv");tail(sectors)
 sm<-read.csv("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/data/SURVEY MASTER.csv")
 sm$SITE<-SiteNumLeadingZeros(sm$SITE)
-
-
-#Merge Site master with wsd
-sm<-sm[,c("SITEVISITID","SITE","ANALYSIS_YEAR","ANALYSIS_SCHEME","OBS_YEAR","SEC_NAME","EXCLUDE_FLAG","TRANSECT_PHOTOS","Oceanography")]
+sm<-sm[,c("MISSIONID","SITEVISITID","SITE","ANALYSIS_YEAR","ANALYSIS_SCHEME","OBS_YEAR","SEC_NAME","EXCLUDE_FLAG","TRANSECT_PHOTOS","Oceanography")]
 wsd_t1<-merge(wsd,sm,by=c("SITEVISITID","SITE","OBS_YEAR"),all.x=TRUE)
 head(wsd_t1)
 
+#Are there NAs in TRANSECT PHOTOS
 test<-wsd_t1[is.na(wsd_t1$TRANSECT_PHOTOS),]
 View(test) # none of the 2010 imagery has TRANSECT_PHOTOS assigned - ASK MICHAEL TO FIX
 wsd_t1$TRANSECT_PHOTOS<-"-1" #make sure that all rows = -1
-
 
 #Save Tier 1 site data to t drive. This file has all sites (fish, benthic and OCC) that were annoated between 2010 and 2018
 write.csv(wsd_t1, file="T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/BIA_2010-2018_Tier1_SITE.csv")
 
 
-#Tier3
+# Generate Site-level Data at TIER 3 level--------------
 photo<-dcast(ab, formula=METHOD + OBS_YEAR + SITEVISITID + SITE  ~ TIER_3, value.var="POINTS", sum, fill=0)
 head(photo)
 
@@ -228,19 +215,7 @@ data.cols<-c(r_levels)
 
 wsd<-merge(sites, photo, by=c("METHOD", "OBS_YEAR", "SITE"), all.y=T)
 
-
-####################################################################################################################################################################
-#
-#     CHECK THAT DATA IS READY FOR POOLING AND DO SOME FINAL CLEAN UPS, EG SET BACKREEF DEPTH_ZONE TO ALL, CREATE THE "SGA" LOCATION
-#
-####################################################################################################################################################################
-## NOW POOL UP TO Stratum AND YEAR
-sectors<-read.csv("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/data/Sectors-Strata-Areas.csv");tail(sectors)
-sm<-read.csv("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/data/SURVEY MASTER.csv")
-sm$SITE<-SiteNumLeadingZeros(sm$SITE)
-
-#Merge Site master with wsd
-sm<-sm[,c("SITEVISITID","SITE","ANALYSIS_YEAR","ANALYSIS_SCHEME","OBS_YEAR","SEC_NAME","EXCLUDE_FLAG","TRANSECT_PHOTOS","Oceanography")]
+#Merge Tier 3 data with SURVEY MASTER data
 wsd_t3<-merge(wsd,sm,by=c("SITEVISITID","SITE","OBS_YEAR"),all.x=TRUE)
 head(wsd_t3)
 
@@ -256,21 +231,19 @@ test2
 write.csv(wsd_t3, file="T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/BIA_2010-2018_Tier3_SITE.csv")
 
 
-####################################################################################################################################################################
-#
-#     CHECK THAT DATA IS READY FOR POOLING AND DO SOME FINAL CLEAN UPS, EG SET BACKREEF DEPTH_ZONE TO ALL, CREATE THE "SGA" LOCATION
-#
-####################################################################################################################################################################
+# CHECK THAT DATA IS READY FOR POOLING AND DO SOME FINAL CLEAN UPS --------
 
+#Identify which taxonomic level you would like to summarize
 wsd<-wsd_t1
 #wsd<-wsd_t3
 
 #remove permanent sites, climate sites and special projects
-wsd<-subset(wsd,PERM_SITE!="-1"&CLIMATE_STATION_YN!="-1" & EXCLUDE_FLAG!="-1")
+wsd<-subset(wsd,Oceanography!=1 & TRANSECT_PHOTOS!=0 & EXCLUDE_FLAG!="-1"& PERM_SITE!=-1&CLIMATE_STATION_YN!=-1)
 
 #Check analysis sector names
 wsd<-droplevels(wsd)
-levels(wsd$an)
+levels(wsd$MISSIONID)
+write.csv(wsd,"test.csv")
 
 ## check whether we have ISLANDS that arent in the sectors file
 setdiff(unique(wsd$ISLAND),unique(sectors$ISLAND))
@@ -298,26 +271,10 @@ sectors[sectors$ISLAND %in% SGA,]$ISLAND<-"AGS"
 
 #Change Analysis year according to desired pooling
 wsd[is.na(wsd$ANALYSIS_YEAR),]
-
 levels(wsd$ANALYSIS_YEAR)<-c(levels(wsd$ANALYSIS_YEAR), "2016on","2015-16")
 wsd[wsd$REGION %in% c("MHI", "NWHI") & wsd$OBS_YEAR==2016,]$ANALYSIS_YEAR<-"2016on"
 wsd[wsd$REGION %in% c("MHI", "NWHI") & wsd$OBS_YEAR %in% seq(2010,2012),]$ANALYSIS_YEAR<-"2010-12"
 wsd[wsd$REGION %in% c("MHI", "NWHI") & wsd$OBS_YEAR %in% seq(2013,2015),]$ANALYSIS_YEAR<-"2013-15"
-wsd[wsd$ISLAND %in% c("Baker", "Howland") & wsd$OBS_YEAR =="2015",]$ANALYSIS_YEAR<-"2015"
-wsd[wsd$ISLAND %in% c("Kingman", "Palmyra","Jarvis") & wsd$OBS_YEAR =="2015",]$ANALYSIS_YEAR<-"2015"
-wsd[wsd$ISLAND =="Wake" & wsd$OBS_YEAR =="2014",]$ANALYSIS_YEAR<-"2014"
-wsd[wsd$ISLAND =="Wake" & wsd$OBS_YEAR =="2017",]$ANALYSIS_YEAR<-"2017"
-wsd[wsd$ISLAND =="Johnston" & wsd$OBS_YEAR =="2015",]$ANALYSIS_YEAR<-"2015"
-wsd[wsd$REGION =="SAMOA" & wsd$OBS_YEAR =="2015",]$ANALYSIS_YEAR<-"2015"
-wsd[wsd$REGION =="MHI" & wsd$OBS_YEAR ==2013,]$ANALYSIS_YEAR<-"2013"
-wsd[wsd$REGION =="MHI" & wsd$OBS_YEAR ==2015,]$ANALYSIS_YEAR<-"2015"
-
-###FIX THIS IN THE LONGTERM
-#Remove Kauai special project and Samoa special project and Timor Leste
-wsd<-wsd[!is.na(wsd$ANALYSIS_SCHEME),]
-wsd<-subset(wsd,ANALYSIS_SCHEME!="SAMOA_CLIMATE")
-wsd<-subset(wsd,REGION!="CT")
-
 
 #set all Backreef to a single DEPTH_ZONE ("All") 
 wsd$STRATA<-paste(wsd$REEF_ZONE, wsd$DEPTH_BIN, sep="_")

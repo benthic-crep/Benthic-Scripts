@@ -394,7 +394,7 @@ Calc_RDden_Transect<-function(data, grouping_field="S_ORDER"){
   
   #merge data with colony level metadata and sum conditions by transect and taxoncode
   allrd3<-merge(survey_colony,rd.new, by=c("SITEVISITID","SITE","TRANSECT","COLONYID"))
-  long <- gather(allrd3, RDCond, abun, names(allrd3[21:dim(allrd3)[2]]), factor_key=TRUE) #convert wide to long format by condition
+  long <- gather(allrd3, RDCond, abun, names(allrd3[22:dim(allrd3)[2]]), factor_key=TRUE) #convert wide to long format by condition
   long$GROUP<-long[,grouping_field]
   longsum<-ddply(long, .(SITE,SITEVISITID,TRANSECT,GROUP,RDCond), #calc total colonies by taxon and condition
                  summarise,
