@@ -594,6 +594,8 @@ Calc_Richness_Transect<-function(data,grouping_field="GENUS_CODE"){
 #Revising Benthic REA (demography) Sector and Strata pooling
 PoolSecStrat=function(site_data){
   
+  ############CORRECT THIS IN THE FUTURE TO MAKE IT MORE STREAMLINE!!!!!!!!!!!!!!!!
+  
   #Create STRATANAME by idenityfing which ANALAYSIS SCHEME you want to use then concatinating with depth and reef zone that will be used to pool data
   site_data$BEN_SEC<-site_data$SEC_NAME
   
@@ -663,8 +665,13 @@ PoolSecStrat=function(site_data){
   site_data$STRATANAME<-ifelse(site_data$OBS_YEAR %in% c("2014","2015")& site_data$BEN_SEC=="Maro"&site_data$DB_RZ %in% c("FM","FD"), "Maro_FMD",as.character(site_data$STRATANAME))
   site_data$STRATANAME<-ifelse(site_data$OBS_YEAR %in% c("2014","2015")& site_data$BEN_SEC=="Pearl & Hermes"&site_data$DB_RZ %in% c("FM","FS"), "Pearl & Hermes_FMS",as.character(site_data$STRATANAME))
   
+  #Create a new depth bin column that has the combined depths
+  site_data$DB<-site_data$DB_RZ
+  removeRZ<-"(B|F|L)"
+  site_data$DB<-gsub(removeRZ, "", site_data$DB)
   
-  #Modify Analysis Year############CORRECT THIS IN THE FUTURE TO MAKE IT MORE STREAMLINE!!!!!!!!!!!!!!!!!
+  
+  #Modify Analysis Year
   site_data$ANALYSIS_YEAR<-site_data$OBS_YEAR
   site_data$OBS_YEAR<-ifelse(site_data$OBS_YEAR %in% c("2014","2015")& site_data$REGION=="NWHI", "2014-15",as.character(site_data$OBS_YEAR))
   
@@ -704,7 +711,7 @@ Calc_Strata=function(site_data,grouping_field,metric_field,pres.abs_field="Adpre
   site_data<-merge(site_data,Strata_NH, by= c("REGION","ISLAND","ANALYSIS_YEAR","DOMAIN_SCHEMA","ANALYSIS_SCHEMA"))
   
   #Calculate summary metrics at the stratum level (rolled up from site level)
-  Strata_roll=ddply(site_data,.(REGION,ISLAND,ANALYSIS_YEAR,DOMAIN_SCHEMA,ANALYSIS_SCHEMA,GROUP,Dom_N_h),summarize,
+  Strata_roll=ddply(site_data,.(REGION,ISLAND,ANALYSIS_YEAR,DOMAIN_SCHEMA,ANALYSIS_SCHEMA,REEF_ZONE,DB_RZ,GROUP,Dom_N_h),summarize,
                     n_h=length(SITE),# No. of Sites surveyed in a Strata
                     N_h=median(N_h.as,na.rm=T),# Strata Area (as N 50x50 grids) - median allows you to pick 1 value
                     w_h=median(w_h.as,na.rm=T),# weigting factor for a given stratum- median allows you to pick 1 value
@@ -724,7 +731,7 @@ Calc_Strata=function(site_data,grouping_field,metric_field,pres.abs_field="Adpre
                     SEprop=sqrt(var_prop))
   
   Strata_roll$M_hi=250 #define total possible transects in a site
-  Strata_roll=Strata_roll[,c("REGION","ISLAND","ANALYSIS_YEAR","DOMAIN_SCHEMA","ANALYSIS_SCHEMA","GROUP",
+  Strata_roll=Strata_roll[,c("REGION","ISLAND","ANALYSIS_YEAR","DOMAIN_SCHEMA","ANALYSIS_SCHEMA","REEF_ZONE","DB_RZ","GROUP",
                              "M_hi","n_h","N_h","w_h",
                              "D._h","S1_h","varD._h","SE_D._h","CV_D._h",
                              "Y._h","varY._h","SE_Y._h","CV_Y._h","avp","var_prop","SEprop")]
@@ -899,7 +906,7 @@ Calc_Strata_Cover_Rich=function(site_data,metric_field=c("CORAL","CCA","MA","TUR
   site_data$w_h.as<-Strata_NH$w_h[match(site_data$ANALYSIS_SCHEMA,Strata_NH$ANALYSIS_SCHEMA)]
   
   #Calculate summary metrics at the stratum level (rolled up from site level)
-  Strata_roll=ddply(site_data,.(REGION,ISLAND,ANALYSIS_YEAR,DOMAIN_SCHEMA,ANALYSIS_SCHEMA),summarize,
+  Strata_roll=ddply(site_data,.(REGION,ISLAND,ANALYSIS_YEAR,DOMAIN_SCHEMA,ANALYSIS_SCHEMA,REEF_ZONE,DB_RZ),summarize,
                     n_h=length(SITE),# No. of Sites surveyed in a Strata
                     N_h=median(N_h.as,na.rm=T),# Strata Area (as N 50x50 grids) - median allows you to pick 1 value
                     w_h=median(w_h.as,na.rm=T),# weigting factor for a given stratum- median allows you to pick 1 value
@@ -910,7 +917,7 @@ Calc_Strata_Cover_Rich=function(site_data,metric_field=c("CORAL","CCA","MA","TUR
                     CV_D._h=SE_D._h/D._h)
   
   Strata_roll$M_hi=250 #define total possible transects in a site
-  Strata_roll=Strata_roll[,c("REGION","ISLAND","ANALYSIS_YEAR","DOMAIN_SCHEMA","ANALYSIS_SCHEMA",
+  Strata_roll=Strata_roll[,c("REGION","ISLAND","ANALYSIS_YEAR","DOMAIN_SCHEMA","ANALYSIS_SCHEMA","REEF_ZONE","DB_RZ",
                              "M_hi","n_h","N_h","w_h",
                              "D._h","S1_h","varD._h","SE_D._h","CV_D._h")]
   
@@ -978,7 +985,7 @@ Calc_Strata_Prevalence=function(site_data,grouping_field,metric_field){
   
 
   #Calculate summary metrics at the stratum level (rolled up from site level)
-  Strata_roll=ddply(site_data,.(REGION,ISLAND,ANALYSIS_YEAR,DOMAIN_SCHEMA,ANALYSIS_SCHEMA,GROUP),summarize,
+  Strata_roll=ddply(site_data,.(REGION,ISLAND,ANALYSIS_YEAR,DOMAIN_SCHEMA,ANALYSIS_SCHEMA,REEF_ZONE,DB_RZ,GROUP),summarize,
                     n_h=length(SITE),# No. of Sites surveyed in a Strata
                     N_h=median(N_h.as,na.rm=T),# Strata Area (as N 50x50 grids) - median allows you to pick 1 value
                     w_h=median(w_h.as,na.rm=T),# weigting factor for a given stratum- median allows you to pick 1 value
@@ -997,7 +1004,7 @@ Calc_Strata_Prevalence=function(site_data,grouping_field,metric_field){
                     CVprev=(SEprev/prev)*100) #CV of prevalence
   
   Strata_roll$M_hi=250 #define total possible transects in a site
-  Strata_roll=Strata_roll[,c("REGION","ISLAND","ANALYSIS_YEAR","DOMAIN_SCHEMA","ANALYSIS_SCHEMA","GROUP",
+  Strata_roll=Strata_roll[,c("REGION","ISLAND","ANALYSIS_YEAR","DOMAIN_SCHEMA","ANALYSIS_SCHEMA","GROUP","REEF_ZONE","DB_RZ",
                              "M_hi","n_h","N_h","w_h","C_h","acd_h","varC_h","C_abun_h","varC_abun_h","acd_h","acd_abun_h",
                              "prev","SEprev")]
   

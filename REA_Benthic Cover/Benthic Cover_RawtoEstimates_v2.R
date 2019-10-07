@@ -67,6 +67,18 @@ z<-cli[,FIELDS_TO_RETAIN]; head(z)
 
 ab<-rbind(x,y,z)
 
+
+#Flag sites that have more than 33 and less than 15 images
+#With the exception of OCC 2012 sites, there should be 30 images/site/10 points/image
+test<-ddply(ab,.(OBS_YEAR,SITEVISITID,SITE),summarize,count=sum(POINTS))
+test2<-test[test$count<150 |test$count>330,]
+test2
+#Ignore 2012 OCC sites. They analyzed 50 points per images 
+
+#WRITE CODE TO TEMPORARILY REMOVE SITES THAT HAVE LESS THAN 150. WE ARE WORKING WITH KEVIN ON THIS.
+write.csv(test2,"BIA_pointnumbercheck.csv")
+
+
 #Generate a table of # of sites/region and year from original datasets before data cleaning takes place
 #use this later in the script to make sure sites haven't been dropped after data clean up.
 oracle.site<-ddply(ab,.(REGION,OBS_YEAR),summarize,nSite=length(unique(SITE)))
@@ -183,7 +195,7 @@ oracle.site #check against original number of sites pulled from oracle
 sm<-read.csv("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/data/SURVEY MASTER.csv")
 sm$SITE<-SiteNumLeadingZeros(sm$SITE)
 sm<-sm[,c("MISSIONID","SITEVISITID","SITE","ANALYSIS_YEAR","ANALYSIS_SCHEME","OBS_YEAR","SEC_NAME","EXCLUDE_FLAG","TRANSECT_PHOTOS","Oceanography")]
-wsd_t1<-merge(wsd,sm,by=c("SITEVISITID","SITE","OBS_YEAR"),all.x=TRUE)
+wsd_t1<-merge(sm,wsd,by=c("SITEVISITID","SITE","OBS_YEAR"),all.y=TRUE)
 head(wsd_t1)
 
 #Are there NAs in TRANSECT PHOTOS
@@ -192,7 +204,7 @@ View(test) # none of the 2010 imagery has TRANSECT_PHOTOS assigned - ASK MICHAEL
 wsd_t1$TRANSECT_PHOTOS<-"-1" #make sure that all rows = -1
 
 #Save Tier 1 site data to t drive. This file has all sites (fish, benthic and OCC) that were annoated between 2010 and 2018
-write.csv(wsd_t1, file="T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/BIA_2010-2018_Tier1_SITE.csv")
+write.csv(wsd_t1, file="T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Site/BenthicCover_2010-2018_Tier1_SITE.csv")
 
 
 # Generate Site-level Data at TIER 3 level--------------
@@ -216,7 +228,7 @@ data.cols<-c(r_levels)
 wsd<-merge(sites, photo, by=c("METHOD", "OBS_YEAR", "SITE"), all.y=T)
 
 #Merge Tier 3 data with SURVEY MASTER data
-wsd_t3<-merge(wsd,sm,by=c("SITEVISITID","SITE","OBS_YEAR"),all.x=TRUE)
+wsd_t3<-merge(sm,wsd,by=c("SITEVISITID","SITE","OBS_YEAR"),all.y=TRUE)
 head(wsd_t3)
 
 test<-wsd_t3[is.na(wsd_t3$TRANSECT_PHOTOS),]
@@ -228,7 +240,7 @@ test1
 test2
 
 #Save Tier 1 site data to t drive. This file has all sites (fish, benthic and OCC) that were annoated between 2010 and 2018
-write.csv(wsd_t3, file="T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/BIA_2010-2018_Tier3_SITE.csv")
+write.csv(wsd_t3, file="T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Site/BenthicCover_2010-2018_Tier3_SITE.csv")
 
 
 # CHECK THAT DATA IS READY FOR POOLING AND DO SOME FINAL CLEAN UPS --------

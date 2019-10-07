@@ -454,6 +454,8 @@ SURVEY_INFO<-c("DATE_","SITEVISITID", "OBS_YEAR", "REGION", "REGION_NAME", "ISLA
                "DEPTH_BIN", "LATITUDE", "LONGITUDE","SITE_MIN_DEPTH","SITE_MAX_DEPTH")
 survey_site<-new_Aggregate_InputTable(awd, SURVEY_INFO)
 
+#2017 Howland and baker only juveniles need to fix it so metadata for these sites are merged properly. 
+
 write.csv(survey_site,"test.csv")
 
 # GENERATE SUMMARY METRICS at the transect-leveL BY GENUS--------------------------------------------------
@@ -626,12 +628,14 @@ meta<-merge(survey_site,sectors,by=c("REGION","SEC_NAME","ISLAND","REEF_ZONE","D
 meta[which(is.na(meta$AREA_HA)),]
 
 
+
 #Merge site level data and meta data
 site.data.gen2<-merge(site.data.gen2,meta,by=c("SITEVISITID","SITE"),all.x=TRUE)
 rich.data.gen<-merge(rich.gen,meta,by=c("SITEVISITID","SITE"),all.x=TRUE)
 site.data.sp2<-merge(site.data.sp2,meta,by=c("SITEVISITID","SITE"),all.x=TRUE)
 rich.data.sp<-merge(rich.sp,meta,by=c("SITEVISITID","SITE"),all.x=TRUE)
 site.data.tax2<-merge(site.data.tax2,meta,by=c("SITEVISITID","SITE"),all.x=TRUE)
+
 rich.data.tax<-merge(rich.tax,meta,by=c("SITEVISITID","SITE"),all.x=TRUE)
 
 #Add adult and juvenile pres/ab columns
@@ -643,30 +647,35 @@ site.data.tax2$Adpres.abs<-ifelse(site.data.tax2$AdColDen>0,1,0)
 site.data.tax2$Juvpres.abs<-ifelse(site.data.tax2$JuvColDen>0,1,0)
 
 
-write.csv(site.data.gen2,file="T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/BenthicREA_sitedata_GENUS.csv")
-write.csv(site.data.sp2,file="T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/BenthicREA_sitedata_SPCODE.csv")
-write.csv(site.data.tax2,file="T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/BenthicREA_sitedata_TAXONCODE.csv")
+write.csv(site.data.gen2,file="T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Site/BenthicREA_sitedata_GENUS.csv")
+write.csv(site.data.sp2,file="T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Site/BenthicREA_sitedata_SPCODE.csv")
+write.csv(site.data.tax2,file="T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Site/BenthicREA_sitedata_TAXONCODE.csv")
+
 
 # POOLING DATA from Site to Strata and Domain---------------------------------------------------
+survey_master<-read.csv("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/data/SURVEY MASTER.csv")
+sectors<-read.csv("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/data/Sectors-Strata-Areas.csv", stringsAsFactors=FALSE)
+site.data.gen2<-read.csv("T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Site/BenthicREA_sitedata_GENUS.csv")
+
 site.data.gen2<-PoolSecStrat(site.data.gen2)
 rich.data<-PoolSecStrat(rich.data)
 
 #QC CHECK to make sure the sectors and strata pooled correctly
 rich.test<-ddply(rich.data,.(REGION,BEN_SEC,OBS_YEAR,STRATANAME),summarize,n=length(SITE))
 data.test<-ddply(subset(site.data.gen2,GENUS_CODE=="SSSS"),.(REGION,BEN_SEC,OBS_YEAR,STRATANAME),summarize,n=length(SITE))
-sm.test<-ddply(subset(survey_master,METHOD=="CORALBELT_METHOD_E_F"),.(REGION,ISLAND,SEC_NAME,OBS_YEAR,REEF_ZONE,DEPTH_BIN),summarize,n=length(SITE))
+sm.test<-ddply(subset(survey_master,Benthic=="1"&EXCLUDE_FLAG=="0"&OBS_YEAR>=2013),.(REGION,ISLAND,SEC_NAME,OBS_YEAR,REEF_ZONE,DEPTH_BIN),summarize,n=length(SITE))
 
 write.csv(data.test,"tmp_sitedataQC.csv")
 write.csv(sm.test,"tmp_sitemasterQC.csv")
 
-#Subset just Forereef Sites & just target taxa
-site.data.gen2<-subset(site.data.gen2,REEF_ZONE=="Forereef")
-site.data.gen2<-subset(site.data.gen2,GENUS_CODE %in% c("ACSP", "MOSP", "PAVS", "POCS","POSP","SSSS"))
-rich.data<-subset(rich.data,REEF_ZONE=="Forereef")
+# #Subset just Forereef Sites & just target taxa
+# site.data.gen2<-subset(site.data.gen2,REEF_ZONE=="Forereef")
+# site.data.gen2<-subset(site.data.gen2,GENUS_CODE %in% c("ACSP", "MOSP", "PAVS", "POCS","POSP","SSSS"))
+# rich.data<-subset(rich.data,REEF_ZONE=="Forereef")
 
-#Make sure you everything but forereef are dropped
-table(site.data.gen2$REEF_ZONE,site.data.gen2$GENUS_CODE)
-table(rich.data$REEF_ZONE)
+# #Make sure you everything but forereef are dropped
+# table(site.data.gen2$REEF_ZONE,site.data.gen2$GENUS_CODE)
+# table(rich.data$REEF_ZONE)
 
 
 #Set ANALYSIS_SCHEMA to STRATA and DOMAIN_SCHEMA to whatever the highest level you want estimates for (e.g. sector, island, region)
@@ -679,29 +688,26 @@ rich.data$DOMAIN_SCHEMA<-rich.data$ISLAND
 #Calculate metrics at Strata-level-We need to work on combining metrics into 1 function
 
 #Create a vector of columns to subset for strata estimates
-c.keep<-c("REGION","ISLAND","ANALYSIS_YEAR","ANALYSIS_SCHEMA","GENUS_CODE",
+c.keep<-c("REGION","ISLAND","ANALYSIS_YEAR","ANALYSIS_SCHEMA","REEF_ZONE","DB_RZ","GENUS_CODE",
           "n_h","N_h","D._h","SE_D._h","avp","SEprop","Y._h","SE_Y._h","CV_Y._h")
-c.keep2<-c("REGION","ISLAND","ANALYSIS_YEAR","ANALYSIS_SCHEMA","GENUS_CODE",
+c.keep2<-c("REGION","ISLAND","ANALYSIS_YEAR","ANALYSIS_SCHEMA","REEF_ZONE","DB_RZ","GENUS_CODE",
            "n_h","N_h","D._h","SE_D._h")
 acdG_st<-Calc_Strata(site.data.gen2,"GENUS_CODE","AdColDen","Adpres.abs");acdG_st=acdG_st[,c.keep]
-colnames(acdG_st)<-c("REGION","ISLAND","ANALYSIS_YEAR","Stratum","GENUS_CODE","n","Ntot","AdColDen","SE_AdColDen","Adult_avp","Adult_seprop","Adult_Abun","Adult_SE_Abun","Adult_CV")
+colnames(acdG_st)<-c("REGION","ISLAND","ANALYSIS_YEAR","Stratum","REEF_ZONE","DB_RZ","GENUS_CODE","n","Ntot","AdColDen","SE_AdColDen","Adult_avp","Adult_seprop","Adult_Abun","Adult_SE_Abun","Adult_CV")
 
 odG_st<-Calc_Strata(site.data.gen2,"GENUS_CODE","Ave.od");odG_st=odG_st[,c.keep2]
-colnames(odG_st)<-c("REGION","ISLAND","ANALYSIS_YEAR","Stratum","GENUS_CODE","n","Ntot","Ave.od","SE_Ave.od")
+colnames(odG_st)<-c("REGION","ISLAND","ANALYSIS_YEAR","Stratum","REEF_ZONE","DB_RZ","GENUS_CODE","n","Ntot","Ave.od","SE_Ave.od")
 
 c.keep<-c("REGION","ISLAND","ANALYSIS_YEAR","DOMAIN_SCHEMA","ANALYSIS_SCHEMA","n_h","N_h","D._h","SE_D._h")
 rich_st<-Calc_Strata_Cover_Rich(rich.data,"Richness");rich_st=rich_st[,c.keep]
-colnames(rich_st)<-c("REGION","ISLAND","ANALYSIS_YEAR","Sector","Stratum","n","Ntot","Richness","SE_Richess") 
+colnames(rich_st)<-c("REGION","ISLAND","ANALYSIS_YEAR","Sector","REEF_ZONE","DB_RZ","Stratum","n","Ntot","Richness","SE_Richess") 
 
 
 #Double Check that revised pooling is adding up NH (total sites) correctly
-head(acdG_st,20)
-subset(sectors,ISLAND=="Kingman") #Insert whichever island/strata you want to check.
+View(acdG_st)
+View(sectors)
 
-#Add in CalcAnalayis_strata & island
-
-
-#Calculate Regional Estimates
+#Calculate Island Estimates
 acdG_is<-Calc_Domain(site.data.gen2,"GENUS_CODE","AdColDen","Adpres.abs")
 acdG_is<-acdG_is[,c("ANALYSIS_YEAR","DOMAIN_SCHEMA","GENUS_CODE","n","Ntot","Mean_AdColDen","SE_AdColDen")]
 odG_is<-Calc_Domain(site.data.gen2,"GENUS_CODE","Ave.od");odG_is<-odG_is[,c("ANALYSIS_YEAR","DOMAIN_SCHEMA","GENUS_CODE","n","Ntot","Mean_Ave.od","SE_Ave.od")]

@@ -11,7 +11,7 @@ setwd("C:/Users/Courtney.S.Couch/Documents/Courtney's Files/R Files/ESD/Benthic 
 Sys.setenv(ODBCINI = "/library/ODBC/odbc.ini")
 
 ##*******## jump down to Benthic REA WORKINGS if already saved as a .rfile
-ch <- odbcConnect("CRED_Oracle", uid = "ccouch", pwd = "XXXXXXX")
+ch <- odbcConnect("CRED_Oracle", uid = "ccouch", pwd = "cer#twu3Dribtus")
 ##
 ## #list available tables
 tv<-sqlTables(ch, tableType = "VIEW")
