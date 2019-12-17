@@ -23,9 +23,9 @@ bia$SITE<-SiteNumLeadingZeros(bia$SITE)
 #CNET data - from CoralNet
 #These data contain human annotated data. There may be a small subset of robot annotated data. 
 #The robot annoations are included because the confidence threshold in CoralNet was set to 90% allowing the robot to annotate points when it was 90% certain.
-load("T:/Benthic/Data/REA Coral Demography & Cover/Raw from Oracle/ALL_BIA_STR_CNET2.rdata") #load data
-t$SITE<-SiteNumLeadingZeros(t$SITE)
-cnet<-t
+load("T:/Benthic/Data/REA Coral Demography & Cover/Raw from Oracle/ALL_BIA_STR_CNET.rdata") #load data
+cnet$SITE<-SiteNumLeadingZeros(cnet$SITE)
+
 ##Generate Table of all the bia categories to review
 head(bia)
 bia_tab<-ddply(bia,.(TIER_1, CATEGORY_NAME, TIER_2, SUBCATEGORY_NAME, TIER_3, GENERA_NAME),summarize,count=sum(POINTS))
@@ -242,30 +242,26 @@ test1
 test2
 
 #Save Tier 1 site data to t drive. This file has all sites (fish, benthic and OCC) that were annoated between 2010 and 2018
-write.csv(wsd_t3, file="T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Site/BenthicCover_2010-2018_Tier3_SITE.csv")
+#write.csv(wsd_t3, file="T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Site/BenthicCover_2010-2018_Tier3_SITE.csv")
 
 
 # CHECK THAT DATA IS READY FOR POOLING AND DO SOME FINAL CLEAN UPS --------
 
 #Identify which taxonomic level you would like to summarize
-#wsd<-wsd_t1
-wsd<-wsd_t3
+wsd<-wsd_t1
+#wsd<-wsd_t3
 
 #Define data columns
-#data.cols<-T1data.cols
-data.cols<-T3data.cols
+data.cols<-T1data.cols
+#data.cols<-T3data.cols
 
 #remove permanent sites, climate sites and special projects
 wsd$PERM_SITE[is.na(wsd$PERM_SITE)]<-"0"
-wsd$TRANSECT_PHOTOS[is.na(wsd$TRANSECT_PHOTOS)]<-"0"
-
 wsd<-subset(wsd,Oceanography!=1 & TRANSECT_PHOTOS!=0 & EXCLUDE_FLAG!="-1"& PERM_SITE!=-1 &CLIMATE_STATION_YN!=-1)
 
-#Check analysis sector names & make sure number of sites match SURVEY master file
+#Check analysis sector names
 wsd<-droplevels(wsd)
 levels(wsd$MISSIONID)
-table(wsd$SEC_NAME, wsd$OBS_YEAR)
-
 write.csv(wsd,"test.csv")
 
 ## check whether we have ISLANDS that arent in the sectors file
@@ -285,20 +281,6 @@ wsd$DEPTH_BIN<-as.factor(wsd$DEPTH_BIN)# change back to factor
 wsd$STRATA<-paste(substring(wsd$REEF_ZONE,1,1), substring(wsd$DEPTH_BIN,1,1), sep="")
 sectors$STRATA<-paste(substring(sectors$REEF_ZONE,1,1), substring(sectors$DEPTH_BIN,1,1), sep="")
 
-## TREAT GUGUAN, ALAMAGAN, SARIGAN AS ONE ISLAND  (REALLY ONE BASE REPORTING UNIT .. BUT SIMPLER TO STICK TO 'ISLAND')
-SGA<-c("Guguan", "Alamagan", "Sarigan")
-levels(wsd$ISLAND)<-c(levels(wsd$ISLAND), "AGS")
-levels(sectors$ISLAND)<-c(levels(sectors$ISLAND), "AGS")
-wsd[wsd$ISLAND %in% SGA,]$ISLAND<-"AGS"
-sectors[sectors$ISLAND %in% SGA,]$ISLAND<-"AGS"
-
-#Change Analysis year according to desired pooling
-wsd[is.na(wsd$ANALYSIS_YEAR),]
-levels(wsd$ANALYSIS_YEAR)<-c(levels(wsd$ANALYSIS_YEAR), "2016on","2015-16")
-wsd[wsd$REGION %in% c("MHI", "NWHI") & wsd$OBS_YEAR==2016,]$ANALYSIS_YEAR<-"2016on"
-wsd[wsd$REGION %in% c("MHI", "NWHI") & wsd$OBS_YEAR %in% seq(2010,2012),]$ANALYSIS_YEAR<-"2010-12"
-wsd[wsd$REGION %in% c("MHI", "NWHI") & wsd$OBS_YEAR %in% seq(2013,2015),]$ANALYSIS_YEAR<-"2013-15"
-wsd[wsd$REGION %in% c("SAMOA") & wsd$OBS_YEAR %in% seq(2015,2016,2015-16),]$ANALYSIS_YEAR<-"2015-16"
 
 #set all Backreef to a single DEPTH_ZONE ("All") 
 wsd$STRATA<-paste(wsd$REEF_ZONE, wsd$DEPTH_BIN, sep="_")
@@ -345,11 +327,12 @@ a<-dcast(wsd, ANALYSIS_SCHEME + ISLAND + ANALYSIS_SEC + OBS_YEAR ~ STRATA, value
 #     POOL WSD (WORKING SITE DATA TO STRATA THEN TO HIGHER LEVELS
 ##
 ###################################################################################################################################################################
-
+levels(wsd$SEC_NAME)<-c(levels(wsd$SEC_NAME), "TUT_FA_FE")
+wsd$SEC_NAME[wsd$SEC_NAME %in% c("TUT_FAGALUA","TUT_FAGATELE")] <- "TUT_FA_FE"
 
 ### CALCULATE MEAN AND VARIANCE WITHIN STRATA ###
-SPATIAL_POOLING_BASE<-c("REGION","ISLAND", "ANALYSIS_SEC", "REEF_ZONE", "STRATA")    
-ADDITIONAL_POOLING_BY<-c("ANALYSIS_YEAR")                                    # additional fields that we want to break data at, but which do not relate to physical areas (eg survey year or method)
+SPATIAL_POOLING_BASE<-c("ISLAND", "ANALYSIS_SEC", "SEC_NAME","REEF_ZONE", "STRATA")    
+ADDITIONAL_POOLING_BY<-c("OBS_YEAR")                                    # additional fields that we want to break data at, but which do not relate to physical areas (eg survey year or method)
 
 #generate within strata means and vars
 POOLING_LEVEL<-c(SPATIAL_POOLING_BASE, ADDITIONAL_POOLING_BY)
@@ -363,45 +346,17 @@ dps$SampleVar<-dps$SampleVar[dps$SampleVar$N>1,]
 dps$SampleSE<-dps$SampleSE[dps$SampleSE$N>1,]
 
 # e.g. SAVE BY ISLAND AND REEF_ZONE PER YEAR
-OUTPUT_LEVEL<-c("REGION","ISLAND","ANALYSIS_SEC","STRATA","ANALYSIS_YEAR") 
+OUTPUT_LEVEL<-c("ISLAND","STRATA","OBS_YEAR") 
 dpst<-Calc_Pooled_Simple(dps$Mean, dps$SampleVar, data.cols, OUTPUT_LEVEL, "AREA_HA")
-#write.csv(dpst, file="T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Stratum/BenthicCover_2010-2018_Tier1_STRATA.csv")
-write.csv(dpst, file="T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Stratum/BenthicCover_2010-2018_Tier3_STRATA.csv")
+write.csv(dpst, file="C:/Users/Courtney.S.Couch/Documents/GitHub/Benthic-Scripts/Project-specific scripts/TUT_Sanctuary_forMareikeSTRATA.csv")
 
 # e.g. SAVE BY SECTOR PER YEAR
-OUTPUT_LEVEL<-c("REGION","ISLAND","ANALYSIS_SEC","ANALYSIS_YEAR") 
+OUTPUT_LEVEL<-c("SEC_NAME","OBS_YEAR") 
 dpsec<-Calc_Pooled_Simple(dps$Mean, dps$SampleVar, data.cols, OUTPUT_LEVEL, "AREA_HA")
-#write.csv(dpsec, file="T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Sector/BenthicCover_2010-2018_Tier1_SECTOR.csv")
-write.csv(dpsec, file="T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Sector/BenthicCover_2010-2018_Tier3_SECTOR.csv")
-
-
-# e.g. SAVE BY ISLAND PER YEAR
-OUTPUT_LEVEL<-c("REGION","ISLAND","ANALYSIS_YEAR") 
-dpis<-Calc_Pooled_Simple(dps$Mean, dps$SampleVar, data.cols, OUTPUT_LEVEL, "AREA_HA")
-#write.csv(dpsec, file="T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Island/BenthicCover_2010-2018_Tier1_ISLAND.csv")
-write.csv(dpsec, file="T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Island/BenthicCover_2010-2018_Tier3_ISLAND.csv")
-
-
-
-#Create a summary table of sites from SURVEY MASTER to make sure that sites weren't dropped
-sm<-read.csv("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/data/SURVEY MASTER.csv")
-sm$SITE<-SiteNumLeadingZeros(sm$SITE)
-
-#Are there NAs in TRANSECT PHOTOS
-sm$TRANSECT_PHOTOS[is.na(sm$TRANSECT_PHOTOS)]<-0
-sm$Oceanography[is.na(sm$Oceanography)]<-0
-sm$EXCLUDE_FLAG[is.na(sm$EXCLUDE_FLAG)]<-0
-sm$CLIMATE_STATION_YN[is.na(sm$CLIMATE_STATION_YN)]<-0
-sm$PERM_SITE[is.na(sm$PERM_SITE)]<-0
-
-sm2<-subset(sm,Oceanography!=1 & TRANSECT_PHOTOS!=0 & EXCLUDE_FLAG!="-1"& PERM_SITE!=-1 &CLIMATE_STATION_YN!=-1)
-sm2$Stratum<-paste(sm2$SEC_NAME,sm2$REEF_ZONE,sm2$DEPTH_BIN)
-table(sm2$Stratum,sm2$OBS_YEAR)
-
-
+write.csv(dpsec, file="C:/Users/Courtney.S.Couch/Documents/GitHub/Benthic-Scripts/Project-specific scripts/TUT_Sanctuary_forMareikeSECTOR.csv")
 
 #QC Checks- Doing this mannually for now. build in some scripts
-#1. Do the number of sites for each island/year match the survey master?- both fish and benthic sites should be included
+#1. Do the number of sites for each island/year match the site master?- both fish and benthic sites should be included
 #2. Does AREA_HA in the summarized data match what's in the SectorStrata Area file?
 #3. Does the range of values make sense? Are there any values that are obviously incorrect (e.g. 200% cover)
 

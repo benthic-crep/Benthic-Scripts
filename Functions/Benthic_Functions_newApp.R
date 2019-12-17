@@ -613,10 +613,15 @@ PoolSecStrat=function(site_data){
   
   #Changing sector pooling structure for GUAM & CNMI
   site_data <- site_data[!(site_data$ISLAND=="Maug" & site_data$REEF_ZONE=="Lagoon"),] 
-  site_data$BEN_SEC<-ifelse(site_data$SEC_NAME %in% c("GUA_ACHANG","GUA_EAST_OPEN","GUA_PATI_POINT"),"GUAEAALL",as.character(site_data$BEN_SEC))
-  site_data$BEN_SEC<-ifelse(site_data$SEC_NAME %in% c("GUA_HARBOR","GUA_WEST_OPEN","GUA_PITI_BOMB","GUA_SASA_BAY","GUA_TUMON"),"GUAWEALL",as.character(site_data$BEN_SEC))
+  # site_data$BEN_SEC<-ifelse(site_data$SEC_NAME %in% c("GUA_ACHANG","GUA_EAST_OPEN","GUA_PATI_POINT"),"GUAEAALL",as.character(site_data$BEN_SEC))
+  # site_data$BEN_SEC<-ifelse(site_data$SEC_NAME %in% c("GUA_HARBOR","GUA_WEST_OPEN","GUA_PITI_BOMB","GUA_SASA_BAY","GUA_TUMON"),"GUAWEALL",as.character(site_data$BEN_SEC))
   site_data$BEN_SEC<-ifelse(site_data$SEC_NAME %in% c("Guguan", "Alamagan", "Sarigan"),"AGS",as.character(site_data$BEN_SEC))
   site_data$ISLAND<-ifelse(site_data$SEC_NAME %in% c("Guguan", "Alamagan", "Sarigan"),"AGS",as.character(site_data$ISLAND))
+  
+  #For MARAMP20 allocation
+  site_data$BEN_SEC<-ifelse(site_data$SEC_NAME %in% c("GUA_EAST_OPEN"),"GUA_EAST_OPEN",as.character(site_data$BEN_SEC))
+  site_data$BEN_SEC<-ifelse(site_data$SEC_NAME %in% c("GUA_WEST_OPEN"),"GUA_WEST_OPEN",as.character(site_data$BEN_SEC))
+  site_data$BEN_SEC<-ifelse(site_data$SEC_NAME %in% c("GUA_ACHANG","GUA_PATI_POINT","GUA_PITI_BOMB","GUA_SASA_BAY","GUA_TUMON"),"GUA_MPA",as.character(site_data$BEN_SEC))
   
   #Changing sector pooling structure for MHI- did not combine other islands and structure together because they did not have more than 1 sector (e.g. HAW_KONA_CR is the only coral rich sector on hawaii island)
   site_data$BEN_SEC<-ifelse(site_data$ISLANDCODE =="HAW"& site_data$bGEN_MHI_STRUCTURE=="CM","HAW_CM",as.character(site_data$BEN_SEC))
