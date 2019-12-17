@@ -459,7 +459,7 @@ SURVEY_SITE<-c("DATE_","SITEVISITID", "OBS_YEAR", "REGION", "REGION_NAME", "ISLA
 survey_site<-unique(awd[,SURVEY_SITE])
 
 SURVEY_Seg<-c("DATE_","SITEVISITID", "OBS_YEAR", "REGION", "REGION_NAME", "ISLAND","ISLANDCODE","SEC_NAME", "SITE", "REEF_ZONE",
-              "DEPTH_BIN", "LATITUDE", "LONGITUDE","SITE_MIN_DEPTH","SITE_MAX_DEPTH","TRANSECT","SEGMENT")
+              "DEPTH_BIN","HABITAT_CODE", "LATITUDE", "LONGITUDE","SITE_MIN_DEPTH","SITE_MAX_DEPTH","METHOD","TRANSECT","SEGMENT")
 survey_segment<-unique(awd[,SURVEY_Seg])
 
 #Site/segement table for SfM QC
@@ -582,3 +582,14 @@ data.tax$CHRO_prev<-(data.tax$CHRO_den*data.tax$SEGAREA_ad)/data.tax$AdColCount*
 head(data.tax)
 head(subset(data.tax,TAXONCODE==0))
 
+
+
+# Prepare Diver data to merge with SfM data -------------------------------
+#Make sure you have all transects and segments
+levels(as.factor(data.tax$TRANSECT))
+levels(as.factor(data.tax$SEGMENT))
+
+#Merge survey segment with segment-level demographic data
+diver.tax<-merge(survey_segment,data.tax,by=c("SITE","SITEVISITID","TRANSECT","SEGMENT"),all.y=T)
+if(nrow(data.tax)!=nrow(diver.tax)) {cat("Warning: dataframes did not merge properly")}   
+head(diver.tax)
