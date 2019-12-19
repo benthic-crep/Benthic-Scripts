@@ -12,11 +12,38 @@ library(scales)  # for pretty_breaks() function
 
 # GENERAL FUNCTIONS -------------------------------------------------------
 
-#merging more than 2 dataframes together. use df <- Reduce(MyMerge, list(m1, m2, m3)) to use function
-MyMerge <- function(x, y){
-  df <- merge(x, y, by= c("SITE","SITEVISITID","TRANSECT","GENUS_CODE"), all.x= TRUE, all.y= TRUE)
-  return(df)
+#convert segment numbers from 1,3,5,7 to 0,5,10,15 to reduce confusion
+ConvertSegNumber<-function(data){
+data$SEGMENT<-as.factor(data$SEGMENT)
+data<-data %>% mutate(SEGMENT.new=recode(SEGMENT, 
+                               `1`="0",
+                               `3`="5",
+                               `5`="10",
+                               `7`="15",
+                               `NA`="NA"))
+return(data$SEGMENT.new)
 }
+
+#convert segment numbers from 1,3,5,7 to 0,5,10,15 to reduce confusion
+ConvertSegNumOLDHARAMP<-function(data){
+  data$SEGMENT<-as.factor(data$SEGMENT)
+  data<-data %>% mutate(SEGMENT.new=recode(SEGMENT, 
+                                           `1`="0",
+                                           `3`="5",
+                                           `5`="10",
+                                           `7`="15",
+                                           `NA`="NA"))
+  return(data$SEGMENT.new)
+}
+
+# #Create General Recent Dead Cause code based on specific cause code
+# CreateGenRDCode<-function(data,rdcode_field,gencode_name,lookup){
+#   data$CODE<-data[,rdcode_field] #assign a grouping field for taxa
+#   data<-data %>% 
+#     inner_join(gencodes, by = c(CODE = "RDCODE")) %>% mutate(gencode_name = GENCODE)%>% select(-gencode_name)
+#   colnames(data)[which(colnames(data) == 'gencode_name')] <- gencode_name #change group to whatever your grouping field is.
+#   return(data)
+# }
 
 #Convert SPCODE in raw colony data to taxoncode.We use taxoncode because some taxa can not be reliably identified 
 #to species-level across observers and need to be rolled up to genus. -generates a look up table
