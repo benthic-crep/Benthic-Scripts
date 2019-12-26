@@ -586,21 +586,13 @@ head(diver.tax)
 
 
 # SFM:ADULT CLEAN ANALYSIS READY DATA --------------------
-x<-read.csv("T:/Benthic/SfM/Materials for SfM benthic QC/HARAMP2019_test2.csv")
+x<-read.csv("T:/Benthic/Data/SfM/QC/HARAMP2019_QCdsfm_ADULT.csv")
 
-#Convert blanks to NAs
-for(i in 1:ncol(x)) 
-  if(is.factor(x[,i])) 
-    levels(x[,i]) <- c(levels(x[,i]),"NONE")
-x[x == " "] <- "NONE"
-x<-droplevels(x)
 
 head(x)
 View(x)
-#Double check level and class of variables to make sure there aren't any errors
-sapply(x,levels)
-sapply(x,class)##Change column names to make code easier to code
 colnames(x)
+
 # Column Names Changes... -------------------------------------------------
 colnames(x)[colnames(x)=="MISSION_ID"]<-"MISSIONID" #Change column name
 colnames(x)[colnames(x)=="RD_1"]<-"RDEXTENT1" #Change column name
@@ -623,8 +615,14 @@ x$METHOD<-"SfM"
 
 if(DEBUG){head(x)}
 
+table(x$SITE,x$ANALYST)
 
-# CLEAN UP ----------------------------------------------------------------
+#Adding and Modifying columns
+
+#Fill in columns with values that we know should not be different across any of the rows
+x$MISSION_ID <- as.factor(rep("SE1902", times = nrow(sfm.raw)))
+x$OBS_YEAR <- as.vector(rep(2019, times = nrow(sfm.raw)))
+
 x$COLONYLENGTH<-x$COLONYLENGTH*100 #convert from m to cm
 
 x$S_ORDER<-ifelse(x$NO_COLONY_==0 & x$SPCODE!="NONE","Scleractinia","NONE") #add S_order column
@@ -639,6 +637,14 @@ x<-x %>%
 
 head(x,10)
 
+#Create Transect column and use this to code duplicate segments
+x$TRANSECT<-ifelse(x$ANALYST=="MA","1","2")
+
+#Merge data with Survey
+segvisit<-read.csv("T:/Benthic/SfM/Materials for SfM benthic QC/HARAMPbenthic_site_seglist.csv");head(segvisit)
+
+df<-merge(x,segvisit,by=c("OBS_YEAR","MISSIONID","SITE","SEGMENT"))
+# CLEAN UP ----------------------------------------------------------------
 
 #Change NAs in RecentDead extent to 0
 head(subset(x,S_ORDER=="Scleractinia" & is.na(x$RDEXTENT1))) #identify columns that have NAs
@@ -719,6 +725,8 @@ nrow(x)
 #                    "SEVERITY_2","SEVERITY_3","GENUS_CODE","S_ORDER")
 # x[,NegNineCheckCols][x[,NegNineCheckCols]==-9] <- NA #Convert missing numeric values to NA (they are entered as -9 in Oracle)
 
+
+# Clean up NAs ------------------------------------------------------------
 tmp.lev<-levels(x$GENRD1); tmp.lev
 levels(x$GENRD1)<-c(tmp.lev, "NONE") # change to NONE
 x[is.na(x$GENRD1),"GENRD1"]<-"NONE"
@@ -764,10 +772,7 @@ awd<-droplevels(x)
 ## CREATE JUVENILE CLEAN ANALYSIS READY DATA ----
 ## LOAD benthic data
 setwd("C:/Users/Courtney.S.Couch/Documents/Courtney's Files/R Files/ESD/Benthic REA")
-load("T:/Benthic/Data/REA Coral Demography & Cover/Raw from Oracle/ALL_REA_JUVCORAL_RAW_2013-2019.rdata") #from oracle
-
-x<-df
-x$SITE<-SiteNumLeadingZeros(x$SITE) # Change site number such as MAR-22 to MAR-0022
+x<-read.csv("T:/Benthic/Data/SfM/QC/HARAMP2019_QCdsfm_JUV.csv") #from oracle
 
 #Convert date formats
 class(x$DATE_)
