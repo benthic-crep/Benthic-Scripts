@@ -37,13 +37,13 @@ ConvertSegNumOLDHARAMP<-function(data){
 }
 
 # #Create General Recent Dead Cause code based on specific cause code
-# CreateGenRDCode<-function(data,rdcode_field,gencode_name,lookup){
-#   data$CODE<-data[,rdcode_field] #assign a grouping field for taxa
-#   data<-data %>% 
-#     inner_join(gencodes, by = c(CODE = "RDCODE")) %>% mutate(gencode_name = GENCODE)%>% select(-gencode_name)
-#   colnames(data)[which(colnames(data) == 'gencode_name')] <- gencode_name #change group to whatever your grouping field is.
-#   return(data)
-# }
+CreateGenRDCode<-function(data,rdcode_field,gencode_name,lookup){
+  data$CODE<-data[,rdcode_field] #assign a grouping field for taxa
+  data<-merge(data,lookup, by = "CODE",all.x=T)
+  colnames(data)[which(colnames(data) == 'GENCODE')] <- gencode_name #change group to whatever your grouping field is.
+  data<-subset(data,select=-c(CODE))
+  return(data)
+}
 
 #Convert SPCODE in raw colony data to taxoncode.We use taxoncode because some taxa can not be reliably identified 
 #to species-level across observers and need to be rolled up to genus. -generates a look up table
