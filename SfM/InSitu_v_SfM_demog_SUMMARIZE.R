@@ -1,13 +1,33 @@
-#Final Tweaks before calculating Site-level data-------------------------------------------------
-#Colony fragments and scleractinans are subseted in the functions 
+#This script reads in the diver and SfM-generated demographic data that has been QC'd and cleaned up
+#Then generates segment-level summarized that for methods comparision
 
+rm(list=ls())
+
+#LOAD LIBRARY FUNCTIONS ... 
+source("C:/Users/Courtney.S.Couch/Documents/GitHub/Benthic-Scripts/Functions/Benthic_Functions_newApp_vTAOfork.R")
+source("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/lib/core_functions.R")
+source("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/lib/GIS_functions.R")
+
+## LOAD benthic data
+setwd("C:/Users/Courtney.S.Couch/Documents/Courtney's Files/R Files/ESD/Benthic REA")
+
+#Read in files
+ad_diver<-read.csv("T:/Benthic/Data/SfM/Analysis Ready/HARAMP19_DIVERAdult_CLEANED.csv")
+j_diver<-read.csv("T:/Benthic/Data/SfM/Analysis Ready/HARAMP19_DIVERJuv_CLEANED.csv")
+ad_sfm<-read.csv("T:/Benthic/Data/SfM/Analysis Ready/HARAMP19_SfMAdult_CLEANED.csv")
+j_sfm<-read.csv("T:/Benthic/Data/SfM/Analysis Ready/HARAMP19_SfMJuv_CLEANED.csv")
+
+#Final Tweaks and merge adult and juv datasets-------------------------------------------------
 #Add a column for adult fragments so we can remove them from the dataset later (-1 indicates fragment)
-# awd<-CreateFragment(awd)
-awd$Fragment<-ifelse(awd$OBS_YEAR <2018 & awd$COLONYLENGTH <5 & awd$S_ORDER=="Scleractinia",-1,awd$Fragment)
-head(subset(awd,Fragment==-1& OBS_YEAR<2018)) #double check that pre 2018 fragments create
-awd$Fragment[is.na(awd$Fragment)] <- 0
-jwd$Fragment <- 0 # you need to add this column so that you can use the site level functions correctly
+ad_diver$Fragment[is.na(ad_diver$Fragment)] <- 0
+j_diver$Fragment <- 0 # you need to add this column so that you can use the site level functions correctly
+ad_diver$EX_BOUND<-0 #add column so we can merge with sfm data
 
+ad_diver[,c("METHOD","ANALYST", "REGION","OBS_YEAR","MISSIONID","ISLAND","SEC_NAME","SITEVISITID","SITE","REEF_ZONE","DEPTH_BIN",
+            "HABITAT_CODE","LATITUDE","LONGITUDE","MIN_DEPTH_M","MAX_DEPTH_M","TRANSECT","SEGMENT","SEGLENGTH","SEGWIDTH",
+            "SEGAREA","TRANSECTAREA","NO_COLONY_","COLONYID","Fragment","S_ORDER","GENUS_CODE","SPCODE","TAXONCODE","TAXONNAME",
+            "MORPH_CODE","EX_BOUND","COLONYLENGTH","OLDDEAD","GENRD1","GENRD2","GENRD3","RD1","RDEXTENT1","RD2","RDEXTENT2","RD3",
+            "RDEXTENT3","CONDITION_1","EXTENT_1","SEVERITY_1","CONDITION_2","EXTENT_2","SEVERITY_2","CONDITION_3","EXTENT_3","SEVERITY_3")]
 
 
 #Create a look a table of all of the colony attributes- you will need this the functions below

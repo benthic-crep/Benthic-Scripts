@@ -12,38 +12,22 @@ library(scales)  # for pretty_breaks() function
 
 # GENERAL FUNCTIONS -------------------------------------------------------
 
-#convert segment numbers from 1,3,5,7 to 0,5,10,15 to reduce confusion
-ConvertSegNumber<-function(data){
-data$SEGMENT<-as.factor(data$SEGMENT)
-data<-data %>% mutate(SEGMENT.new=recode(SEGMENT, 
-                               `1`="0",
-                               `3`="5",
-                               `5`="10",
-                               `7`="15",
-                               `NA`="NA"))
-return(data$SEGMENT.new)
-}
-
-#convert segment numbers from 1,3,5,7 to 0,5,10,15 to reduce confusion
-ConvertSegNumOLDHARAMP<-function(data){
-  data$SEGMENT<-as.factor(data$SEGMENT)
-  data<-data %>% mutate(SEGMENT.new=recode(SEGMENT, 
-                                           `1`="0",
-                                           `3`="5",
-                                           `5`="10",
-                                           `7`="15",
-                                           `NA`="NA"))
-  return(data$SEGMENT.new)
-}
-
 # #Create General Recent Dead Cause code based on specific cause code
 CreateGenRDCode<-function(data,rdcode_field,gencode_name,lookup){
   data$CODE<-data[,rdcode_field] #assign a grouping field for taxa
-  data<-merge(data,lookup, by = "CODE",all.x=T)
+  data$CODE<-as.factor(data$CODE)
+  data<-left_join(data,lookup, by = "CODE")
   colnames(data)[which(colnames(data) == 'GENCODE')] <- gencode_name #change group to whatever your grouping field is.
   data<-subset(data,select=-c(CODE))
   return(data)
 }
+
+#Create GENUS_CODE from SPCODE (you will need to do this for the SfM data)
+CreateGenusCode<-function(data,taxamaster){
+  data<-left_join(data,taxamaster, by = "SPCODE")
+  return(data)
+}
+
 
 #Convert SPCODE in raw colony data to taxoncode.We use taxoncode because some taxa can not be reliably identified 
 #to species-level across observers and need to be rolled up to genus. -generates a look up table
@@ -120,14 +104,14 @@ Transectarea<-function(data){
   data$SEGAREA<-data$SEGLENGTH*data$SEGWIDTH # Calculate segment area
   
   #Calculate total transect area then merge back to a dataframe
-  s.df<-ddply(data, .(MISSIONID,REGION_NAME,ISLAND,OBS_YEAR,SITE,TRANSECT,SEGMENT,SITEVISITID),
+  s.df<-ddply(data, .(MISSIONID,REGION,ISLAND,OBS_YEAR,SITE,TRANSECT,SEGMENT,SITEVISITID),
               summarise,
               SEGAREA=median(SEGAREA))
-  tr.df<-ddply(s.df, .(MISSIONID,REGION_NAME,ISLAND,OBS_YEAR,SITE,TRANSECT,SITEVISITID),
+  tr.df<-ddply(s.df, .(MISSIONID,REGION,ISLAND,OBS_YEAR,SITE,TRANSECT,SITEVISITID),
                summarise,
                TRANSECTAREA=sum(SEGAREA))
   
-  data<-join(data,tr.df, by=c("MISSIONID","REGION_NAME","ISLAND","OBS_YEAR","SITE","SITEVISITID","TRANSECT"))
+  data<-left_join(data,tr.df, by=c("MISSIONID","REGION","ISLAND","OBS_YEAR","SITE","SITEVISITID","TRANSECT"))
   
   
   return(data$TRANSECTAREA)
@@ -177,7 +161,7 @@ Calc_SurveyArea_By_Site<-function(data){
   return(tr.df2)
 }
 
-#### Functions for benthic summary metrics (segment-level for inter-diver comparisons) ####
+#### SEGMENT-LEVEL SUMMARY FUNCTIONS ####
 
 ## This function calculates total area per segment. Using median will help you with situations where someone recorded different seg areas by mistake.
 Calc_SurveyArea_By_Seg<-function(data) {
@@ -196,28 +180,28 @@ Calc_ColDen_Seg<-function(data, grouping_field="GENUS_CODE"){
   data$GROUP<-data[,grouping_field] #assign a grouping field for taxa
   
   #Calculate # of colonies for each variable. You need to have S_ORDER and Fragment here so you can incorporate zeros properly later in the code
-  a<-ddply(data, .(SITE,SITEVISITID,TRANSECT, SEGMENT,S_ORDER,GROUP,Fragment),
+  a<-ddply(data, .(METHOD,SITE,SITEVISITID,TRANSECT, SEGMENT,S_ORDER,GROUP,Fragment),
            summarise,
            ColCount=length(COLONYID)) #change to count
   
   #Convert from long to wide and insert 0s for taxa that weren't found at each site. 
   ca0=spread(a,key=GROUP,value=ColCount,fill=0) #Keepin' it TIDYR
   data.cols<-names(ca0[which(names(ca0)=="AAAA"):dim(ca0)[2]]) #define your data coloumns
-  field.cols<-c("SITE", "SITEVISITID", "TRANSECT","SEGMENT","Fragment") #define field columns
+  field.cols<-c("METHOD","SITE", "SITEVISITID", "TRANSECT","SEGMENT","Fragment") #define field columns
   
   ### Drop all fragments, but don't drop a fragment-only transect... ###
   #change colony counts for fragments to 0 so that we account for the transects that only had fragments
   ca0[which(ca0$Fragment <0), data.cols]<-0 
   
   #At this point you will have multiple rows for each site/transect so sum data by site and transect. This will help you properly insert 0s
-  field.cols<-c("SITE", "SITEVISITID", "TRANSECT","SEGMENT")
+  field.cols<-c("METHOD","SITE", "SITEVISITID", "TRANSECT","SEGMENT")
   ca1<-aggregate(ca0[,data.cols], by=ca0[,field.cols], sum) 
   rm(list='ca0')
   
   #Create a list of scleractinian taxa that are in the dataframe as columns then sum across just those taxa to get total scl
   b<-subset(data,S_ORDER=="Scleractinia");taxalist<-as.character(unique(b$GROUP))
   ca1$SSSS<-rowSums(ca1[,taxalist,drop=FALSE]) #calculate total colony density
-  ca2 <- gather(ca1, GROUP, ColCount, names(ca1[5:dim(ca1)[2]]), factor_key=TRUE) #convert wide to long format
+  ca2 <- gather(ca1, GROUP, ColCount, names(ca1[6:dim(ca1)[2]]), factor_key=TRUE) #convert wide to long format
   rm(list='ca1')
   
   #Remove everything that isn't a scleractinian
@@ -226,8 +210,8 @@ Calc_ColDen_Seg<-function(data, grouping_field="GENUS_CODE"){
   rm(list='ca2')
   
   #Calculate SEGMENT area surveyed and colony density***
-  uTA=unique(data[,c("SITE","SITEVISITID","TRANSECT","SEGMENT","SEGAREA")])
-  out<-join(uTA,ca3, by=c("SITE","SITEVISITID","TRANSECT","SEGMENT"))
+  uTA=unique(data[,c("METHOD","SITE","SITEVISITID","TRANSECT","SEGMENT","SEGAREA")])
+  out<-join(uTA,ca3, by=c("METHOD","SITE","SITEVISITID","TRANSECT","SEGMENT"))
   out$ColDen<-out$ColCount/out$SEGAREA
   colnames(out)[which(colnames(out) == 'GROUP')] <- grouping_field #change group to whatever your grouping field is.
   
