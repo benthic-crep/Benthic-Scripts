@@ -360,6 +360,11 @@ output[17,]<-c("RD + OD <=100%","OK")
 output[18,]<-c("Site coordinates look good", "pending")
 
 
+#19. Merge together adult and juvenile datasets to make sure there aren't missing adult or juvenile data- 
+#you should have already figured this out using the above script, but this is a triple check.
+
+#WRITE SCRIPT
+
 
 #Export QC output table with appropriate file name
 write.csv(output,"HARAMP2019_Leg2QC_output.csv")

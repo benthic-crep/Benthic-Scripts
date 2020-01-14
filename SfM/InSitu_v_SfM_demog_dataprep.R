@@ -108,6 +108,21 @@ head(miss.sites,20)
 
 # CLEAN UP ----------------------------------------------------------------
 
+#Generate General RD cause code
+gencodes<-read.csv("T:/Benthic/Data/SpGen_Reference/GeneralRDcode_lookup.csv")
+head(x)
+levels(x$RD1)
+
+#Remove exisiting GENRD columns until Michael can fix database
+x<-subset(x,select=-c(GENRD1,GENRD2,GENRD3))
+
+x<-CreateGenRDCode(x,"RD1","GENRD1",gencodes)
+x<-CreateGenRDCode(x,"RD2","GENRD2",gencodes)
+x<-CreateGenRDCode(x,"RD3","GENRD3",gencodes)
+
+head(x)
+
+
 ##Remove sites that were only surveyed for photoquads but not demographics
 #Note-photoquad only sites are not included in data prior to 2018
 #Test whether there are missing values in the NO_SURVEY_YN column. The value should be 0 or -1
@@ -123,11 +138,6 @@ x<-subset(x,NO_SURVEY_YN==0)
 
 
 #TEMPORARY FIX-SPEAK WITH DM TO CORRECT IN ORACLE
-#Change all special missions to exclude flag =-1, right now they are 0. Then exclude these sites
-levels(x$MISSIONID)
-x$EXCLUDE_FLAG<-ifelse(x$MISSIONID %in% c("MP1410","MP1512","MP1602","SE1602"),-1,0)
-head(subset(x,EXCLUDE_FLAG==-1))
-
 x<-subset(x,SEGLENGTH!="NA") #Remove segments that were not surveyed for coral demography (no SEGLENGTH=0 in db)
 #Actually remove special missions.
 x<-subset(x,EXCLUDE_FLAG==0);
@@ -187,8 +197,6 @@ subset(x,S_ORDER=="Scleractinia" & TAXONCODE=="NA") #this dataframe should be em
 x$GENUS_CODE<-ifelse(x$TAXONCODE=="UNKN","UNKN",x$GENUS_CODE)
 x$TAXONCODE<-ifelse(x$SPCODE=="AAAA","AAAA",x$TAXONCODE)
 x$GENUS_CODE<-ifelse(x$TAXONCODE=="AAAA","AAAA",x$GENUS_CODE)
-x$TAXONCODE<-ifelse(x$SPCODE %in% c("MOAS","LEPA"),"UNKN",x$TAXONCODE)
-x$GENUS_CODE<-ifelse(x$SPCODE %in% c("MOAS","LEPA"),"UNKN",x$GENUS_CODE)
 
 
 View(x) #view data in separate window
@@ -257,13 +265,14 @@ x[is.na(x$CONDITION_3),"CONDITION_3"]<-"NONE"
 head(x)
 
 awd<-droplevels(x)
-write.csv(awd,file="T:/Benthic/Data/SfM/Analysis Ready/HARAMP19_DIVERAdult_CLEANED.csv")
+write.csv(awd,file="T:/Benthic/Data/SfM/Analysis Ready/HARAMP19_DIVERAdult_CLEANED.csv",row.names = F)
 
 
 
 ## DIVER:JUVENILE CLEAN ANALYSIS READY DATA ----
 ## LOAD benthic data
-load("T:/Benthic/Data/REA Coral Demography & Cover/Raw from Oracle/ALL_REA_JUVCORAL_RAW_2013-2019.rdata") #from oracle
+#load("T:/Benthic/Data/REA Coral Demography & Cover/Raw from Oracle/ALL_REA_JUVCORAL_RAW_2013-2019.rdata") #from oracle
+load("C:/Users/Courtney.S.Couch/Documents/Courtney's Files/R Files/ESD/Temp Sfm Files/ALL_REA_JUVCORAL_RAW_2013-2019.rdata") #from oracle
 
 x<-df
 x$SITE<-SiteNumLeadingZeros(x$SITE) # Change site number such as MAR-22 to MAR-0022
@@ -348,11 +357,6 @@ x$NO_SURVEY_YN<-is.na(x$NO_SURVEY_YN)<-0 #Change NAs (blank cells) to 0
 x<-subset(x,NO_SURVEY_YN==0)
 
 #TEMPORARY FIX-SPEAK WITH DM TO CORRECT IN ORACLE
-#Change all special missions to exclude flag =-1, right now they are 0 Then exclude these sites
-levels(x$MISSIONID)
-x$EXCLUDE_FLAG<-ifelse(x$MISSIONID %in% c("MP1410","MP1512","MP1602","SE1602"),-1,0)
-head(subset(x,EXCLUDE_FLAG==-1))
-
 x<-subset(x,SEGLENGTH!="NA") #Remove segments that were not surveyed for coral demography
 x<-subset(x,EXCLUDE_FLAG==0);head(subset(x,EXCLUDE_FLAG==-1))# this dataframe should be empty
 
@@ -397,8 +401,6 @@ subset(x,S_ORDER=="Scleractinia" & TAXONCODE=="NA") #this dataframe should be em
 x$GENUS_CODE<-ifelse(x$TAXONCODE=="UNKN","UNKN",x$GENUS_CODE)
 x$TAXONCODE<-ifelse(x$SPCODE=="AAAA","AAAA",x$TAXONCODE)
 x$GENUS_CODE<-ifelse(x$TAXONCODE=="AAAA","AAAA",x$GENUS_CODE)
-x$TAXONCODE<-ifelse(x$SPCODE %in% c("MOAS","LEPA"),"UNKN",x$TAXONCODE)
-x$GENUS_CODE<-ifelse(x$SPCODE %in% c("MOAS","LEPA"),"UNKN",x$GENUS_CODE)
 
 View(x) #view data in separate window
 
@@ -424,7 +426,7 @@ x[,NegNineCheckCols][x[,NegNineCheckCols] ==-9] <- NA #Convert missing numeric v
 
 
 jwd<-droplevels(x)
-write.csv(jwd,file="T:/Benthic/Data/SfM/Analysis Ready/HARAMP19_DIVERJuv_CLEANED.csv")
+write.csv(jwd,file="T:/Benthic/Data/SfM/Analysis Ready/HARAMP19_DIVERJuv_CLEANED.csv",row.names = F)
 
 
 
@@ -472,6 +474,8 @@ x$OBS_YEAR <- as.vector(rep(2019, times = nrow(x)))
 x$COLONYLENGTH<-x$COLONYLENGTH*100 #convert from m to cm
 x$S_ORDER<-ifelse(x$NO_COLONY_==0 & x$SPCODE!="NONE","Scleractinia","NONE") #add S_order column
 
+#I manually removed the bleaching severity 1 colonies - ifelse wasn't working
+
 #Create Genuscode and taxonname column from spcode
 genlookup<-read.csv("T:/Benthic/Data/SpGen_Reference/Genus_lookup.csv")
 x<-CreateGenusCode(x,genlookup) 
@@ -489,9 +493,6 @@ x<-CreateGenRDCode(x,"RD3","GENRD3",gencodes)
 head(x)
 nrow(df);nrow(x) #make sure rows weren't dropped
 
-
-#Create Transect column and use this to code duplicate segments
-x$TRANSECT<-ifelse(x$ANALYST=="MA","1","2")
 
 # Merge Adult data and  SURVEY MASTER -------------------------------------
 survey_master<-read.csv("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/data/SURVEY MASTER.csv")
@@ -556,8 +557,9 @@ head(subset(x,GENUS_CODE=="AAAA"))
 head(subset(x,SPCODE=="AAAA"))
 
 
-##Calcuating segment and transect area and add column for transect area
-x$TRANSECTAREA<-Transectarea(x)
+#In order to record no colonies observed in a segment, we need to create a small colony on the image.This code removes that size measure
+x$COLONYLENGTH<-ifelse(xSPCODE=="AAAA",0,as.character(x$COLONYLENGTH))
+
 
 # sapply(x,levels)
 head(x)
@@ -565,9 +567,9 @@ nrow(x)
 
 #Reorder columns
 x<-x[,c("METHOD","ANALYST", "REGION","OBS_YEAR","MISSIONID","ISLAND","SEC_NAME","SITEVISITID","SITE","REEF_ZONE","DEPTH_BIN",
-  "HABITAT_CODE","LATITUDE","LONGITUDE","MIN_DEPTH_M","MAX_DEPTH_M","TRANSECT","SEGMENT","SEGLENGTH","SEGWIDTH",
-  "SEGAREA","TRANSECTAREA","NO_COLONY_","COLONYID","Fragment","S_ORDER","GENUS_CODE","SPCODE","TAXONCODE","TAXONNAME",
-  "MORPH_CODE","EX_BOUND","COLONYLENGTH","OLDDEAD","GENRD1","GENRD2","GENRD3","RD1","RDEXTENT1","RD2","RDEXTENT2","RD3",
+  "HABITAT_CODE","LATITUDE","LONGITUDE","MIN_DEPTH_M","MAX_DEPTH_M","SEGMENT","SEGLENGTH","SEGWIDTH",
+  "SEGAREA","COLONYID","Fragment","S_ORDER","GENUS_CODE","SPCODE","TAXONCODE","TAXONNAME",
+  "EX_BOUND","COLONYLENGTH","OLDDEAD","GENRD1","GENRD2","GENRD3","RD1","RDEXTENT1","RD2","RDEXTENT2","RD3",
   "RDEXTENT3","CONDITION_1","EXTENT_1","SEVERITY_1","CONDITION_2","EXTENT_2","SEVERITY_2","CONDITION_3","EXTENT_3","SEVERITY_3")]         
                
 
@@ -618,7 +620,7 @@ x[is.na(x$CONDITION_3),"CONDITION_3"]<-"NONE"
 head(x)
 
 awd<-droplevels(x)
-write.csv(awd,file="T:/Benthic/Data/SfM/Analysis Ready/HARAMP19_SfMAdult_CLEANED.csv")
+write.csv(awd,file="T:/Benthic/Data/SfM/Analysis Ready/HARAMP19_SfMAdult_CLEANED.csv",row.names = F)
 
 
 
@@ -655,9 +657,6 @@ genlookup<-read.csv("T:/Benthic/Data/SpGen_Reference/Genus_lookup.csv")
 x<-CreateGenusCode(x,genlookup) 
 head(x)
 
-
-#Create Transect column and use this to code duplicate segments
-x$TRANSECT<-ifelse(x$ANALYST=="MA","1","2")
 
 # Merge Juvenile data and  SURVEY MASTER -------------------------------------
 survey_master<-read.csv("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/data/SURVEY MASTER.csv")
@@ -722,18 +721,18 @@ head(subset(x,GENUS_CODE=="AAAA"))
 head(subset(x,SPCODE=="AAAA"))
 
 
+#In order to record no colonies observed in a segment, we need to create a small colony on the image.This code removes that size measure
+x$COLONYLENGTH<-ifelse(x$SPCODE=="AAAA",0,as.character(x$COLONYLENGTH))
 
-##Calcuating transect area and add column for transect area
-x$TRANSECTAREA<-Transectarea(x)
 # sapply(x,levels)
 head(x)
 nrow(x)
 
 #Reorder columns
 x<-x[,c("METHOD","ANALYST", "REGION","OBS_YEAR","MISSIONID","ISLAND","SEC_NAME","SITEVISITID","SITE","REEF_ZONE","DEPTH_BIN",
-        "HABITAT_CODE","LATITUDE","LONGITUDE","MIN_DEPTH_M","MAX_DEPTH_M","TRANSECT","SEGMENT","SEGLENGTH","SEGWIDTH",
-        "SEGAREA","TRANSECTAREA","NO_COLONY_","COLONYID","Fragment","S_ORDER","GENUS_CODE","SPCODE","TAXONCODE","TAXONNAME",
-        "MORPH_CODE","EX_BOUND","COLONYLENGTH")]         
+        "HABITAT_CODE","LATITUDE","LONGITUDE","MIN_DEPTH_M","MAX_DEPTH_M","SEGMENT","SEGLENGTH","SEGWIDTH",
+        "SEGAREA","COLONYID","Fragment","S_ORDER","GENUS_CODE","SPCODE","TAXONCODE","TAXONNAME",
+        "EX_BOUND","COLONYLENGTH")]         
 
 
 ## CLEAN UP NAs ##
@@ -742,5 +741,5 @@ x[,NegNineCheckCols][x[,NegNineCheckCols] ==-9] <- NA #Convert missing numeric v
 
 
 jwd<-droplevels(x)
-write.csv(jwd,file="T:/Benthic/Data/SfM/Analysis Ready/HARAMP19_SfMJuv_CLEANED.csv")
+write.csv(jwd,file="T:/Benthic/Data/SfM/Analysis Ready/HARAMP19_SfMJuv_CLEANED.csv",row.names = F)
 

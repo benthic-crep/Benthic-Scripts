@@ -11,6 +11,17 @@ library(scales)  # for pretty_breaks() function
 
 
 # GENERAL FUNCTIONS -------------------------------------------------------
+#convert segment numbers from 1,3,5,7 to 0,5,10,15 to reduce confusion
+ConvertSegNumber<-function(data){
+  data$SEGMENT<-as.factor(data$SEGMENT)
+  data<-data %>% mutate(SEGMENT.new=recode(SEGMENT, 
+                                           `1`="0",
+                                           `3`="5",
+                                           `5`="10",
+                                           `7`="15",
+                                           `NA`="NA"))
+  return(data$SEGMENT.new)
+}
 
 # #Create General Recent Dead Cause code based on specific cause code
 CreateGenRDCode<-function(data,rdcode_field,gencode_name,lookup){
@@ -229,16 +240,16 @@ Calc_ColMetric_Seg<-function(data, grouping_field="GENUS_CODE", pool_fields=c("C
   scl$GROUP<-scl[,grouping_field]
   scl$y <- rowSums(scl[,pool_fields,drop=FALSE], na.rm=TRUE) #this will allow you to add the 2 recent dead columns if you are looking at this metric
   
-  rd<-ddply(scl, .(SITE,SITEVISITID,TRANSECT,SEGMENT,GROUP),
+  rd<-ddply(scl, .(METHOD,SITE,SITEVISITID,TRANSECT,SEGMENT,GROUP),
             summarise,
             Ave.y=mean(y, na.rm=TRUE))
   
-  rdtot<-ddply(scl, .(SITE,SITEVISITID,TRANSECT,SEGMENT),
+  rdtot<-ddply(scl, .(METHOD,SITE,SITEVISITID,TRANSECT,SEGMENT),
                summarise,
                Ave.y=mean(y, na.rm=TRUE))
-  rdtot$GROUP<-"SSSS"; rdtot <- rdtot[c(1,2,3,4,6,5)]
-  rd_wide<-dcast(rd, formula=SITE + SITEVISITID +TRANSECT+SEGMENT~ GROUP, value.var="Ave.y",fill=0)
-  rd_long <- gather(rd_wide, GROUP, Ave.y, names(rd_wide[5:dim(rd_wide)[2]]), factor_key=TRUE) #convert wide to long format
+  rdtot$GROUP<-"SSSS"; rdtot <- rdtot[c(1,2,3,4,5,7,6)]
+  rd_wide<-dcast(rd, formula=METHOD+ SITE + SITEVISITID +TRANSECT+SEGMENT~ GROUP, value.var="Ave.y",fill=0)
+  rd_long <- gather(rd_wide, GROUP, Ave.y, names(rd_wide[6:dim(rd_wide)[2]]), factor_key=TRUE) #convert wide to long format
   rd_long<-rbind(rd,rdtot)
   
   colnames(rd_long)[which(colnames(rd_long) == 'GROUP')] <- grouping_field #change group to whatever your grouping field is.
@@ -246,7 +257,7 @@ Calc_ColMetric_Seg<-function(data, grouping_field="GENUS_CODE", pool_fields=c("C
   return(rd_long)
 }
 
-#Updated 12/13/19
+#Updated 12/27/19
 Calc_RDden_Seg<-function(data, survey_colony_f=survey_colony, grouping_field="S_ORDER"){
   scl<-subset(data,Fragment==0 &S_ORDER=="Scleractinia")
   
@@ -263,32 +274,32 @@ Calc_RDden_Seg<-function(data, survey_colony_f=survey_colony, grouping_field="S_
   
   #convert from long to wide and fill in 0s
   # Tom gave up trying to make this from dcast to spread to 'keep dependencies down', maybe another day...
-  rd<-dcast(scl_l, formula=SITEVISITID + SITE+TRANSECT+SEGMENT+COLONYID ~ RDtype, value.var="RDtype",length,fill=0)
-  MDcol=c("SITEVISITID","SITE","TRANSECT","SEGMENT","COLONYID")
+  rd<-dcast(scl_l, formula=METHOD+SITEVISITID + SITE+TRANSECT+SEGMENT+COLONYID ~ RDtype, value.var="RDtype",length,fill=0)
+  MDcol=c("METHOD","SITEVISITID","SITE","TRANSECT","SEGMENT","COLONYID")
   DATAcol=setdiff(names(rd),MDcol)
   rd.new=rd;  rd.new[,DATAcol][rd.new[,DATAcol]>1]=1  
   
   #merge data with colony level metadata and sum conditions by transect and taxoncode
-  allrd3<-join(rd.new,survey_colony_f,by=MDcol)
+  allrd3<-left_join(rd.new,survey_colony_f,by=MDcol)
   ConditionsWeCareAbout=names(allrd3[(length(MDcol)+1):dim(rd.new)[2]])
   allrd3_l <- gather(data = allrd3, key = RDCond, value = abun,
                      ConditionsWeCareAbout,
                      factor_key=TRUE) #convert wide to long format by condition
   allrd3_l$GROUP<-allrd3_l[,grouping_field]
-  allrd3_lsum<-ddply(allrd3_l, .(SITE,SITEVISITID,TRANSECT,SEGMENT,GROUP,RDCond), #calc total colonies by taxon and condition
+  allrd3_lsum<-ddply(allrd3_l, .(METHOD,SITE,SITEVISITID,TRANSECT,SEGMENT,GROUP,RDCond), #calc total colonies by taxon and condition
                      summarise,
                      RDabun=sum(abun))
-  out1<-ddply(allrd3_lsum, .(SITE,SITEVISITID,TRANSECT,SEGMENT,RDCond), #calc total colonies by condition
+  out1<-ddply(allrd3_lsum, .(METHOD,SITE,SITEVISITID,TRANSECT,SEGMENT,RDCond), #calc total colonies by condition
               summarise,
               RDabun=sum(RDabun,na.rm=T))
-  out1$GROUP<-"SSSS"; out1 <- out1[c(1,2,3,4,7,5,6)] #add total colony code
+  out1$GROUP<-"SSSS"; out1 <- out1[c(1,2,3,4,5,8,6,7)] #add total colony code
   a<-subset(rbind(allrd3_lsum,out1),!RDCond %in% c("NONE_G","NONE"))
   
   #Convert back to wide format
-  abun<-dcast(a, formula=SITEVISITID +SITE + TRANSECT+SEGMENT+GROUP~ RDCond, value.var="RDabun",sum,fill=0)
+  abun<-dcast(a, formula=METHOD+SITEVISITID +SITE + TRANSECT+SEGMENT+GROUP~ RDCond, value.var="RDabun",sum,fill=0)
   
-  uTA=unique(data[,c("SITEVISITID","SITE","TRANSECT","SEGMENT","SEGAREA")])
-  ab.tr<-merge(x = uTA,y = abun,by=c("SITEVISITID","SITE","TRANSECT","SEGMENT"))
+  uTA=unique(data[,c("METHOD","SITEVISITID","SITE","TRANSECT","SEGMENT","SEGAREA")])
+  ab.tr<-merge(x = uTA,y = abun,by=c("METHOD","SITEVISITID","SITE","TRANSECT","SEGMENT"))
   #ab.tr<-join(x = uTA,y = abun,by=c("SITEVISITID","SITE","TRANSECT","SEGMENT"))#adding NA.1.....
   #Check NAs - Should be empty...
   new_DF <- sum(rowSums(is.na(ab.tr))) # should be 0
@@ -318,8 +329,8 @@ Calc_CONDden_Seg<-function(data,survey_colony_f=survey_colony, grouping_field="S
   long <- gather(data= scl, key= CONDcat,value=CONDtype, c(CONDITION_1,CONDITION_2,CONDITION_3,Chronic), factor_key=TRUE)
   
   #convert from long to wide and fill in 0s
-  rd<-dcast(long, formula=SITEVISITID + SITE+TRANSECT+SEGMENT+COLONYID ~ CONDtype, value.var="CONDtype",length,fill=0)
-  MDcol=c("SITEVISITID","SITE","TRANSECT","SEGMENT","COLONYID")
+  rd<-dcast(long, formula=METHOD+SITEVISITID + SITE+TRANSECT+SEGMENT+COLONYID ~ CONDtype, value.var="CONDtype",length,fill=0)
+  MDcol=c("METHOD","SITEVISITID","SITE","TRANSECT","SEGMENT","COLONYID")
   DATAcol=setdiff(names(rd),MDcol)
   rd.new=rd;  rd.new[,DATAcol][rd.new[,DATAcol]>1]=1  
   
@@ -330,20 +341,20 @@ Calc_CONDden_Seg<-function(data,survey_colony_f=survey_colony, grouping_field="S
                      ConditionsWeCareAbout,
                      factor_key=TRUE) #convert wide to long format by condition
   allrd3_l$GROUP<-allrd3_l[,grouping_field]
-  allrd3_lsum<-ddply(allrd3_l, .(SITE,SITEVISITID,TRANSECT,SEGMENT,GROUP,Cond), #calc total colonies by taxon and condition
+  allrd3_lsum<-ddply(allrd3_l, .(METHOD,SITE,SITEVISITID,TRANSECT,SEGMENT,GROUP,Cond), #calc total colonies by taxon and condition
                      summarise,
                      CONDabun=sum(abun))
-  out1<-ddply(allrd3_lsum, .(SITE,SITEVISITID,TRANSECT,SEGMENT,Cond), #calc total colonies by condition
+  out1<-ddply(allrd3_lsum, .(METHOD,SITE,SITEVISITID,TRANSECT,SEGMENT,Cond), #calc total colonies by condition
               summarise,
               CONDabun=sum(CONDabun,na.rm=T))
-  out1$GROUP<-"SSSS"; out1 <- out1[c(1,2,3,4,7,5,6)] #add total colony code
+  out1$GROUP<-"SSSS"; out1 <- out1[c(1,2,3,4,5,8,6,7)] #add total colony code
   a<-subset(rbind(allrd3_lsum,out1),!Cond %in% c("NONE_G","NONE"))
   
   #Convert back to wide format
-  abun<-dcast(a, formula=SITEVISITID +SITE + SEGMENT+TRANSECT+GROUP~ Cond, value.var="CONDabun",sum,fill=0)
+  abun<-dcast(a, formula=METHOD+SITEVISITID +SITE + SEGMENT+TRANSECT+GROUP~ Cond, value.var="CONDabun",sum,fill=0)
   
-  uTA=unique(data[,c("SITEVISITID","SITE","TRANSECT","SEGMENT","SEGAREA")])
-  ab.tr<-merge(x = uTA,y = abun,by=c("SITEVISITID","SITE","TRANSECT","SEGMENT"))
+  uTA=unique(data[,c("METHOD","SITEVISITID","SITE","TRANSECT","SEGMENT","SEGAREA")])
+  ab.tr<-merge(x = uTA,y = abun,by=c("METHOD","SITEVISITID","SITE","TRANSECT","SEGMENT"))
   #ab.tr<-join(x = uTA,y = abun,by=c("SITEVISITID","SITE","TRANSECT","SEGMENT"))#adding NA.1.....
   #Check NAs - Should be empty...
   new_DF <- sum(rowSums(is.na(ab.tr))) # should be 0
