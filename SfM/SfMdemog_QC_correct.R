@@ -7,16 +7,16 @@
 rm=ls() #removes all objects from the current workspace
 
 #setwd("C:/Users/Courtney.S.Couch/Documents/Courtney's Files/R Files/ESD/HARAMP2019")
-setwd("T:/Benthic/Data/SfM/QC")
+setwd("C:/Users/Corinne.Amir/Documents/GitHub/Benthic-Scripts/SfM")
 
 
-#Upload necessary functions
+#Upload necessary functions (not opening on my computer)
 source("C:/Users/Courtney.S.Couch/Documents/GitHub/Benthic-Scripts/Functions/Benthic_Functions_newApp_vTAOfork.R")
 source("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/lib/core_functions.R")
 
 
 ##read benthic data downloaded from Mission app and subset to the leg you need to QC
-sfm.raw <- read.csv("HARAMP2019_demographic_repeats_jan072020.csv")
+sfm.raw <- read.csv("HARAMP2019_demographic_repeats_jan132020.csv")
 head(sfm.raw);nrow(sfm.raw)
 
 #Remove calibration segments - we will need to change this to include specific sites and segments and analysts
@@ -170,10 +170,10 @@ sfm.missing$SEGMENT <- as.factor(sfm.missing$SEGMENT)
 sfm$SITE <- as.factor(sfm$SITE)
 sfm.missing$SITE <- as.factor(sfm.missing$SITE)
 
-partial_SiteSeg_removal <- inner_join(sfm.missing, sfm, by = c("SITE", "SEGMENT", "ANALYST"))
+partial_SiteSeg_removal <- inner_join(sfm.missing, sfm, by = c("SITE", "SEGMENT", "ANALYST")) 
 View(partial_SiteSeg_removal) # a dataframe with no data will be displayed if site-segment pairs were NOT split between missing and populated dataframes = good
 
-output[,1] <- c("Sites have been completely annotated", "error: HAW-4296; segment 0; RS -- corrected by CA")
+output[,1] <- c("Sites have been completely annotated", "YES")
 
 #if dataframe is populated, export csv and fix the error
 write.csv(partial_SiteSeg_removal, "Error_partial_filled_segments.csv")
@@ -208,7 +208,7 @@ output[3,]<-c("All segments within each site have been annotated","Some sites ha
 
 
 #4. Check how many anotators exist for each segment within a site 
-analyst.per.seg <-ddply(sfm,.(SITE, SEGMENT), summarize, num.analyst = n_distinct(ANALYST))
+analyst.per.seg <- ddply(sfm,.(SITE, SEGMENT), summarize, num.analyst = n_distinct(ANALYST))
 analyst.multiple <- filter(analyst.per.seg, num.analyst>1)
 analyst.multiple.names <- left_join(analyst.multiple, sfm[,1:6]) 
 analyst.multiple.names <- analyst.multiple.names %>% unite(JOIN, SITE, SEGMENT, sep = "--")
@@ -218,7 +218,7 @@ View(analyst.multiple.names)
 #use this file to evaluate where we are or are not expecting there to be additional analysts
 write.csv(analyst.multiple.names, "Duplicate_analyst_eval.csv") 
 
-output[4,]<-c("All segments have been annotated by one individuals","Multiple segments with two annotators -- ok") #change depending on output from previous line of code
+output[4,]<-c("All segments have been annotated by one individuals","Multiple segments with > 1 annotator -- ok") #change depending on output from previous line of code
 
 
 
@@ -259,7 +259,7 @@ View(sm.colonies.eval)
 lg.colonies.eval <- sfm %>% filter(Adult_Juvenile=="A",NO_COLONY_ != "-1",SPCODE != "PBER",SEGAREA==1) 
 View(lg.colonies.eval)
 
-output[8,]<-c("Juveniles exist within segments >1m in length","Flagged in Juveniles_QC file -- Corrected (CA)")
+output[8,]<-c("Juveniles exist within segments >1m in length","Yes")
 
 #If rows have been flagged, export sm_colonies dataframe into a csv file for further QC
 write.csv(sm.colonies.eval, "Juveniles_eval.csv")
@@ -272,7 +272,7 @@ sfm[sfm$RD_1=="0"& sfm$RDCAUSE1!="NA",]
 sfm[sfm$RD_2=="0"& sfm$RDCAUSE2!="NA",]
 sfm[sfm$RD_3=="0"& sfm$RDCAUSE3!="NA",]
 
-output[9,]<-c("0% Recent Dead corals do NOT have an RDCAUSE code","Yes")
+output[9,]<-c("0% Recent Dead corals do NOT have an RDCAUSE code","Error in RD2; HAW-4292 MA 0.449")
 
 
 
@@ -281,7 +281,7 @@ sfm[sfm$RD_1 >0 & sfm$RDCAUSE1=="NA",]
 sfm[sfm$RD_2 >0 & sfm$RDCAUSE2=="NA",]
 sfm[sfm$RD_3 >0 & sfm$RDCAUSE3=="NA",]
 
-output[10,]<-c("All corals with RD >  have an RDCAUSE code","Yes")
+output[10,]<-c("All corals with RD >0 have an RDCAUSE code","Error in RD1; HAW-4292 MA 0.449")
 
 
 
@@ -290,7 +290,7 @@ sfm[sfm$EXTENT_1=="0"& sfm$CON_1!="NA",]
 sfm[sfm$EXTENT_2=="0"& sfm$CON_2!="NA",]
 sfm[sfm$EXTENT_3=="0"& sfm$CON_3!="NA",] 
 
-output[11,]<-c("All colonies with a condition have an extent","Fixes needed to EXTENT1")
+output[11,]<-c("All colonies with a condition have an extent","Error in Extent1: HAW-4292 MA 0.078 AND KAU-2160 AH 0.361")
 
 
 
@@ -322,7 +322,7 @@ sfm[sfm$SEV_1!="0"& sfm$CON_1 %notin% c("BLE","BLP"),]
 sfm[sfm$SEV_2!="0"& sfm$CON_2 %notin% c("BLE","BLP"),]
 sfm[sfm$SEV_3!="0"& sfm$CON_3 %notin% c("BLE","BLP"),]
 
-output[14,]<-c("Severity value is present only in colonies with CON = BLE and BLP","error: KAU-02160 FID# 1304 -- Could not find shapefile (CA)")
+output[14,]<-c("Severity value is present only in colonies with CON = BLE and BLP","5 Errors for AH in CON_1")
 
 
 
