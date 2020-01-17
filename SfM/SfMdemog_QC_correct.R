@@ -16,7 +16,7 @@ source("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/lib/core_functions
 
 
 ##read benthic data downloaded from Mission app and subset to the leg you need to QC
-sfm.raw <- read.csv("HARAMP2019_demographic_repeats_jan132020.csv")
+sfm.raw <- read.csv("HARAMP2019_demographic_repeats_jan162020.csv")
 head(sfm.raw);nrow(sfm.raw)
 
 #Remove calibration segments - we will need to change this to include specific sites and segments and analysts
@@ -141,7 +141,7 @@ sfm$SEGAREA <- sfm$SEGLENGTH*sfm$SEGWIDTH
 #Add column that differentiates adults from juveniles
 sfm$SHAPE_Leng <-  as.numeric(sfm$SHAPE_Leng)
 #sfm$Adult_Juvenile <- ifelse(sfm$SHAPE_Leng < 0.05 & sfm$FRAGMENT_Y != -1 | sfm$SEGAREA==1 & sfm$SPCODE != "PBER", "J", "A")
-sfm$Adult_Juvenile <- ifelse(sfm$SEGAREA==2.5, "A", "J")
+sfm$Adult_Juvenile <- ifelse(sfm$SHAPE_Leng<0.05 & sfm$SPCODE != "PBER", "J", "A")
 
 
 
@@ -240,11 +240,11 @@ output[6,]<-c("All segment widths are correct","Yes") #change depending on outpu
 
 
 # Check if all segments contain both seglengths 
-seg.length <-ddply(sfm,.(SITE, SEGMENT, SEGLENGTH), summarize, num.seglengths = n_distinct(SEGLENGTH)) 
-eval.seg.length <- acast(seg.length, SITE~SEGMENT, length)    
-View(eval.seg.length) #all cells that have been annotated should be "2" (provided that the levels of seglength are correct)
+seg.length <-ddply(sfm,.(SITE, SEGMENT, ANALYST, SEGLENGTH), summarize, num.seglengths = n_distinct(SEGLENGTH)) 
+eval.seg.length <- acast(seg.length, SITE~SEGMENT~ANALYST, length)   
+View(eval.seg.length) #all cells that have been annotated should be "2" 
 
-output[7,]<-c("All segment lengths are correct","Mulitple segments don't differentiate 1.0 and 2.5") #change depending on output from previous line of code
+output[7,]<-c("All segments have seglengths 1.0 and 2.5","2 segments don't differentiate 1.0 and 2.5") #change depending on output from previous line of code
 
 # if there are errors, export a csv file for further analysis
 write.csv(eval.seg.length, "Missing_seglength_eval.csv")
@@ -253,17 +253,17 @@ write.csv(eval.seg.length, "Missing_seglength_eval.csv")
 
 
 #8. Identify colonies flagged as Juveniles or Adults, but have the innocorrect segment area. make sure j = 1 and A = 2.5
-sm.colonies.eval <- sfm %>% filter(Adult_Juvenile=="J",NO_COLONY_ != "-1",SEGAREA==2.5) 
+sm.colonies.eval <- sfm %>% filter(Adult_Juvenile=="J",SEGAREA != 1.0, NO_COLONY_ !=-1) 
 View(sm.colonies.eval)
 
-lg.colonies.eval <- sfm %>% filter(Adult_Juvenile=="A",NO_COLONY_ != "-1",SPCODE != "PBER",SEGAREA==1) 
+lg.colonies.eval <- sfm %>% filter(Adult_Juvenile=="A",SEGAREA==1) 
 View(lg.colonies.eval)
 
 output[8,]<-c("Juveniles exist within segments >1m in length","Yes")
 
 #If rows have been flagged, export sm_colonies dataframe into a csv file for further QC
 write.csv(sm.colonies.eval, "Juveniles_eval.csv")
-
+write.csv(lg.colonies.eval, "Adults_eval.csv")
 
 
 
@@ -272,7 +272,7 @@ sfm[sfm$RD_1=="0"& sfm$RDCAUSE1!="NA",]
 sfm[sfm$RD_2=="0"& sfm$RDCAUSE2!="NA",]
 sfm[sfm$RD_3=="0"& sfm$RDCAUSE3!="NA",]
 
-output[9,]<-c("0% Recent Dead corals do NOT have an RDCAUSE code","Error in RD2; HAW-4292 MA 0.449")
+output[9,]<-c("0% Recent Dead corals do NOT have an RDCAUSE code","YES")
 
 
 
@@ -281,7 +281,7 @@ sfm[sfm$RD_1 >0 & sfm$RDCAUSE1=="NA",]
 sfm[sfm$RD_2 >0 & sfm$RDCAUSE2=="NA",]
 sfm[sfm$RD_3 >0 & sfm$RDCAUSE3=="NA",]
 
-output[10,]<-c("All corals with RD >0 have an RDCAUSE code","Error in RD1; HAW-4292 MA 0.449")
+output[10,]<-c("All corals with RD >0 have an RDCAUSE code","YES")
 
 
 
@@ -290,7 +290,7 @@ sfm[sfm$EXTENT_1=="0"& sfm$CON_1!="NA",]
 sfm[sfm$EXTENT_2=="0"& sfm$CON_2!="NA",]
 sfm[sfm$EXTENT_3=="0"& sfm$CON_3!="NA",] 
 
-output[11,]<-c("All colonies with a condition have an extent","Error in Extent1: HAW-4292 MA 0.078 AND KAU-2160 AH 0.361")
+output[11,]<-c("All colonies with a condition have an extent","YES")
 
 
 
@@ -322,7 +322,7 @@ sfm[sfm$SEV_1!="0"& sfm$CON_1 %notin% c("BLE","BLP"),]
 sfm[sfm$SEV_2!="0"& sfm$CON_2 %notin% c("BLE","BLP"),]
 sfm[sfm$SEV_3!="0"& sfm$CON_3 %notin% c("BLE","BLP"),]
 
-output[14,]<-c("Severity value is present only in colonies with CON = BLE and BLP","5 Errors for AH in CON_1")
+output[14,]<-c("Severity value is present only in colonies with CON = BLE and BLP","YES")
 
 
 
@@ -351,8 +351,9 @@ write.csv(output,"HARAMP2019_sfm_output.csv")
 head(sfm)
 
 ad<-subset(sfm,Adult_Juvenile=="A")
-ad<-subset(ad,select=-c(Adult_Juvenile,totaldead))
-j<-subset(sfm,Adult_Juvenile=="J")
+ad<-subset(ad,select=-c(Adult_Juvenile,totaldead)) #This also includes segments where NO_COLONY = -1 and shape_length < 0.05
+j<-subset(sfm,Adult_Juvenile=="J") #This also includes segments where NO_COLONY = -1
+j<-subset(sfm,Adult_Juvenile=="J" & NO_COLONY_==0) 
 j<-subset(j,select=c(FID,ANALYST,OBS_YEAR,SITE,SEGMENT,SEGLENGTH,SEGWIDTH,NO_COLONY_,SPCODE,FRAGMENT_Y,MORPH_CODE,EX_BOUND,SHAPE_Leng,SEGAREA))
 
 
