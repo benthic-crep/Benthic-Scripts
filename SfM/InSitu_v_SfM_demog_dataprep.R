@@ -11,6 +11,11 @@ source("C:/Users/Courtney.S.Couch/Documents/GitHub/Benthic-Scripts/Functions/Ben
 source("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/lib/core_functions.R")
 source("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/lib/GIS_functions.R")
 
+source("C:/Users/Corinne.Amir/Documents/GitHub/Benthic-Scripts/Functions/Benthic_Functions_newApp_vTAOfork.R")
+source("C:/Users/Corinne.Amir/Documents/GitHub/fish-paste/lib/core_functions.R")
+source("C:/Users/Corinne.Amir/Documents/GitHub/fish-paste/lib/GIS_functions.R")
+
+
 ## LOAD benthic data
 setwd("C:/Users/Courtney.S.Couch/Documents/Courtney's Files/R Files/ESD/Benthic REA")
 load("T:/Benthic/Data/REA Coral Demography & Cover/Raw from Oracle/ALL_REA_ADULTCORAL_RAW_2013-2019.rdata") #from oracle
@@ -73,10 +78,10 @@ x$METHOD<-"DIVER"
 if(DEBUG){head(x)}
 
 
-# Merge Adult data and  SURVEY MASTER -------------------------------------
+# Merge Adult data and SURVEY MASTER -------------------------------------
 #SURVEY MASTER was created by Ivor and Courtney by extracting sites directly from the Site Visit table from Oracle. It should be the complete list of sites surveyed since 2000
 survey_master<-read.csv("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/data/SURVEY MASTER.csv")
-
+survey_master<-read.csv("C:/Users/Corinne.Amir/Documents/GitHub/fish-paste/data/SURVEY MASTER.csv")
 
 #Check that OBS_YEAR, SITEVISITID, and SITE are all the same in both x and survey master
 OYerror=which(x$OBS_YEAR!=survey_master$OBS_YEAR[match(x$SITEVISITID,survey_master$SITEVISITID)])
@@ -163,16 +168,19 @@ taxa<-read.csv("T:/Benthic/Data/SpGen_Reference/2013-19_Taxa_MASTER.csv")
 
 #Convert SPCODE in raw colony data to TAXONCODE -generates a look up table
 #x$TAXONCODE<-Convert_to_Taxoncode_tom(data = x,taxamaster = taxa)#not working need to ask tom
+#TAXONCODE column is being made but NOT present in dataframe....?
 x<-Convert_to_Taxoncode(x)
 
 #Check to make sure SPCODE was converted correctly
-head(x[x$SPCODE!=x$TAXONCODE,])
+head(x[x$SPCODE!=x$TAXONCODE,]) 
 
-#If there are issues use this code to create a list SPCODE (lowest taxonomic resolution we have), TAXONCODE (the taxonomic level we all feel comfortable with) and associated genera
+#If there are issues, use this code to create a list SPCODE (lowest taxonomic resolution we have), TAXONCODE (the taxonomic level we all feel comfortable with) and associated genera
 #This is used for spot checking that TAXONCODE was converted properly & can be compared against TAXA MASTER 
 SURVEY_INFO<-c("OBS_YEAR","REGION","SPCODE","TAXONCODE","GENUS_CODE","TAXONNAME")
 test<-new_Aggregate_InputTable(x, SURVEY_INFO)
-head(test)
+head(test) #should the dataframe be empty?
+
+taxa_subset <- subset(taxa, REGION=="MHI"|REGION== "NWHI")
 
 #Check to see whether S_ORDER is NA and not AAAA (the code for no colonies observed on the segment)
 x[x$SPCODE!="AAAA"& is.na(x$S_ORDER),] #this dataframe should be empty
@@ -181,7 +189,7 @@ x[x$SPCODE!="AAAA"& is.na(x$S_ORDER),] #this dataframe should be empty
 #Change columns to character
 x$GENUS_CODE<-as.character(x$GENUS_CODE)
 x$SPCODE<-as.character(x$SPCODE)
-x$TAXONCODE<-as.character(x$TAXONCODE)
+x$TAXONCODE<-as.character(x$TAXONCODE) #should this column not be present?
 x$S_ORDER<-as.character(x$S_ORDER)
 
 #Make sure there are no NA values in genus code or taxoncode if it's supposed to be a scleractinian
@@ -226,6 +234,7 @@ x[,NegNineCheckCols][x[,NegNineCheckCols]==-9] <- NA #Convert missing numeric va
 
 # Convert NAs --------------------------------------------------------------
 
+#leave NAs for severity and extent?
 tmp.lev<-levels(x$GENRD1); tmp.lev
 levels(x$GENRD1)<-c(tmp.lev, "NONE") # change to NONE
 x[is.na(x$GENRD1),"GENRD1"]<-"NONE"
@@ -626,6 +635,7 @@ write.csv(awd,file="T:/Benthic/Data/SfM/Analysis Ready/HARAMP19_SfMAdult_CLEANED
 
 # SFM:JUVENILE CLEAN ANALYSIS READY DATA --------------------
 df<-read.csv("T:/Benthic/Data/SfM/QC/HARAMP2019_QCdsfm_JUV.csv")
+df<-read.csv("C:/Users/Corinne.Amir/Documents/GitHub/Benthic-Scripts/SfM/HARAMP2019_QCdsfm_JUV.csv")
 
 x<-df
 head(x)

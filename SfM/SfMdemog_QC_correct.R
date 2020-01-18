@@ -14,9 +14,11 @@ setwd("C:/Users/Corinne.Amir/Documents/GitHub/Benthic-Scripts/SfM")
 source("C:/Users/Courtney.S.Couch/Documents/GitHub/Benthic-Scripts/Functions/Benthic_Functions_newApp_vTAOfork.R")
 source("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/lib/core_functions.R")
 
+source("C:/Users/Corinne.Amir/Documents/GitHub/Benthic-Scripts/Functions/Benthic_Functions_newApp_vTAOfork.R")
+source("C:/Users/Corinne.Amir/Documents/GitHub/Benthic-Scripts/Functions/core_functions.R")
 
 ##read benthic data downloaded from Mission app and subset to the leg you need to QC
-sfm.raw <- read.csv("HARAMP2019_demographic_repeats_jan162020.csv")
+sfm.raw <- read.csv("HARAMP2019_demographic_repeats_jan172020.csv")
 head(sfm.raw);nrow(sfm.raw)
 
 #Remove calibration segments - we will need to change this to include specific sites and segments and analysts
@@ -244,7 +246,7 @@ seg.length <-ddply(sfm,.(SITE, SEGMENT, ANALYST, SEGLENGTH), summarize, num.segl
 eval.seg.length <- acast(seg.length, SITE~SEGMENT~ANALYST, length)   
 View(eval.seg.length) #all cells that have been annotated should be "2" 
 
-output[7,]<-c("All segments have seglengths 1.0 and 2.5","2 segments don't differentiate 1.0 and 2.5") #change depending on output from previous line of code
+output[7,]<-c("All segments have seglengths 1.0 and 2.5","error: HAW-4221-0-AH") #change depending on output from previous line of code
 
 # if there are errors, export a csv file for further analysis
 write.csv(eval.seg.length, "Missing_seglength_eval.csv")
@@ -259,7 +261,7 @@ View(sm.colonies.eval)
 lg.colonies.eval <- sfm %>% filter(Adult_Juvenile=="A",SEGAREA==1) 
 View(lg.colonies.eval)
 
-output[8,]<-c("Juveniles exist within segments >1m in length","Yes")
+output[8,]<-c("Juveniles and Adult colonies have correct labeling","Error: HAW-4221-0-AH juvenile")
 
 #If rows have been flagged, export sm_colonies dataframe into a csv file for further QC
 write.csv(sm.colonies.eval, "Juveniles_eval.csv")
@@ -272,7 +274,7 @@ sfm[sfm$RD_1=="0"& sfm$RDCAUSE1!="NA",]
 sfm[sfm$RD_2=="0"& sfm$RDCAUSE2!="NA",]
 sfm[sfm$RD_3=="0"& sfm$RDCAUSE3!="NA",]
 
-output[9,]<-c("0% Recent Dead corals do NOT have an RDCAUSE code","YES")
+output[9,]<-c("0% Recent Dead corals do NOT have an RDCAUSE code","Error: 3 in HAW-4221-0-AH")
 
 
 
@@ -290,7 +292,7 @@ sfm[sfm$EXTENT_1=="0"& sfm$CON_1!="NA",]
 sfm[sfm$EXTENT_2=="0"& sfm$CON_2!="NA",]
 sfm[sfm$EXTENT_3=="0"& sfm$CON_3!="NA",] 
 
-output[11,]<-c("All colonies with a condition have an extent","YES")
+output[11,]<-c("All colonies with a condition have an extent","Error: 5 in HAW-4221-0-AH")
 
 
 
@@ -322,7 +324,7 @@ sfm[sfm$SEV_1!="0"& sfm$CON_1 %notin% c("BLE","BLP"),]
 sfm[sfm$SEV_2!="0"& sfm$CON_2 %notin% c("BLE","BLP"),]
 sfm[sfm$SEV_3!="0"& sfm$CON_3 %notin% c("BLE","BLP"),]
 
-output[14,]<-c("Severity value is present only in colonies with CON = BLE and BLP","YES")
+output[14,]<-c("Severity value is present only in colonies with CON = BLE and BLP","Error: 7 in HAW-4221-0-AH")
 
 
 
@@ -348,7 +350,6 @@ write.csv(SEV_1_error, "SEV_1_error.csv")
 #Export QC output table with appropriate file name
 write.csv(output,"HARAMP2019_sfm_output.csv")
 
-head(sfm)
 
 ad<-subset(sfm,Adult_Juvenile=="A")
 ad<-subset(ad,select=-c(Adult_Juvenile,totaldead)) #This also includes segments where NO_COLONY = -1 and shape_length < 0.05
