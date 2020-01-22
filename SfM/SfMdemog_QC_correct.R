@@ -6,8 +6,9 @@
 
 rm=ls() #removes all objects from the current workspace
 
-#setwd("C:/Users/Courtney.S.Couch/Documents/Courtney's Files/R Files/ESD/HARAMP2019")
-setwd("C:/Users/Corinne.Amir/Documents/GitHub/Benthic-Scripts/SfM")
+setwd("T:/Benthic/Data/SfM/QC")
+
+#setwd("C:/Users/Corinne.Amir/Documents/GitHub/Benthic-Scripts/SfM")
 
 
 #Upload necessary functions (not opening on my computer)
@@ -18,7 +19,10 @@ source("C:/Users/Corinne.Amir/Documents/GitHub/Benthic-Scripts/Functions/Benthic
 source("C:/Users/Corinne.Amir/Documents/GitHub/Benthic-Scripts/Functions/core_functions.R")
 
 ##read benthic data downloaded from Mission app and subset to the leg you need to QC
-sfm.raw <- read.csv("HARAMP2019_demographic_repeats_jan172020.csv")
+#sfm.raw <- read.csv("HARAMP2019_demographic_repeats_jan172020.csv")
+
+sfm.raw <- read.csv("HARAMP2019_demographic_calibration_jan212020.csv")
+
 head(sfm.raw);nrow(sfm.raw)
 
 #Remove calibration segments - we will need to change this to include specific sites and segments and analysts
@@ -334,7 +338,7 @@ sfm$RD_2<-as.numeric(sfm$RD_2)
 sfm$RD_1<-as.numeric(sfm$RD_1)
 sfm$RD_3<-as.numeric(sfm$RD_3)
 sfm$totaldead = sfm$RD_1+sfm$RD_2+sfm$RD_3 + sfm$OLDDEAD
-sfm[sfm$totaldead>100]
+sfm[sfm$totaldead>100,]
 
 output[15,]<-c("RD + OD <=100%","Yes")
 

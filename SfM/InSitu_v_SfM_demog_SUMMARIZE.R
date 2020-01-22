@@ -45,72 +45,78 @@ j_sfm<-j_sfm[!(j_sfm$SITE=="HAW-04278" & j_sfm$SEGMENT %in% c("10","15")),] # Th
 
 ###FOR CALIBRATION: Use this script to assign transect
 #Create Transect column and use this to code duplicate segments
-# ad_sfm<-ad_sfm %>% mutate(TRANSECT=recode(ANALYST, 
-#                                 `MA`="1",
-#                                 `RS`="2",
-#                                 `MW`="2", 
-#                                 `CA`="3",
-#                                 `NA`="NA"))
-# #Check that segments were changed correctly
-# ad_sfm<-droplevels(ad_sfm)
-# table(ad_sfm$SITE,ad_sfm$TRANSECT)
-# 
-# #Create Transect column and use this to code duplicate segments
-# j_sfm<-j_sfm %>% mutate(TRANSECT=recode(ANALYST, 
-#                                           `MA`="1",
-#                                           `RS`="2",
-#                                           `MW`="2", 
-#                                           `CA`="3",
-#                                           `NA`="NA"))
-# #Check that segments were changed correctly
-# j_sfm<-droplevels(j_sfm)
-# table(j_sfm$SITE,j_sfm$TRANSECT)
+ad_sfm<-ad_sfm %>% mutate(TRANSECT=recode(ANALYST,
+                                        `MA`="1",
+                                        `RS`="2",
+                                        `MW`="2",
+                                        `CA`="3",
+                                        `ML`="4",
+                                        `FL`="5",
+                                        `AH`="6",
+                                        `NA`="NA"))
+#Check that segments were changed correctly
+ad_sfm<-droplevels(ad_sfm)
+table(ad_sfm$SITE,ad_sfm$TRANSECT)
+
+#Create Transect column and use this to code duplicate segments
+j_sfm<-j_sfm %>% mutate(TRANSECT=recode(ANALYST,
+                                          `MA`="1",
+                                          `RS`="2",
+                                          `MW`="2",
+                                          `CA`="3",
+                                          `ML`="4",
+                                          `FL`="5",
+                                          `AH`="6",
+                                          `NA`="NA"))
+#Check that segments were changed correctly
+j_sfm<-droplevels(j_sfm)
+table(j_sfm$SITE,j_sfm$TRANSECT)
 
 
 ##FOR COMPARATIVE ANALYSIS: Use this script to assign transect
 #Adults
-ad_sfm<-ad_sfm[!(ad_sfm$ANALYST=="CA"),] # These were annotated by mistake, we didn't do in water repeats
-table(ad_sfm$SITE,ad_sfm$ANALYST)
-
-SURVEY_Seg<-c("SITEVISITID", "SITE","SEGMENT","ANALYST")
-sfm_seg<-unique(ad_sfm[,SURVEY_Seg])
-sfm_seg$SS<- paste(sfm_seg$SITE,sfm_seg$SEGMENT,sep="_")  
-
-###THIS ISN'T WORKING FOR
-#Randomly assign annotators(Transects)
-tr<-c("1","2")
-sfm_seg <- sfm_seg %>%
-  group_by(SS) %>% # note the group_by()
-  mutate(TRANSECT=sample(tr, size=n(),  replace=F))
-sfm_seg<-as.data.frame(sfm_seg)
-table(sfm_seg$SS,sfm_seg$TRANSECT) #Check
-
-nrow(ad_sfm)
-ad_sfm<-left_join(ad_sfm,sfm_seg[,!(colnames(sfm_seg)=="SS")])
-nrow(ad_sfm)
-
-#Juveniles
-j_sfm<-j_sfm[!(j_sfm$ANALYST=="CA"),] # These were annotated by mistake, we didn't do in water repeats
-table(j_sfm$SITE,j_sfm$ANALYST)
-
-SURVEY_Seg<-c("SITEVISITID", "SITE","SEGMENT","ANALYST")
-sfm_seg<-unique(j_sfm[,SURVEY_Seg])
-sfm_seg$SS<- paste(sfm_seg$SITE,sfm_seg$SEGMENT,sep="_")  
-
-#Randomly assign Transect numbers
-tr<-c("1","2")
-sfm_seg <- sfm_seg %>%
-  group_by(SS) %>% # note the group_by()
-  mutate(TRANSECT=sample(tr, size=n(),  replace=F))
-sfm_seg<-as.data.frame(sfm_seg)
-table(sfm_seg$SS,sfm_seg$TRANSECT)
-
-
-nrow(j_sfm)
-j_sfm<-left_join(j_sfm,sfm_seg[,!(colnames(sfm_seg)=="SS")])
-nrow(j_sfm)
-head(j_sfm)
-
+# ad_sfm<-ad_sfm[!(ad_sfm$ANALYST=="CA"),] # These were annotated by mistake, we didn't do in water repeats
+# table(ad_sfm$SITE,ad_sfm$ANALYST)
+# 
+# SURVEY_Seg<-c("SITEVISITID", "SITE","SEGMENT","ANALYST")
+# sfm_seg<-unique(ad_sfm[,SURVEY_Seg])
+# sfm_seg$SS<- paste(sfm_seg$SITE,sfm_seg$SEGMENT,sep="_")  
+# 
+# ###THIS ISN'T WORKING FOR
+# #Randomly assign annotators(Transects)
+# tr<-c("1","2")
+# sfm_seg <- sfm_seg %>%
+#   group_by(SS) %>% # note the group_by()
+#   mutate(TRANSECT=sample(tr, size=n(),  replace=F))
+# sfm_seg<-as.data.frame(sfm_seg)
+# table(sfm_seg$SS,sfm_seg$TRANSECT) #Check
+# 
+# nrow(ad_sfm)
+# ad_sfm<-left_join(ad_sfm,sfm_seg[,!(colnames(sfm_seg)=="SS")])
+# nrow(ad_sfm)
+# 
+# #Juveniles
+# j_sfm<-j_sfm[!(j_sfm$ANALYST=="CA"),] # These were annotated by mistake, we didn't do in water repeats
+# table(j_sfm$SITE,j_sfm$ANALYST)
+# 
+# SURVEY_Seg<-c("SITEVISITID", "SITE","SEGMENT","ANALYST")
+# sfm_seg<-unique(j_sfm[,SURVEY_Seg])
+# sfm_seg$SS<- paste(sfm_seg$SITE,sfm_seg$SEGMENT,sep="_")  
+# 
+# #Randomly assign Transect numbers
+# tr<-c("1","2")
+# sfm_seg <- sfm_seg %>%
+#   group_by(SS) %>% # note the group_by()
+#   mutate(TRANSECT=sample(tr, size=n(),  replace=F))
+# sfm_seg<-as.data.frame(sfm_seg)
+# table(sfm_seg$SS,sfm_seg$TRANSECT)
+# 
+# 
+# nrow(j_sfm)
+# j_sfm<-left_join(j_sfm,sfm_seg[,!(colnames(sfm_seg)=="SS")])
+# nrow(j_sfm)
+# head(j_sfm)
+# 
 ##Calcuating segment and transect area and add column for transect area
 ad_sfm$TRANSECTAREA<-Transectarea(ad_sfm)
 j_sfm$TRANSECTAREA<-Transectarea(j_sfm)
@@ -219,5 +225,9 @@ data.gen$SS<-paste(data.gen$SITE,data.gen$SEGMENT,sep="_")
 data.gen2<-left_join(data.gen,survey_segment)
 if(nrow(data.gen)!=nrow(data.gen2)) {cat("WARNING: Dfs didn't merge properly")}
 
-write.csv(data.gen2,file="T:/Benthic/Data/SfM/Summarized Data/HARAMP_repeats_GENUS_Summarized Data.csv",row.names = F)
+#Save file for larger comparative analysis
+#write.csv(data.gen2,file="T:/Benthic/Data/SfM/Summarized Data/HARAMP_repeats_GENUS_Summarized Data.csv",row.names = F)
+
+#Save file for segment calibration
+write.csv(data.gen2,file="T:/Benthic/Data/SfM/Summarized Data/HARAMP_repeats_GENUS_Summarized Data-CALIBRATION.csv",row.names = F)
 
