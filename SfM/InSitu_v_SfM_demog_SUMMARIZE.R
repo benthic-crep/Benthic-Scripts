@@ -4,33 +4,37 @@
 rm(list=ls())
 
 #LOAD LIBRARY FUNCTIONS ... 
-source("C:/Users/Courtney.S.Couch/Documents/GitHub/Benthic-Scripts/Functions/Benthic_Functions_newApp_vTAOfork.R")
-source("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/lib/core_functions.R")
-source("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/lib/GIS_functions.R")
+# source("C:/Users/Courtney.S.Couch/Documents/GitHub/Benthic-Scripts/Functions/Benthic_Functions_newApp_vTAOfork.R")
+# source("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/lib/core_functions.R")
+# source("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/lib/GIS_functions.R")
+
+source("C:/Users/Corinne.Amir/Documents/GitHub/Benthic-Scripts/Functions/Benthic_Functions_newApp_vTAOfork.R")
+source("C:/Users/Corinne.Amir/Documents/GitHub/fish-paste/lib/core_functions.R")
+source("C:/Users/Corinne.Amir/Documents/GitHub/fish-paste/lib/GIS_functions.R")
 
 ## LOAD benthic data
-setwd("C:/Users/Courtney.S.Couch/Documents/Courtney's Files/R Files/ESD/Benthic REA")
+load("T:/Benthic/Data/REA Coral Demography & Cover/Raw from Oracle/ALL_REA_ADULTCORAL_RAW_2013-2019.rdata") #from oracle
 
 #Read in files
 ad_diver<-read.csv("T:/Benthic/Data/SfM/Analysis Ready/HARAMP19_DIVERAdult_CLEANED.csv")
 j_diver<-read.csv("T:/Benthic/Data/SfM/Analysis Ready/HARAMP19_DIVERJuv_CLEANED.csv")
 ad_sfm<-read.csv("T:/Benthic/Data/SfM/Analysis Ready/HARAMP19_SfMAdult_CLEANED.csv")
-j_sfm<-read.csv("T:/Benthic/Data/SfM/Analysis Ready/HARAMP19_SfMJuv_CLEANED.csv")
+j_sfm<-read.csv("T:/Benthic/Data/SfM/Analysis Ready/HARAMP19_SfMJuv_CLEANED.csv") #One of the SEGLENGTHs is 2.5!
 
 
 
-t1<-ddply(ad_diver,.(SITE,TRANSECT,SEGMENT),summarize,n=length(unique(DIVER)));t1[t1$n>1,]
-t1<-ddply(j_diver,.(SITE,TRANSECT,SEGMENT),summarize,n=length(unique(DIVER)));t1[t1$n>1,]
+t1<-ddply(ad_diver,.(SITE,TRANSECT,SEGMENT),summarize,n=length(unique(DIVER)));t1[t1$n>1,] #should these be 0?
+t1<-ddply(j_diver,.(SITE,TRANSECT,SEGMENT),summarize,n=length(unique(DIVER)));t1[t1$n>1,] #should these be 0?
 
 #Temporary fixes - WORK WITH MICHAEL TO FIX IN ORACLE
 ad_diver<-ad_diver[!(ad_diver$SITE=="HAW-04239" & ad_diver$SEGMENT=="10" & ad_diver$DIVER=="RS"),] #these were double entered under 2 different site names
 j_diver<-j_diver[!(j_diver$SITE=="HAW-04239" & j_diver$SEGMENT=="10" & j_diver$DIVER=="RS"),] #these were double entered under 2 different site names
-j_diver<-j_diver[!(j_diver$SITE=="NII-02580" & j_diver$SEGMENT=="10" & j_diver$DIVER=="MA"),] #Entered by mistake
+j_diver<-j_diver[!(j_diver$SITE=="NII-02580" & j_diver$SEGMENT=="10" & j_diver$DIVER=="M_A"),] #Entered by mistake
 
 ###MOL-2255 SEGMENT 10 ADULT DATA WASN'T ENTERED-have Michael add it.
 ###HAW-04239 SEGMENT 0 ADULT DATA WASN'T ENTERED-have Michael add it.
 
-j_diver$DIVER<-ifelse(j_diver$SITE=="KAU-02164" & j_diver$SEGMENT=="0" & j_diver$DIVER=="M_A","MSW",as.character(j_diver$DIVER))
+j_diver$DIVER<-ifelse(j_diver$SITE=="KAU-02164" & j_diver$SEGMENT=="0" & j_diver$DIVER=="M_A","MSW",as.character(j_diver$DIVER)) #this isn't removing M_W
 
 ad_sfm<-ad_sfm[!(ad_sfm$SITE=="HAW-04259" & ad_sfm$SEGMENT=="10"),]  # These were annotated by mistake, we didn't do in water repeats
 j_sfm<-j_sfm[!(j_sfm$SITE=="HAW-04259" & j_sfm$SEGMENT=="10"),]  # These were annotated by mistake, we didn't do in water repeats
@@ -38,6 +42,7 @@ j_sfm<-j_sfm[!(j_sfm$SITE=="HAW-04259" & j_sfm$SEGMENT=="10"),]  # These were an
 ad_sfm<-ad_sfm[!(ad_sfm$SITE=="HAW-04294" & ad_sfm$SEGMENT=="10"),] # These were annotated by mistake, we didn't do in water repeats
 j_sfm<-j_sfm[!(j_sfm$SITE=="HAW-04294" & j_sfm$SEGMENT=="10"),] # These were annotated by mistake, we didn't do in water repeats
 j_sfm<-j_sfm[!(j_sfm$SITE=="HAW-04299" & j_sfm$SEGMENT=="15"),] # These were annotated by mistake, we didn't do in water repeats
+ad_sfm<-ad_sfm[!(ad_sfm$SITE=="HAW-04299" & ad_sfm$SEGMENT=="15"),] # just double checking
 
 ad_sfm<-ad_sfm[!(ad_sfm$SITE=="HAW-04278" & ad_sfm$SEGMENT %in% c("10","15")),] # These were annotated by mistake, we didn't do in water repeats
 j_sfm<-j_sfm[!(j_sfm$SITE=="HAW-04278" & j_sfm$SEGMENT %in% c("10","15")),] # These were annotated by mistake, we didn't do in water repeats
@@ -131,7 +136,7 @@ j_diver$EX_BOUND<-0 #add column so we can merge with sfm data
 
 #Remove Porites bernardi, it's causing issues with duplicate segments.
 ad_diver<-subset(ad_diver,SPCODE!="PBER")
-j_diver<-subset(j_diver,SPCODE!="PBER")
+j_diver<-subset(j_diver,SPCODE!="PBER") #.....juv with seglength = 2.5 still in the dataframe
 
 colnames(ad_diver)[colnames(ad_diver)=="DIVER"]<-"ANALYST" #Change column so we can merge with the sfm data
 colnames(j_diver)[colnames(j_diver)=="DIVER"]<-"ANALYST" 
@@ -158,7 +163,7 @@ j_diver<-j_diver[,j_DATACOLS]
 awd<-rbind(ad_diver,ad_sfm)
 jwd<-rbind(j_diver,j_sfm)
 
-#Create a look a table of all of the colony attributes- you will need this the functions below
+#Create a look up table of all of the colony attributes- you will need this for the functions below
 SURVEY_COL<-c("METHOD","SITEVISITID", "OBS_YEAR", "REGION", "ISLAND","SEC_NAME", "SITE", "REEF_ZONE",
               "DEPTH_BIN", "LATITUDE", "LONGITUDE","MIN_DEPTH_M","MAX_DEPTH_M","TRANSECT","SEGMENT","COLONYID","GENUS_CODE","TAXONCODE","SPCODE","COLONYLENGTH")
 survey_colony<-unique(awd[,SURVEY_COL])
@@ -173,7 +178,7 @@ survey_segment<-unique(awd[,SURVEY_Seg])
 
 
 # GENERATE SUMMARY METRICS at the Segment-leveL BY GENUS--------------------------------------------------
-#Calc_ColDen_Transect
+#Calc_ColDen_Transect...LOOK INTO THIS MORE
 acd.gen<-Calc_ColDen_Seg(data = awd,grouping_field = "GENUS_CODE");colnames(acd.gen)[colnames(acd.gen)=="ColCount"]<-"AdColCount";colnames(acd.gen)[colnames(acd.gen)=="ColDen"]<-"AdColDen";colnames(acd.gen)[colnames(acd.gen)=="SEGAREA"]<-"SEGAREA_ad"# calculate density at genus level as well as total
 jcd.gen<-Calc_ColDen_Seg(jwd,"GENUS_CODE"); colnames(jcd.gen)[colnames(jcd.gen)=="ColCount"]<-"JuvColCount";colnames(jcd.gen)[colnames(jcd.gen)=="ColDen"]<-"JuvColDen"
 jcd.gen<-subset(jcd.gen,select=-c(SEGAREA))
@@ -181,12 +186,12 @@ jcd.gen<-subset(jcd.gen,select=-c(SEGAREA))
 #REMOVE COLONIES THAT COULD'T BE FULLY ANNOTATED IN SFM
 awd<-subset(awd,EX_BOUND==0)
 
-#Calc_ColMetric_Transect
+#Calc_ColMetric_Transect...DOUBLE CHECK WARNING MESSAGES - MAY BE ABLE TO MAKE CODE RUN FASTER
 cl.gen<-Calc_ColMetric_Seg(data = awd,grouping_field = "GENUS_CODE",pool_fields = "COLONYLENGTH"); colnames(cl.gen)[colnames(cl.gen)=="Ave.y"]<-"Ave.cl" #Average % old dead
 od.gen<-Calc_ColMetric_Seg(data = awd,grouping_field = "GENUS_CODE",pool_fields = "OLDDEAD"); colnames(od.gen)[colnames(od.gen)=="Ave.y"]<-"Ave.od" #Average % old dead
 rd.gen<-Calc_ColMetric_Seg(data = awd,grouping_field = "GENUS_CODE",pool_fields = c("RDEXTENT1", "RDEXTENT2","RDEXTENT3")); colnames(rd.gen)[colnames(rd.gen)=="Ave.y"]<-"Ave.rd" #Average % recent dead
 
-#Calc_RDden_Transect
+#Calc_RDden_Transect...DOUBLE CHECK WARNING MESSAGES - MAY BE ABLE TO MAKE CODE RUN FASTER
 rdden.gen<-Calc_RDden_Seg(data=awd,grouping_field ="GENUS_CODE") # Density of recent dead colonies by condition, you will need to subset which ever condition you want. The codes ending in "S" are the general categories
 acutedz.gen<-subset(rdden.gen,select = c(METHOD,SITEVISITID,SITE,TRANSECT,SEGMENT,GENUS_CODE,DZGN_G));colnames(acutedz.gen)[colnames(acutedz.gen)=="DZGN_G"]<-"DZGN_G_den" #subset just acute diseased colonies
 
