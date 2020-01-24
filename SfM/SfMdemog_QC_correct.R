@@ -259,7 +259,7 @@ write.csv(eval.seg.length, "Missing_seglength_eval.csv")
 
 
 #8. Identify colonies flagged as Juveniles or Adults, but have the innocorrect segment area. make sure j = 1 and A = 2.5
-sm.colonies.eval <- sfm %>% filter(Adult_Juvenile=="J",SEGAREA != 1.0, NO_COLONY_ !=-1) 
+sm.colonies.eval <- sfm %>% filter(Adult_Juvenile=="J",SEGAREA != 1, NO_COLONY_ !=-1) 
 View(sm.colonies.eval)
 
 lg.colonies.eval <- sfm %>% filter(Adult_Juvenile=="A",SEGAREA==1) 
@@ -283,9 +283,9 @@ output[9,]<-c("0% Recent Dead corals do NOT have an RDCAUSE code","Error: 3 in H
 
 
 #10. Identify colonies with recent dead >0%, but there is no RDCAUSE code - This check should result in 0 records   
-sfm[sfm$RD_1 >0 & sfm$RDCAUSE1=="NA",]
-sfm[sfm$RD_2 >0 & sfm$RDCAUSE2=="NA",]
-sfm[sfm$RD_3 >0 & sfm$RDCAUSE3=="NA",]
+sfm[sfm$RD_1 >0 & sfm$RDCAUSE1=="NA",rowSums(is.na(a)) != ncol(a),]
+sfm[sfm$RD_2 >0 & sfm$RDCAUSE2=="NA",rowSums(is.na(a)) != ncol(a), ]
+sfm[sfm$RD_3 >0 & sfm$RDCAUSE3=="NA",rowSums(is.na(a)) != ncol(a), ]
 
 output[10,]<-c("All corals with RD >0 have an RDCAUSE code","YES")
 
@@ -301,16 +301,16 @@ output[11,]<-c("All colonies with a condition have an extent","Error: 5 in HAW-4
 
 
 #12. Identify colonies that have no condition, but a value in extent - This check should result in 0 records   
-sfm[sfm$CON_1=="NA"& sfm$EXTENT_1!="0",]
+sfm[sfm$CON_1=="NA"& sfm$EXTENT_1!="0",rowSums(is.na(a)) != ncol(a),]
 sfm[sfm$CON_2=="NA"& sfm$EXTNET_2!="0",]
-sfm[sfm$CON_3=="NA"& sfm$EXTENT_3!="0",]
+sfm[sfm$CON_3=="NA"& sfm$EXTENT_3!="0",rowSums(is.na(a)) != ncol(a),]
 
 output[12,]<-c("All colonies with NO condition also have NO extent","Yes")
 
 
 
 #13. Identify colonies with nothing in condition column, but a value in severity. Double check that these shouldn't be 0  
-sfm[sfm$EXTENT_1=="0"& sfm$SEV_1!="0",]
+sfm[sfm$EXTENT_1=="0"& sfm$SEV_1!="0",rowSums(is.na(a)) != ncol(a),]
 sfm[sfm$EXTENT_2=="0"& sfm$SEV_2!="0",]
 sfm[sfm$EXTENT_3=="0"& sfm$SEV_3!="0",]
 
@@ -338,7 +338,7 @@ sfm$RD_2<-as.numeric(sfm$RD_2)
 sfm$RD_1<-as.numeric(sfm$RD_1)
 sfm$RD_3<-as.numeric(sfm$RD_3)
 sfm$totaldead = sfm$RD_1+sfm$RD_2+sfm$RD_3 + sfm$OLDDEAD
-sfm[sfm$totaldead>100,]
+a<- sfm[sfm$totaldead>100,]
 
 output[15,]<-c("RD + OD <=100%","Yes")
 
@@ -356,9 +356,9 @@ write.csv(output,"HARAMP2019_sfm_output.csv")
 
 
 ad<-subset(sfm,Adult_Juvenile=="A")
-ad<-subset(ad,select=-c(Adult_Juvenile,totaldead)) #This also includes segments where NO_COLONY = -1 and shape_length < 0.05
+ad<-subset(ad,select=-c(Adult_Juvenile,totaldead))
 j<-subset(sfm,Adult_Juvenile=="J") #This also includes segments where NO_COLONY = -1
-j<-subset(sfm,Adult_Juvenile=="J" & NO_COLONY_==0) 
+j<-subset(sfm,Adult_Juvenile=="J" & NO_COLONY_==0) # Removes segments where there are no corals (within 1 or 2.5 seglength)
 j<-subset(j,select=c(FID,ANALYST,OBS_YEAR,SITE,SEGMENT,SEGLENGTH,SEGWIDTH,NO_COLONY_,SPCODE,FRAGMENT_Y,MORPH_CODE,EX_BOUND,SHAPE_Leng,SEGAREA))
 
 
@@ -369,6 +369,7 @@ adseglist<-merge(ad,seglist,by=c(SITE,n),all=T)
 
 
 #Export QC'd data
+#Data ends up in "T:/Benthic/Data/SfM/QC" NOT within Benthic-Scripts Github folder
 write.csv(ad,"HARAMP2019_QCdsfm_ADULT.csv",row.names = F)
 write.csv(j,"HARAMP2019_QCdsfm_JUV.csv",row.names = F)
 

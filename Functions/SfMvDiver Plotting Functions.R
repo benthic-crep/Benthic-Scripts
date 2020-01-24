@@ -1,4 +1,4 @@
-
+#install.packages(c("cowplot", "hydroGOF", "reshape")) #for when packages don't load
 library(gdata)             # needed for drop_levels()
 library(reshape)           # reshape library inclues the cast() function used below
 library(grid)
@@ -10,7 +10,8 @@ library(RColorBrewer)
 library(cowplot)
 library(hydroGOF)
 
-
+#Create figure based on pearson correlation coefficient for linear relationship between two variables (i.e. diver1 vs diver 2)
+#should we remove rows with NAs?
 Plot1to1<-function(d,response_variable,predictor_variable){
 	#sub<-d[d$taxon,]
 	d$X<-d[,response_variable]
@@ -24,7 +25,7 @@ Plot1to1<-function(d,response_variable,predictor_variable){
 	p1<-ggplot(d, aes(x=X, y=Y)) + 
  		geom_point(size=1) + 	geom_abline(slope=1, intercept=0) +
  		geom_smooth(method="lm", color="red", linetype="dashed", se=F) +
-		geom_text(aes((mx_val/5), (mx_val * 0.9), label=r_text), size=4, color="red") +
+		geom_text(aes((mx_val/5), (mx_val * 0.9), label=r_text), nudge_y=-0.1, nudge_x=0.1,size=4, color="red") +
 	  theme_bw()+
 	  scale_x_continuous(limits=c(0,mx_val)) +
 	  scale_y_continuous(limits=c(0,mx_val)) +
@@ -64,6 +65,7 @@ PlotBlaAlt<-function(d,response_variable,predictor_variable, Y_EXP=0){
 	return(p1)
 } #PlotBlaAlt
 
+
 #Plot histogram 
 PlotHIST<-function(d,response_variable,predictor_variable){
   Nbins=30
@@ -71,15 +73,17 @@ PlotHIST<-function(d,response_variable,predictor_variable){
   d$Y<-d[,predictor_variable]
   d<-subset(d,!(is.na(d["X"]) | is.na(d["Y"]))) #remove rows with NAs
   d$DIFF<-d$Y-d$X
-  m=mean(d$DIFF,na.rm=T);SE=1.28*sd(d$DIFF,na.rm=T)/sqrt(nrow(d))
+  m=mean(d$DIFF,na.rm=T);SE=1.28*sd(d$DIFF,na.rm=T)/sqrt(nrow(d)) #why 1.28?
+  
   p=ggplot(d,aes(DIFF))+geom_histogram(bins=Nbins,fill="skyblue",color="black")+
     annotate("rect", xmin = m-SE, xmax = m+SE, ymin = -Inf, ymax = Inf, fill = "yellow", alpha = 0.5) +
     theme_bw()+
     geom_vline(xintercept=m,color="Red",lty=2)+geom_vline(xintercept=0,color="black")+xlab("")+ylab("")
   return(p)
-}#End PDhist
+}#End Plot hist
 
 
+#Create viewing panel for histogram and correlation figures
 PlotPair<-function(d,response_variable,predictor_variable){
   p1<-Plot1to1(d,response_variable,predictor_variable)
   p2<-PlotHIST(d,response_variable,predictor_variable)
@@ -89,6 +93,8 @@ PlotPair<-function(d,response_variable,predictor_variable){
   return(pOUT)
 } #PlotPair
 
+
+#Add specifications to the viewing panel
 PlotAll<-function(d, response_variable,predictor_variable, Y1="title",Y2="title",X1="title",X2="title"){
   pO<-PlotPair(d[d$GENUS_CODE=="SSSS",], response_variable,predictor_variable)
   pS<-PlotPair(d[d$GENUS_CODE=="POSP",], response_variable,predictor_variable)
@@ -102,11 +108,10 @@ PlotAll<-function(d, response_variable,predictor_variable, Y1="title",Y2="title"
     draw_label(X1, x=0.30, y=.02, size = 14, fontface="bold", colour="black") + 
     draw_label(X2, x=0.80, y=.02, size = 14, fontface="bold", colour="black") 
   
-  #ggsave(plot=pFIN,file=paste0(outpath,Y1,sep=" v ",X1,".png"),width=12,height=12)
+  ggsave(plot=pFIN,path=(outpath),width=12,height=12,filename=paste0(Y1, sep="v", X1, ".png"))
   
   return(pFIN)
 } #end PlotALL
-
 
 
 

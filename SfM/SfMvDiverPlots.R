@@ -1,15 +1,20 @@
 rm(list=ls())
 
-source("C:/Users/Courtney.S.Couch/Documents/GitHub/Benthic-Scripts/Functions/SfMvDiver Plotting Functions.R") 
+#source("C:/Users/Courtney.S.Couch/Documents/GitHub/Benthic-Scripts/Functions/SfMvDiver Plotting Functions.R") 
+source("C:/Users/Corinne.Amir/Documents/GitHub/Benthic-Scripts/Functions/SfMvDiver Plotting Functions.R") 
 #Plot1to1; PlotBioAlt; PlotPair
 
-data.gen<-read.csv("T:/Benthic/Data/SfM/Summarized Data/HARAMP_repeats_GENUS_Summarized Data.csv")
+#install packages...not sure why I have to
+install.packages('hydroGOF')
 
+#data.gen<-read.csv("T:/Benthic/Data/SfM/Summarized Data/HARAMP_repeats_GENUS_Summarized Data.csv")
+data.gen<-read.csv("T:/Benthic/Data/SfM/Summarized Data/HARAMP_repeats_GENUS_Summarized Data-CALIBRATION.csv")
 
-data.gen<-subset(data.gen,TRANSECT!=3);data.gen[data.gen$TRANSECT=="3",]
+data.gen.rm<-subset(data.gen, TRANSECT %in% c(3, 4, 5, 6, "NA"));data.gen[data.gen$TRANSECT] #getting rid of a specific analyst? 
+ddply(data.gen.rm,.(SITE, TRANSECT, SEGMENT), summarize, num.annotated = n_distinct(SEGMENT)) #Confirm you're only keeping only MA, RS, and MW annotators 
 
 #List of segments that were surveyed by all methods and multiple divers
-sfm2<-data.gen[data.gen$MethodRep=="SfM_2",]
+sfm2<-data.gen[data.gen$MethodRep=="SfM_2",] #because MW is contained within all plots that have multiple divers and analysts?
 length(unique(sfm2$SS))
 seglist<-unique(sfm2$SS)
 
@@ -36,6 +41,11 @@ df.all<-Reduce(MyMerge, list(d1,d2,sfm1,sfm2));
 head(df.all)
 nrow(df.all)
 
+#QC Check--TBD
+repeats.table.adults <- ddply(df.all,.(SEGMENT, d1AdColCount, d2AdColCount, SfM1AdColCount, SfM2AdColCount), summarize, num.annotated = n_distinct(SEGMENT)) #looking at which sites have divers + annotators or just diver comparisons
+repeats.table.juvs <- ddply(df.all,.(SEGMENT, d1JuvColCount, d2JuvColCount, SfM1JuvColCount, SfM2JuvColCount), summarize, num.annotated = n_distinct(SEGMENT)) #looking at which sites have divers + annotators or just diver comparisons
+return(repeats.table.juvs[rowSums==0])
+#SHOULD WE REMOVE SITES WHERE DIVERS=NA AND ANNOTATORS=0? 
 
 #List of segments that were surveyed by all methods and multiple divers
 length(unique(sfm2$SS))
@@ -44,7 +54,10 @@ seglist<-unique(sfm2$SS)
 df.all<-subset(df.all,SS %in% seglist)
 length(unique(df.all$SS))
 
-outpath<-"T:/Benthic/Data/SfM/ComparisionPlots/Adult Density"
+#Plot figures
+#PlotAll(dataframe, variable 1, variable 2, y-axis name 1, y-axis name 2, x-axis name 1, x-axis name 2)
+
+outpath<- "T:/Benthic/Data/SfM/ComparisionPlots/Adult Density"
 p1<-PlotAll(df.all,"d1AdColDen","SfM1AdColDen","SfM Adult Density","Difference SfM Analyst and Diver", "Diver Adult Density","Mean Adult Density"); p1
 p2<-PlotAll(df.all,"d1AdColDen","d2AdColDen","Diver1 Adult Density","Difference Diver1 and Diver2","Diver2 Adult Density","Mean Adult Density"); p2
 p3<-PlotAll(df.all,"SfM1AdColDen","SfM2AdColDen","SfM1 Adult Density","Difference SfM Analyst1 and SfM Analyst2","SfM2 Adult Density","Mean Adult Density"); p3

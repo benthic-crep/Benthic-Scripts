@@ -1,5 +1,5 @@
 
-#DIVER:ADULT CLEAN ANALYSIS READY DATA----------------------------------------
+#DIVER/ADULT: CLEAN ANALYSIS READY DATA----------------------------------------
 # This script will clean the raw benthic REA data using method E that comes directly from the new data base application.
 rm(list=ls())
 
@@ -16,7 +16,7 @@ source("C:/Users/Corinne.Amir/Documents/GitHub/fish-paste/lib/core_functions.R")
 source("C:/Users/Corinne.Amir/Documents/GitHub/fish-paste/lib/GIS_functions.R")
 
 
-## LOAD benthic data (ADULTS)
+## DIVER-ADULT: Load benthic data 
 # setwd("C:/Users/Courtney.S.Couch/Documents/Courtney's Files/R Files/ESD/Benthic REA")
 load("T:/Benthic/Data/REA Coral Demography & Cover/Raw from Oracle/ALL_REA_ADULTCORAL_RAW_2013-2019.rdata") #from oracle
 
@@ -31,6 +31,7 @@ x$DATE_ <- as.Date(x$DATE_, format = "%Y-%m-%d")
 ### Use these functions to look at data
 head(x)
 tail(x)
+sapply(x, unique)
 table(x$REGION, x$OBS_YEAR) #review years and regions in dataframe
 
 #Convert Segment number from old to new numbering system
@@ -50,7 +51,6 @@ DATA_COLS<-c("MISSIONID","REGION","REGION_NAME","ISLAND","ISLANDCODE","SITE","LA
              "GENUS_CODE","S_ORDER","TAXONNAME","SITE_MIN_DEPTH","SITE_MAX_DEPTH")
 
 x<-subset(x,REGION=="MHI" & OBS_YEAR =="2019") #subset just MHI 2019 data
-
 #remove extraneous columns
 head(x[,DATA_COLS])
 x<-x[,DATA_COLS]
@@ -61,7 +61,8 @@ sapply(x,levels)
 sapply(x,class)##Change column names to make code easier to code
 #Logical NAs within RECENT_GENERAL/SPECIFIC_CAUSE_CODEs, conditions, and extents, but only SEVERITY_4 = logical class
 
-# Column Names Changes (Diver-ADULTS)... -------------------------------------------------
+
+#DIVER/ADULT: Column Names Changes... -------------------------------------------------
 colnames(x)[colnames(x)=="TAXONCODE"]<-"SPCODE" #Change column name- we will eventually change this column back to "taxoncode" after we modify the spcode names to match the taxalist we all feel comfortable identifying
 colnames(x)[colnames(x)=="TRANSECTNUM"]<-"TRANSECT" #Change column name
 colnames(x)[colnames(x)=="RECENTDEAD_1"]<-"RDEXTENT1" #Change column name
@@ -82,7 +83,7 @@ x$METHOD<-"DIVER"
 if(DEBUG){head(x)}
 
 
-# Merge Adult data and SURVEY MASTER -------------------------------------
+#DIVER/ADULT: Merge Diver/Adult data and SURVEY MASTER -------------------------------------
 #SURVEY MASTER was created by Ivor and Courtney by extracting sites directly from the Site Visit table from Oracle. It should be the complete list of sites surveyed since 2000
 #survey_master<-read.csv("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/data/SURVEY MASTER.csv")
 setwd("C:/Users/Corinne.Amir/Documents/GitHub/Benthic-Scripts/SfM")
@@ -113,7 +114,7 @@ miss.sites<-ddply(test,.(OBS_YEAR,SITEVISITID,SITE,MISSIONID,REGION,REGION_NAME,
 #Should be a 0 row data.frame
 head(miss.sites,20)
 
-# CLEAN UP (Diver-ADULTS) ----------------------------------------------------------------
+#DIVER/ADULT: CLEAN UP ----------------------------------------------------------------
 
 #Generate General RD cause code
 gencodes<-read.csv("T:/Benthic/Data/SpGen_Reference/GeneralRDcode_lookup.csv")
@@ -122,8 +123,9 @@ levels(x$RD1)
 
 #Remove exisiting GENRD columns until Michael can fix database
 x<-subset(x,select=-c(GENRD1,GENRD2,GENRD3))
+x<- droplevels(x)
 
-x<-CreateGenRDCode(x,"RD1","GENRD1",gencodes)
+x<-CreateGenRDCode(x,"RD1","GENRD1",gencodes) #Creates an additional column in x (called GENRD#) that has the generalized code associated with the given RD#--ok
 x<-CreateGenRDCode(x,"RD2","GENRD2",gencodes)
 x<-CreateGenRDCode(x,"RD3","GENRD3",gencodes)
 
@@ -165,7 +167,7 @@ head(subset(x,S_ORDER=="Scleractinia" & is.na(x$RDEXTENT3))) #identify columns t
 x$RDEXTENT3<-ifelse(x$S_ORDER=="Scleractinia"& is.na(x$RDEXTENT3),0,x$RDEXTENT3)
 
 
-# Assign TAXONCODE (Diver-ADULTS) --------------------------------------------------------
+#DIVER/ADULT: Assign TAXONCODE --------------------------------------------------------
 #read in list of taxa that we feel comfortable identifying to species or genus level. Note, taxa lists vary by year and region. This will need to be updated through time.
 taxa<-read.csv("T:/Benthic/Data/SpGen_Reference/2013-19_Taxa_MASTER.csv")
 
@@ -235,9 +237,9 @@ NegNineCheckCols=c("RDEXTENT1","GENRD1","RD1","RDEXTENT2","GENRD2","RD2","GENRD3
 x[,NegNineCheckCols][x[,NegNineCheckCols]==-9] <- NA #Convert missing numeric values to NA (they are entered as -9 in Oracle)
 
 
-# Convert NAs (Diver-ADULTS) --------------------------------------------------------------
+#DIVER/ADULT: Convert NAs --------------------------------------------------------------
 
-#leave NAs for severity and extent?
+#leave NAs for severity and extent? STILL MANY COLUMNS WITH LOGICAL NA = OK?
 tmp.lev<-levels(x$GENRD1); tmp.lev
 levels(x$GENRD1)<-c(tmp.lev, "NONE") # change to NONE
 x[is.na(x$GENRD1),"GENRD1"]<-"NONE"
@@ -273,6 +275,34 @@ x[is.na(x$CONDITION_2),"CONDITION_2"]<-"NONE"
 tmp.lev<-levels(x$CONDITION_3); head(tmp.lev)
 levels(x$CONDITION_3)<-c(tmp.lev, "NONE")
 x[is.na(x$CONDITION_3),"CONDITION_3"]<-"NONE"
+
+tmp.lev<-levels(x$EXTENT_1); head(tmp.lev)
+levels(x$EXTENT_1)<-c(tmp.lev, 0)
+x[is.na(x$EXTENT_1),"EXTENT_1"]<-0
+
+tmp.lev<-levels(x$EXTENT_2); head(tmp.lev)
+levels(x$EXTENT_2)<-c(tmp.lev, 0)
+x[is.na(x$EXTENT_2),"EXTENT_2"]<-0
+
+tmp.lev<-levels(x$EXTENT_3); head(tmp.lev)
+levels(x$EXTENT_3)<-c(tmp.lev, 0)
+x[is.na(x$EXTENT_3),"EXTENT_3"]<-0
+
+tmp.lev<-levels(x$SEVERITY_1); head(tmp.lev)
+levels(x$SEVERITY_1)<-c(tmp.lev, 0)
+x[is.na(x$SEVERITY_1),"SEVERITY_1"]<-0
+
+tmp.lev<-levels(x$SEVERITY_2); head(tmp.lev)
+levels(x$SEVERITY_2)<-c(tmp.lev, 0)
+x[is.na(x$SEVERITY_2),"SEVERITY_2"]<-0
+
+tmp.lev<-levels(x$SEVERITY_3); head(tmp.lev)
+levels(x$SEVERITY_3)<-c(tmp.lev, 0)
+x[is.na(x$SEVERITY_3),"SEVERITY_3"]<-0
+
+tmp.lev<-levels(x$S_ORDER); head(tmp.lev)
+levels(x$S_ORDER)<-c(tmp.lev, "NA")
+x[is.na(x$S_ORDER),"S_ORDER"]<-"NA"
 
 head(x)
 
@@ -513,6 +543,7 @@ nrow(df);nrow(x) #make sure rows weren't dropped
 
 # Merge Adult data and  SURVEY MASTER (SfM) -------------------------------------
 #survey_master<-read.csv("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/data/SURVEY MASTER.csv")
+setwd("C:/Users/Corinne.Amir/Documents/GitHub/Benthic-Scripts/SfM")
 survey_master <- read.csv("SURVEY MASTER.csv")
 
 colnames(survey_master)[colnames(survey_master)=="LATITUDE_SV"]<-"LATITUDE" #Change column name

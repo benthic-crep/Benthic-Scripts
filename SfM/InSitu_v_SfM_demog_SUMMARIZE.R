@@ -34,7 +34,7 @@ j_diver<-j_diver[!(j_diver$SITE=="NII-02580" & j_diver$SEGMENT=="10" & j_diver$D
 ###MOL-2255 SEGMENT 10 ADULT DATA WASN'T ENTERED-have Michael add it.
 ###HAW-04239 SEGMENT 0 ADULT DATA WASN'T ENTERED-have Michael add it.
 
-j_diver$DIVER<-ifelse(j_diver$SITE=="KAU-02164" & j_diver$SEGMENT=="0" & j_diver$DIVER=="M_A","MSW",as.character(j_diver$DIVER)) #this isn't removing M_W
+j_diver$DIVER<-ifelse(j_diver$SITE=="KAU-02164" & j_diver$SEGMENT=="0" & j_diver$DIVER=="M_A","MSW",as.character(j_diver$DIVER)) #trying to turn M_A into MSW?
 
 ad_sfm<-ad_sfm[!(ad_sfm$SITE=="HAW-04259" & ad_sfm$SEGMENT=="10"),]  # These were annotated by mistake, we didn't do in water repeats
 j_sfm<-j_sfm[!(j_sfm$SITE=="HAW-04259" & j_sfm$SEGMENT=="10"),]  # These were annotated by mistake, we didn't do in water repeats
@@ -178,7 +178,7 @@ survey_segment<-unique(awd[,SURVEY_Seg])
 
 
 # GENERATE SUMMARY METRICS at the Segment-leveL BY GENUS--------------------------------------------------
-#Calc_ColDen_Transect...LOOK INTO THIS MORE
+#Calc_ColDen_Transect
 acd.gen<-Calc_ColDen_Seg(data = awd,grouping_field = "GENUS_CODE");colnames(acd.gen)[colnames(acd.gen)=="ColCount"]<-"AdColCount";colnames(acd.gen)[colnames(acd.gen)=="ColDen"]<-"AdColDen";colnames(acd.gen)[colnames(acd.gen)=="SEGAREA"]<-"SEGAREA_ad"# calculate density at genus level as well as total
 jcd.gen<-Calc_ColDen_Seg(jwd,"GENUS_CODE"); colnames(jcd.gen)[colnames(jcd.gen)=="ColCount"]<-"JuvColCount";colnames(jcd.gen)[colnames(jcd.gen)=="ColDen"]<-"JuvColDen"
 jcd.gen<-subset(jcd.gen,select=-c(SEGAREA))
@@ -186,12 +186,16 @@ jcd.gen<-subset(jcd.gen,select=-c(SEGAREA))
 #REMOVE COLONIES THAT COULD'T BE FULLY ANNOTATED IN SFM
 awd<-subset(awd,EX_BOUND==0)
 
-#Calc_ColMetric_Transect...DOUBLE CHECK WARNING MESSAGES - MAY BE ABLE TO MAKE CODE RUN FASTER
+
+## This function calculates mean colony length, % recent dead, % old dead, condition severity or condition extent to the segment level
+## NOTE: can run both adult & juvenile data with this function for COLONYLENGTH
+#c("COLONYLENGTH","RDEXTENT1", "RDEXTENT2", "RDEXTENT3", "OLDDEAD","SEVERITY_1","SEVERITY_2", "SEVERITY_3", "EXTENT_1", "EXTENT_2", "EXTENT_3")
 cl.gen<-Calc_ColMetric_Seg(data = awd,grouping_field = "GENUS_CODE",pool_fields = "COLONYLENGTH"); colnames(cl.gen)[colnames(cl.gen)=="Ave.y"]<-"Ave.cl" #Average % old dead
 od.gen<-Calc_ColMetric_Seg(data = awd,grouping_field = "GENUS_CODE",pool_fields = "OLDDEAD"); colnames(od.gen)[colnames(od.gen)=="Ave.y"]<-"Ave.od" #Average % old dead
 rd.gen<-Calc_ColMetric_Seg(data = awd,grouping_field = "GENUS_CODE",pool_fields = c("RDEXTENT1", "RDEXTENT2","RDEXTENT3")); colnames(rd.gen)[colnames(rd.gen)=="Ave.y"]<-"Ave.rd" #Average % recent dead
 
-#Calc_RDden_Transect...DOUBLE CHECK WARNING MESSAGES - MAY BE ABLE TO MAKE CODE RUN FASTER
+
+#Calc_RDden_Transect
 rdden.gen<-Calc_RDden_Seg(data=awd,grouping_field ="GENUS_CODE") # Density of recent dead colonies by condition, you will need to subset which ever condition you want. The codes ending in "S" are the general categories
 acutedz.gen<-subset(rdden.gen,select = c(METHOD,SITEVISITID,SITE,TRANSECT,SEGMENT,GENUS_CODE,DZGN_G));colnames(acutedz.gen)[colnames(acutedz.gen)=="DZGN_G"]<-"DZGN_G_den" #subset just acute diseased colonies
 
@@ -209,7 +213,7 @@ MyMerge <- function(x, y){
   df <- merge(x, y, by= c("METHOD","SITE","SITEVISITID","TRANSECT","SEGMENT","GENUS_CODE"), all.x= TRUE, all.y= TRUE)
   return(df)
 }
-data.gen<-Reduce(MyMerge, list(acd.gen,jcd.gen,cl.gen,od.gen,rd.gen,acutedz.gen,chronicdz.gen,ble.gen));
+data.gen<-Reduce(MyMerge, list(acd.gen,jcd.gen,cl.gen,od.gen,rd.gen,acutedz.gen,chronicdz.gen,ble.gen)); 
 head(data.gen)
 
 #Change NAs for abunanance and density metrics to 0. Don't change NAs in the partial mortality columns to 0
