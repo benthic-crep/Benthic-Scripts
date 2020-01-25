@@ -23,8 +23,9 @@ j_sfm<-read.csv("T:/Benthic/Data/SfM/Analysis Ready/HARAMP19_SfMJuv_CLEANED.csv"
 
 
 
-t1<-ddply(ad_diver,.(SITE,TRANSECT,SEGMENT),summarize,n=length(unique(DIVER)));t1[t1$n>1,] #should these be 0?
-t1<-ddply(j_diver,.(SITE,TRANSECT,SEGMENT),summarize,n=length(unique(DIVER)));t1[t1$n>1,] #should these be 0?
+t1<-ddply(ad_diver,.(SITE,TRANSECT,SEGMENT),summarize,n=length(unique(DIVER)));t1[t1$n>1,] #for comparative analysis, need n=2
+t1<-ddply(j_diver,.(SITE,TRANSECT,SEGMENT),summarize,n=length(unique(DIVER)));t1[t1$n>1,] #only one site with n=2
+
 
 #Temporary fixes - WORK WITH MICHAEL TO FIX IN ORACLE
 ad_diver<-ad_diver[!(ad_diver$SITE=="HAW-04239" & ad_diver$SEGMENT=="10" & ad_diver$DIVER=="RS"),] #these were double entered under 2 different site names
@@ -48,80 +49,83 @@ ad_sfm<-ad_sfm[!(ad_sfm$SITE=="HAW-04278" & ad_sfm$SEGMENT %in% c("10","15")),] 
 j_sfm<-j_sfm[!(j_sfm$SITE=="HAW-04278" & j_sfm$SEGMENT %in% c("10","15")),] # These were annotated by mistake, we didn't do in water repeats
 
 
-###FOR CALIBRATION: Use this script to assign transect
-#Create Transect column and use this to code duplicate segments
-ad_sfm<-ad_sfm %>% mutate(TRANSECT=recode(ANALYST,
-                                        `MA`="1",
-                                        `RS`="2",
-                                        `MW`="2",
-                                        `CA`="3",
-                                        `ML`="4",
-                                        `FL`="5",
-                                        `AH`="6",
-                                        `NA`="NA"))
-#Check that segments were changed correctly
-ad_sfm<-droplevels(ad_sfm)
-table(ad_sfm$SITE,ad_sfm$TRANSECT)
+# ###FOR CALIBRATION: Use this script to assign transect
+# #Create Transect column and use this to code duplicate segments
+# ad_sfm<-ad_sfm %>% mutate(TRANSECT=recode(ANALYST,
+#                                         `MA`="1",
+#                                         `RS`="2",
+#                                         `MW`="2",
+#                                         `CA`="3",
+#                                         `ML`="4",
+#                                         `FL`="5",
+#                                         `AH`="6",
+#                                         `NA`="NA"))
+# #Check that segments were changed correctly
+# ad_sfm<-droplevels(ad_sfm)
+# table(ad_sfm$SITE,ad_sfm$TRANSECT)
+# 
+# #Create Transect column and use this to code duplicate segments
+# j_sfm<-j_sfm %>% mutate(TRANSECT=recode(ANALYST,
+#                                           `MA`="1",
+#                                           `RS`="2",
+#                                           `MW`="2",
+#                                           `CA`="3",
+#                                           `ML`="4",
+#                                           `FL`="5",
+#                                           `AH`="6",
+#                                           `NA`="NA"))
+# #Check that segments were changed correctly
+# j_sfm<-droplevels(j_sfm)
+# table(j_sfm$SITE,j_sfm$TRANSECT)
 
-#Create Transect column and use this to code duplicate segments
-j_sfm<-j_sfm %>% mutate(TRANSECT=recode(ANALYST,
-                                          `MA`="1",
-                                          `RS`="2",
-                                          `MW`="2",
-                                          `CA`="3",
-                                          `ML`="4",
-                                          `FL`="5",
-                                          `AH`="6",
-                                          `NA`="NA"))
-#Check that segments were changed correctly
-j_sfm<-droplevels(j_sfm)
-table(j_sfm$SITE,j_sfm$TRANSECT)
 
-
-##FOR COMPARATIVE ANALYSIS: Use this script to assign transect
+#FOR COMPARATIVE ANALYSIS: Use this script to assign transect
 #Adults
-# ad_sfm<-ad_sfm[!(ad_sfm$ANALYST=="CA"),] # These were annotated by mistake, we didn't do in water repeats
-# table(ad_sfm$SITE,ad_sfm$ANALYST)
-# 
-# SURVEY_Seg<-c("SITEVISITID", "SITE","SEGMENT","ANALYST")
-# sfm_seg<-unique(ad_sfm[,SURVEY_Seg])
-# sfm_seg$SS<- paste(sfm_seg$SITE,sfm_seg$SEGMENT,sep="_")  
-# 
-# ###THIS ISN'T WORKING FOR
-# #Randomly assign annotators(Transects)
-# tr<-c("1","2")
-# sfm_seg <- sfm_seg %>%
-#   group_by(SS) %>% # note the group_by()
-#   mutate(TRANSECT=sample(tr, size=n(),  replace=F))
-# sfm_seg<-as.data.frame(sfm_seg)
-# table(sfm_seg$SS,sfm_seg$TRANSECT) #Check
-# 
-# nrow(ad_sfm)
-# ad_sfm<-left_join(ad_sfm,sfm_seg[,!(colnames(sfm_seg)=="SS")])
-# nrow(ad_sfm)
-# 
-# #Juveniles
-# j_sfm<-j_sfm[!(j_sfm$ANALYST=="CA"),] # These were annotated by mistake, we didn't do in water repeats
-# table(j_sfm$SITE,j_sfm$ANALYST)
-# 
-# SURVEY_Seg<-c("SITEVISITID", "SITE","SEGMENT","ANALYST")
-# sfm_seg<-unique(j_sfm[,SURVEY_Seg])
-# sfm_seg$SS<- paste(sfm_seg$SITE,sfm_seg$SEGMENT,sep="_")  
-# 
-# #Randomly assign Transect numbers
-# tr<-c("1","2")
-# sfm_seg <- sfm_seg %>%
-#   group_by(SS) %>% # note the group_by()
-#   mutate(TRANSECT=sample(tr, size=n(),  replace=F))
-# sfm_seg<-as.data.frame(sfm_seg)
-# table(sfm_seg$SS,sfm_seg$TRANSECT)
-# 
-# 
-# nrow(j_sfm)
-# j_sfm<-left_join(j_sfm,sfm_seg[,!(colnames(sfm_seg)=="SS")])
-# nrow(j_sfm)
-# head(j_sfm)
-# 
+ad_sfm$ANALYST<-ifelse(ad_sfm$ANALYST=="MW","RS",as.character(ad_sfm$ANALYST)) #need 2 analysts only
+ad_sfm<-ad_sfm[(ad_sfm$ANALYST%in% c("MA","RS")),] # Gets rid of all anotators except for MA and RS
+ad_sfm <- droplevels(ad_sfm)
+table(ad_sfm$SITE,ad_sfm$ANALYST)
+
+SURVEY_Seg<-c("SITEVISITID", "SITE","SEGMENT","ANALYST")
+sfm_seg<-unique(ad_sfm[,SURVEY_Seg])
+sfm_seg$SS<- paste(sfm_seg$SITE,sfm_seg$SEGMENT,sep="_")
+
+###THIS ISN'T WORKING FOR
+#Randomly assign annotators(Transects)
+tr<-c("1","2")
+sfm_seg <- sfm_seg %>%
+  group_by(SS) %>% # note the group_by()
+  mutate(TRANSECT=sample(tr, size=n(),  replace=F))
+sfm_seg<-as.data.frame(sfm_seg)
+table(sfm_seg$SS,sfm_seg$TRANSECT) #Check
+
+nrow(ad_sfm)
+ad_sfm<-left_join(ad_sfm,sfm_seg[,!(colnames(sfm_seg)=="SS")])
+nrow(ad_sfm)
+
+#Juveniles
+
+j_sfm <- droplevels(j_sfm)
+table(j_sfm$SITE,j_sfm$ANALYST)
+
+SURVEY_Seg<-c("SITEVISITID", "SITE","SEGMENT","ANALYST")
+sfm_seg<-unique(j_sfm[,SURVEY_Seg])
+sfm_seg$SS<- paste(sfm_seg$SITE,sfm_seg$SEGMENT,sep="_")
+
+#Randomly assign Transect numbers
+tr<-c("1","2")
+sfm_seg <- sfm_seg %>%
+  group_by(SS) %>% # note the group_by()
+  mutate(TRANSECT=sample(tr, size=n(),  replace=F))
+sfm_seg<-as.data.frame(sfm_seg)
+table(sfm_seg$SS,sfm_seg$TRANSECT)
+
+
+nrow(j_sfm)
+j_sfm<-left_join(j_sfm,sfm_seg[,!(colnames(sfm_seg)=="SS")])
+nrow(j_sfm)
+head(j_sfm)
+
 ##Calcuating segment and transect area and add column for transect area
 ad_sfm$TRANSECTAREA<-Transectarea(ad_sfm)
 j_sfm$TRANSECTAREA<-Transectarea(j_sfm)
@@ -136,7 +140,7 @@ j_diver$EX_BOUND<-0 #add column so we can merge with sfm data
 
 #Remove Porites bernardi, it's causing issues with duplicate segments.
 ad_diver<-subset(ad_diver,SPCODE!="PBER")
-j_diver<-subset(j_diver,SPCODE!="PBER") #.....juv with seglength = 2.5 still in the dataframe
+j_diver<-subset(j_diver,SPCODE!="PBER") 
 
 colnames(ad_diver)[colnames(ad_diver)=="DIVER"]<-"ANALYST" #Change column so we can merge with the sfm data
 colnames(j_diver)[colnames(j_diver)=="DIVER"]<-"ANALYST" 
@@ -160,7 +164,7 @@ head(j_diver[,j_DATACOLS])
 j_diver<-j_diver[,j_DATACOLS]
 
 #Combine diver and sfm data
-awd<-rbind(ad_diver,ad_sfm)
+awd<-rbind(ad_diver,ad_sfm) # warning: invalid factor level, NA generated--ok?
 jwd<-rbind(j_diver,j_sfm)
 
 #Create a look up table of all of the colony attributes- you will need this for the functions below
@@ -176,6 +180,9 @@ SURVEY_Seg<-c("METHOD","SITEVISITID", "OBS_YEAR", "REGION", "ISLAND","SEC_NAME",
               "DEPTH_BIN","HABITAT_CODE", "LATITUDE", "LONGITUDE","MIN_DEPTH_M","MAX_DEPTH_M","METHOD","TRANSECT","SEGMENT")
 survey_segment<-unique(awd[,SURVEY_Seg])
 
+ajwd<-full_join(awd,jwd) #fixes NA problem
+survey_segment<-unique(ajwd[,SURVEY_Seg])
+
 
 # GENERATE SUMMARY METRICS at the Segment-leveL BY GENUS--------------------------------------------------
 #Calc_ColDen_Transect
@@ -185,7 +192,6 @@ jcd.gen<-subset(jcd.gen,select=-c(SEGAREA))
 
 #REMOVE COLONIES THAT COULD'T BE FULLY ANNOTATED IN SFM
 awd<-subset(awd,EX_BOUND==0)
-
 
 ## This function calculates mean colony length, % recent dead, % old dead, condition severity or condition extent to the segment level
 ## NOTE: can run both adult & juvenile data with this function for COLONYLENGTH
@@ -208,13 +214,19 @@ chronicdz.gen<-subset(condden.gen,select = c(METHOD,SITEVISITID,SITE,TRANSECT,SE
 #rich.gen<-Calc_Richness_Transect(awd,"GENUS_CODE")
 
 
-#Merge density and partial moratlity data together.You will need to replace the DUMMY field with the one you want
-MyMerge <- function(x, y){
-  df <- merge(x, y, by= c("METHOD","SITE","SITEVISITID","TRANSECT","SEGMENT","GENUS_CODE"), all.x= TRUE, all.y= TRUE)
-  return(df)
-}
-data.gen<-Reduce(MyMerge, list(acd.gen,jcd.gen,cl.gen,od.gen,rd.gen,acutedz.gen,chronicdz.gen,ble.gen)); 
-head(data.gen)
+#Join density and partial moratlity data together.You will need to replace the DUMMY field with the one you want
+# MyMerge <- function(x, y){
+#   df <- merge(x, y, by= c("METHOD","SITE","SITEVISITID","TRANSECT","SEGMENT","GENUS_CODE"), all.x= TRUE, all.y= TRUE)
+#   return(df)
+# }
+# data.gen<-Reduce(MyMerge, list(acd.gen,jcd.gen,cl.gen,od.gen,rd.gen,acutedz.gen,chronicdz.gen,ble.gen)); 
+# head(data.gen)
+
+
+data.gen <- join_all(list(acd.gen,jcd.gen,cl.gen,od.gen,rd.gen,acutedz.gen,chronicdz.gen,ble.gen), 
+                by=c("METHOD","SITE","SITEVISITID","TRANSECT","SEGMENT","GENUS_CODE"), type='full'); head(data.gen)
+
+#sites with segment = 5 end up without sitevisit info 
 
 #Change NAs for abunanance and density metrics to 0. Don't change NAs in the partial mortality columns to 0
 data.gen$JuvColCount[is.na(data.gen$JuvColCount)]<-0;data.gen$JuvColDen[is.na(data.gen$JuvColDen)]<-0
@@ -239,4 +251,5 @@ if(nrow(data.gen)!=nrow(data.gen2)) {cat("WARNING: Dfs didn't merge properly")}
 
 #Save file for segment calibration
 write.csv(data.gen2,file="T:/Benthic/Data/SfM/Summarized Data/HARAMP_repeats_GENUS_Summarized Data-CALIBRATION.csv",row.names = F)
+
 

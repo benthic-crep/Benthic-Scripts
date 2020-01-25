@@ -108,7 +108,7 @@ PlotAll<-function(d, response_variable,predictor_variable, Y1="title",Y2="title"
     draw_label(X1, x=0.30, y=.02, size = 14, fontface="bold", colour="black") + 
     draw_label(X2, x=0.80, y=.02, size = 14, fontface="bold", colour="black") 
   
-  ggsave(plot=pFIN,path=(outpath),width=12,height=12,filename=paste0(Y1, sep="v", X1, ".png"))
+  #ggsave(plot=pFIN,path=(outpath),width=12,height=12,filename=paste0(Y1, sep="v", X1, ".png"))
   
   return(pFIN)
 } #end PlotALL

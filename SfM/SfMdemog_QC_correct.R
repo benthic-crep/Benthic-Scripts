@@ -21,7 +21,8 @@ source("C:/Users/Corinne.Amir/Documents/GitHub/Benthic-Scripts/Functions/core_fu
 ##read benthic data downloaded from Mission app and subset to the leg you need to QC
 #sfm.raw <- read.csv("HARAMP2019_demographic_repeats_jan172020.csv")
 
-sfm.raw <- read.csv("HARAMP2019_demographic_calibration_jan212020.csv")
+#sfm.raw <- read.csv("HARAMP2019_demographic_calibration_jan212020.csv") #for calibration
+sfm.raw <- read.csv("HARAMP2019_demographic_repeats_jan132020.csv") #for comparison
 
 head(sfm.raw);nrow(sfm.raw)
 
@@ -250,7 +251,7 @@ seg.length <-ddply(sfm,.(SITE, SEGMENT, ANALYST, SEGLENGTH), summarize, num.segl
 eval.seg.length <- acast(seg.length, SITE~SEGMENT~ANALYST, length)   
 View(eval.seg.length) #all cells that have been annotated should be "2" 
 
-output[7,]<-c("All segments have seglengths 1.0 and 2.5","error: HAW-4221-0-AH") #change depending on output from previous line of code
+output[7,]<-c("All segments have seglengths 1.0 and 2.5","many errors") #change depending on output from previous line of code
 
 # if there are errors, export a csv file for further analysis
 write.csv(eval.seg.length, "Missing_seglength_eval.csv")
@@ -265,7 +266,7 @@ View(sm.colonies.eval)
 lg.colonies.eval <- sfm %>% filter(Adult_Juvenile=="A",SEGAREA==1) 
 View(lg.colonies.eval)
 
-output[8,]<-c("Juveniles and Adult colonies have correct labeling","Error: HAW-4221-0-AH juvenile")
+output[8,]<-c("Juveniles and Adult colonies have correct labeling","2 errors (1 PBER)")
 
 #If rows have been flagged, export sm_colonies dataframe into a csv file for further QC
 write.csv(sm.colonies.eval, "Juveniles_eval.csv")
@@ -278,16 +279,16 @@ sfm[sfm$RD_1=="0"& sfm$RDCAUSE1!="NA",]
 sfm[sfm$RD_2=="0"& sfm$RDCAUSE2!="NA",]
 sfm[sfm$RD_3=="0"& sfm$RDCAUSE3!="NA",]
 
-output[9,]<-c("0% Recent Dead corals do NOT have an RDCAUSE code","Error: 3 in HAW-4221-0-AH")
+output[9,]<-c("0% Recent Dead corals do NOT have an RDCAUSE code","Error: 1 in RD2")
 
 
 
 #10. Identify colonies with recent dead >0%, but there is no RDCAUSE code - This check should result in 0 records   
-sfm[sfm$RD_1 >0 & sfm$RDCAUSE1=="NA",rowSums(is.na(a)) != ncol(a),]
-sfm[sfm$RD_2 >0 & sfm$RDCAUSE2=="NA",rowSums(is.na(a)) != ncol(a), ]
-sfm[sfm$RD_3 >0 & sfm$RDCAUSE3=="NA",rowSums(is.na(a)) != ncol(a), ]
+sfm[sfm$RD_1 >0 & sfm$RDCAUSE1=="NA",] #,rowSums(is.na(sfm)) != ncol(sfm),]
+sfm[sfm$RD_2 >0 & sfm$RDCAUSE2=="NA",] #,rowSums(is.na(a)) != ncol(a), ]
+sfm[sfm$RD_3 >0 & sfm$RDCAUSE3=="NA",] #,rowSums(is.na(a)) != ncol(a), ]
 
-output[10,]<-c("All corals with RD >0 have an RDCAUSE code","YES")
+output[10,]<-c("All corals with RD >0 have an RDCAUSE code","1 error in rd1")
 
 
 
@@ -296,21 +297,21 @@ sfm[sfm$EXTENT_1=="0"& sfm$CON_1!="NA",]
 sfm[sfm$EXTENT_2=="0"& sfm$CON_2!="NA",]
 sfm[sfm$EXTENT_3=="0"& sfm$CON_3!="NA",] 
 
-output[11,]<-c("All colonies with a condition have an extent","Error: 5 in HAW-4221-0-AH")
+output[11,]<-c("All colonies with a condition have an extent","1 error in extent")
 
 
 
 #12. Identify colonies that have no condition, but a value in extent - This check should result in 0 records   
-sfm[sfm$CON_1=="NA"& sfm$EXTENT_1!="0",rowSums(is.na(a)) != ncol(a),]
+sfm[sfm$CON_1=="NA"& sfm$EXTENT_1!="0",] #rowSums(is.na(a)) != ncol(a),]
 sfm[sfm$CON_2=="NA"& sfm$EXTNET_2!="0",]
-sfm[sfm$CON_3=="NA"& sfm$EXTENT_3!="0",rowSums(is.na(a)) != ncol(a),]
+sfm[sfm$CON_3=="NA"& sfm$EXTENT_3!="0",] #rowSums(is.na(a)) != ncol(a),]
 
 output[12,]<-c("All colonies with NO condition also have NO extent","Yes")
 
 
 
 #13. Identify colonies with nothing in condition column, but a value in severity. Double check that these shouldn't be 0  
-sfm[sfm$EXTENT_1=="0"& sfm$SEV_1!="0",rowSums(is.na(a)) != ncol(a),]
+sfm[sfm$EXTENT_1=="0"& sfm$SEV_1!="0"] #,rowSums(is.na(a)) != ncol(a),]
 sfm[sfm$EXTENT_2=="0"& sfm$SEV_2!="0",]
 sfm[sfm$EXTENT_3=="0"& sfm$SEV_3!="0",]
 
@@ -328,7 +329,7 @@ sfm[sfm$SEV_1!="0"& sfm$CON_1 %notin% c("BLE","BLP"),]
 sfm[sfm$SEV_2!="0"& sfm$CON_2 %notin% c("BLE","BLP"),]
 sfm[sfm$SEV_3!="0"& sfm$CON_3 %notin% c("BLE","BLP"),]
 
-output[14,]<-c("Severity value is present only in colonies with CON = BLE and BLP","Error: 7 in HAW-4221-0-AH")
+output[14,]<-c("Severity value is present only in colonies with CON = BLE and BLP","ok")
 
 
 
@@ -338,7 +339,7 @@ sfm$RD_2<-as.numeric(sfm$RD_2)
 sfm$RD_1<-as.numeric(sfm$RD_1)
 sfm$RD_3<-as.numeric(sfm$RD_3)
 sfm$totaldead = sfm$RD_1+sfm$RD_2+sfm$RD_3 + sfm$OLDDEAD
-a<- sfm[sfm$totaldead>100,]
+sfm[sfm$totaldead>100,]
 
 output[15,]<-c("RD + OD <=100%","Yes")
 

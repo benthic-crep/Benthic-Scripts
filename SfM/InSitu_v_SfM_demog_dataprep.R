@@ -311,7 +311,7 @@ write.csv(awd,file="T:/Benthic/Data/SfM/Analysis Ready/HARAMP19_DIVERAdult_CLEAN
 
 
 
-## DIVER:JUVENILE CLEAN ANALYSIS READY DATA ----
+## DIVER/JUVENILE: CLEAN ANALYSIS READY DATA ----
 ## LOAD benthic data
 #load("T:/Benthic/Data/REA Coral Demography & Cover/Raw from Oracle/ALL_REA_JUVCORAL_RAW_2013-2019.rdata") #from oracle
 #load("C:/Users/Courtney.S.Couch/Documents/Courtney's Files/R Files/ESD/Temp Sfm Files/ALL_REA_JUVCORAL_RAW_2013-2019.rdata") #from oracle
@@ -387,7 +387,7 @@ miss.sites<-ddply(test,.(OBS_YEAR,SITEVISITID,SITE,MISSIONID,REGION,REGION_NAME,
 head(miss.sites,20)
 
 
-# CLEAN UP (Diver-JUVENILES) ----------------------------------------------------------------
+# DIVER/JUVENILES: CLEAN UP ----------------------------------------------------------------
 
 ##Remove sites that were only surveyed for photoquads but not demographics
 #Note-photoquad only sites are not included in data prior to 2018
@@ -406,7 +406,7 @@ x<-subset(x,SEGLENGTH!="NA") #Remove segments that were not surveyed for coral d
 x<-subset(x,EXCLUDE_FLAG==0);head(subset(x,EXCLUDE_FLAG==-1))# this dataframe should be empty
 
 
-# Assign TAXONCODE (Diver-JUVENILES) --------------------------------------------------------
+#DIVER/JUVENILES: Assign TAXONCODE --------------------------------------------------------
 #read in list of taxa that we feel comfortable identifying to species or genus level. Note, taxa lists vary by year and region. This will need to be updated through time.
 taxa<-read.csv("T:/Benthic/Data/SpGen_Reference/2013-19_Taxa_MASTER.csv")
 
@@ -416,8 +416,7 @@ x<-Convert_to_Taxoncode(x)
 
 #Check to make sure SPCODE was converted correctly
 head(x[x$SPCODE!=x$TAXONCODE,])
-
-SPCODE_error <- x[x$SPCODE!=x$TAXONCODE, SURVEY_INFO] #Shows the specific instances where SPCODE is not identical to TAXONCODE
+x[x$SPCODE!=x$TAXONCODE, SURVEY_INFO] #Shows the specific instances where SPCODE is not identical to TAXONCODE--1 POCS present
 
 #If there are issues use this code to create a list SPCODE (lowest taxonomic resolution we have), TAXONCODE (the taxonomic level we all feel comfortable with) and associated genera
 #This is used for spot checking that TAXONCODE was converted properly & can be compared against TAXA MASTER 
@@ -477,7 +476,7 @@ write.csv(jwd,file="T:/Benthic/Data/SfM/Analysis Ready/HARAMP19_DIVERJuv_CLEANED
 
 
 
-# SFM:ADULT CLEAN ANALYSIS READY DATA --------------------
+# SFM/ADULT: CLEAN ANALYSIS READY DATA ----------------------------------------------------
 df<-read.csv("T:/Benthic/Data/SfM/QC/HARAMP2019_QCdsfm_ADULT.csv")
 
 x<-df
@@ -486,7 +485,7 @@ View(x)
 nrow(x)
 
 
-# Column Names Changes... (SfM-ADULT) -------------------------------------------------
+#SfM/ADULT: Column Names Changes -------------------------------------------------
 colnames(x)[colnames(x)=="MISSION_ID"]<-"MISSIONID" #Change column name
 colnames(x)[colnames(x)=="RD_1"]<-"RDEXTENT1" #Change column name
 colnames(x)[colnames(x)=="RDCAUSE1"]<-"RD1" #Change column name
@@ -514,7 +513,7 @@ if(DEBUG){head(x)}
 table(x$SITE,x$ANALYST)
 
 
-# Adding and Modifying columns --------------------------------------------
+#SfM/ADULT: Adding and Modifying columns --------------------------------------------
 
 #Fill in columns with values that we know should not be different across any of the rows
 x$OBS_YEAR <- as.vector(rep(2019, times = nrow(x)))
@@ -541,7 +540,7 @@ head(x)
 nrow(df);nrow(x) #make sure rows weren't dropped
 
 
-# Merge Adult data and  SURVEY MASTER (SfM) -------------------------------------
+#SfM/ADULT: Merge Adult data and  SURVEY MASTER  -------------------------------------
 #survey_master<-read.csv("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/data/SURVEY MASTER.csv")
 setwd("C:/Users/Corinne.Amir/Documents/GitHub/Benthic-Scripts/SfM")
 survey_master <- read.csv("SURVEY MASTER.csv")
@@ -557,7 +556,7 @@ head(x)
 nrow(x)
 
 
-# Assign TAXONCODE --------------------------------------------------------
+#SfM/ADULT: Assign TAXONCODE --------------------------------------------------------
 #read in list of taxa that we feel comfortable identifying to species or genus level. Note, taxa lists vary by year and region. This will need to be updated through time.
 taxa<-read.csv("T:/Benthic/Data/SpGen_Reference/2013-19_Taxa_MASTER.csv")
 
@@ -570,7 +569,6 @@ x<-Convert_to_Taxoncode(x)
 
 #Check to make sure SPCODE was converted correctly
 head(x[x$SPCODE!=x$TAXONCODE,])
-SPCODE_error <- x[x$SPCODE!=x$TAXONCODE, SURVEY_INFO] #Shows the specific instances where SPCODE is not identical to TAXONCODE
 
 #If there are issues use this code to create a list SPCODE (lowest taxonomic resolution we have), TAXONCODE (the taxonomic level we all feel comfortable with) and associated genera
 #This is used for spot checking that TAXONCODE was converted properly & can be compared against TAXA MASTER 
@@ -631,7 +629,7 @@ NegNineCheckCols=c("RDEXTENT1","GENRD1","RD1","RDEXTENT2","GENRD2","RD2","GENRD3
 x[,NegNineCheckCols][x[,NegNineCheckCols]==-9] <- NA #Convert missing numeric values to NA (they are entered as -9 in Oracle)
 
 
-# Clean up NAs ------------------------------------------------------------
+#SfM/ADULT: Clean up NAs ------------------------------------------------------------
 tmp.lev<-levels(x$GENRD1); tmp.lev
 levels(x$GENRD1)<-c(tmp.lev, "NONE") # change to NONE
 x[is.na(x$GENRD1),"GENRD1"]<-"NONE"
@@ -675,16 +673,15 @@ write.csv(awd,file="T:/Benthic/Data/SfM/Analysis Ready/HARAMP19_SfMAdult_CLEANED
 
 
 
-# SFM:JUVENILE CLEAN ANALYSIS READY DATA --------------------
+# SFM/JUVENILE: CLEAN ANALYSIS READY DATA -------------------------------------
 df<-read.csv("T:/Benthic/Data/SfM/QC/HARAMP2019_QCdsfm_JUV.csv") #324 rows
-df<-read.csv("C:/Users/Corinne.Amir/Documents/GitHub/Benthic-Scripts/SfM/HARAMP2019_QCdsfm_JUV.csv") #827 rows
 
 x<-df
 head(x)
 View(x)
 nrow(x)
 
-# Column Names Changes... -------------------------------------------------
+#SFM/JUVENILE: Column Names Changes... -------------------------------------------------
 colnames(x)[colnames(x)=="FRAGMENT_Y"]<-"Fragment" #Change column name
 colnames(x)[colnames(x)=="SHAPE_Leng"]<-"COLONYLENGTH" #Change column name
 colnames(x)[colnames(x)=="FID"]<-"COLONYID" #Change column name
@@ -697,7 +694,7 @@ if(DEBUG){head(x)}
 table(x$SITE,x$ANALYST)
 
 
-# Adding and Modifying columns --------------------------------------------
+#SFM/JUVENILE: Adding and Modifying columns --------------------------------------------
 
 #Fill in columns with values that we know should not be different across any of the rows
 x$OBS_YEAR <- as.vector(rep(2019, times = nrow(x)))
@@ -710,7 +707,7 @@ x<-CreateGenusCode(x,genlookup)
 head(x)
 
 
-# Merge Juvenile data and SURVEY MASTER (SfM) -------------------------------------
+#SFM/JUVENILE: Merge Juvenile data and SURVEY MASTER (SfM) -------------------------------------
 #survey_master<-read.csv("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/data/SURVEY MASTER.csv")
 survey_master <- read.csv("SURVEY MASTER.csv")
 
@@ -726,7 +723,7 @@ nrow(x)
 
 
 
-# Assign TAXONCODE --------------------------------------------------------
+#SFM/JUVENILE: Assign TAXONCODE --------------------------------------------------------
 #read in list of taxa that we feel comfortable identifying to species or genus level. Note, taxa lists vary by year and region. This will need to be updated through time.
 taxa<-read.csv("T:/Benthic/Data/SpGen_Reference/2013-19_Taxa_MASTER.csv")
 
@@ -781,6 +778,9 @@ a2<- subset(x,GENUS_CODE=="UNKN"&S_ORDER=="Scleractinia")
 
 #In order to record no colonies observed in a segment, we need to create a small colony on the image.This code removes that size measure
 x$COLONYLENGTH<-ifelse(x$SPCODE=="AAAA",0,as.character(x$COLONYLENGTH))
+
+#Remove colonies with EX_BOUND = -1
+x <- subset(x, EX_BOUND==0)
 
 # sapply(x,levels)
 head(x)
