@@ -22,7 +22,7 @@ source("C:/Users/Corinne.Amir/Documents/GitHub/Benthic-Scripts/Functions/core_fu
 #sfm.raw <- read.csv("HARAMP2019_demographic_repeats_jan172020.csv")
 
 #sfm.raw <- read.csv("HARAMP2019_demographic_calibration_jan212020.csv") #for calibration
-sfm.raw <- read.csv("HARAMP2019_demographic_repeats_jan132020.csv") #for comparison
+sfm.raw <- read.csv("HARAMP2019_demographic_repeats_jan172020.csv") #for comparison
 
 head(sfm.raw);nrow(sfm.raw)
 
@@ -125,7 +125,7 @@ View(sfm.missing)
 #Identify all rows where NO_COLONY_ is -1 and all values beforehand are also filled in. These values are ok and should NOT be placed in the sfm.missing dataframe
 no.colony.present <- sfm.missing %>%
   filter(NO_COLONY_ == "-1" & ANALYST != "NA" & SITE != "NA" & SEGLENGTH != "0" & SEGWIDTH != "0")
-View(no.colony.present)
+head(no.colony.present)
 
 
 #Remove rows with no colony present from the sfm.missing dataframe
@@ -178,7 +178,7 @@ sfm$SITE <- as.factor(sfm$SITE)
 sfm.missing$SITE <- as.factor(sfm.missing$SITE)
 
 partial_SiteSeg_removal <- inner_join(sfm.missing, sfm, by = c("SITE", "SEGMENT", "ANALYST")) 
-View(partial_SiteSeg_removal) # a dataframe with no data will be displayed if site-segment pairs were NOT split between missing and populated dataframes = good
+head(partial_SiteSeg_removal) # a dataframe with no data will be displayed if site-segment pairs were NOT split between missing and populated dataframes = good
 
 output[,1] <- c("Sites have been completely annotated", "YES")
 
@@ -251,7 +251,7 @@ seg.length <-ddply(sfm,.(SITE, SEGMENT, ANALYST, SEGLENGTH), summarize, num.segl
 eval.seg.length <- acast(seg.length, SITE~SEGMENT~ANALYST, length)   
 View(eval.seg.length) #all cells that have been annotated should be "2" 
 
-output[7,]<-c("All segments have seglengths 1.0 and 2.5","many errors") #change depending on output from previous line of code
+output[7,]<-c("All segments have seglengths 1.0 and 2.5","No errors in MA, ML, RS--ok") #change depending on output from previous line of code
 
 # if there are errors, export a csv file for further analysis
 write.csv(eval.seg.length, "Missing_seglength_eval.csv")
@@ -279,7 +279,7 @@ sfm[sfm$RD_1=="0"& sfm$RDCAUSE1!="NA",]
 sfm[sfm$RD_2=="0"& sfm$RDCAUSE2!="NA",]
 sfm[sfm$RD_3=="0"& sfm$RDCAUSE3!="NA",]
 
-output[9,]<-c("0% Recent Dead corals do NOT have an RDCAUSE code","Error: 1 in RD2")
+output[9,]<-c("0% Recent Dead corals do NOT have an RDCAUSE code","Errors for AH--ok")
 
 
 
@@ -288,7 +288,7 @@ sfm[sfm$RD_1 >0 & sfm$RDCAUSE1=="NA",] #,rowSums(is.na(sfm)) != ncol(sfm),]
 sfm[sfm$RD_2 >0 & sfm$RDCAUSE2=="NA",] #,rowSums(is.na(a)) != ncol(a), ]
 sfm[sfm$RD_3 >0 & sfm$RDCAUSE3=="NA",] #,rowSums(is.na(a)) != ncol(a), ]
 
-output[10,]<-c("All corals with RD >0 have an RDCAUSE code","1 error in rd1")
+output[10,]<-c("All corals with RD >0 have an RDCAUSE code","YES")
 
 
 
@@ -297,7 +297,7 @@ sfm[sfm$EXTENT_1=="0"& sfm$CON_1!="NA",]
 sfm[sfm$EXTENT_2=="0"& sfm$CON_2!="NA",]
 sfm[sfm$EXTENT_3=="0"& sfm$CON_3!="NA",] 
 
-output[11,]<-c("All colonies with a condition have an extent","1 error in extent")
+output[11,]<-c("All colonies with a condition have an extent","Errors for AH--ok")
 
 
 
@@ -329,7 +329,7 @@ sfm[sfm$SEV_1!="0"& sfm$CON_1 %notin% c("BLE","BLP"),]
 sfm[sfm$SEV_2!="0"& sfm$CON_2 %notin% c("BLE","BLP"),]
 sfm[sfm$SEV_3!="0"& sfm$CON_3 %notin% c("BLE","BLP"),]
 
-output[14,]<-c("Severity value is present only in colonies with CON = BLE and BLP","ok")
+output[14,]<-c("Severity value is present only in colonies with CON = BLE and BLP","Errors for AH--ok")
 
 
 
@@ -353,6 +353,7 @@ write.csv(SEV_1_error, "SEV_1_error.csv")
 
 
 #Export QC output table with appropriate file name
+setwd("C:/Users/Corinne.Amir/Documents/GitHub/Benthic-Scripts/SfM")
 write.csv(output,"HARAMP2019_sfm_output.csv")
 
 

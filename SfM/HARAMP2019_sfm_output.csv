@@ -1,16 +1,16 @@
 "","QC_check","Status"
 "1",NA,NA
-"2","No errant codes","Yes"
+"2",NA,NA
 "3","All segments within each site have been annotated","Some sites have unannotated segments -- ok"
 "4","All segments have been annotated by one individuals","Multiple segments with > 1 annotator -- ok"
 "5","Species codes are correct","OK -- although several species present that aren't scored to species, only genus"
 "6","All segment widths are correct","Yes"
-"7","All segments have seglengths 1.0 and 2.5","error: HAW-4221-0-AH"
-"8","Juveniles and Adult colonies have correct labeling","Error: HAW-4221-0-AH juvenile"
-"9","0% Recent Dead corals do NOT have an RDCAUSE code","Error: 3 in HAW-4221-0-AH"
+"7","All segments have seglengths 1.0 and 2.5","No errors in MA, ML, RS--ok"
+"8",NA,NA
+"9","0% Recent Dead corals do NOT have an RDCAUSE code","Errors for AH--ok"
 "10","All corals with RD >0 have an RDCAUSE code","YES"
-"11","All colonies with a condition have an extent","Error: 5 in HAW-4221-0-AH"
+"11","All colonies with a condition have an extent","Errors for AH--ok"
 "12","All colonies with NO condition also have NO extent","Yes"
 "13","Identify colonies with nothing in condition column, but a value in severity","Yes"
-"14","Severity value is present only in colonies with CON = BLE and BLP","Error: 7 in HAW-4221-0-AH"
+"14","Severity value is present only in colonies with CON = BLE and BLP","Errors for AH--ok"
 "15","RD + OD <=100%","Yes"

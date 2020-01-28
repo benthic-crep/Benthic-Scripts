@@ -7,28 +7,53 @@ source("C:/Users/Corinne.Amir/Documents/GitHub/Benthic-Scripts/Functions/SfMvDiv
 #data.gen<-read.csv("T:/Benthic/Data/SfM/Summarized Data/HARAMP_repeats_GENUS_Summarized Data.csv")
 data.gen<-read.csv("T:/Benthic/Data/SfM/Summarized Data/HARAMP_repeats_GENUS_Summarized Data-CALIBRATION.csv")
 
-data.gen.rm<-subset(data.gen, TRANSECT %in% c(3, 4, 5, 6, "NA"));data.gen[data.gen$TRANSECT] 
 
-#List of segments that were surveyed by all methods and multiple divers
-sfm2<-data.gen[data.gen$MethodRep=="SfM_2",] #because MW is contained within all plots that have multiple divers and analysts?
-length(unique(sfm2$SS))
-seglist<-unique(sfm2$SS)
+#List of segments that were surveyed by all methods and multiple divers....UNEQUAL
+sfm2<-data.gen[data.gen$MethodRep=="SfM_2",] 
+length(unique(sfm2$SS)) #38 unique SS
+sfm1<-data.gen[data.gen$MethodRep=="SfM_1",]
+length(unique(sfm1$SS)) #31
+diver1<-data.gen[data.gen$MethodRep=="DIVER_1",]
+length(unique(diver1$SS)) #24
+diver2<-data.gen[data.gen$MethodRep=="DIVER_2",]
+length(unique(diver2$SS)) #23
 
-data.gen<-subset(data.gen,SS %in% seglist)
-length(unique(data.gen$SS))
+# seglist<-unique(sfm2$SS)
+# #seglist<-unique(diver2$SS)
+# #seglist<-unique(diver1$SS)
+# #seglist<-unique(sfm1$SS)
+# 
+
+
+#Create dataframe containing only site_segments that contain all 4 methodreps
+#data.gen.rm<-subset(data.gen, TRANSECT %in% c(3, 4, 5, 6, "NA"));data.gen[data.gen$TRANSECT] #for calibration?
+library(plyr)
+data.gen$SST=paste0(data.gen$SS,"_",data.gen$GENUS_CODE)
+seg4list=ddply(data.gen,.(SST,SS),summarize,NBox=length(unique(MethodRep)))
+all4seglist=subset(seg4list,NBox>=4)
+length(unique(all4seglist[,"SS"]))
+
+data.sm=subset(data.gen,SST%in%all4seglist$SST)
+dim(data.sm)
+length(unique(data.sm$SS))
+
 
 #Check that all Site_Segments being used for analysis have 2 annotators and 2 divers
-ddply(data.gen,.(SITE, SEGMENT), summarize, num.repeats = n_distinct(MethodRep)) #should be =/>4
-ddply(data.gen,.(SITE, SEGMENT), summarize, num.repeats = n_distinct(METHOD)) #should = 2
+ddply(data.sm,.(SITE, SEGMENT), summarize, num.repeats = n_distinct(MethodRep)) #should be 4
+ddply(data.sm,.(SITE, SEGMENT), summarize, num.repeats = n_distinct(METHOD)) #should = 2
 
 
 # Plotting Regressions and Bland-Altman by Taxon --------------------------
 
 ### Separate 4 datasets and add the dataset name before the metric columns. Need to set up dataframe this way to make plotting easier.
-d1<-data.gen[data.gen$MethodRep=="DIVER_1",];colnames(d1)[8:20] <- paste("d1", colnames(d1[8:20]), sep = "");d1<-subset(d1,select=-c(METHOD,SEGAREA_ad,MethodRep,TRANSECT,METHOD.1))
-d2<-data.gen[data.gen$MethodRep=="DIVER_2",];colnames(d2)[8:20] <- paste("d2", colnames(d2[8:20]), sep = "");d2<-subset(d2,select=-c(METHOD,SEGAREA_ad,MethodRep,TRANSECT,METHOD.1))
-sfm1<-data.gen[data.gen$MethodRep=="SfM_1",];colnames(sfm1)[8:20] <- paste("SfM1", colnames(sfm1[8:20]), sep = "");sfm1<-subset(sfm1,select=-c(METHOD,SEGAREA_ad,MethodRep,TRANSECT,METHOD.1))
-sfm2<-data.gen[data.gen$MethodRep=="SfM_2",];colnames(sfm2)[8:20] <- paste("SfM2", colnames(sfm2[8:20]), sep = "");sfm2<-subset(sfm2,select=-c(METHOD,SEGAREA_ad,MethodRep,TRANSECT,METHOD.1))
+# d1<-data.gen[data.gen$MethodRep=="DIVER_1",];colnames(d1)[8:20] <- paste("d1", colnames(d1[8:20]), sep = "");d1<-subset(d1,select=-c(METHOD,SEGAREA_ad,MethodRep,TRANSECT,METHOD.1))
+# d2<-data.gen[data.gen$MethodRep=="DIVER_2",];colnames(d2)[8:20] <- paste("d2", colnames(d2[8:20]), sep = "");d2<-subset(d2,select=-c(METHOD,SEGAREA_ad,MethodRep,TRANSECT,METHOD.1))
+# sfm1<-data.gen[data.gen$MethodRep=="SfM_1",];colnames(sfm1)[8:20] <- paste("SfM1", colnames(sfm1[8:20]), sep = "");sfm1<-subset(sfm1,select=-c(METHOD,SEGAREA_ad,MethodRep,TRANSECT,METHOD.1))
+# sfm2<-data.gen[data.gen$MethodRep=="SfM_2",];colnames(sfm2)[8:20] <- paste("SfM2", colnames(sfm2[8:20]), sep = "");sfm2<-subset(sfm2,select=-c(METHOD,SEGAREA_ad,MethodRep,TRANSECT,METHOD.1))
+d1<-data.sm[data.sm$MethodRep=="DIVER_1",];colnames(d1)[8:20] <- paste("d1", colnames(d1[8:20]), sep = "");d1<-subset(d1,select=-c(METHOD,SEGAREA_ad,MethodRep,TRANSECT,METHOD.1))
+d2<-data.sm[data.sm$MethodRep=="DIVER_2",];colnames(d2)[8:20] <- paste("d2", colnames(d2[8:20]), sep = "");d2<-subset(d2,select=-c(METHOD,SEGAREA_ad,MethodRep,TRANSECT,METHOD.1))
+sfm1<-data.sm[data.sm$MethodRep=="SfM_1",];colnames(sfm1)[8:20] <- paste("SfM1", colnames(sfm1[8:20]), sep = "");sfm1<-subset(sfm1,select=-c(METHOD,SEGAREA_ad,MethodRep,TRANSECT,METHOD.1))
+sfm2<-data.sm[data.sm$MethodRep=="SfM_2",];colnames(sfm2)[8:20] <- paste("SfM2", colnames(sfm2[8:20]), sep = "");sfm2<-subset(sfm2,select=-c(METHOD,SEGAREA_ad,MethodRep,TRANSECT,METHOD.1))
 
 
 #4 datasets together
@@ -38,13 +63,6 @@ df.all <- join_all(list(d1,d2,sfm1,sfm2), by= c("SITE","SITEVISITID","SEGMENT","
 head(data.gen) 
 nrow(df.all)
 ddply(df.all,.(SITE, SEGMENT), summarize, num.repeats = n_distinct(d1AdColCount)) 
-
-#List of segments that were surveyed by all methods and multiple divers
-length(unique(sfm2$SS))
-seglist<-unique(sfm2$SS)
-
-df.all<-subset(df.all,SS %in% seglist)
-length(unique(df.all$SS))
 
 
 #Plot figures
@@ -90,8 +108,6 @@ p22<-PlotAll(df.all,"d1JuvColDen","SfM1JuvColDen","SfM Juvenile Density","Differ
 p23<-PlotAll(df.all,"d1JuvColDen","d2JuvColDen","Diver1 Juvenile Density","Difference Diver1 and Diver2","Diver2 Juvenile Density","Mean Juvenile Density")
 p24<-PlotAll(df.all,"SfM1JuvColDen","SfM2JuvColDen","SfM1 Juvenile Density","Difference SfM Analyst1 and SfM Analyst2","SfM2 Juvenile Density","Mean Juvenile Density")
 
-#plots that were not made: 
-#cor.test.default error: p7, p8, p10, p11
 
 # Plots for Parsing out method vs. observer error -------------------------
 
@@ -147,22 +163,88 @@ return(all.comp)
 
 ####
 
+#### RMSE Percentage function https://rdrr.io/cran/forestmangr/src/R/rmse_per.R
+install.packages('forestmangr')
+library(forestmangr)
+rmse_per <- function(df, y, yhat){
+  # Checagem de variaveis ####
+  
+  if(missing(df) & !missing(y) & !missing(yhat) ){
+    return( 100 * mean(y)^-1 * sqrt( mean( (y - yhat)^2 ) ) )
+  }else if(  missing(df) ){  
+    stop("df not set", call. = F) 
+  }else if(!is.data.frame(df)){
+    stop("df must be a dataframe", call.=F)
+  }else if(length(df)<=1 | nrow(df)<=1){
+    stop("Length and number of rows of 'df' must be greater than 1", call.=F)
+  }
+  
+  # se y nao for fornecido nao for character, ou nao for um nome de variavel,ou nao for de tamanho 1, parar
+  if(  missing(y) ){  
+    stop("y not set", call. = F) 
+  }else if( !is.character(y) ){
+    stop("'y' must be a character containing a variable name", call.=F)
+  }else if(length(y)!=1){
+    stop("Length of 'y' must be 1", call.=F)
+  }else if(forestmangr::check_names(df, y)==F){
+    stop(forestmangr::check_names(df, y, boolean=F), call.=F)
+  }
+  
+  # se yhat nao for fornecido nao for character, ou nao for um nome de variavel,ou nao for de tamanho 1, parar
+  if(  missing(yhat) ){  
+    stop("yhat not set", call. = F) 
+  }else if( !is.character(yhat) ){
+    stop("'yhat' must be a character containing a variable name", call.=F)
+  }else if(length(yhat)!=1){
+    stop("Length of 'yhat' must be 1", call.=F)
+  }else if(forestmangr::check_names(df, yhat)==F){
+    stop(forestmangr::check_names(df, yhat, boolean=F), call.=F)
+  }
+  
+  y_sym <- rlang::sym(y)
+  yhat_sym <- rlang::sym(yhat)
+  
+  # ####
+  
+  y <- df %>% dplyr::pull(!!y_sym)
+  yhat <- df %>% dplyr::pull(!!yhat_sym)
+  
+  100 * mean(y)^-1 * sqrt( mean( (y - yhat)^2 ) )
+  
+}
 
 
-ad.comp<-ErrorComparision(data.gen,"GENUS_CODE","AdColDen")
-jd.comp<-ErrorComparision(data.gen,"GENUS_CODE","JuvColDen")
-cl.comp<-ErrorComparision(data.gen,"GENUS_CODE","Ave.cl")
-rd.comp<-ErrorComparision(data.gen,"GENUS_CODE","Ave.rd")
-od.comp<-ErrorComparision(data.gen,"GENUS_CODE","Ave.od")
-dz.comp<-ErrorComparision(data.gen,"GENUS_CODE","DZGN_G_prev")
-ble.comp<-ErrorComparision(data.gen,"GENUS_CODE","BLE_prev")
-chr.comp<-ErrorComparision(data.gen,"GENUS_CODE","CHRO_prev")
+# ad.comp<-ErrorComparision(data.gen,"GENUS_CODE","AdColDen")
+# jd.comp<-ErrorComparision(data.gen,"GENUS_CODE","JuvColDen")
+# cl.comp<-ErrorComparision(data.gen,"GENUS_CODE","Ave.cl")
+# rd.comp<-ErrorComparision(data.gen,"GENUS_CODE","Ave.rd")
+# od.comp<-ErrorComparision(data.gen,"GENUS_CODE","Ave.od")
+# dz.comp<-ErrorComparision(data.gen,"GENUS_CODE","DZGN_G_prev")
+# ble.comp<-ErrorComparision(data.gen,"GENUS_CODE","BLE_prev")
+# chr.comp<-ErrorComparision(data.gen,"GENUS_CODE","CHRO_prev")
+ad.comp<-ErrorComparision(data.sm,"GENUS_CODE","AdColDen")
+jd.comp<-ErrorComparision(data.sm,"GENUS_CODE","JuvColDen")
+cl.comp<-ErrorComparision(data.sm,"GENUS_CODE","Ave.cl")
+rd.comp<-ErrorComparision(data.sm,"GENUS_CODE","Ave.rd")
+od.comp<-ErrorComparision(data.sm,"GENUS_CODE","Ave.od")
+dz.comp<-ErrorComparision(data.sm,"GENUS_CODE","DZGN_G_prev")
+ble.comp<-ErrorComparision(data.sm,"GENUS_CODE","BLE_prev")
+chr.comp<-ErrorComparision(data.sm,"GENUS_CODE","CHRO_prev")
 
 all.rmse<-rbind(ad.comp,jd.comp,cl.comp,od.comp,rd.comp,dz.comp,ble.comp,chr.comp)
 
 rmse<-ddply(all.rmse,.(Metric,GENUS_CODE,Comp),
             summarize,
             RMSE=rmse(Y,X,na.rm=T))
+rmse$RMSE_per <- rmse$RMSE/mean(rmse$X)
+
+
+rmse<-ddply(all.rmse,.(Metric,GENUS_CODE,Comp),
+            summarize,
+            RMSE_per=rmse_per(all.rmse, y="X", yhat="Y"))
+
+
+
 
 rmse.ssss<-subset(rmse,GENUS_CODE=="SSSS")
 

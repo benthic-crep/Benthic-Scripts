@@ -183,7 +183,7 @@ head(b[rowSums(is.na(b)) != ncol(b), ])
 #This is used for spot checking that TAXONCODE was converted properly & can be compared against TAXA MASTER 
 SURVEY_INFO<-c("OBS_YEAR","REGION","SPCODE","TAXONCODE","GENUS_CODE","TAXONNAME")
 test<-new_Aggregate_InputTable(x, SURVEY_INFO)
-head(test) #should the dataframe be empty?
+head(test) 
 
 taxa_subset <- subset(taxa, REGION=="MHI"|REGION== "NWHI")
 
@@ -275,34 +275,6 @@ x[is.na(x$CONDITION_2),"CONDITION_2"]<-"NONE"
 tmp.lev<-levels(x$CONDITION_3); head(tmp.lev)
 levels(x$CONDITION_3)<-c(tmp.lev, "NONE")
 x[is.na(x$CONDITION_3),"CONDITION_3"]<-"NONE"
-
-tmp.lev<-levels(x$EXTENT_1); head(tmp.lev)
-levels(x$EXTENT_1)<-c(tmp.lev, 0)
-x[is.na(x$EXTENT_1),"EXTENT_1"]<-0
-
-tmp.lev<-levels(x$EXTENT_2); head(tmp.lev)
-levels(x$EXTENT_2)<-c(tmp.lev, 0)
-x[is.na(x$EXTENT_2),"EXTENT_2"]<-0
-
-tmp.lev<-levels(x$EXTENT_3); head(tmp.lev)
-levels(x$EXTENT_3)<-c(tmp.lev, 0)
-x[is.na(x$EXTENT_3),"EXTENT_3"]<-0
-
-tmp.lev<-levels(x$SEVERITY_1); head(tmp.lev)
-levels(x$SEVERITY_1)<-c(tmp.lev, 0)
-x[is.na(x$SEVERITY_1),"SEVERITY_1"]<-0
-
-tmp.lev<-levels(x$SEVERITY_2); head(tmp.lev)
-levels(x$SEVERITY_2)<-c(tmp.lev, 0)
-x[is.na(x$SEVERITY_2),"SEVERITY_2"]<-0
-
-tmp.lev<-levels(x$SEVERITY_3); head(tmp.lev)
-levels(x$SEVERITY_3)<-c(tmp.lev, 0)
-x[is.na(x$SEVERITY_3),"SEVERITY_3"]<-0
-
-tmp.lev<-levels(x$S_ORDER); head(tmp.lev)
-levels(x$S_ORDER)<-c(tmp.lev, "NA")
-x[is.na(x$S_ORDER),"S_ORDER"]<-"NA"
 
 head(x)
 

@@ -22,9 +22,8 @@ ad_sfm<-read.csv("T:/Benthic/Data/SfM/Analysis Ready/HARAMP19_SfMAdult_CLEANED.c
 j_sfm<-read.csv("T:/Benthic/Data/SfM/Analysis Ready/HARAMP19_SfMJuv_CLEANED.csv") #One of the SEGLENGTHs is 2.5!
 
 
-
 t1<-ddply(ad_diver,.(SITE,TRANSECT,SEGMENT),summarize,n=length(unique(DIVER)));t1[t1$n>1,] #for comparative analysis, need n=2
-t1<-ddply(j_diver,.(SITE,TRANSECT,SEGMENT),summarize,n=length(unique(DIVER)));t1[t1$n>1,] #only one site with n=2
+t1<-ddply(j_diver,.(SITE,TRANSECT,SEGMENT),summarize,n=length(unique(DIVER)));t1[t1$n>1,] 
 
 
 #Temporary fixes - WORK WITH MICHAEL TO FIX IN ORACLE
@@ -35,7 +34,10 @@ j_diver<-j_diver[!(j_diver$SITE=="NII-02580" & j_diver$SEGMENT=="10" & j_diver$D
 ###MOL-2255 SEGMENT 10 ADULT DATA WASN'T ENTERED-have Michael add it.
 ###HAW-04239 SEGMENT 0 ADULT DATA WASN'T ENTERED-have Michael add it.
 
-j_diver$DIVER<-ifelse(j_diver$SITE=="KAU-02164" & j_diver$SEGMENT=="0" & j_diver$DIVER=="M_A","MSW",as.character(j_diver$DIVER)) #trying to turn M_A into MSW?
+j_diver$DIVER<-ifelse(j_diver$SITE=="KAU-02164" & j_diver$SEGMENT=="0" & j_diver$DIVER=="M_A","MSW",as.character(j_diver$DIVER)) 
+
+j_diver$DIVER<-ifelse(j_diver$SITE=="HAW-04221" & j_diver$SEGMENT=="10" & j_diver$DIVER=="M_A","MSW",as.character(j_diver$DIVER)) #correct...? 
+j_diver$DIVER<-ifelse(j_diver$SITE=="HAW-03433" & j_diver$SEGMENT=="10" & j_diver$DIVER=="JDG","BVA",as.character(j_diver$DIVER))
 
 ad_sfm<-ad_sfm[!(ad_sfm$SITE=="HAW-04259" & ad_sfm$SEGMENT=="10"),]  # These were annotated by mistake, we didn't do in water repeats
 j_sfm<-j_sfm[!(j_sfm$SITE=="HAW-04259" & j_sfm$SEGMENT=="10"),]  # These were annotated by mistake, we didn't do in water repeats
@@ -88,41 +90,59 @@ table(ad_sfm$SITE,ad_sfm$ANALYST)
 
 SURVEY_Seg<-c("SITEVISITID", "SITE","SEGMENT","ANALYST")
 sfm_seg<-unique(ad_sfm[,SURVEY_Seg])
-sfm_seg$SS<- paste(sfm_seg$SITE,sfm_seg$SEGMENT,sep="_")
+#sfm_seg$SS<- paste(sfm_seg$SITE,sfm_seg$SEGMENT,sep="_")
+sfm_seg$SSA<- paste(sfm_seg$SITE,sfm_seg$SEGMENT,sfm_seg$ANALYST, sep="_")
 
-###THIS ISN'T WORKING FOR
+###THIS ISN'T WORKING 
 #Randomly assign annotators(Transects)
-tr<-c("1","2")
-sfm_seg <- sfm_seg %>%
-  group_by(SS) %>% # note the group_by()
-  mutate(TRANSECT=sample(tr, size=n(),  replace=F))
-sfm_seg<-as.data.frame(sfm_seg)
-table(sfm_seg$SS,sfm_seg$TRANSECT) #Check
+# tr<-c("1","2")
+# sfm_seg <- sfm_seg %>%
+#   group_by(SS) %>% # note the group_by()
+#   mutate(TRANSECT=sample(tr, size=n(),  replace=F))
+# sfm_seg<-as.data.frame(sfm_seg)
+# table(sfm_seg$SITE,sfm_seg$TRANSECT) #Check
+
+sfm_seg <- sample_n(sfm_seg, size=nrow(sfm_seg)/2, replace = FALSE) %>%
+  mutate(TRANSECT = 1) %>% 
+  select(SSA, TRANSECT) %>% 
+  full_join(sfm_seg, by = "SSA") %>% 
+  mutate(TRANSECT = if_else(is.na(TRANSECT), 2, 1))
+table(sfm_seg$SSA,sfm_seg$TRANSECT) #Check
 
 nrow(ad_sfm)
-ad_sfm<-left_join(ad_sfm,sfm_seg[,!(colnames(sfm_seg)=="SS")])
+ad_sfm<-left_join(ad_sfm,sfm_seg[,!(colnames(sfm_seg)=="SSA")])
 nrow(ad_sfm)
 
 #Juveniles
 
 j_sfm <- droplevels(j_sfm)
+j_sfm$ANALYST<-ifelse(j_sfm$ANALYST=="MW","RS",as.character(j_sfm$ANALYST)) #need 2 analysts only
+j_sfm<-j_sfm[(j_sfm$ANALYST%in% c("MA","RS")),] # Gets rid of all anotators except for MA and RS
+j_sfm <- droplevels(j_sfm)
 table(j_sfm$SITE,j_sfm$ANALYST)
 
 SURVEY_Seg<-c("SITEVISITID", "SITE","SEGMENT","ANALYST")
 sfm_seg<-unique(j_sfm[,SURVEY_Seg])
-sfm_seg$SS<- paste(sfm_seg$SITE,sfm_seg$SEGMENT,sep="_")
+# sfm_seg$SS<- paste(sfm_seg$SITE,sfm_seg$SEGMENT,sep="_")
+sfm_seg$SSA<- paste(sfm_seg$SITE,sfm_seg$SEGMENT,sfm_seg$ANALYST, sep="_")
 
 #Randomly assign Transect numbers
-tr<-c("1","2")
-sfm_seg <- sfm_seg %>%
-  group_by(SS) %>% # note the group_by()
-  mutate(TRANSECT=sample(tr, size=n(),  replace=F))
-sfm_seg<-as.data.frame(sfm_seg)
-table(sfm_seg$SS,sfm_seg$TRANSECT)
+# tr<-c("1","2")
+# sfm_seg <- sfm_seg %>%
+#   group_by(SS) %>% # note the group_by()
+#   mutate(TRANSECT=sample(tr, size=n(),  replace=F))
+# sfm_seg<-as.data.frame(sfm_seg)
+# table(sfm_seg$SS,sfm_seg$TRANSECT)
 
+sfm_seg <- sample_n(sfm_seg, size=nrow(sfm_seg)/2, replace = FALSE) %>%
+  mutate(TRANSECT = 1) %>% 
+  select(SSA, TRANSECT) %>% 
+  full_join(sfm_seg, by = "SSA") %>% 
+  mutate(TRANSECT = if_else(is.na(TRANSECT), 2, 1))
+table(sfm_seg$SSA,sfm_seg$TRANSECT) #Check
 
 nrow(j_sfm)
-j_sfm<-left_join(j_sfm,sfm_seg[,!(colnames(sfm_seg)=="SS")])
+j_sfm<-left_join(j_sfm,sfm_seg[,!(colnames(sfm_seg)=="SSA")])
 nrow(j_sfm)
 head(j_sfm)
 
@@ -164,8 +184,16 @@ head(j_diver[,j_DATACOLS])
 j_diver<-j_diver[,j_DATACOLS]
 
 #Combine diver and sfm data
-awd<-rbind(ad_diver,ad_sfm) # warning: invalid factor level, NA generated--ok?
+awd<-rbind(ad_diver,ad_sfm)
 jwd<-rbind(j_diver,j_sfm)
+
+
+#Remove site-segments where there are NOT 2 divers and 2 sfm analysts
+
+t1<-ddply(awd,.(SITE,SEGMENT),summarize,n=length(unique(ANALYST)));t1[t1$n<2,] #for comparative analysis, need n=2
+t1<-ddply(jwd,.(SITE,SEGMENT),summarize,n=length(unique(ANALYST)));t1[t1$n<2,] 
+
+
 
 #Create a look up table of all of the colony attributes- you will need this for the functions below
 SURVEY_COL<-c("METHOD","SITEVISITID", "OBS_YEAR", "REGION", "ISLAND","SEC_NAME", "SITE", "REEF_ZONE",
@@ -178,8 +206,7 @@ survey_site<-unique(awd[,SURVEY_SITE])
 
 SURVEY_Seg<-c("METHOD","SITEVISITID", "OBS_YEAR", "REGION", "ISLAND","SEC_NAME", "SITE", "REEF_ZONE",
               "DEPTH_BIN","HABITAT_CODE", "LATITUDE", "LONGITUDE","MIN_DEPTH_M","MAX_DEPTH_M","METHOD","TRANSECT","SEGMENT")
-survey_segment<-unique(awd[,SURVEY_Seg])
-
+#survey_segment<-unique(awd[,SURVEY_Seg])
 ajwd<-full_join(awd,jwd) #fixes NA problem
 survey_segment<-unique(ajwd[,SURVEY_Seg])
 
