@@ -33,6 +33,8 @@ seg4list=ddply(data.gen,.(SST,SS),summarize,NBox=length(unique(MethodRep)))
 all4seglist=subset(seg4list,NBox>=4)
 length(unique(all4seglist[,"SS"]))
 
+
+#Create dataframe containing only sites containing 2 annotators and 2 divers
 data.sm=subset(data.gen,SST%in%all4seglist$SST)
 dim(data.sm)
 length(unique(data.sm$SS))
@@ -60,7 +62,7 @@ sfm2<-data.sm[data.sm$MethodRep=="SfM_2",];colnames(sfm2)[8:20] <- paste("SfM2",
 
 df.all <- join_all(list(d1,d2,sfm1,sfm2), by= c("SITE","SITEVISITID","SEGMENT","GENUS_CODE","SS","OBS_YEAR","REGION","ISLAND","SEC_NAME","REEF_ZONE",
                            "DEPTH_BIN","HABITAT_CODE", "LATITUDE","LONGITUDE","MIN_DEPTH_M","MAX_DEPTH_M"), type='full'); 
-head(data.gen) 
+head(data.all) 
 nrow(df.all)
 ddply(df.all,.(SITE, SEGMENT), summarize, num.repeats = n_distinct(d1AdColCount)) 
 
@@ -140,7 +142,8 @@ d.new<-d[,c("METHOD","SITE","SITEVISITID","TRANSECT","GROUP","METRIC","MethodRep
   colnames(a6)<-c("SITE","SITEVISITID","GROUP","SS","X","Y")
   a6$Comp<-"D1vD2"
   
-  MO<-rbind(a1,a2,a3,a4); colnames(MO)<-c("SITE","SITEVISITID","GROUP","SS","X","Y");MO$Comp<-"MO"
+  MO<-rbind(a1,a2,a3,a4); colnames(MO)<-c("SITE","SITEVISITID","GROUP","SS","X","Y"); MO$Comp<-"MO"
+
   Obar<-ddply(d,.(SITE,SITEVISITID,GROUP,SS,METHOD),summarize,METRIC=mean(METRIC))
   Obar.n <-dcast(Obar, formula=SITE+SITEVISITID+GROUP+SS~METHOD,value.var="METRIC",fill=NA)
   colnames(Obar.n)<-c("SITE","SITEVISITID","GROUP","SS","X","Y")
@@ -163,56 +166,6 @@ return(all.comp)
 
 ####
 
-#### RMSE Percentage function https://rdrr.io/cran/forestmangr/src/R/rmse_per.R
-install.packages('forestmangr')
-library(forestmangr)
-rmse_per <- function(df, y, yhat){
-  # Checagem de variaveis ####
-  
-  if(missing(df) & !missing(y) & !missing(yhat) ){
-    return( 100 * mean(y)^-1 * sqrt( mean( (y - yhat)^2 ) ) )
-  }else if(  missing(df) ){  
-    stop("df not set", call. = F) 
-  }else if(!is.data.frame(df)){
-    stop("df must be a dataframe", call.=F)
-  }else if(length(df)<=1 | nrow(df)<=1){
-    stop("Length and number of rows of 'df' must be greater than 1", call.=F)
-  }
-  
-  # se y nao for fornecido nao for character, ou nao for um nome de variavel,ou nao for de tamanho 1, parar
-  if(  missing(y) ){  
-    stop("y not set", call. = F) 
-  }else if( !is.character(y) ){
-    stop("'y' must be a character containing a variable name", call.=F)
-  }else if(length(y)!=1){
-    stop("Length of 'y' must be 1", call.=F)
-  }else if(forestmangr::check_names(df, y)==F){
-    stop(forestmangr::check_names(df, y, boolean=F), call.=F)
-  }
-  
-  # se yhat nao for fornecido nao for character, ou nao for um nome de variavel,ou nao for de tamanho 1, parar
-  if(  missing(yhat) ){  
-    stop("yhat not set", call. = F) 
-  }else if( !is.character(yhat) ){
-    stop("'yhat' must be a character containing a variable name", call.=F)
-  }else if(length(yhat)!=1){
-    stop("Length of 'yhat' must be 1", call.=F)
-  }else if(forestmangr::check_names(df, yhat)==F){
-    stop(forestmangr::check_names(df, yhat, boolean=F), call.=F)
-  }
-  
-  y_sym <- rlang::sym(y)
-  yhat_sym <- rlang::sym(yhat)
-  
-  # ####
-  
-  y <- df %>% dplyr::pull(!!y_sym)
-  yhat <- df %>% dplyr::pull(!!yhat_sym)
-  
-  100 * mean(y)^-1 * sqrt( mean( (y - yhat)^2 ) )
-  
-}
-
 
 # ad.comp<-ErrorComparision(data.gen,"GENUS_CODE","AdColDen")
 # jd.comp<-ErrorComparision(data.gen,"GENUS_CODE","JuvColDen")
@@ -232,19 +185,16 @@ ble.comp<-ErrorComparision(data.sm,"GENUS_CODE","BLE_prev")
 chr.comp<-ErrorComparision(data.sm,"GENUS_CODE","CHRO_prev")
 
 all.rmse<-rbind(ad.comp,jd.comp,cl.comp,od.comp,rd.comp,dz.comp,ble.comp,chr.comp)
+all.rmse<-rbind(ad.comp,jd.comp,cl.comp,od.comp,rd.comp,ble.comp)
+all.rmse<-rbind(dz.comp,chr.comp)
 
 rmse<-ddply(all.rmse,.(Metric,GENUS_CODE,Comp),
             summarize,
-            RMSE=rmse(Y,X,na.rm=T))
-rmse$RMSE_per <- rmse$RMSE/mean(rmse$X)
-
-
-rmse<-ddply(all.rmse,.(Metric,GENUS_CODE,Comp),
-            summarize,
-            RMSE_per=rmse_per(all.rmse, y="X", yhat="Y"))
-
-
-
+            RMSE=rmse(Y,X,na.rm=T),
+            RMSE_mean=(RMSE/mean(X)),
+            RMSE_sd=RMSE/sd(X),
+            RMSE_maxmin=RMSE/max(X)-min(X),
+            RMSE_iq=RMSE/(quantile(X,0.75)-quantile(X,0.25)))
 
 rmse.ssss<-subset(rmse,GENUS_CODE=="SSSS")
 
@@ -254,21 +204,25 @@ rmse.ssss<-rmse.ssss %>% mutate(Comp=recode(Comp,
                                            `MO`="Observer and Method",
                                            `Obar`="Method",
                                            `S1vS2`="SfM Observer"))
-
-# rmse.ssss<-rmse.ssss %>% mutate(Metric=recode(Metric, 
-#                                             `AdColDen`="Adult Density",
+# rmse.ssss<-rmse.ssss %>% mutate(Metric=recode(Metric,                       
+#                                             "AdColDen"="Adult Density",
 #                                             `JuvColDen`="Juvenile Density",
-#                                             `MO`="Observer and Method",
-#                                             `Obar`="Method",
-#                                             `S1vS2`="SfM Observer"))
+#                                             `Ave.cl`="Colony Length",
+#                                             `Ave.od`="Old Dead",
+#                                             `Ave.rd`="Recent Dead",
+#                                             `BLE_prev`="Bleaching Prevalence",
+#                                             `DZGN_G_prev`="General Disease",
+#                                             `CHRO_prev`="Chronic Disease"))   #Not working
 
 comporder<-c("Observer and Method","Observer Overall","Method","SfM Observer","In water Observer")
 
 rmse.ssss <- rmse.ssss[ order(match(rmse.ssss$Comp, comporder)),]
+
 rmse.ssss$Comp<-as.character(rmse.ssss$Comp)
 rmse.ssss$Comp<-factor(rmse.ssss$Comp, levels = comporder)
+rmse.ssss$Metric<-as.character(rmse.ssss$Metric)
 
-p1<-ggplot(rmse.ssss, aes(x=Comp, y=RMSE, fill=Metric)) + 
+p1<-ggplot(rmse.ssss, aes(x=Comp, y=RMSE_mean, fill=Metric)) + 
   geom_bar(position=position_dodge(), stat="identity", color="black") + 
   guides(fill=FALSE) + facet_wrap(~Metric, scales="fixed", labeller=label_parsed) +
   theme_bw() +
@@ -283,8 +237,21 @@ p1<-ggplot(rmse.ssss, aes(x=Comp, y=RMSE, fill=Metric)) +
   )
 
 p1
-ggsave(plot=p1,file="T:/Benthic/Data/SfM/ComparisionPlots/AllRMSE_Comparision_fixedscale_randomTR.pdf",width=12,height=12)
+ggsave(plot=p1,file="T:/Benthic/Data/SfM/ComparisionPlots/AllRMSE_Comparision_standardizeRMSE_mean.pdf",width=12,height=12)
+ggsave(plot=p1,file="C:/Users/Corinne.Amir/Documents/SfM Stuff/PartialRMSE_Comparision_standardizeRMSE_mean.pdf",width=12,height=12)
 
+
+#Plot across depth bins....TBC
+dim(all.rmse)
+all.rmse<-left_join(all.rmse,data.sm[,c(1:7,21:33)])
+dim(all.rmse)
+rmse<-ddply(all.rmse,.(Metric,GENUS_CODE,Comp, DEPTH_BIN),
+            summarize,
+            RMSE=rmse(Y,X,na.rm=T),
+            RMSE_mean=(RMSE/mean(X)),
+            RMSE_sd=RMSE/sd(X),
+            RMSE_maxmin=RMSE/max(X)-min(X),
+            RMSE_iq=RMSE/(quantile(X,0.75)-quantile(X,0.25)))
 
 
 
