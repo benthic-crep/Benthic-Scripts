@@ -5,18 +5,40 @@ source("C:/Users/Corinne.Amir/Documents/GitHub/Benthic-Scripts/Functions/SfMvDiv
 #Plot1to1; PlotBioAlt; PlotPair
 
 #data.gen<-read.csv("T:/Benthic/Data/SfM/Summarized Data/HARAMP_repeats_GENUS_Summarized Data.csv")
-data.gen<-read.csv("T:/Benthic/Data/SfM/Summarized Data/HARAMP_repeats_GENUS_Summarized Data-CALIBRATION.csv")
-
+data.gen<-read.csv("T:/Benthic/Data/SfM/Summarized Data/HARAMP_repeats_GENUS_Summarized Data.csv")
+data.gen.bad<-read.csv("T:/Benthic/Data/SfM/Summarized Data/HARAMP_repeats_GENUS_Summarized Data-CALIBRATION.csv")
 
 #List of segments that were surveyed by all methods and multiple divers....UNEQUAL
 sfm2<-data.gen[data.gen$MethodRep=="SfM_2",] 
-length(unique(sfm2$SS)) #38 unique SS
+length(unique(sfm2$SS)) #46 unique SS
 sfm1<-data.gen[data.gen$MethodRep=="SfM_1",]
-length(unique(sfm1$SS)) #31
+length(unique(sfm1$SS)) #44
 diver1<-data.gen[data.gen$MethodRep=="DIVER_1",]
-length(unique(diver1$SS)) #24
+length(unique(diver1$SS)) #692
 diver2<-data.gen[data.gen$MethodRep=="DIVER_2",]
-length(unique(diver2$SS)) #23
+length(unique(diver2$SS)) #44
+a<-ddply(data.gen,.(SS), summarize, num.repeats = n_distinct(MethodRep)); nrow(a[a$num.repeats>3,]) # 43
+
+
+sfm2<-data.gen.bad[data.gen.bad$MethodRep=="SfM_2",] 
+length(unique(sfm2$SS)) #45 unique SS
+sfm1<-data.gen.bad[data.gen.bad$MethodRep=="SfM_1",]
+length(unique(sfm1$SS)) #44
+diver1<-data.gen.bad[data.gen.bad$MethodRep=="DIVER_1",]
+length(unique(diver1$SS)) #518
+diver2<-data.gen.bad[data.gen.bad$MethodRep=="DIVER_2",]
+length(unique(diver2$SS)) #39
+a<-ddply(data.gen.bad,.(SS), summarize, num.repeats = n_distinct(MethodRep)); nrow(a[a$num.repeats>3,]) # 27 = missing 16 SS
+
+
+b<-anti_join(data.gen,data.gen.bad)
+a<-ddply(b,.(SS), summarize, num.repeats = n_distinct(MethodRep)); nrow(b[b$num.repeats>3,]) # 43
+sapply(b,unique)
+a<-b[b$MethodRep=="DIVER_2",]
+length(unique(diver2$SS)) #39
+a<-ddply(a,.(SS), summarize, num.repeats = n_distinct(MethodRep)); nrow(b[b$num.repeats>3,]) # 24 = missing 19 SS
+#Should be: 28 repeat sites, 9 of which have more than one segment 
+#44 segments annotated by 2 sfm ppl which should have also been done by 2 divers
 
 # seglist<-unique(sfm2$SS)
 # #seglist<-unique(diver2$SS)

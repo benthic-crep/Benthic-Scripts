@@ -282,8 +282,12 @@ awd<-droplevels(x)
 write.csv(awd,file="T:/Benthic/Data/SfM/Analysis Ready/HARAMP19_DIVERAdult_CLEANED.csv",row.names = F)
 
 
+#Check number of Site-Segments that contain at least 2 divers ----------------------------------------------------
+analyst.per.ss <- ddply(x,.(SITE, SEGMENT), summarize, num.analyst = n_distinct(DIVER))
+analyst.per.ss <- filter(analyst.per.ss, num.analyst>1) # 153 SS with 2 divers
 
-## DIVER/JUVENILE: CLEAN ANALYSIS READY DATA ----
+
+## DIVER/JUVENILE: CLEAN ANALYSIS READY DATA -------------------------------------------------------------------------------
 ## LOAD benthic data
 #load("T:/Benthic/Data/REA Coral Demography & Cover/Raw from Oracle/ALL_REA_JUVCORAL_RAW_2013-2019.rdata") #from oracle
 #load("C:/Users/Courtney.S.Couch/Documents/Courtney's Files/R Files/ESD/Temp Sfm Files/ALL_REA_JUVCORAL_RAW_2013-2019.rdata") #from oracle
@@ -446,6 +450,9 @@ x[,NegNineCheckCols][x[,NegNineCheckCols] ==-9] <- NA #Convert missing numeric v
 jwd<-droplevels(x)
 write.csv(jwd,file="T:/Benthic/Data/SfM/Analysis Ready/HARAMP19_DIVERJuv_CLEANED.csv",row.names = F)
 
+#Check number of Site-Segments that contain at least 2 divers ----------------------------------------------------
+analyst.per.ss <- ddply(x,.(SITE, SEGMENT), summarize, num.analyst = n_distinct(DIVER))
+analyst.per.ss <- filter(analyst.per.ss, num.analyst>1) # 135 SS with 2 divers
 
 
 # SFM/ADULT: CLEAN ANALYSIS READY DATA ----------------------------------------------------
@@ -643,10 +650,15 @@ head(x)
 awd<-droplevels(x)
 write.csv(awd,file="T:/Benthic/Data/SfM/Analysis Ready/HARAMP19_SfMAdult_CLEANED.csv",row.names = F)
 
+#Check number of Site-Segments that contain at least 2 annotators ----------------------------------------------------
+analyst.per.ss<-x %>% filter(ANALYST=="RS" | ANALYST=="MW" | ANALYST=="MA")
+analyst.per.ss$ANALYST<-droplevels(analyst.per.ss$ANALYST)
+analyst.per.ss <- ddply(x,.(SITE, SEGMENT), summarize, num.analyst = n_distinct(ANALYST))
+analyst.per.ss <- filter(analyst.per.ss, num.analyst>1) # 44 SS with 2 divers = 1 more than FINAL RESULT IN QC_CORRECT
 
 
 # SFM/JUVENILE: CLEAN ANALYSIS READY DATA -------------------------------------
-df<-read.csv("T:/Benthic/Data/SfM/QC/HARAMP2019_QCdsfm_JUV.csv") #324 rows
+df<-read.csv("T:/Benthic/Data/SfM/QC/HARAMP2019_QCdsfm_JUV.csv") #851 rows
 
 x<-df
 head(x)
@@ -772,4 +784,8 @@ x[,NegNineCheckCols][x[,NegNineCheckCols] ==-9] <- NA #Convert missing numeric v
 
 jwd<-droplevels(x)
 write.csv(jwd,file="T:/Benthic/Data/SfM/Analysis Ready/HARAMP19_SfMJuv_CLEANED.csv",row.names = F)
+
+#Check number of Site-Segments that contain at least 2 divers ----------------------------------------------------
+analyst.per.ss <- ddply(x,.(SITE, SEGMENT), summarize, num.analyst = n_distinct(ANALYST))
+analyst.per.ss <- filter(analyst.per.ss, num.analyst>1) # 44 SS with 2 divers = SAME AS FINAL SS COUNT IN QC_CORRECT
 

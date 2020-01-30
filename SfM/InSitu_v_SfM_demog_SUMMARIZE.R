@@ -19,11 +19,13 @@ load("T:/Benthic/Data/REA Coral Demography & Cover/Raw from Oracle/ALL_REA_ADULT
 ad_diver<-read.csv("T:/Benthic/Data/SfM/Analysis Ready/HARAMP19_DIVERAdult_CLEANED.csv")
 j_diver<-read.csv("T:/Benthic/Data/SfM/Analysis Ready/HARAMP19_DIVERJuv_CLEANED.csv")
 ad_sfm<-read.csv("T:/Benthic/Data/SfM/Analysis Ready/HARAMP19_SfMAdult_CLEANED.csv")
-j_sfm<-read.csv("T:/Benthic/Data/SfM/Analysis Ready/HARAMP19_SfMJuv_CLEANED.csv") #One of the SEGLENGTHs is 2.5!
+j_sfm<-read.csv("T:/Benthic/Data/SfM/Analysis Ready/HARAMP19_SfMJuv_CLEANED.csv") 
 
 
-t1<-ddply(ad_diver,.(SITE,TRANSECT,SEGMENT),summarize,n=length(unique(DIVER)));t1[t1$n>1,] #for comparative analysis, need n=2
-t1<-ddply(j_diver,.(SITE,TRANSECT,SEGMENT),summarize,n=length(unique(DIVER)));t1[t1$n>1,] 
+t1<-ddply(ad_sfm,.(SITE,SEGMENT),summarize,n=length(unique(ANALYST)));nrow(t1[t1$n>1,]) #44
+t1<-ddply(j_sfm,.(SITE,SEGMENT),summarize,n=length(unique(ANALYST)));nrow(t1[t1$n>1,]) #44
+t1<-ddply(ad_diver,.(SITE,TRANSECT,SEGMENT),summarize,n=length(unique(DIVER)));nrow(t1[t1$n>1,]) #137 with at least 2 divers
+t1<-ddply(j_diver,.(SITE,TRANSECT,SEGMENT),summarize,n=length(unique(DIVER)));nrow(t1[t1$n>1,]) #125 with at least 2 divers
 
 
 #Temporary fixes - WORK WITH MICHAEL TO FIX IN ORACLE
@@ -39,17 +41,23 @@ j_diver$DIVER<-ifelse(j_diver$SITE=="KAU-02164" & j_diver$SEGMENT=="0" & j_diver
 j_diver$DIVER<-ifelse(j_diver$SITE=="HAW-04221" & j_diver$SEGMENT=="10" & j_diver$DIVER=="M_A","MSW",as.character(j_diver$DIVER)) #correct...? 
 j_diver$DIVER<-ifelse(j_diver$SITE=="HAW-03433" & j_diver$SEGMENT=="10" & j_diver$DIVER=="JDG","BVA",as.character(j_diver$DIVER))
 
-ad_sfm<-ad_sfm[!(ad_sfm$SITE=="HAW-04259" & ad_sfm$SEGMENT=="10"),]  # These were annotated by mistake, we didn't do in water repeats
-j_sfm<-j_sfm[!(j_sfm$SITE=="HAW-04259" & j_sfm$SEGMENT=="10"),]  # These were annotated by mistake, we didn't do in water repeats
+#ad_sfm<-ad_sfm[!(ad_sfm$SITE=="HAW-04259" & ad_sfm$SEGMENT=="10"),]  # These were annotated by mistake, we didn't do in water repeats
+#j_sfm<-j_sfm[!(j_sfm$SITE=="HAW-04259" & j_sfm$SEGMENT=="10"),]  # These were annotated by mistake, we didn't do in water repeats
 
-ad_sfm<-ad_sfm[!(ad_sfm$SITE=="HAW-04294" & ad_sfm$SEGMENT=="10"),] # These were annotated by mistake, we didn't do in water repeats
-j_sfm<-j_sfm[!(j_sfm$SITE=="HAW-04294" & j_sfm$SEGMENT=="10"),] # These were annotated by mistake, we didn't do in water repeats
-j_sfm<-j_sfm[!(j_sfm$SITE=="HAW-04299" & j_sfm$SEGMENT=="15"),] # These were annotated by mistake, we didn't do in water repeats
-ad_sfm<-ad_sfm[!(ad_sfm$SITE=="HAW-04299" & ad_sfm$SEGMENT=="15"),] # just double checking
+#ad_sfm<-ad_sfm[!(ad_sfm$SITE=="HAW-04294" & ad_sfm$SEGMENT=="10"),] # These were annotated by mistake, we didn't do in water repeats  .............
+#j_sfm<-j_sfm[!(j_sfm$SITE=="HAW-04294" & j_sfm$SEGMENT=="10"),] # These were annotated by mistake, we didn't do in water repeats  ..............
+#j_sfm<-j_sfm[!(j_sfm$SITE=="HAW-04299" & j_sfm$SEGMENT=="15"),] # These were annotated by mistake, we didn't do in water repeats  ..............
+#ad_sfm<-ad_sfm[!(ad_sfm$SITE=="HAW-04299" & ad_sfm$SEGMENT=="15"),] # just double checking  ..............
 
-ad_sfm<-ad_sfm[!(ad_sfm$SITE=="HAW-04278" & ad_sfm$SEGMENT %in% c("10","15")),] # These were annotated by mistake, we didn't do in water repeats
-j_sfm<-j_sfm[!(j_sfm$SITE=="HAW-04278" & j_sfm$SEGMENT %in% c("10","15")),] # These were annotated by mistake, we didn't do in water repeats
+#ad_sfm<-ad_sfm[!(ad_sfm$SITE=="HAW-04278" & ad_sfm$SEGMENT %in% c("10","15")),] # These were annotated by mistake, we didn't do in water repeats
+#j_sfm<-j_sfm[!(j_sfm$SITE=="HAW-04278" & j_sfm$SEGMENT %in% c("10","15")),] # These were annotated by mistake, we didn't do in water repeats  ..............
 
+
+#CHECK SS ANALYSTS=2
+t1<-ddply(ad_sfm,.(SITE,SEGMENT),summarize,n=length(unique(ANALYST)));nrow(t1[t1$n>1,]) #44
+t1<-ddply(j_sfm,.(SITE,SEGMENT),summarize,n=length(unique(ANALYST)));nrow(t1[t1$n>1,]) #44
+t1<-ddply(ad_diver,.(SITE,TRANSECT,SEGMENT),summarize,n=length(unique(DIVER)));nrow(t1[t1$n>1,]) #137 
+t1<-ddply(j_diver,.(SITE,TRANSECT,SEGMENT),summarize,n=length(unique(DIVER)));nrow(t1[t1$n>1,]) #123 = 2 SITES REMOVED
 
 # ###FOR CALIBRATION: Use this script to assign transect
 # #Create Transect column and use this to code duplicate segments
@@ -113,6 +121,12 @@ nrow(ad_sfm)
 ad_sfm<-left_join(ad_sfm,sfm_seg[,!(colnames(sfm_seg)=="SSA")])
 nrow(ad_sfm)
 
+#Check that each site-segment has 2 annotators
+t1<-ddply(ad_sfm,.(SITE,SEGMENT),summarize,n=length(unique(ANALYST)));nrow(t1[t1$n>1,]) #43 = 1 SITE REMOVED
+t1<-ddply(j_sfm,.(SITE,SEGMENT),summarize,n=length(unique(ANALYST)));nrow(t1[t1$n>1,]) #44
+t1<-ddply(ad_diver,.(SITE,TRANSECT,SEGMENT),summarize,n=length(unique(DIVER)));nrow(t1[t1$n>1,]) #137 
+t1<-ddply(j_diver,.(SITE,TRANSECT,SEGMENT),summarize,n=length(unique(DIVER)));nrow(t1[t1$n>1,]) #123 = 2 SITES REMOVED
+
 #Juveniles
 
 j_sfm <- droplevels(j_sfm)
@@ -146,9 +160,17 @@ j_sfm<-left_join(j_sfm,sfm_seg[,!(colnames(sfm_seg)=="SSA")])
 nrow(j_sfm)
 head(j_sfm)
 
+#Check that each site-segment has 2 annotators
+t1<-ddply(ad_sfm,.(SITE,SEGMENT),summarize,n=length(unique(ANALYST)));nrow(t1[t1$n>1,]) #43 = 1 SITE REMOVED
+t1<-ddply(j_sfm,.(SITE,SEGMENT),summarize,n=length(unique(ANALYST)));nrow(t1[t1$n>1,]) #43 = 1 SITE REMOVED
+t1<-ddply(ad_diver,.(SITE,TRANSECT,SEGMENT),summarize,n=length(unique(DIVER)));nrow(t1[t1$n>1,]) #137 
+t1<-ddply(j_diver,.(SITE,TRANSECT,SEGMENT),summarize,n=length(unique(DIVER)));nrow(t1[t1$n>1,]) #123 = 2 SITES REMOVED
+
+
 ##Calcuating segment and transect area and add column for transect area
 ad_sfm$TRANSECTAREA<-Transectarea(ad_sfm)
 j_sfm$TRANSECTAREA<-Transectarea(j_sfm)
+
 
 
 #Final Tweaks and merge adult and juv datasets-------------------------------------------------
@@ -164,6 +186,13 @@ j_diver<-subset(j_diver,SPCODE!="PBER")
 
 colnames(ad_diver)[colnames(ad_diver)=="DIVER"]<-"ANALYST" #Change column so we can merge with the sfm data
 colnames(j_diver)[colnames(j_diver)=="DIVER"]<-"ANALYST" 
+
+#Check that each site-segment has 2 annotators
+t1<-ddply(ad_sfm,.(SITE,SEGMENT),summarize,n=length(unique(ANALYST)));nrow(t1[t1$n>1,]) #43 = 1 SITE REMOVED
+t1<-ddply(j_sfm,.(SITE,SEGMENT),summarize,n=length(unique(ANALYST)));nrow(t1[t1$n>1,]) #43 = 1 SITE REMOVED
+t1<-ddply(ad_diver,.(SITE,TRANSECT,SEGMENT),summarize,n=length(unique(ANALYST)));nrow(t1[t1$n>1,]) #137 
+t1<-ddply(j_diver,.(SITE,TRANSECT,SEGMENT),summarize,n=length(unique(ANALYST)));nrow(t1[t1$n>1,]) #123 = 2 SITES REMOVED
+
 
 ad_DATACOLS<-c("METHOD","ANALYST", "REGION","OBS_YEAR","MISSIONID","ISLAND","SEC_NAME","SITEVISITID","SITE","REEF_ZONE","DEPTH_BIN",
             "HABITAT_CODE","LATITUDE","LONGITUDE","MIN_DEPTH_M","MAX_DEPTH_M","TRANSECT","SEGMENT","SEGLENGTH","SEGWIDTH",
@@ -183,15 +212,29 @@ j_DATACOLS<-c("METHOD","ANALYST", "REGION","OBS_YEAR","MISSIONID","ISLAND","SEC_
 head(j_diver[,j_DATACOLS])
 j_diver<-j_diver[,j_DATACOLS]
 
+#Check that each site-segment has 2 annotators
+t1<-ddply(ad_sfm,.(SITE,SEGMENT),summarize,n=length(unique(ANALYST)));nrow(t1[t1$n>1,]) #43 = 1 SITE REMOVED
+t1<-ddply(j_sfm,.(SITE,SEGMENT),summarize,n=length(unique(ANALYST)));nrow(t1[t1$n>1,]) #43 = 1 SITE REMOVED
+t1<-ddply(ad_diver,.(SITE,TRANSECT,SEGMENT),summarize,n=length(unique(ANALYST)));nrow(t1[t1$n>1,]) #137 
+t1<-ddply(j_diver,.(SITE,TRANSECT,SEGMENT),summarize,n=length(unique(ANALYST)));nrow(t1[t1$n>1,]) #123 = 2 SITES REMOVED
+
+
 #Combine diver and sfm data
 awd<-rbind(ad_diver,ad_sfm)
+awd<-left_join(ad_diver,ad_sfm, by=c("METHOD","ANALYST","REGION", "OBS_YEAR", "MISSIONID", "ISLAND", "SEC_NAME", "SITEVISITID", "SITE", "REEF_ZONE", 
+                                     "DEPTH_BIN", "HABITAT_CODE", "LATITUDE", "LONGITUDE", "MIN_DEPTH_M", "MAX_DEPTH_M", "TRANSECT", "SEGMENT"))
 jwd<-rbind(j_diver,j_sfm)
+jwd<-full_join(ad_diver,ad_sfm)
+jwd<-left_join(ad_diver,ad_sfm, by=c("METHOD","ANALYST","REGION", "OBS_YEAR", "MISSIONID", "ISLAND", "SEC_NAME", "SITEVISITID", "SITE", "REEF_ZONE", 
+                                     "DEPTH_BIN", "HABITAT_CODE", "LATITUDE", "LONGITUDE", "MIN_DEPTH_M", "MAX_DEPTH_M", "TRANSECT", "SEGMENT"))
+
+#Check that each site-segment has 2 divers and 2 annotators
+t1<-ddply(awd,.(SITE,SEGMENT),summarize,n=length(unique(ANALYST)));nrow(t1[t1$n>2,]) #35...WHY?
+t1<-ddply(jwd,.(SITE,SEGMENT),summarize,n=length(unique(ANALYST)));nrow(t1[t1$n>2,]) #29...WHY? (15 with left_join and 35 with full_join)
 
 
-#Remove site-segments where there are NOT 2 divers and 2 sfm analysts
 
-t1<-ddply(awd,.(SITE,SEGMENT),summarize,n=length(unique(ANALYST)));t1[t1$n<2,] #for comparative analysis, need n=2
-t1<-ddply(jwd,.(SITE,SEGMENT),summarize,n=length(unique(ANALYST)));t1[t1$n<2,] 
+
 
 
 

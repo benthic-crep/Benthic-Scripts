@@ -22,7 +22,8 @@ source("C:/Users/Corinne.Amir/Documents/GitHub/Benthic-Scripts/Functions/core_fu
 #sfm.raw <- read.csv("HARAMP2019_demographic_repeats_jan172020.csv")
 
 #sfm.raw <- read.csv("HARAMP2019_demographic_calibration_jan212020.csv") #for calibration
-sfm.raw <- read.csv("HARAMP2019_demographic_repeats_jan172020.csv") #for comparison
+sfm.raw <- read.csv("HARAMP2019_demographic_repeats_jan172020.csv") #for comparison (provides 18 sites?)
+sfm.raw <- read.csv("HARAMP2019_demographic_repeats_jan132020.csv") #for comparison
 
 head(sfm.raw);nrow(sfm.raw)
 
@@ -156,7 +157,7 @@ nrow(sfm)
 
 #How many site/segments were annotated 
 sfm$site_seg<-paste(sfm$SITE,sfm$SEGMENT)
-length(unique(sfm$site_seg))
+length(unique(sfm$site_seg)) #Jan17=47 unique sites
 
 # QC Checks ---------------------------------------------------------------
 #Set up output csv file that reports the status of the qc checks
@@ -215,6 +216,7 @@ output[3,]<-c("All segments within each site have been annotated","Some sites ha
 
 
 #4. Check how many anotators exist for each segment within a site 
+analyst.per.seg<-sfm %>% filter(ANALYST=="RS" | ANALYST=="MW" | ANALYST=="MA") #for comparison plots NOT calibration plots
 analyst.per.seg <- ddply(sfm,.(SITE, SEGMENT), summarize, num.analyst = n_distinct(ANALYST))
 analyst.multiple <- filter(analyst.per.seg, num.analyst>1)
 analyst.multiple.names <- left_join(analyst.multiple, sfm[,1:6]) 
@@ -227,6 +229,7 @@ write.csv(analyst.multiple.names, "Duplicate_analyst_eval.csv")
 
 output[4,]<-c("All segments have been annotated by one individuals","Multiple segments with > 1 annotator -- ok") #change depending on output from previous line of code
 
+#Jan17=44 site-segs with at least 2 annotators
 
 
 
@@ -357,11 +360,23 @@ setwd("C:/Users/Corinne.Amir/Documents/GitHub/Benthic-Scripts/SfM")
 write.csv(output,"HARAMP2019_sfm_output.csv")
 
 
-ad<-subset(sfm,Adult_Juvenile=="A")
+ad<-subset(sfm,Adult_Juvenile=="A"|NO_COLONY_==-1 & SEGLENGTH==2.5)
 ad<-subset(ad,select=-c(Adult_Juvenile,totaldead))
-j<-subset(sfm,Adult_Juvenile=="J") #This also includes segments where NO_COLONY = -1
-j<-subset(sfm,Adult_Juvenile=="J" & NO_COLONY_==0) # Removes segments where there are no corals (within 1 or 2.5 seglength)
+j<-subset(sfm,Adult_Juvenile=="J"&SEGLENGTH!=2.5) #This also includes segments where NO_COLONY = -1
+#j<-subset(sfm,Adult_Juvenile=="J" & NO_COLONY_==0) # Removes segments where there are no corals (within 1 or 2.5 seglength)
 j<-subset(j,select=c(FID,ANALYST,OBS_YEAR,SITE,SEGMENT,SEGLENGTH,SEGWIDTH,NO_COLONY_,SPCODE,FRAGMENT_Y,MORPH_CODE,EX_BOUND,SHAPE_Leng,SEGAREA))
+
+
+analyst.per.seg.j<-j %>% filter(ANALYST=="RS" | ANALYST=="MW" | ANALYST=="MA") #for comparison plots NOT calibration plots
+analyst.per.seg.j <- ddply(j,.(SITE, SEGMENT), summarize, num.analyst = n_distinct(ANALYST))
+analyst.multiple.j <- filter(analyst.per.seg.j, num.analyst>1) # 44 SS for adult colonies, 31 sites for remove no_colony and following line of code
+
+analyst.per.seg.ad<-ad %>% filter(ANALYST=="RS" | ANALYST=="MW" | ANALYST=="MA") #for comparison plots NOT calibration plots
+analyst.per.seg.ad$ANALYST<-droplevels(analyst.per.seg.ad$ANALYST)
+analyst.per.seg.ad <- ddply(analyst.per.seg.ad,.(SITE, SEGMENT), summarize, num.analyst = n_distinct(ANALYST))
+analyst.multiple.ad <- filter(analyst.per.seg.ad, num.analyst>1) # 43 SS for adult colonies
+
+
 
 
 #Make sure that you have all the segments that are reported as annotated in the tracking datasheet
@@ -372,6 +387,7 @@ adseglist<-merge(ad,seglist,by=c(SITE,n),all=T)
 
 #Export QC'd data
 #Data ends up in "T:/Benthic/Data/SfM/QC" NOT within Benthic-Scripts Github folder
+setwd('T:/Benthic/Data/SfM/QC/')
 write.csv(ad,"HARAMP2019_QCdsfm_ADULT.csv",row.names = F)
 write.csv(j,"HARAMP2019_QCdsfm_JUV.csv",row.names = F)
 
