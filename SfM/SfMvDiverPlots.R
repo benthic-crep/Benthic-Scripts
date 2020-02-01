@@ -5,8 +5,12 @@ source("C:/Users/Corinne.Amir/Documents/GitHub/Benthic-Scripts/Functions/SfMvDiv
 #Plot1to1; PlotBioAlt; PlotPair
 
 #data.gen<-read.csv("T:/Benthic/Data/SfM/Summarized Data/HARAMP_repeats_GENUS_Summarized Data.csv")
-data.gen<-read.csv("T:/Benthic/Data/SfM/Summarized Data/HARAMP_repeats_GENUS_Summarized Data.csv")
-data.gen.bad<-read.csv("T:/Benthic/Data/SfM/Summarized Data/HARAMP_repeats_GENUS_Summarized Data-CALIBRATION.csv")
+data.gen.a<-read.csv("T:/Benthic/Data/SfM/Summarized Data/HARAMP_repeats_GENUS_Summarized Data.csv")
+data.gen<-read.csv("T:/Benthic/Data/SfM/Summarized Data/HARAMP_repeats_GENUS_Summarized Data-CALIBRATION.csv")
+seglist<-read.csv("T:/Benthic/Data/SfM/Summarized Data/Comparison_seglist.csv")
+
+dim(data.gen)
+dim(data.gen.a)
 
 #List of segments that were surveyed by all methods and multiple divers....UNEQUAL
 sfm2<-data.gen[data.gen$MethodRep=="SfM_2",] 
@@ -17,49 +21,44 @@ diver1<-data.gen[data.gen$MethodRep=="DIVER_1",]
 length(unique(diver1$SS)) #692
 diver2<-data.gen[data.gen$MethodRep=="DIVER_2",]
 length(unique(diver2$SS)) #44
-a<-ddply(data.gen,.(SS), summarize, num.repeats = n_distinct(MethodRep)); nrow(a[a$num.repeats>3,]) # 43
 
 
-sfm2<-data.gen.bad[data.gen.bad$MethodRep=="SfM_2",] 
-length(unique(sfm2$SS)) #45 unique SS
-sfm1<-data.gen.bad[data.gen.bad$MethodRep=="SfM_1",]
+sfm2<-data.gen.a[data.gen.a$MethodRep=="SfM_2",] 
+length(unique(sfm2$SS)) #46 unique SS
+sfm1.a<-data.gen.a[data.gen.a$MethodRep=="SfM_1",]
 length(unique(sfm1$SS)) #44
-diver1<-data.gen.bad[data.gen.bad$MethodRep=="DIVER_1",]
-length(unique(diver1$SS)) #518
-diver2<-data.gen.bad[data.gen.bad$MethodRep=="DIVER_2",]
-length(unique(diver2$SS)) #39
-a<-ddply(data.gen.bad,.(SS), summarize, num.repeats = n_distinct(MethodRep)); nrow(a[a$num.repeats>3,]) # 27 = missing 16 SS
+diver1<-data.gen.a[data.gen.a$MethodRep=="DIVER_1",]
+length(unique(diver1$SS)) #692
+diver2<-data.gen.a[data.gen.a$MethodRep=="DIVER_2",]
+length(unique(diver2$SS)) #44
 
 
-b<-anti_join(data.gen,data.gen.bad)
-a<-ddply(b,.(SS), summarize, num.repeats = n_distinct(MethodRep)); nrow(b[b$num.repeats>3,]) # 43
-sapply(b,unique)
-a<-b[b$MethodRep=="DIVER_2",]
-length(unique(diver2$SS)) #39
-a<-ddply(a,.(SS), summarize, num.repeats = n_distinct(MethodRep)); nrow(b[b$num.repeats>3,]) # 24 = missing 19 SS
-#Should be: 28 repeat sites, 9 of which have more than one segment 
-#44 segments annotated by 2 sfm ppl which should have also been done by 2 divers
+siteseg.a<-
+  sfm1$SS=paste0(ad_sfm$SITE,"_",ad_sfm$SEGMENT)
+seglista=as.vector(ddply(sfm1.a,.(SS),summarize,length(unique(sfm1.a$SS))))
+dim(seglista)
+dim(seglist)
 
-# seglist<-unique(sfm2$SS)
-# #seglist<-unique(diver2$SS)
-# #seglist<-unique(diver1$SS)
-# #seglist<-unique(sfm1$SS)
-# 
+seglist$merge<-as.vector(0)
+seglista$merge<-as.vector(0)
 
-
+a<-anti_join(seglist,seglista,by="SS")
 #Create dataframe containing only site_segments that contain all 4 methodreps
-#data.gen.rm<-subset(data.gen, TRANSECT %in% c(3, 4, 5, 6, "NA"));data.gen[data.gen$TRANSECT] #for calibration?
-library(plyr)
-data.gen$SST=paste0(data.gen$SS,"_",data.gen$GENUS_CODE)
-seg4list=ddply(data.gen,.(SST,SS),summarize,NBox=length(unique(MethodRep)))
-all4seglist=subset(seg4list,NBox>=4)
-length(unique(all4seglist[,"SS"]))
-
-
-#Create dataframe containing only sites containing 2 annotators and 2 divers
-data.sm=subset(data.gen,SST%in%all4seglist$SST)
+#data.gen.rm<-subset(data.gen, TRANSECT %in% c(3, 4, 5, 6, "NA"));data.gen[data.gen$TRANSECT] #for calibration
+data.gen$SS<-paste0(data.gen$SITE,"_",data.gen$SEGMENT)
+data.sm=subset(data.gen,SS%in%seglist$SS)
 dim(data.sm)
 length(unique(data.sm$SS))
+table(data.sm$SS, data.sm$MethodRep) #all columns should be NONZERO = FALSE
+
+sfm2<-data.sm[data.sm$MethodRep=="SfM_2",] 
+length(unique(sfm2$SS)) #46 unique SS
+sfm1<-data.sm[data.sm$MethodRep=="SfM_1",]
+length(unique(sfm1$SS)) #44
+diver1<-data.sm[data.sm$MethodRep=="DIVER_1",]
+length(unique(diver1$SS)) #692
+diver2<-data.sm[data.sm$MethodRep=="DIVER_2",]
+length(unique(diver2$SS))
 
 
 #Check that all Site_Segments being used for analysis have 2 annotators and 2 divers
@@ -92,7 +91,7 @@ ddply(df.all,.(SITE, SEGMENT), summarize, num.repeats = n_distinct(d1AdColCount)
 #Plot figures
 #PlotAll(dataframe, variable 1, variable 2, y-axis name 1, y-axis name 2, x-axis name 1, x-axis name 2)
 
-outpath<- "T:/Benthic/Data/SfM/ComparisionPlots/Adult Density"
+outpath<- "T:/Benthic/Data/SfM/ComparisionPlots/Adult Density/Adult Density Plots"
 p1<-PlotAll(df.all,"d1AdColDen","SfM1AdColDen","SfM Adult Density","Difference SfM Analyst and Diver", "Diver Adult Density","Mean Adult Density"); p1
 p2<-PlotAll(df.all,"d1AdColDen","d2AdColDen","Diver1 Adult Density","Difference Diver1 and Diver2","Diver2 Adult Density","Mean Adult Density"); p2
 p3<-PlotAll(df.all,"SfM1AdColDen","SfM2AdColDen","SfM1 Adult Density","Difference SfM Analyst1 and SfM Analyst2","SfM2 Adult Density","Mean Adult Density"); p3
@@ -131,6 +130,12 @@ outpath<-"T:/Benthic/Data/SfM/ComparisionPlots/AcuteDZ"
 p22<-PlotAll(df.all,"d1JuvColDen","SfM1JuvColDen","SfM Juvenile Density","Difference SfM Analyst and Diver", "Diver Juvenile Density","Mean Juvenile Density")
 p23<-PlotAll(df.all,"d1JuvColDen","d2JuvColDen","Diver1 Juvenile Density","Difference Diver1 and Diver2","Diver2 Juvenile Density","Mean Juvenile Density")
 p24<-PlotAll(df.all,"SfM1JuvColDen","SfM2JuvColDen","SfM1 Juvenile Density","Difference SfM Analyst1 and SfM Analyst2","SfM2 Juvenile Density","Mean Juvenile Density")
+
+#PlotAll(dataframe, variable 1, variable 2, y-axis name 1, y-axis name 2, x-axis name 1, x-axis name 2)
+outpath<-"T:/Benthic/Data/SfM/ComparisionPlots/Disease General"
+p22<-PlotAll(df.all,"d1DZGN_G_prev","SfM1DZGN_G_prev","SfM Disease Prevalence","Difference SfM Analyst and Diver", "Diver Disease Prevalence","Mean Disease Prevalence")
+p23<-PlotAll(df.all,"d1DZGN_G_prev","d2DZGN_G_prev","Diver1 Disease Prevalence","Difference Diver1 and Diver2","Diver2 Disease Prevalence","Mean Disease Prevalence")
+p24<-PlotAll(df.all,"SfM1DZGN_G_prev","SfM2DZGN_G_prev","SfM1 Disease Prevalence","Difference SfM Analyst1 and SfM Analyst2","SfM2 Disease Prevalence","Mean Disease Prevalence")
 
 
 # Plots for Parsing out method vs. observer error -------------------------

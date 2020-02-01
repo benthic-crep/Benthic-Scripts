@@ -35,7 +35,7 @@ sapply(x, unique)
 table(x$REGION, x$OBS_YEAR) #review years and regions in dataframe
 
 #Convert Segment number from old to new numbering system
-x$SEGMENT<-ConvertSegNumber(x)
+#x$SEGMENT<-ConvertSegNumber(x) #DONT USE...ITS ALREADY BEEN CORRECTED WITHIN ORACLE
 
 head(table(x$SITE,x$SEGMENT)) #Double check that segment numbers are correct
 
@@ -285,7 +285,7 @@ write.csv(awd,file="T:/Benthic/Data/SfM/Analysis Ready/HARAMP19_DIVERAdult_CLEAN
 #Check number of Site-Segments that contain at least 2 divers ----------------------------------------------------
 analyst.per.ss <- ddply(x,.(SITE, SEGMENT), summarize, num.analyst = n_distinct(DIVER))
 analyst.per.ss <- filter(analyst.per.ss, num.analyst>1) # 153 SS with 2 divers
-
+analyst.per.ss
 
 ## DIVER/JUVENILE: CLEAN ANALYSIS READY DATA -------------------------------------------------------------------------------
 ## LOAD benthic data
@@ -293,8 +293,10 @@ analyst.per.ss <- filter(analyst.per.ss, num.analyst>1) # 153 SS with 2 divers
 #load("C:/Users/Courtney.S.Couch/Documents/Courtney's Files/R Files/ESD/Temp Sfm Files/ALL_REA_JUVCORAL_RAW_2013-2019.rdata") #from oracle
 load("T:/Benthic/Data/REA Coral Demography & Cover/Raw from Oracle/ALL_REA_JUVCORAL_RAW_2013-2019.rdata") 
 
+
 x<-df
 x$SITE<-SiteNumLeadingZeros(x$SITE) # Change site number such as MAR-22 to MAR-0022
+a<-ddply(x,.(SITE,TRANSECTNUM,SEGMENT),summarize,n=length(unique(DIVER)));t1[t1$n>1,]
 
 #Convert date formats
 class(x$DATE_)
@@ -306,7 +308,11 @@ tail(x)
 table(x$REGION, x$OBS_YEAR) #review years and regions in dataframe
 
 #Convert Segment number from old to new numbering system
-x$SEGMENT<-ConvertSegNumber(x)
+#x$SEGMENT<-ConvertSegNumber(x)
+
+a<-ddply(ad_diver,.(SITE,SEGMENT),summarize,n=length(unique(DIVER)));nrow(t1[t1$n>1,])
+j<-ddply(j_diver,.(SITE,SEGMENT),summarize,n=length(unique(DIVER)));nrow(t1[t1$n>1,])
+
 
 
 #Create vector of column names to include then exclude unwanted columns from dataframe
@@ -334,6 +340,7 @@ colnames(x)[colnames(x)=="MAXDEPTH"]<-"SITE_MAX_DEPTH" #Change column name
 x$METHOD<-"DIVER"
 
 head(x)
+ddply(x,.(SITE,SEGMENT),summarize,n=length(unique(DIVER)));nrow(t1[t1$n>1,])
 
 
 # Merge Juvenile data and SITE MASTER -------------------------------------
