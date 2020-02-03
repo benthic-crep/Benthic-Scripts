@@ -217,6 +217,7 @@ Calc_ColDen_Seg<-function(data, grouping_field="GENUS_CODE"){
 
 ## This function calculates mean colony length, % recent dead, % old dead, condition severity or condition extent to the segment level
 ## NOTE: can run both adult & juvenile data with this function for COLONYLENGTH
+#may be worth changing to "Calc_ColMetric_Seg<-function(data, grouping_field, pool_fields)" and finding a workaround for the dcast warning before it turns into an error
 Calc_ColMetric_Seg<-function(data, grouping_field="GENUS_CODE", pool_fields=c("COLONYLENGTH","RDEXTENT1", "RDEXTENT2","OLDDEAD","SEVERITY","EXTENT")) {
   
   scl<-subset(data,Fragment==0&S_ORDER=="Scleractinia") #excludes fragments and anything that isn't a hard coral

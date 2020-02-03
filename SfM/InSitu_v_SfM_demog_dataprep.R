@@ -1,5 +1,5 @@
 
-#DIVER:ADULT CLEAN ANALYSIS READY DATA----------------------------------------
+#DIVER/ADULT: CLEAN ANALYSIS READY DATA----------------------------------------
 # This script will clean the raw benthic REA data using method E that comes directly from the new data base application.
 rm(list=ls())
 
@@ -10,13 +10,12 @@ DEBUG=TRUE
 # source("C:/Users/Courtney.S.Couch/Documents/GitHub/Benthic-Scripts/Functions/Benthic_Functions_newApp_vTAOfork.R")
 # source("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/lib/core_functions.R")
 # source("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/lib/GIS_functions.R")
-
 source("C:/Users/Corinne.Amir/Documents/GitHub/Benthic-Scripts/Functions/Benthic_Functions_newApp_vTAOfork.R")
 source("C:/Users/Corinne.Amir/Documents/GitHub/fish-paste/lib/core_functions.R")
 source("C:/Users/Corinne.Amir/Documents/GitHub/fish-paste/lib/GIS_functions.R")
 
 
-## LOAD benthic data (ADULTS)
+## DIVER-ADULT: Load benthic data 
 # setwd("C:/Users/Courtney.S.Couch/Documents/Courtney's Files/R Files/ESD/Benthic REA")
 load("T:/Benthic/Data/REA Coral Demography & Cover/Raw from Oracle/ALL_REA_ADULTCORAL_RAW_2013-2019.rdata") #from oracle
 
@@ -31,10 +30,11 @@ x$DATE_ <- as.Date(x$DATE_, format = "%Y-%m-%d")
 ### Use these functions to look at data
 head(x)
 tail(x)
+sapply(x, unique)
 table(x$REGION, x$OBS_YEAR) #review years and regions in dataframe
 
 #Convert Segment number from old to new numbering system
-x$SEGMENT<-ConvertSegNumber(x)
+#x$SEGMENT<-ConvertSegNumber(x) #DONT USE...ITS ALREADY BEEN CORRECTED WITHIN ORACLE
 
 head(table(x$SITE,x$SEGMENT)) #Double check that segment numbers are correct
 
@@ -50,7 +50,6 @@ DATA_COLS<-c("MISSIONID","REGION","REGION_NAME","ISLAND","ISLANDCODE","SITE","LA
              "GENUS_CODE","S_ORDER","TAXONNAME","SITE_MIN_DEPTH","SITE_MAX_DEPTH")
 
 x<-subset(x,REGION=="MHI" & OBS_YEAR =="2019") #subset just MHI 2019 data
-
 #remove extraneous columns
 head(x[,DATA_COLS])
 x<-x[,DATA_COLS]
@@ -61,7 +60,8 @@ sapply(x,levels)
 sapply(x,class)##Change column names to make code easier to code
 #Logical NAs within RECENT_GENERAL/SPECIFIC_CAUSE_CODEs, conditions, and extents, but only SEVERITY_4 = logical class
 
-# Column Names Changes (Diver-ADULTS)... -------------------------------------------------
+
+#DIVER/ADULT: Column Names Changes... -------------------------------------------------
 colnames(x)[colnames(x)=="TAXONCODE"]<-"SPCODE" #Change column name- we will eventually change this column back to "taxoncode" after we modify the spcode names to match the taxalist we all feel comfortable identifying
 colnames(x)[colnames(x)=="TRANSECTNUM"]<-"TRANSECT" #Change column name
 colnames(x)[colnames(x)=="RECENTDEAD_1"]<-"RDEXTENT1" #Change column name
@@ -82,7 +82,7 @@ x$METHOD<-"DIVER"
 if(DEBUG){head(x)}
 
 
-# Merge Adult data and SURVEY MASTER -------------------------------------
+#DIVER/ADULT: Merge Diver/Adult data and SURVEY MASTER -------------------------------------
 #SURVEY MASTER was created by Ivor and Courtney by extracting sites directly from the Site Visit table from Oracle. It should be the complete list of sites surveyed since 2000
 #survey_master<-read.csv("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/data/SURVEY MASTER.csv")
 setwd("C:/Users/Corinne.Amir/Documents/GitHub/Benthic-Scripts/SfM")
@@ -113,7 +113,7 @@ miss.sites<-ddply(test,.(OBS_YEAR,SITEVISITID,SITE,MISSIONID,REGION,REGION_NAME,
 #Should be a 0 row data.frame
 head(miss.sites,20)
 
-# CLEAN UP (Diver-ADULTS) ----------------------------------------------------------------
+#DIVER/ADULT: CLEAN UP ----------------------------------------------------------------
 
 #Generate General RD cause code
 gencodes<-read.csv("T:/Benthic/Data/SpGen_Reference/GeneralRDcode_lookup.csv")
@@ -122,8 +122,9 @@ levels(x$RD1)
 
 #Remove exisiting GENRD columns until Michael can fix database
 x<-subset(x,select=-c(GENRD1,GENRD2,GENRD3))
+x<- droplevels(x)
 
-x<-CreateGenRDCode(x,"RD1","GENRD1",gencodes)
+x<-CreateGenRDCode(x,"RD1","GENRD1",gencodes) #Creates an additional column in x (called GENRD#) that has the generalized code associated with the given RD#--ok
 x<-CreateGenRDCode(x,"RD2","GENRD2",gencodes)
 x<-CreateGenRDCode(x,"RD3","GENRD3",gencodes)
 
@@ -165,7 +166,7 @@ head(subset(x,S_ORDER=="Scleractinia" & is.na(x$RDEXTENT3))) #identify columns t
 x$RDEXTENT3<-ifelse(x$S_ORDER=="Scleractinia"& is.na(x$RDEXTENT3),0,x$RDEXTENT3)
 
 
-# Assign TAXONCODE (Diver-ADULTS) --------------------------------------------------------
+#DIVER/ADULT: Assign TAXONCODE --------------------------------------------------------
 #read in list of taxa that we feel comfortable identifying to species or genus level. Note, taxa lists vary by year and region. This will need to be updated through time.
 taxa<-read.csv("T:/Benthic/Data/SpGen_Reference/2013-19_Taxa_MASTER.csv")
 
@@ -181,7 +182,7 @@ head(b[rowSums(is.na(b)) != ncol(b), ])
 #This is used for spot checking that TAXONCODE was converted properly & can be compared against TAXA MASTER 
 SURVEY_INFO<-c("OBS_YEAR","REGION","SPCODE","TAXONCODE","GENUS_CODE","TAXONNAME")
 test<-new_Aggregate_InputTable(x, SURVEY_INFO)
-head(test) #should the dataframe be empty?
+head(test) 
 
 taxa_subset <- subset(taxa, REGION=="MHI"|REGION== "NWHI")
 
@@ -235,9 +236,9 @@ NegNineCheckCols=c("RDEXTENT1","GENRD1","RD1","RDEXTENT2","GENRD2","RD2","GENRD3
 x[,NegNineCheckCols][x[,NegNineCheckCols]==-9] <- NA #Convert missing numeric values to NA (they are entered as -9 in Oracle)
 
 
-# Convert NAs (Diver-ADULTS) --------------------------------------------------------------
+#DIVER/ADULT: Convert NAs --------------------------------------------------------------
 
-#leave NAs for severity and extent?
+#leave NAs for severity and extent? STILL MANY COLUMNS WITH LOGICAL NA = OK?
 tmp.lev<-levels(x$GENRD1); tmp.lev
 levels(x$GENRD1)<-c(tmp.lev, "NONE") # change to NONE
 x[is.na(x$GENRD1),"GENRD1"]<-"NONE"
@@ -280,15 +281,21 @@ awd<-droplevels(x)
 write.csv(awd,file="T:/Benthic/Data/SfM/Analysis Ready/HARAMP19_DIVERAdult_CLEANED.csv",row.names = F)
 
 
+#Check number of Site-Segments that contain at least 2 divers ----------------------------------------------------
+analyst.per.ss <- ddply(x,.(SITE, SEGMENT), summarize, num.analyst = n_distinct(DIVER))
+analyst.per.ss <- filter(analyst.per.ss, num.analyst>1) # 153 SS with 2 divers
+analyst.per.ss
 
-## DIVER:JUVENILE CLEAN ANALYSIS READY DATA ----
+## DIVER/JUVENILE: CLEAN ANALYSIS READY DATA -------------------------------------------------------------------------------
 ## LOAD benthic data
 #load("T:/Benthic/Data/REA Coral Demography & Cover/Raw from Oracle/ALL_REA_JUVCORAL_RAW_2013-2019.rdata") #from oracle
 #load("C:/Users/Courtney.S.Couch/Documents/Courtney's Files/R Files/ESD/Temp Sfm Files/ALL_REA_JUVCORAL_RAW_2013-2019.rdata") #from oracle
 load("T:/Benthic/Data/REA Coral Demography & Cover/Raw from Oracle/ALL_REA_JUVCORAL_RAW_2013-2019.rdata") 
 
+
 x<-df
 x$SITE<-SiteNumLeadingZeros(x$SITE) # Change site number such as MAR-22 to MAR-0022
+a<-ddply(x,.(SITE,TRANSECTNUM,SEGMENT),summarize,n=length(unique(DIVER)));t1[t1$n>1,]
 
 #Convert date formats
 class(x$DATE_)
@@ -300,7 +307,11 @@ tail(x)
 table(x$REGION, x$OBS_YEAR) #review years and regions in dataframe
 
 #Convert Segment number from old to new numbering system
-x$SEGMENT<-ConvertSegNumber(x)
+#x$SEGMENT<-ConvertSegNumber(x)
+
+a<-ddply(ad_diver,.(SITE,SEGMENT),summarize,n=length(unique(DIVER)));nrow(t1[t1$n>1,])
+j<-ddply(j_diver,.(SITE,SEGMENT),summarize,n=length(unique(DIVER)));nrow(t1[t1$n>1,])
+
 
 
 #Create vector of column names to include then exclude unwanted columns from dataframe
@@ -328,6 +339,7 @@ colnames(x)[colnames(x)=="MAXDEPTH"]<-"SITE_MAX_DEPTH" #Change column name
 x$METHOD<-"DIVER"
 
 head(x)
+ddply(x,.(SITE,SEGMENT),summarize,n=length(unique(DIVER)));nrow(t1[t1$n>1,])
 
 
 # Merge Juvenile data and SITE MASTER -------------------------------------
@@ -357,7 +369,7 @@ miss.sites<-ddply(test,.(OBS_YEAR,SITEVISITID,SITE,MISSIONID,REGION,REGION_NAME,
 head(miss.sites,20)
 
 
-# CLEAN UP (Diver-JUVENILES) ----------------------------------------------------------------
+# DIVER/JUVENILES: CLEAN UP ----------------------------------------------------------------
 
 ##Remove sites that were only surveyed for photoquads but not demographics
 #Note-photoquad only sites are not included in data prior to 2018
@@ -376,7 +388,7 @@ x<-subset(x,SEGLENGTH!="NA") #Remove segments that were not surveyed for coral d
 x<-subset(x,EXCLUDE_FLAG==0);head(subset(x,EXCLUDE_FLAG==-1))# this dataframe should be empty
 
 
-# Assign TAXONCODE (Diver-JUVENILES) --------------------------------------------------------
+#DIVER/JUVENILES: Assign TAXONCODE --------------------------------------------------------
 #read in list of taxa that we feel comfortable identifying to species or genus level. Note, taxa lists vary by year and region. This will need to be updated through time.
 taxa<-read.csv("T:/Benthic/Data/SpGen_Reference/2013-19_Taxa_MASTER.csv")
 
@@ -386,8 +398,7 @@ x<-Convert_to_Taxoncode(x)
 
 #Check to make sure SPCODE was converted correctly
 head(x[x$SPCODE!=x$TAXONCODE,])
-
-SPCODE_error <- x[x$SPCODE!=x$TAXONCODE, SURVEY_INFO] #Shows the specific instances where SPCODE is not identical to TAXONCODE
+x[x$SPCODE!=x$TAXONCODE, SURVEY_INFO] #Shows the specific instances where SPCODE is not identical to TAXONCODE--1 POCS present
 
 #If there are issues use this code to create a list SPCODE (lowest taxonomic resolution we have), TAXONCODE (the taxonomic level we all feel comfortable with) and associated genera
 #This is used for spot checking that TAXONCODE was converted properly & can be compared against TAXA MASTER 
@@ -445,9 +456,12 @@ x[,NegNineCheckCols][x[,NegNineCheckCols] ==-9] <- NA #Convert missing numeric v
 jwd<-droplevels(x)
 write.csv(jwd,file="T:/Benthic/Data/SfM/Analysis Ready/HARAMP19_DIVERJuv_CLEANED.csv",row.names = F)
 
+#Check number of Site-Segments that contain at least 2 divers ----------------------------------------------------
+analyst.per.ss <- ddply(x,.(SITE, SEGMENT), summarize, num.analyst = n_distinct(DIVER))
+analyst.per.ss <- filter(analyst.per.ss, num.analyst>1) # 135 SS with 2 divers
 
 
-# SFM:ADULT CLEAN ANALYSIS READY DATA --------------------
+# SFM/ADULT: CLEAN ANALYSIS READY DATA ----------------------------------------------------
 df<-read.csv("T:/Benthic/Data/SfM/QC/HARAMP2019_QCdsfm_ADULT.csv")
 
 x<-df
@@ -456,7 +470,7 @@ View(x)
 nrow(x)
 
 
-# Column Names Changes... (SfM-ADULT) -------------------------------------------------
+#SfM/ADULT: Column Names Changes -------------------------------------------------
 colnames(x)[colnames(x)=="MISSION_ID"]<-"MISSIONID" #Change column name
 colnames(x)[colnames(x)=="RD_1"]<-"RDEXTENT1" #Change column name
 colnames(x)[colnames(x)=="RDCAUSE1"]<-"RD1" #Change column name
@@ -484,7 +498,7 @@ if(DEBUG){head(x)}
 table(x$SITE,x$ANALYST)
 
 
-# Adding and Modifying columns --------------------------------------------
+#SfM/ADULT: Adding and Modifying columns --------------------------------------------
 
 #Fill in columns with values that we know should not be different across any of the rows
 x$OBS_YEAR <- as.vector(rep(2019, times = nrow(x)))
@@ -511,8 +525,9 @@ head(x)
 nrow(df);nrow(x) #make sure rows weren't dropped
 
 
-# Merge Adult data and  SURVEY MASTER (SfM) -------------------------------------
+#SfM/ADULT: Merge Adult data and  SURVEY MASTER  -------------------------------------
 #survey_master<-read.csv("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/data/SURVEY MASTER.csv")
+setwd("C:/Users/Corinne.Amir/Documents/GitHub/Benthic-Scripts/SfM")
 survey_master <- read.csv("SURVEY MASTER.csv")
 
 colnames(survey_master)[colnames(survey_master)=="LATITUDE_SV"]<-"LATITUDE" #Change column name
@@ -526,7 +541,7 @@ head(x)
 nrow(x)
 
 
-# Assign TAXONCODE --------------------------------------------------------
+#SfM/ADULT: Assign TAXONCODE --------------------------------------------------------
 #read in list of taxa that we feel comfortable identifying to species or genus level. Note, taxa lists vary by year and region. This will need to be updated through time.
 taxa<-read.csv("T:/Benthic/Data/SpGen_Reference/2013-19_Taxa_MASTER.csv")
 
@@ -539,7 +554,6 @@ x<-Convert_to_Taxoncode(x)
 
 #Check to make sure SPCODE was converted correctly
 head(x[x$SPCODE!=x$TAXONCODE,])
-SPCODE_error <- x[x$SPCODE!=x$TAXONCODE, SURVEY_INFO] #Shows the specific instances where SPCODE is not identical to TAXONCODE
 
 #If there are issues use this code to create a list SPCODE (lowest taxonomic resolution we have), TAXONCODE (the taxonomic level we all feel comfortable with) and associated genera
 #This is used for spot checking that TAXONCODE was converted properly & can be compared against TAXA MASTER 
@@ -600,7 +614,7 @@ NegNineCheckCols=c("RDEXTENT1","GENRD1","RD1","RDEXTENT2","GENRD2","RD2","GENRD3
 x[,NegNineCheckCols][x[,NegNineCheckCols]==-9] <- NA #Convert missing numeric values to NA (they are entered as -9 in Oracle)
 
 
-# Clean up NAs ------------------------------------------------------------
+#SfM/ADULT: Clean up NAs ------------------------------------------------------------
 tmp.lev<-levels(x$GENRD1); tmp.lev
 levels(x$GENRD1)<-c(tmp.lev, "NONE") # change to NONE
 x[is.na(x$GENRD1),"GENRD1"]<-"NONE"
@@ -642,18 +656,22 @@ head(x)
 awd<-droplevels(x)
 write.csv(awd,file="T:/Benthic/Data/SfM/Analysis Ready/HARAMP19_SfMAdult_CLEANED.csv",row.names = F)
 
+#Check number of Site-Segments that contain at least 2 annotators ----------------------------------------------------
+analyst.per.ss<-x %>% filter(ANALYST=="RS" | ANALYST=="MW" | ANALYST=="MA")
+analyst.per.ss$ANALYST<-droplevels(analyst.per.ss$ANALYST)
+analyst.per.ss <- ddply(x,.(SITE, SEGMENT), summarize, num.analyst = n_distinct(ANALYST))
+analyst.per.ss <- filter(analyst.per.ss, num.analyst>1) 
 
 
-# SFM:JUVENILE CLEAN ANALYSIS READY DATA --------------------
-df<-read.csv("T:/Benthic/Data/SfM/QC/HARAMP2019_QCdsfm_JUV.csv") #324 rows
-df<-read.csv("C:/Users/Corinne.Amir/Documents/GitHub/Benthic-Scripts/SfM/HARAMP2019_QCdsfm_JUV.csv") #827 rows
+# SFM/JUVENILE: CLEAN ANALYSIS READY DATA -------------------------------------
+df<-read.csv("T:/Benthic/Data/SfM/QC/HARAMP2019_QCdsfm_JUV.csv") #851 rows
 
 x<-df
 head(x)
 View(x)
 nrow(x)
 
-# Column Names Changes... -------------------------------------------------
+#SFM/JUVENILE: Column Names Changes... -------------------------------------------------
 colnames(x)[colnames(x)=="FRAGMENT_Y"]<-"Fragment" #Change column name
 colnames(x)[colnames(x)=="SHAPE_Leng"]<-"COLONYLENGTH" #Change column name
 colnames(x)[colnames(x)=="FID"]<-"COLONYID" #Change column name
@@ -666,7 +684,7 @@ if(DEBUG){head(x)}
 table(x$SITE,x$ANALYST)
 
 
-# Adding and Modifying columns --------------------------------------------
+#SFM/JUVENILE: Adding and Modifying columns --------------------------------------------
 
 #Fill in columns with values that we know should not be different across any of the rows
 x$OBS_YEAR <- as.vector(rep(2019, times = nrow(x)))
@@ -679,7 +697,7 @@ x<-CreateGenusCode(x,genlookup)
 head(x)
 
 
-# Merge Juvenile data and SURVEY MASTER (SfM) -------------------------------------
+#SFM/JUVENILE: Merge Juvenile data and SURVEY MASTER (SfM) -------------------------------------
 #survey_master<-read.csv("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/data/SURVEY MASTER.csv")
 survey_master <- read.csv("SURVEY MASTER.csv")
 
@@ -695,7 +713,7 @@ nrow(x)
 
 
 
-# Assign TAXONCODE --------------------------------------------------------
+#SFM/JUVENILE: Assign TAXONCODE --------------------------------------------------------
 #read in list of taxa that we feel comfortable identifying to species or genus level. Note, taxa lists vary by year and region. This will need to be updated through time.
 taxa<-read.csv("T:/Benthic/Data/SpGen_Reference/2013-19_Taxa_MASTER.csv")
 
@@ -751,6 +769,9 @@ a2<- subset(x,GENUS_CODE=="UNKN"&S_ORDER=="Scleractinia")
 #In order to record no colonies observed in a segment, we need to create a small colony on the image.This code removes that size measure
 x$COLONYLENGTH<-ifelse(x$SPCODE=="AAAA",0,as.character(x$COLONYLENGTH))
 
+#Remove colonies with EX_BOUND = -1
+x <- subset(x, EX_BOUND==0)
+
 # sapply(x,levels)
 head(x)
 nrow(x)
@@ -769,4 +790,8 @@ x[,NegNineCheckCols][x[,NegNineCheckCols] ==-9] <- NA #Convert missing numeric v
 
 jwd<-droplevels(x)
 write.csv(jwd,file="T:/Benthic/Data/SfM/Analysis Ready/HARAMP19_SfMJuv_CLEANED.csv",row.names = F)
+
+#Check number of Site-Segments that contain at least 2 divers ----------------------------------------------------
+analyst.per.ss <- ddply(x,.(SITE, SEGMENT), summarize, num.analyst = n_distinct(ANALYST))
+analyst.per.ss <- filter(analyst.per.ss, num.analyst>1)
 

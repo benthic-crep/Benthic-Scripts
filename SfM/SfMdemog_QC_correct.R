@@ -8,20 +8,15 @@ rm=ls() #removes all objects from the current workspace
 
 setwd("T:/Benthic/Data/SfM/QC")
 
-#setwd("C:/Users/Corinne.Amir/Documents/GitHub/Benthic-Scripts/SfM")
-
-
 #Upload necessary functions (not opening on my computer)
-source("C:/Users/Courtney.S.Couch/Documents/GitHub/Benthic-Scripts/Functions/Benthic_Functions_newApp_vTAOfork.R")
-source("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/lib/core_functions.R")
-
+# source("C:/Users/Courtney.S.Couch/Documents/GitHub/Benthic-Scripts/Functions/Benthic_Functions_newApp_vTAOfork.R")
+# source("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/lib/core_functions.R")
 source("C:/Users/Corinne.Amir/Documents/GitHub/Benthic-Scripts/Functions/Benthic_Functions_newApp_vTAOfork.R")
 source("C:/Users/Corinne.Amir/Documents/GitHub/Benthic-Scripts/Functions/core_functions.R")
 
 ##read benthic data downloaded from Mission app and subset to the leg you need to QC
-#sfm.raw <- read.csv("HARAMP2019_demographic_repeats_jan172020.csv")
-
-sfm.raw <- read.csv("HARAMP2019_demographic_calibration_jan212020.csv")
+sfm.raw <- read.csv("HARAMP2019_demographic_repeats_jan172020.csv") #for comparison (used for most recent figures - 1/30)
+sfm.raw <- read.csv("HARAMP2019_demographic_repeats_jan132020.csv") #for comparison (previously used)
 
 head(sfm.raw);nrow(sfm.raw)
 
@@ -62,8 +57,6 @@ sfm.raw$CON_3 <- RemoveLogicalNA(sfm.raw$CON_3)
 # sfm.raw$SITE = str_replace(as.character(sfm.raw$SITE),"_","-")
 # View(sfm.raw)
 
-
-
 SiteNumLeadingZeros_SfM <- function(site_names)
 {
   tmp<-levels(site_names)
@@ -88,9 +81,10 @@ SiteNumLeadingZeros_SfM <- function(site_names)
 # Change site numbers such as MAR-22 to MAR-0022
 sfm.raw$SITE<-SiteNumLeadingZeros_SfM(sfm.raw$SITE)
 
-
 sfm.raw$SEGMENT<-as.factor(sfm.raw$SEGMENT)
 table(sfm.raw$SITE,sfm.raw$SEGMENT)
+
+
 
 #Manually fix this site to convert all segments to 3-This is fixed in recent (12/19) updates to the geodatabase. You will 
 #need to continue to modify the earliest annotated data. this script will fix the issue.
@@ -124,7 +118,7 @@ View(sfm.missing)
 #Identify all rows where NO_COLONY_ is -1 and all values beforehand are also filled in. These values are ok and should NOT be placed in the sfm.missing dataframe
 no.colony.present <- sfm.missing %>%
   filter(NO_COLONY_ == "-1" & ANALYST != "NA" & SITE != "NA" & SEGLENGTH != "0" & SEGWIDTH != "0")
-View(no.colony.present)
+head(no.colony.present)
 
 
 #Remove rows with no colony present from the sfm.missing dataframe
@@ -133,7 +127,6 @@ sfm.missing <- droplevels(anti_join(sfm.missing, no.colony.present))
 
 #Save dataframe with missing values 
 write.csv(sfm.missing, "sfm_missing_rows.csv") #get these rows repopulated (if missing metadata) or annotated before moving forward
-
 
 
 #If charging forward and leaving rows with missing data behind, create a new dataframe where all rows with missing data have been removed
@@ -150,12 +143,11 @@ sfm$SHAPE_Leng <-  as.numeric(sfm$SHAPE_Leng)
 sfm$Adult_Juvenile <- ifelse(sfm$SHAPE_Leng<0.05 & sfm$SPCODE != "PBER", "J", "A")
 
 
-
 nrow(sfm)
 
 #How many site/segments were annotated 
 sfm$site_seg<-paste(sfm$SITE,sfm$SEGMENT)
-length(unique(sfm$site_seg))
+length(unique(sfm$site_seg)) #Jan17=47 unique sites
 
 # QC Checks ---------------------------------------------------------------
 #Set up output csv file that reports the status of the qc checks
@@ -170,14 +162,14 @@ output<-data.frame(
 
 
 #I don't understand this qc check. 
-#1. Check if part of a site-segment had missing values and was removed, but some rows in that site-segment were not missing values and were not removed
+#1. Check if only part of a site-segment was removed and placed in the sfm.missing dataframe while the other part was placed in the sfm dataframe. Remove these site-segments.
 sfm$SEGMENT <- as.factor(sfm$SEGMENT)
 sfm.missing$SEGMENT <- as.factor(sfm.missing$SEGMENT)
 sfm$SITE <- as.factor(sfm$SITE)
 sfm.missing$SITE <- as.factor(sfm.missing$SITE)
 
 partial_SiteSeg_removal <- inner_join(sfm.missing, sfm, by = c("SITE", "SEGMENT", "ANALYST")) 
-View(partial_SiteSeg_removal) # a dataframe with no data will be displayed if site-segment pairs were NOT split between missing and populated dataframes = good
+head(partial_SiteSeg_removal) # a dataframe with no data will be displayed if site-segment pairs were NOT split between missing and populated dataframes = good
 
 output[,1] <- c("Sites have been completely annotated", "YES")
 
@@ -214,6 +206,7 @@ output[3,]<-c("All segments within each site have been annotated","Some sites ha
 
 
 #4. Check how many anotators exist for each segment within a site 
+analyst.per.seg<-sfm %>% filter(ANALYST=="RS" | ANALYST=="MW" | ANALYST=="MA") #for comparison plots NOT calibration plots
 analyst.per.seg <- ddply(sfm,.(SITE, SEGMENT), summarize, num.analyst = n_distinct(ANALYST))
 analyst.multiple <- filter(analyst.per.seg, num.analyst>1)
 analyst.multiple.names <- left_join(analyst.multiple, sfm[,1:6]) 
@@ -226,6 +219,7 @@ write.csv(analyst.multiple.names, "Duplicate_analyst_eval.csv")
 
 output[4,]<-c("All segments have been annotated by one individuals","Multiple segments with > 1 annotator -- ok") #change depending on output from previous line of code
 
+#Jan17=44 site-segs with at least 2 annotators
 
 
 
@@ -250,7 +244,7 @@ seg.length <-ddply(sfm,.(SITE, SEGMENT, ANALYST, SEGLENGTH), summarize, num.segl
 eval.seg.length <- acast(seg.length, SITE~SEGMENT~ANALYST, length)   
 View(eval.seg.length) #all cells that have been annotated should be "2" 
 
-output[7,]<-c("All segments have seglengths 1.0 and 2.5","error: HAW-4221-0-AH") #change depending on output from previous line of code
+output[7,]<-c("All segments have seglengths 1.0 and 2.5","No errors in MA, ML, RS--ok") #change depending on output from previous line of code
 
 # if there are errors, export a csv file for further analysis
 write.csv(eval.seg.length, "Missing_seglength_eval.csv")
@@ -259,13 +253,13 @@ write.csv(eval.seg.length, "Missing_seglength_eval.csv")
 
 
 #8. Identify colonies flagged as Juveniles or Adults, but have the innocorrect segment area. make sure j = 1 and A = 2.5
-sm.colonies.eval <- sfm %>% filter(Adult_Juvenile=="J",SEGAREA != 1.0, NO_COLONY_ !=-1) 
+sm.colonies.eval <- sfm %>% filter(Adult_Juvenile=="J",SEGAREA != 1, NO_COLONY_ !=-1) 
 View(sm.colonies.eval)
 
 lg.colonies.eval <- sfm %>% filter(Adult_Juvenile=="A",SEGAREA==1) 
 View(lg.colonies.eval)
 
-output[8,]<-c("Juveniles and Adult colonies have correct labeling","Error: HAW-4221-0-AH juvenile")
+output[8,]<-c("Juveniles and Adult colonies have correct labeling","2 errors (1 PBER)")
 
 #If rows have been flagged, export sm_colonies dataframe into a csv file for further QC
 write.csv(sm.colonies.eval, "Juveniles_eval.csv")
@@ -278,14 +272,14 @@ sfm[sfm$RD_1=="0"& sfm$RDCAUSE1!="NA",]
 sfm[sfm$RD_2=="0"& sfm$RDCAUSE2!="NA",]
 sfm[sfm$RD_3=="0"& sfm$RDCAUSE3!="NA",]
 
-output[9,]<-c("0% Recent Dead corals do NOT have an RDCAUSE code","Error: 3 in HAW-4221-0-AH")
+output[9,]<-c("0% Recent Dead corals do NOT have an RDCAUSE code","Errors for AH--ok")
 
 
 
 #10. Identify colonies with recent dead >0%, but there is no RDCAUSE code - This check should result in 0 records   
-sfm[sfm$RD_1 >0 & sfm$RDCAUSE1=="NA",]
-sfm[sfm$RD_2 >0 & sfm$RDCAUSE2=="NA",]
-sfm[sfm$RD_3 >0 & sfm$RDCAUSE3=="NA",]
+sfm[sfm$RD_1 >0 & sfm$RDCAUSE1=="NA",] #,rowSums(is.na(sfm)) != ncol(sfm),]
+sfm[sfm$RD_2 >0 & sfm$RDCAUSE2=="NA",] #,rowSums(is.na(a)) != ncol(a), ]
+sfm[sfm$RD_3 >0 & sfm$RDCAUSE3=="NA",] #,rowSums(is.na(a)) != ncol(a), ]
 
 output[10,]<-c("All corals with RD >0 have an RDCAUSE code","YES")
 
@@ -296,21 +290,21 @@ sfm[sfm$EXTENT_1=="0"& sfm$CON_1!="NA",]
 sfm[sfm$EXTENT_2=="0"& sfm$CON_2!="NA",]
 sfm[sfm$EXTENT_3=="0"& sfm$CON_3!="NA",] 
 
-output[11,]<-c("All colonies with a condition have an extent","Error: 5 in HAW-4221-0-AH")
+output[11,]<-c("All colonies with a condition have an extent","Errors for AH--ok")
 
 
 
 #12. Identify colonies that have no condition, but a value in extent - This check should result in 0 records   
-sfm[sfm$CON_1=="NA"& sfm$EXTENT_1!="0",]
+sfm[sfm$CON_1=="NA"& sfm$EXTENT_1!="0",] #rowSums(is.na(a)) != ncol(a),]
 sfm[sfm$CON_2=="NA"& sfm$EXTNET_2!="0",]
-sfm[sfm$CON_3=="NA"& sfm$EXTENT_3!="0",]
+sfm[sfm$CON_3=="NA"& sfm$EXTENT_3!="0",] #rowSums(is.na(a)) != ncol(a),]
 
 output[12,]<-c("All colonies with NO condition also have NO extent","Yes")
 
 
 
 #13. Identify colonies with nothing in condition column, but a value in severity. Double check that these shouldn't be 0  
-sfm[sfm$EXTENT_1=="0"& sfm$SEV_1!="0",]
+sfm[sfm$EXTENT_1=="0"& sfm$SEV_1!="0"] #,rowSums(is.na(a)) != ncol(a),]
 sfm[sfm$EXTENT_2=="0"& sfm$SEV_2!="0",]
 sfm[sfm$EXTENT_3=="0"& sfm$SEV_3!="0",]
 
@@ -328,7 +322,7 @@ sfm[sfm$SEV_1!="0"& sfm$CON_1 %notin% c("BLE","BLP"),]
 sfm[sfm$SEV_2!="0"& sfm$CON_2 %notin% c("BLE","BLP"),]
 sfm[sfm$SEV_3!="0"& sfm$CON_3 %notin% c("BLE","BLP"),]
 
-output[14,]<-c("Severity value is present only in colonies with CON = BLE and BLP","Error: 7 in HAW-4221-0-AH")
+output[14,]<-c("Severity value is present only in colonies with CON = BLE and BLP","Errors for AH--ok")
 
 
 
@@ -344,22 +338,35 @@ output[15,]<-c("RD + OD <=100%","Yes")
 
 
 
-#16. Write files for qc #9-15 that have errors
+#16. Write files for qc #9-15 that have errors (optional)
 SEV_1_error <- sfm[sfm$SEV_1=="0"& sfm$CON_1 %in% c("BLE","BLP"),]
 write.csv(SEV_1_error, "SEV_1_error.csv") 
 
 
 
-
 #Export QC output table with appropriate file name
+setwd("C:/Users/Corinne.Amir/Documents/GitHub/Benthic-Scripts/SfM")
 write.csv(output,"HARAMP2019_sfm_output.csv")
 
 
-ad<-subset(sfm,Adult_Juvenile=="A")
-ad<-subset(ad,select=-c(Adult_Juvenile,totaldead)) #This also includes segments where NO_COLONY = -1 and shape_length < 0.05
-j<-subset(sfm,Adult_Juvenile=="J") #This also includes segments where NO_COLONY = -1
-j<-subset(sfm,Adult_Juvenile=="J" & NO_COLONY_==0) 
+
+# Export QC'd data ----------------------------------------------------------------------------
+
+ad<-subset(sfm,Adult_Juvenile=="A"|NO_COLONY_==-1 & SEGLENGTH==2.5)
+ad<-subset(ad,select=-c(Adult_Juvenile,totaldead))
+j<-subset(sfm,Adult_Juvenile=="J"&SEGLENGTH!=2.5) # includes segments where NO_COLONY = -1
 j<-subset(j,select=c(FID,ANALYST,OBS_YEAR,SITE,SEGMENT,SEGLENGTH,SEGWIDTH,NO_COLONY_,SPCODE,FRAGMENT_Y,MORPH_CODE,EX_BOUND,SHAPE_Leng,SEGAREA))
+
+analyst.per.seg.j<-j %>% filter(ANALYST=="RS" | ANALYST=="MW" | ANALYST=="MA") #for comparison plots NOT calibration plots
+analyst.per.seg.j <- ddply(j,.(SITE, SEGMENT), summarize, num.analyst = n_distinct(ANALYST))
+analyst.multiple.j <- filter(analyst.per.seg.j, num.analyst>1) 
+
+analyst.per.seg.ad<-ad %>% filter(ANALYST=="RS" | ANALYST=="MW" | ANALYST=="MA") #for comparison plots NOT calibration plots
+analyst.per.seg.ad$ANALYST<-droplevels(analyst.per.seg.ad$ANALYST)
+analyst.per.seg.ad <- ddply(analyst.per.seg.ad,.(SITE, SEGMENT), summarize, num.analyst = n_distinct(ANALYST))
+analyst.multiple.ad <- filter(analyst.per.seg.ad, num.analyst>1) 
+
+
 
 
 #Make sure that you have all the segments that are reported as annotated in the tracking datasheet
@@ -369,6 +376,8 @@ adseglist<-merge(ad,seglist,by=c(SITE,n),all=T)
 
 
 #Export QC'd data
+#Data ends up in "T:/Benthic/Data/SfM/QC" NOT within Benthic-Scripts Github folder
+setwd('T:/Benthic/Data/SfM/QC/')
 write.csv(ad,"HARAMP2019_QCdsfm_ADULT.csv",row.names = F)
 write.csv(j,"HARAMP2019_QCdsfm_JUV.csv",row.names = F)
 
