@@ -7,7 +7,6 @@ rm(list=ls())
 # source("C:/Users/Courtney.S.Couch/Documents/GitHub/Benthic-Scripts/Functions/Benthic_Functions_newApp_vTAOfork.R")
 # source("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/lib/core_functions.R")
 # source("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/lib/GIS_functions.R")
-
 source("C:/Users/Corinne.Amir/Documents/GitHub/Benthic-Scripts/Functions/Benthic_Functions_newApp_vTAOfork.R")
 source("C:/Users/Corinne.Amir/Documents/GitHub/fish-paste/lib/core_functions.R")
 source("C:/Users/Corinne.Amir/Documents/GitHub/fish-paste/lib/GIS_functions.R")
@@ -92,12 +91,12 @@ j_diver<-j_diver[!(j_diver$SITE=="OAH-03233" & j_diver$SEGMENT %in% c("15")),] #
 
 #FOR COMPARATIVE ANALYSIS: Use this script to assign transect
 #Adults
-ad_sfm$ANALYST<-ifelse(ad_sfm$ANALYST=="MW","RS",as.character(ad_sfm$ANALYST)) #need 2 analysts only
+ad_sfm$ANALYST<-ifelse(ad_sfm$ANALYST=="MW","RS",as.character(ad_sfm$ANALYST))
 ad_sfm<-ad_sfm[(ad_sfm$ANALYST%in% c("MA","RS")),] # Gets rid of all anotators except for MA and RS
 ad_sfm <- droplevels(ad_sfm)
 
 
-#Make sure that all sites have both analysts represented
+#Make sure that all site-segments have both analysts represented
 analyst1<-filter(ad_sfm,ANALYST=="RS");nrow(analyst1)
 analyst2<-filter(ad_sfm,ANALYST=="MA");nrow(analyst2)
 
@@ -126,11 +125,11 @@ sfm_seg$SS<- paste(sfm_seg$SITE,sfm_seg$SEGMENT, sep="_")
 # d$TRANSECT<-transects
 
 sfm_seg<-sfm_seg[order(sfm_seg$SS),]
-sfm_seg$TRANSECT<-sample(1:2,replace=F)
+sfm_seg$TRANSECT<-sample(1:2,replace=F) # assign site-segments to transect 1 or transect 2
 
 nrow(ad_sfm)
 ad_sfm<-left_join(ad_sfm,sfm_seg[,!(colnames(sfm_seg)=="SS")])
-nrow(ad_sfm)
+nrow(ad_sfm) # make sure rows do not get dropped following the join
 
 
 
@@ -152,21 +151,22 @@ as.data.frame.matrix(table(analyst2$SITE, analyst2$SEGMENT))
 #Randomly assign annotators to transects
 SURVEY_Seg<-c("SITEVISITID", "SITE","SEGMENT","ANALYST")
 sfm_seg<-unique(j_sfm[,SURVEY_Seg])
-sfm_seg$SS<- paste(sfm_seg$SITE,sfm_seg$SEGMENT, sep="_")
+sfm_seg$SS<- paste(sfm_seg$SITE,sfm_seg$SEGMENT, sep="_") #make list of unique site-segments per analyst
 
 sfm_seg<-sfm_seg[order(sfm_seg$SS),]
-sfm_seg$TRANSECT<-sample(1:2,replace=F)
+sfm_seg$TRANSECT<-sample(1:2,replace=F) # assign site-segments to transect 1 or transect 2
 
 nrow(j_sfm)
 j_sfm<-left_join(j_sfm,sfm_seg[,!(colnames(sfm_seg)=="SS")])
-nrow(j_sfm)
+nrow(j_sfm) # make sure rows do not get dropped following the join
 
-##Calcuating segment and transect area and add column for transect area
+
+##Calcuate segment and transect area and add column for transect area
 ad_sfm$TRANSECTAREA<-Transectarea(ad_sfm)
 j_sfm$TRANSECTAREA<-Transectarea(j_sfm)
 
 
-#Check that each site-segment has 2 annotators
+#Check if any site-segments have been dropped 
 t1<-ddply(ad_sfm,.(SITE,SEGMENT),summarize,n=length(unique(ANALYST)));nrow(t1[t1$n>1,]) #44
 t1<-ddply(j_sfm,.(SITE,SEGMENT),summarize,n=length(unique(ANALYST)));nrow(t1[t1$n>1,]) #44
 t1<-ddply(ad_diver,.(SITE,SEGMENT),summarize,n=length(unique(DIVER)));nrow(t1[t1$n>1,]) #43
@@ -214,20 +214,6 @@ awd<-rbind(ad_diver,ad_sfm)
 jwd<-rbind(j_diver,j_sfm)
 
 
-#Check that each site-segment has 2 divers and 2 annotators 
-awd.test<-awd
-awd.test$MethodRep<-as.factor(paste(awd.test$METHOD,awd.test$TRANSECT,sep="_"))
-awd.test$SS<-paste(awd.test$SITE,awd.test$SEGMENT,sep="_")
-
-t1<-as.data.frame.matrix(table(awd.test$SS,awd.test$MethodRep));dim(t1)
-t1$SiteSeg<-rownames(t1)
-t1<-t1%>%filter(t1$DIVER_1!=0);dim(t1) #689--ok
-t1<-t1%>%filter(t1$DIVER_2!=0);dim(t1)
-t1<-t1%>%filter(t1$SfM_1!=0);dim(t1)
-t1<-t1%>%filter(t1$SfM_2!=0);dim(t1)
-#Should show nrow=43 at the end
-
-
 #Create a look up table of all of the colony attributes- you will need this for the functions below
 SURVEY_COL<-c("METHOD","SITEVISITID", "OBS_YEAR", "REGION", "ISLAND","SEC_NAME", "SITE", "REEF_ZONE",
               "DEPTH_BIN", "LATITUDE", "LONGITUDE","MIN_DEPTH_M","MAX_DEPTH_M","TRANSECT","SEGMENT","COLONYID","GENUS_CODE","TAXONCODE","SPCODE","COLONYLENGTH")
@@ -239,22 +225,29 @@ survey_site<-unique(awd[,SURVEY_SITE])
 
 SURVEY_Seg<-c("METHOD","SITEVISITID", "OBS_YEAR", "REGION", "ISLAND","SEC_NAME", "SITE", "REEF_ZONE",
               "DEPTH_BIN","HABITAT_CODE", "LATITUDE", "LONGITUDE","MIN_DEPTH_M","MAX_DEPTH_M","METHOD","TRANSECT","SEGMENT")
-#survey_segment<-unique(awd[,SURVEY_Seg])
-ajwd<-full_join(awd,jwd) #fixes NA problem
-survey_segment<-unique(ajwd[,SURVEY_Seg])
+survey_segment<-unique(awd[,SURVEY_Seg])
 
+#Combine juvenile and adult data
+ajwd<-full_join(awd,jwd) #fixes NA problem
 
 
 #Create a site list containing list of sites double surveyed by sfm and divers
-ad_sfm$SS=paste0(ad_sfm$SITE,"_",ad_sfm$SEGMENT)
-seglist=as.vector(ddply(ad_sfm,.(SS),summarize,length(unique(ad_sfm$SS))))
+ajwd$MethodRep <- paste0(ajwd$METHOD,"_",ajwd$TRANSECT)
+ajwd$SS <- paste0(ajwd$SITE,"_",ajwd$SEGMENT)
+
+seglist <- as.data.frame.matrix(table(ajwd$SS, ajwd$MethodRep));dim(seglist)
+seglist$SS <-rownames(seglist)
+seglist<-seglist %>% filter(seglist$DIVER_1!=0);dim(seglist)
+seglist<-seglist %>% filter(seglist$DIVER_2!=0);dim(seglist)
+seglist<-seglist %>% filter(seglist$SfM_1!=0);dim(seglist)
+seglist<-seglist %>% filter(seglist$SfM_2!=0);dim(seglist)
+#Once filtering is completed, nrow should = 43 (FOR COMPARISON)
 
 write.csv(seglist,file="T:/Benthic/Data/SfM/Summarized Data/Comparison_seglist.csv",row.names = F)
 
 
-
 #Remove site-segments that are not present among all methods
-ajwd$SS<-paste0(ajwd$SITE,"_",ajwd$SEGMENT)
+dim(ajwd)
 ajwd<-subset(ajwd,SS%in%seglist$SS)
 dim(ajwd)
 length(unique(ajwd$SS))
@@ -263,15 +256,16 @@ table(ajwd$SS,ajwd$METHOD)
 
 
 
-
 # GENERATE SUMMARY METRICS at the Segment-leveL BY GENUS--------------------------------------------------
+#REMOVE COLONIES THAT COULD'T BE FULLY ANNOTATED IN SFM
+awd<-subset(awd,EX_BOUND==0)
+
+
 #Calc_ColDen_Transect
 acd.gen<-Calc_ColDen_Seg(data = awd,grouping_field = "GENUS_CODE");colnames(acd.gen)[colnames(acd.gen)=="ColCount"]<-"AdColCount";colnames(acd.gen)[colnames(acd.gen)=="ColDen"]<-"AdColDen";colnames(acd.gen)[colnames(acd.gen)=="SEGAREA"]<-"SEGAREA_ad"# calculate density at genus level as well as total
 jcd.gen<-Calc_ColDen_Seg(jwd,"GENUS_CODE"); colnames(jcd.gen)[colnames(jcd.gen)=="ColCount"]<-"JuvColCount";colnames(jcd.gen)[colnames(jcd.gen)=="ColDen"]<-"JuvColDen"
 jcd.gen<-subset(jcd.gen,select=-c(SEGAREA))
 
-#REMOVE COLONIES THAT COULD'T BE FULLY ANNOTATED IN SFM
-awd<-subset(awd,EX_BOUND==0)
 
 ## This function calculates mean colony length, % recent dead, % old dead, condition severity or condition extent to the segment level
 ## NOTE: can run both adult & juvenile data with this function for COLONYLENGTH
@@ -285,6 +279,7 @@ rd.gen<-Calc_ColMetric_Seg(data = awd,grouping_field = "GENUS_CODE",pool_fields 
 rdden.gen<-Calc_RDden_Seg(data=awd,grouping_field ="GENUS_CODE") # Density of recent dead colonies by condition, you will need to subset which ever condition you want. The codes ending in "S" are the general categories
 acutedz.gen<-subset(rdden.gen,select = c(METHOD,SITEVISITID,SITE,TRANSECT,SEGMENT,GENUS_CODE,DZGN_G));colnames(acutedz.gen)[colnames(acutedz.gen)=="DZGN_G"]<-"DZGN_G_den" #subset just acute diseased colonies
 
+
 #Calc_CONDden_Transect
 condden.gen<-Calc_CONDden_Seg(data=awd,grouping_field ="GENUS_CODE")# Density of condition colonies by condition, you will need to subset which ever condition you want
 ble.gen<-subset(condden.gen,select = c(METHOD,SITEVISITID,SITE,TRANSECT,SEGMENT,GENUS_CODE,BLE));colnames(ble.gen)[colnames(ble.gen)=="BLE"]<-"BLE_den" #subset just bleached colonies
@@ -295,22 +290,15 @@ chronicdz.gen<-subset(condden.gen,select = c(METHOD,SITEVISITID,SITE,TRANSECT,SE
 
 
 #Join density and partial moratlity data together.You will need to replace the DUMMY field with the one you want
-# MyMerge <- function(x, y){
-#   df <- merge(x, y, by= c("METHOD","SITE","SITEVISITID","TRANSECT","SEGMENT","GENUS_CODE"), all.x= TRUE, all.y= TRUE)
-#   return(df)
-# }
-# data.gen<-Reduce(MyMerge, list(acd.gen,jcd.gen,cl.gen,od.gen,rd.gen,acutedz.gen,chronicdz.gen,ble.gen)); 
-# head(data.gen)
-
-
 data.gen <- join_all(list(acd.gen,jcd.gen,cl.gen,od.gen,rd.gen,acutedz.gen,chronicdz.gen,ble.gen), 
-                by=c("METHOD","SITE","SITEVISITID","TRANSECT","SEGMENT","GENUS_CODE"), type='full'); head(data.gen)
+                by=c("METHOD","SITE","SITEVISITID","TRANSECT","SEGMENT","GENUS_CODE"), type='full')
+head(data.gen)
 
-#sites with segment = 5 end up without sitevisit info 
 
 #Change NAs for abunanance and density metrics to 0. Don't change NAs in the partial mortality columns to 0
 data.gen$JuvColCount[is.na(data.gen$JuvColCount)]<-0;data.gen$JuvColDen[is.na(data.gen$JuvColDen)]<-0
 data.gen$AdColCount[is.na(data.gen$AdColCount)]<-0;data.gen$AdColDen[is.na(data.gen$AdColDen)]<-0
+
 
 #Calculate transect level prevalence for acute dz, chronic dz and bleaching
 data.gen$DZGN_G_prev<-(data.gen$DZGN_G_den*data.gen$SEGAREA_ad)/data.gen$AdColCount*100
@@ -319,19 +307,20 @@ data.gen$CHRO_prev<-(data.gen$CHRO_den*data.gen$SEGAREA_ad)/data.gen$AdColCount*
 
 View(data.gen)
 
+
 #Concatenate method, Site,Transect and segment
 data.gen$MethodRep<-paste(data.gen$METHOD,data.gen$TRANSECT,sep="_")
 data.gen$SS<-paste(data.gen$SITE,data.gen$SEGMENT,sep="_")
 
 
-#Check that each site-segment has 2 divers and 2 annotators
+#Check that each site-segment remaining has 2 divers and 2 annotators
 t1<-ddply(data.gen,.(SITE,SEGMENT),summarize,n=length(unique(MethodRep)));nrow(t1[t1$n==4,]) 
 
 t1<-as.data.frame.matrix(table(data.gen$SS,data.gen$MethodRep));dim(t1)
 t1<-t1%>%filter(t1$DIVER_2!=0);dim(t1)
 t1<-t1%>%filter(t1$DIVER_1!=0);dim(t1)
-t1<-t1%>%filter(t1$SfM_1!=0);dim(t1)
-t1<-t1%>%filter(t1$SfM_2!=0);dim(t1)
+t1<-t1%>%filter(t1$SfM_1!=0);dim(t1) 
+t1<-t1%>%filter(t1$SfM_2!=0);dim(t1) 
 
 
 #Make final dataframe to save
@@ -339,7 +328,7 @@ data.gen2<-left_join(data.gen,survey_segment)
 if(nrow(data.gen)!=nrow(data.gen2)) {cat("WARNING: Dfs didn't merge properly")}
 
 #Save file for larger comparative analysis
-#write.csv(data.gen2,file="T:/Benthic/Data/SfM/Summarized Data/HARAMP_repeats_GENUS_Summarized Data.csv",row.names = F)
+write.csv(data.gen2,file="T:/Benthic/Data/SfM/Summarized Data/HARAMP_repeats_GENUS_Summarized Data.csv",row.names = F)
 
 #Save file for segment calibration
 write.csv(data.gen2,file="T:/Benthic/Data/SfM/Summarized Data/HARAMP_repeats_GENUS_Summarized Data-CALIBRATION.csv",row.names = F)

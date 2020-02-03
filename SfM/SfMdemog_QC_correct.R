@@ -8,22 +8,15 @@ rm=ls() #removes all objects from the current workspace
 
 setwd("T:/Benthic/Data/SfM/QC")
 
-#setwd("C:/Users/Corinne.Amir/Documents/GitHub/Benthic-Scripts/SfM")
-
-
 #Upload necessary functions (not opening on my computer)
-source("C:/Users/Courtney.S.Couch/Documents/GitHub/Benthic-Scripts/Functions/Benthic_Functions_newApp_vTAOfork.R")
-source("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/lib/core_functions.R")
-
+# source("C:/Users/Courtney.S.Couch/Documents/GitHub/Benthic-Scripts/Functions/Benthic_Functions_newApp_vTAOfork.R")
+# source("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/lib/core_functions.R")
 source("C:/Users/Corinne.Amir/Documents/GitHub/Benthic-Scripts/Functions/Benthic_Functions_newApp_vTAOfork.R")
 source("C:/Users/Corinne.Amir/Documents/GitHub/Benthic-Scripts/Functions/core_functions.R")
 
 ##read benthic data downloaded from Mission app and subset to the leg you need to QC
-#sfm.raw <- read.csv("HARAMP2019_demographic_repeats_jan172020.csv")
-
-#sfm.raw <- read.csv("HARAMP2019_demographic_calibration_jan212020.csv") #for calibration
-sfm.raw <- read.csv("HARAMP2019_demographic_repeats_jan172020.csv") #for comparison (provides 18 sites?)
-sfm.raw <- read.csv("HARAMP2019_demographic_repeats_jan132020.csv") #for comparison
+sfm.raw <- read.csv("HARAMP2019_demographic_repeats_jan172020.csv") #for comparison (used for most recent figures - 1/30)
+sfm.raw <- read.csv("HARAMP2019_demographic_repeats_jan132020.csv") #for comparison (previously used)
 
 head(sfm.raw);nrow(sfm.raw)
 
@@ -64,8 +57,6 @@ sfm.raw$CON_3 <- RemoveLogicalNA(sfm.raw$CON_3)
 # sfm.raw$SITE = str_replace(as.character(sfm.raw$SITE),"_","-")
 # View(sfm.raw)
 
-
-
 SiteNumLeadingZeros_SfM <- function(site_names)
 {
   tmp<-levels(site_names)
@@ -90,9 +81,10 @@ SiteNumLeadingZeros_SfM <- function(site_names)
 # Change site numbers such as MAR-22 to MAR-0022
 sfm.raw$SITE<-SiteNumLeadingZeros_SfM(sfm.raw$SITE)
 
-
 sfm.raw$SEGMENT<-as.factor(sfm.raw$SEGMENT)
 table(sfm.raw$SITE,sfm.raw$SEGMENT)
+
+
 
 #Manually fix this site to convert all segments to 3-This is fixed in recent (12/19) updates to the geodatabase. You will 
 #need to continue to modify the earliest annotated data. this script will fix the issue.
@@ -137,7 +129,6 @@ sfm.missing <- droplevels(anti_join(sfm.missing, no.colony.present))
 write.csv(sfm.missing, "sfm_missing_rows.csv") #get these rows repopulated (if missing metadata) or annotated before moving forward
 
 
-
 #If charging forward and leaving rows with missing data behind, create a new dataframe where all rows with missing data have been removed
 sfm <- droplevels(anti_join(sfm.raw, sfm.missing))
 View(sfm)
@@ -150,7 +141,6 @@ sfm$SEGAREA <- sfm$SEGLENGTH*sfm$SEGWIDTH
 sfm$SHAPE_Leng <-  as.numeric(sfm$SHAPE_Leng)
 #sfm$Adult_Juvenile <- ifelse(sfm$SHAPE_Leng < 0.05 & sfm$FRAGMENT_Y != -1 | sfm$SEGAREA==1 & sfm$SPCODE != "PBER", "J", "A")
 sfm$Adult_Juvenile <- ifelse(sfm$SHAPE_Leng<0.05 & sfm$SPCODE != "PBER", "J", "A")
-
 
 
 nrow(sfm)
@@ -172,7 +162,7 @@ output<-data.frame(
 
 
 #I don't understand this qc check. 
-#1. Check if part of a site-segment had missing values and was removed, but some rows in that site-segment were not missing values and were not removed
+#1. Check if only part of a site-segment was removed and placed in the sfm.missing dataframe while the other part was placed in the sfm dataframe. Remove these site-segments.
 sfm$SEGMENT <- as.factor(sfm$SEGMENT)
 sfm.missing$SEGMENT <- as.factor(sfm.missing$SEGMENT)
 sfm$SITE <- as.factor(sfm$SITE)
@@ -348,10 +338,9 @@ output[15,]<-c("RD + OD <=100%","Yes")
 
 
 
-#16. Write files for qc #9-15 that have errors
+#16. Write files for qc #9-15 that have errors (optional)
 SEV_1_error <- sfm[sfm$SEV_1=="0"& sfm$CON_1 %in% c("BLE","BLP"),]
 write.csv(SEV_1_error, "SEV_1_error.csv") 
-
 
 
 
@@ -360,21 +349,22 @@ setwd("C:/Users/Corinne.Amir/Documents/GitHub/Benthic-Scripts/SfM")
 write.csv(output,"HARAMP2019_sfm_output.csv")
 
 
+
+# Export QC'd data ----------------------------------------------------------------------------
+
 ad<-subset(sfm,Adult_Juvenile=="A"|NO_COLONY_==-1 & SEGLENGTH==2.5)
 ad<-subset(ad,select=-c(Adult_Juvenile,totaldead))
-j<-subset(sfm,Adult_Juvenile=="J"&SEGLENGTH!=2.5) #This also includes segments where NO_COLONY = -1
-#j<-subset(sfm,Adult_Juvenile=="J" & NO_COLONY_==0) # Removes segments where there are no corals (within 1 or 2.5 seglength)
+j<-subset(sfm,Adult_Juvenile=="J"&SEGLENGTH!=2.5) # includes segments where NO_COLONY = -1
 j<-subset(j,select=c(FID,ANALYST,OBS_YEAR,SITE,SEGMENT,SEGLENGTH,SEGWIDTH,NO_COLONY_,SPCODE,FRAGMENT_Y,MORPH_CODE,EX_BOUND,SHAPE_Leng,SEGAREA))
-
 
 analyst.per.seg.j<-j %>% filter(ANALYST=="RS" | ANALYST=="MW" | ANALYST=="MA") #for comparison plots NOT calibration plots
 analyst.per.seg.j <- ddply(j,.(SITE, SEGMENT), summarize, num.analyst = n_distinct(ANALYST))
-analyst.multiple.j <- filter(analyst.per.seg.j, num.analyst>1) # 44 SS for adult colonies, 31 sites for remove no_colony and following line of code
+analyst.multiple.j <- filter(analyst.per.seg.j, num.analyst>1) 
 
 analyst.per.seg.ad<-ad %>% filter(ANALYST=="RS" | ANALYST=="MW" | ANALYST=="MA") #for comparison plots NOT calibration plots
 analyst.per.seg.ad$ANALYST<-droplevels(analyst.per.seg.ad$ANALYST)
 analyst.per.seg.ad <- ddply(analyst.per.seg.ad,.(SITE, SEGMENT), summarize, num.analyst = n_distinct(ANALYST))
-analyst.multiple.ad <- filter(analyst.per.seg.ad, num.analyst>1) # 43 SS for adult colonies
+analyst.multiple.ad <- filter(analyst.per.seg.ad, num.analyst>1) 
 
 
 

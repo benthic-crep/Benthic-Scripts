@@ -4,66 +4,21 @@ rm(list=ls())
 source("C:/Users/Corinne.Amir/Documents/GitHub/Benthic-Scripts/Functions/SfMvDiver Plotting Functions.R") 
 #Plot1to1; PlotBioAlt; PlotPair
 
-#data.gen<-read.csv("T:/Benthic/Data/SfM/Summarized Data/HARAMP_repeats_GENUS_Summarized Data.csv")
-data.gen.a<-read.csv("T:/Benthic/Data/SfM/Summarized Data/HARAMP_repeats_GENUS_Summarized Data.csv")
-data.gen<-read.csv("T:/Benthic/Data/SfM/Summarized Data/HARAMP_repeats_GENUS_Summarized Data-CALIBRATION.csv")
-seglist<-read.csv("T:/Benthic/Data/SfM/Summarized Data/Comparison_seglist.csv")
 
-dim(data.gen)
-dim(data.gen.a)
-
-#List of segments that were surveyed by all methods and multiple divers....UNEQUAL
-sfm2<-data.gen[data.gen$MethodRep=="SfM_2",] 
-length(unique(sfm2$SS)) #46 unique SS
-sfm1<-data.gen[data.gen$MethodRep=="SfM_1",]
-length(unique(sfm1$SS)) #44
-diver1<-data.gen[data.gen$MethodRep=="DIVER_1",]
-length(unique(diver1$SS)) #692
-diver2<-data.gen[data.gen$MethodRep=="DIVER_2",]
-length(unique(diver2$SS)) #44
+data.gen<-read.csv("T:/Benthic/Data/SfM/Summarized Data/HARAMP_repeats_GENUS_Summarized Data.csv") #meant for comparison
+#data.gen<-read.csv("T:/Benthic/Data/SfM/Summarized Data/HARAMP_repeats_GENUS_Summarized Data-CALIBRATION.csv") #meant for calibration
+seglist<-read.csv("T:/Benthic/Data/SfM/Summarized Data/Comparison_seglist.csv") #meant for comparison
 
 
-sfm2<-data.gen.a[data.gen.a$MethodRep=="SfM_2",] 
-length(unique(sfm2$SS)) #46 unique SS
-sfm1.a<-data.gen.a[data.gen.a$MethodRep=="SfM_1",]
-length(unique(sfm1$SS)) #44
-diver1<-data.gen.a[data.gen.a$MethodRep=="DIVER_1",]
-length(unique(diver1$SS)) #692
-diver2<-data.gen.a[data.gen.a$MethodRep=="DIVER_2",]
-length(unique(diver2$SS)) #44
-
-
-siteseg.a<-
-  sfm1$SS=paste0(ad_sfm$SITE,"_",ad_sfm$SEGMENT)
-seglista=as.vector(ddply(sfm1.a,.(SS),summarize,length(unique(sfm1.a$SS))))
-dim(seglista)
-dim(seglist)
-
-seglist$merge<-as.vector(0)
-seglista$merge<-as.vector(0)
-
-a<-anti_join(seglist,seglista,by="SS")
 #Create dataframe containing only site_segments that contain all 4 methodreps
 #data.gen.rm<-subset(data.gen, TRANSECT %in% c(3, 4, 5, 6, "NA"));data.gen[data.gen$TRANSECT] #for calibration
-data.gen$SS<-paste0(data.gen$SITE,"_",data.gen$SEGMENT)
-data.sm=subset(data.gen,SS%in%seglist$SS)
+#Remove site-segments that are not present among all methods
+dim(data.gen)
+data.sm<-subset(data.gen,SS%in%seglist$SS)
 dim(data.sm)
 length(unique(data.sm$SS))
-table(data.sm$SS, data.sm$MethodRep) #all columns should be NONZERO = FALSE
-
-sfm2<-data.sm[data.sm$MethodRep=="SfM_2",] 
-length(unique(sfm2$SS)) #46 unique SS
-sfm1<-data.sm[data.sm$MethodRep=="SfM_1",]
-length(unique(sfm1$SS)) #44
-diver1<-data.sm[data.sm$MethodRep=="DIVER_1",]
-length(unique(diver1$SS)) #692
-diver2<-data.sm[data.sm$MethodRep=="DIVER_2",]
-length(unique(diver2$SS))
-
-
-#Check that all Site_Segments being used for analysis have 2 annotators and 2 divers
-ddply(data.sm,.(SITE, SEGMENT), summarize, num.repeats = n_distinct(MethodRep)) #should be 4
-ddply(data.sm,.(SITE, SEGMENT), summarize, num.repeats = n_distinct(METHOD)) #should = 2
+data.sm<-droplevels(data.sm)
+table(data.sm$SS, data.sm$MethodRep) 
 
 
 # Plotting Regressions and Bland-Altman by Taxon --------------------------
@@ -80,7 +35,6 @@ sfm2<-data.sm[data.sm$MethodRep=="SfM_2",];colnames(sfm2)[8:20] <- paste("SfM2",
 
 
 #4 datasets together
-
 df.all <- join_all(list(d1,d2,sfm1,sfm2), by= c("SITE","SITEVISITID","SEGMENT","GENUS_CODE","SS","OBS_YEAR","REGION","ISLAND","SEC_NAME","REEF_ZONE",
                            "DEPTH_BIN","HABITAT_CODE", "LATITUDE","LONGITUDE","MIN_DEPTH_M","MAX_DEPTH_M"), type='full'); 
 head(data.all) 
@@ -107,31 +61,25 @@ p8<-PlotAll(df.all,"d1Ave.cl","d2Ave.cl","Diver1 Colony Length","Difference Dive
 p9<-PlotAll(df.all,"SfM1Ave.cl","SfM2Ave.cl","SfM1 Colony Length","Difference SfM Analyst1 and SfM Analyst2","SfM2 Colony Length","Mean Colony Length")
 
 outpath<-"T:/Benthic/Data/SfM/ComparisionPlots/Old Dead"
-p10<-PlotAll(df.all,"d1Ave.od","SfM1JuvColDen","SfM Juvenile Density","Difference SfM Analyst and Diver", "Diver Juvenile Density","Mean Juvenile Density")
-p11<-PlotAll(df.all,"d1Ave.od","d2JuvColDen","Diver1 Juvenile Density","Difference Diver1 and Diver2","Diver2 Juvenile Density","Mean Juvenile Density")
-p12<-PlotAll(df.all,"SfM1Ave.od","SfM2JuvColDen","SfM1 Juvenile Density","Difference SfM Analyst1 and SfM Analyst2","SfM2 Juvenile Density","Mean Juvenile Density")
+p10<-PlotAll(df.all,"d1Ave.od","SfM1Ave.od","SfM Old Dead","Difference SfM Analyst and Diver", "Diver Old Deadrd","Mean Old Dead")
+p11<-PlotAll(df.all,"d1Ave.od","d2Ave.od","Diver1 Old Dead","Difference Diver1 and Diver2","Diver2 Old Dead","Mean Old Dead")
+p12<-PlotAll(df.all,"SfM1Ave.od","SfM2Ave.od","SfM1 Old Dead","Difference SfM Analyst1 and SfM Analyst2","SfM2 Old Dead","Mean Old Dead")
 
 outpath<-"T:/Benthic/Data/SfM/ComparisionPlots/Recent Dead"
-p13<-PlotAll(df.all,"d1JuvColDen","SfM1JuvColDen","SfM Juvenile Density","Difference SfM Analyst and Diver", "Diver Juvenile Density","Mean Juvenile Density")
-p14<-PlotAll(df.all,"d1JuvColDen","d2JuvColDen","Diver1 Juvenile Density","Difference Diver1 and Diver2","Diver2 Juvenile Density","Mean Juvenile Density")
-p15<-PlotAll(df.all,"SfM1JuvColDen","SfM2JuvColDen","SfM1 Juvenile Density","Difference SfM Analyst1 and SfM Analyst2","SfM2 Juvenile Density","Mean Juvenile Density")
+p13<-PlotAll(df.all,"d1Ave.rd","SfM1Ave.rd","SfM Recent Dead","Difference SfM Analyst and Diver", "Diver Recent Dead","Mean Recent Dead")
+p14<-PlotAll(df.all,"d1Ave.rd","d2Ave.rd","Diver1 Recent Dead","Difference Diver1 and Diver2","Diver2 Juvenile Density","Mean Recent Dead")
+p15<-PlotAll(df.all,"SfM1Ave.rd","SfM2Ave.rd","SfM1 Recent Dead","Difference SfM Analyst1 and SfM Analyst2","SfM2 Recent Dead","Mean Recent Dead")
 
 outpath<-"T:/Benthic/Data/SfM/ComparisionPlots/Bleaching"
-p16<-PlotAll(df.all,"d1JuvColDen","SfM1JuvColDen","SfM Juvenile Density","Difference SfM Analyst and Diver", "Diver Juvenile Density","Mean Juvenile Density")
-p17<-PlotAll(df.all,"d1JuvColDen","d2JuvColDen","Diver1 Juvenile Density","Difference Diver1 and Diver2","Diver2 Juvenile Density","Mean Juvenile Density")
-p18<-PlotAll(df.all,"SfM1JuvColDen","SfM2JuvColDen","SfM1 Juvenile Density","Difference SfM Analyst1 and SfM Analyst2","SfM2 Juvenile Density","Mean Juvenile Density")
+p16<-PlotAll(df.all,"d1BLE_prev","SfM1BLE_prev","SfM Bleaching Prevalence","Difference SfM Analyst and Diver", "Diver Bleaching Prevalence","Mean Bleaching Prevalence")
+p17<-PlotAll(df.all,"d1BLE_prev","d2BLE_prev","Diver1 Bleaching Prevalence","Difference Diver1 and Diver2","Diver2 Bleaching Prevalence","Mean Bleaching Prevalencey")
+p18<-PlotAll(df.all,"SfM1BLE_prev","SfM2BLE_prev","SfM1 Bleaching Prevalence","Difference SfM Analyst1 and SfM Analyst2","SfM2 Bleaching Prevalence","Mean Bleaching Prevalence")
 
 outpath<-"T:/Benthic/Data/SfM/ComparisionPlots/ChronicDZ"
-p19<-PlotAll(df.all,"d1JuvColDen","SfM1JuvColDen","SfM Juvenile Density","Difference SfM Analyst and Diver", "Diver Juvenile Density","Mean Juvenile Density")
-p20<-PlotAll(df.all,"d1JuvColDen","d2JuvColDen","Diver1 Juvenile Density","Difference Diver1 and Diver2","Diver2 Juvenile Density","Mean Juvenile Density")
-p21<-PlotAll(df.all,"SfM1JuvColDen","SfM2JuvColDen","SfM1 Juvenile Density","Difference SfM Analyst1 and SfM Analyst2","SfM2 Juvenile Density","Mean Juvenile Density")
+p19<-PlotAll(df.all,"d1CHRO_prev","SfM1CHRO_prev","SfM Chronic Disease","Difference SfM Analyst and Diver", "Diver Chronic Disease","Mean Chronic Disease")
+p20<-PlotAll(df.all,"d1CHRO_prev","d2CHRO_prev","Diver1 Chronic Disease","Difference Diver1 and Diver2","Diver2 Chronic Disease","Mean Chronic Disease")
+p21<-PlotAll(df.all,"SfM1CHRO_prev","SfM2CHRO_prev","SfM1 Chronic Disease","Difference SfM Analyst1 and SfM Analyst2","SfM2 Chronic Disease","Mean Chronic Diseasey")
 
-outpath<-"T:/Benthic/Data/SfM/ComparisionPlots/AcuteDZ"
-p22<-PlotAll(df.all,"d1JuvColDen","SfM1JuvColDen","SfM Juvenile Density","Difference SfM Analyst and Diver", "Diver Juvenile Density","Mean Juvenile Density")
-p23<-PlotAll(df.all,"d1JuvColDen","d2JuvColDen","Diver1 Juvenile Density","Difference Diver1 and Diver2","Diver2 Juvenile Density","Mean Juvenile Density")
-p24<-PlotAll(df.all,"SfM1JuvColDen","SfM2JuvColDen","SfM1 Juvenile Density","Difference SfM Analyst1 and SfM Analyst2","SfM2 Juvenile Density","Mean Juvenile Density")
-
-#PlotAll(dataframe, variable 1, variable 2, y-axis name 1, y-axis name 2, x-axis name 1, x-axis name 2)
 outpath<-"T:/Benthic/Data/SfM/ComparisionPlots/Disease General"
 p22<-PlotAll(df.all,"d1DZGN_G_prev","SfM1DZGN_G_prev","SfM Disease Prevalence","Difference SfM Analyst and Diver", "Diver Disease Prevalence","Mean Disease Prevalence")
 p23<-PlotAll(df.all,"d1DZGN_G_prev","d2DZGN_G_prev","Diver1 Disease Prevalence","Difference Diver1 and Diver2","Diver2 Disease Prevalence","Mean Disease Prevalence")
@@ -194,14 +142,6 @@ return(all.comp)
 ####
 
 
-# ad.comp<-ErrorComparision(data.gen,"GENUS_CODE","AdColDen")
-# jd.comp<-ErrorComparision(data.gen,"GENUS_CODE","JuvColDen")
-# cl.comp<-ErrorComparision(data.gen,"GENUS_CODE","Ave.cl")
-# rd.comp<-ErrorComparision(data.gen,"GENUS_CODE","Ave.rd")
-# od.comp<-ErrorComparision(data.gen,"GENUS_CODE","Ave.od")
-# dz.comp<-ErrorComparision(data.gen,"GENUS_CODE","DZGN_G_prev")
-# ble.comp<-ErrorComparision(data.gen,"GENUS_CODE","BLE_prev")
-# chr.comp<-ErrorComparision(data.gen,"GENUS_CODE","CHRO_prev")
 ad.comp<-ErrorComparision(data.sm,"GENUS_CODE","AdColDen")
 jd.comp<-ErrorComparision(data.sm,"GENUS_CODE","JuvColDen")
 cl.comp<-ErrorComparision(data.sm,"GENUS_CODE","Ave.cl")
@@ -212,8 +152,6 @@ ble.comp<-ErrorComparision(data.sm,"GENUS_CODE","BLE_prev")
 chr.comp<-ErrorComparision(data.sm,"GENUS_CODE","CHRO_prev")
 
 all.rmse<-rbind(ad.comp,jd.comp,cl.comp,od.comp,rd.comp,dz.comp,ble.comp,chr.comp)
-all.rmse<-rbind(ad.comp,jd.comp,cl.comp,od.comp,rd.comp,ble.comp)
-all.rmse<-rbind(dz.comp,chr.comp)
 
 rmse<-ddply(all.rmse,.(Metric,GENUS_CODE,Comp),
             summarize,
@@ -265,7 +203,6 @@ p1<-ggplot(rmse.ssss, aes(x=Comp, y=RMSE_mean, fill=Metric)) +
 
 p1
 ggsave(plot=p1,file="T:/Benthic/Data/SfM/ComparisionPlots/AllRMSE_Comparision_standardizeRMSE_mean.pdf",width=12,height=12)
-ggsave(plot=p1,file="C:/Users/Corinne.Amir/Documents/SfM Stuff/PartialRMSE_Comparision_standardizeRMSE_mean.pdf",width=12,height=12)
 
 
 #Plot across depth bins....TBC

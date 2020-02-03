@@ -10,7 +10,6 @@ DEBUG=TRUE
 # source("C:/Users/Courtney.S.Couch/Documents/GitHub/Benthic-Scripts/Functions/Benthic_Functions_newApp_vTAOfork.R")
 # source("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/lib/core_functions.R")
 # source("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/lib/GIS_functions.R")
-
 source("C:/Users/Corinne.Amir/Documents/GitHub/Benthic-Scripts/Functions/Benthic_Functions_newApp_vTAOfork.R")
 source("C:/Users/Corinne.Amir/Documents/GitHub/fish-paste/lib/core_functions.R")
 source("C:/Users/Corinne.Amir/Documents/GitHub/fish-paste/lib/GIS_functions.R")
@@ -661,7 +660,7 @@ write.csv(awd,file="T:/Benthic/Data/SfM/Analysis Ready/HARAMP19_SfMAdult_CLEANED
 analyst.per.ss<-x %>% filter(ANALYST=="RS" | ANALYST=="MW" | ANALYST=="MA")
 analyst.per.ss$ANALYST<-droplevels(analyst.per.ss$ANALYST)
 analyst.per.ss <- ddply(x,.(SITE, SEGMENT), summarize, num.analyst = n_distinct(ANALYST))
-analyst.per.ss <- filter(analyst.per.ss, num.analyst>1) # 44 SS with 2 divers = 1 more than FINAL RESULT IN QC_CORRECT
+analyst.per.ss <- filter(analyst.per.ss, num.analyst>1) 
 
 
 # SFM/JUVENILE: CLEAN ANALYSIS READY DATA -------------------------------------
@@ -794,5 +793,5 @@ write.csv(jwd,file="T:/Benthic/Data/SfM/Analysis Ready/HARAMP19_SfMJuv_CLEANED.c
 
 #Check number of Site-Segments that contain at least 2 divers ----------------------------------------------------
 analyst.per.ss <- ddply(x,.(SITE, SEGMENT), summarize, num.analyst = n_distinct(ANALYST))
-analyst.per.ss <- filter(analyst.per.ss, num.analyst>1) # 44 SS with 2 divers = SAME AS FINAL SS COUNT IN QC_CORRECT
+analyst.per.ss <- filter(analyst.per.ss, num.analyst>1)
 
