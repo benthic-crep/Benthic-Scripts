@@ -11,7 +11,7 @@ setwd("C:/Users/Courtney.S.Couch/Documents/Courtney's Files/R Files/ESD/Benthic 
 Sys.setenv(ODBCINI = "/library/ODBC/odbc.ini")
 
 ##*******## jump down to Benthic REA WORKINGS if already saved as a .rfile
-ch <- odbcConnect("CRED_Oracle", uid = "ccouch", pwd = "XXXXXXX")
+ch <- odbcConnect("CRED_Oracle", uid = "ccouch", pwd = "Nedoftyav#Drot9")
 ##
 ## #list available tables
 tv<-sqlTables(ch, tableType = "VIEW")
@@ -24,13 +24,13 @@ d<-as.vector(tv$TABLE_NAME[grep("MV_BIA", as.character(tv$TABLE_NAME))])
 rawtables<-c(a,b,c,d)
 rawtables
 ##
-df <- sqlQuery(ch, paste("SELECT * FROM GISDAT.V0_CORAL_OBS_E_")); head(df) #V0_CORAL_OBS_E_ is 2013-2018, V0_CORAL_OBS_E is 2013-2017
+df <- sqlQuery(ch, paste("SELECT * FROM GISDAT.V0_CORAL_OBS_E_")); head(df) #V0_CORAL_OBS_E_ is 2013-2019, V0_CORAL_OBS_E is 2013-2017
 #save(df, file="T:/Benthic/Data/REA Coral Demography & Cover/Raw from Oracle/ALL_REA_ADULTCORAL_RAW_new.rdata")
-save(df, file="ALL_REA_ADULTCORAL_RAW_new.rdata") #save to local drive if you have issues writing to t drive
+save(df, file="T:/Benthic/Data/REA Coral Demography & Cover/Raw from Oracle/ALL_REA_ADULTCORAL_RAW_2013-2019.rdata") #save to local drive if you have issues writing to t drive
 
 df <- sqlQuery(ch, paste("SELECT * FROM GISDAT.V0_CORAL_OBS_F")); head(df)
 #save(df, file="T:/Benthic/Data/REA Coral Demography & Cover/Raw from Oracle/ALL_REA_JUVCORAL_RAW_new.rdata")
-save(df, file="ALL_REA_JUVCORAL_RAW_new.rdata")#save to local drive if you have issues writing to t drive
+save(df, file="T:/Benthic/Data/REA Coral Demography & Cover/Raw from Oracle/ALL_REA_JUVCORAL_RAW_2013-2019.rdata")#save to local drive if you have issues writing to t drive
 
 #BENTHIC Photoquad REA
 #photoquad data from CPCe

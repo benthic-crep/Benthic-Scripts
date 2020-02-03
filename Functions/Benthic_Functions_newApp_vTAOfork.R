@@ -43,34 +43,17 @@ CreateGenusCode<-function(data,taxamaster){
 #Convert SPCODE in raw colony data to taxoncode.We use taxoncode because some taxa can not be reliably identified 
 #to species-level across observers and need to be rolled up to genus. -generates a look up table
 #NOT WORKING PROPERLY- ADDS NA FOR TAXONNAME AFTER MERGING. 
-Convert_to_Taxoncode_tom<-function(data,taxamaster){
+Convert_to_Taxoncode<-function(data,taxamaster){
   a<-ddply(data,.(REGION,OBS_YEAR,S_ORDER,GENUS_CODE,SPCODE), #create a list of Genera and Species by region and year
            summarise,
            count=length(COLONYID))
-  b<-merge(a,taxamaster,by=c("REGION","OBS_YEAR","SPCODE"),all.x=T)
-  #b<-join(a,taxamaster,by=c("REGION","OBS_YEAR","SPCODE")) #join isn't working- it's converting taxon_name to NA
+  b<-left_join(a,taxamaster,by=c("REGION","OBS_YEAR","SPCODE")) #join isn't working- it's converting taxon_name to NA
   b$TAXONCODE<-ifelse(b$S_ORDER!="Scleractinia",as.character(b$SPCODE),
                       ifelse(is.na(b$TAXON_NAME), as.character(b$GENUS_CODE),as.character(b$SPCODE))) #Change spcode to genus code if we do not uniformly id that taxon to species level
   b$TAXONCODE[b$TAXONCODE==""] <- "UNKN" #Convert unknown species or codes that aren't in our taxa list to unknown
-  out<-merge(data,b,by=c("REGION","OBS_YEAR","GENUS_CODE","SPCODE","S_ORDER"),all.x=T)
-  #out<-join(data,b,by=c("REGION","OBS_YEAR","GENUS_CODE","SPCODE","S_ORDER"))
+  out<-left_join(data,b,by=c("REGION","OBS_YEAR","GENUS_CODE","SPCODE","S_ORDER"))
   out<-subset(out,select=-c(count,TAXON_NAME,TAXAGROUP)) #merge to master taxa list
   return(out$TAXONCODE)
-}
-
-#ORIGINAL FUNCTION- USE UNTIL TOM FIXES OTHER FUNCTION
-#Convert SPCODE in raw colony data to taxoncode.We use taxoncode because some taxa can not be reliably identified 
-#to species-level across observers and need to be rolled up to genus. -generates a look up table
-Convert_to_Taxoncode<-function(data){
-  a<-ddply(data,.(REGION,OBS_YEAR,S_ORDER,GENUS_CODE,SPCODE), #create a list of Genera and Species by region and year
-           summarise,
-           count=length(COLONYID))
-  b<-merge(a,taxa,by=c("REGION","OBS_YEAR","SPCODE"),all.x=T)
-  b$TAXONCODE<-ifelse(b$S_ORDER!="Scleractinia",as.character(b$SPCODE),ifelse(is.na(b$TAXON_NAME), as.character(b$GENUS_CODE),as.character(b$SPCODE))) #Change spcode to genus code if we do not uniformly id that taxon to species level
-  b$TAXONCODE[b$TAXONCODE==""] <- "UNKN" #Convert unknown species or codes that aren't in our taxa list to unknown
-  out<-merge(data,b,by=c("REGION","OBS_YEAR","GENUS_CODE","SPCODE","S_ORDER"))
-  out<-subset(out,select=-c(count,TAXON_NAME,TAXAGROUP)) #merge to master taxa list
-  return(out)
 }
 
 scl_genus_list<-function(data){
@@ -385,8 +368,8 @@ Calc_ColDen_Transect<-function(data, grouping_field="GENUS_CODE"){
   data$GROUP<-data[,grouping_field] #assign a grouping field for taxa
   
   #Remove Tubastrea
-  # data$S_ORDER<-ifelse(data$GROUP=="TUSP",NA,data$S_ORDER)
-  # data$GROUP<-ifelse(data$GROUP=="TUSP",NA,data$GROUP)
+  data$S_ORDER<-ifelse(data$GROUP=="TUSP",NA,data$S_ORDER)
+  data$GROUP<-ifelse(data$GROUP=="TUSP","AAAA",data$GROUP)
 
 
   #Calculate # of colonies for each variable. You need to have S_ORDER and Fragment here so you can incorporate zeros properly later in the code
@@ -457,7 +440,8 @@ Calc_ColMetric_Transect<-function(data, grouping_field="S_ORDER",pool_fields=c("
 }
 
 
-#Updated 12/13/19
+
+#Updated 1/24/20
 Calc_RDden_Transect<-function(data, survey_colony_f=survey_colony, grouping_field="S_ORDER"){
   scl<-subset(data,Fragment==0 &S_ORDER=="Scleractinia")
   
@@ -480,7 +464,7 @@ Calc_RDden_Transect<-function(data, survey_colony_f=survey_colony, grouping_fiel
   rd.new=rd;  rd.new[,DATAcol][rd.new[,DATAcol]>1]=1  
 
   #merge data with colony level metadata and sum conditions by transect and taxoncode
-  allrd3<-join(rd.new,survey_colony_f,by=MDcol)
+  allrd3<-left_join(rd.new,survey_colony_f)
   ConditionsWeCareAbout=names(allrd3[(length(MDcol)+1):dim(rd.new)[2]])
   allrd3_l <- gather(data = allrd3, key = RDCond, value = abun,
                      ConditionsWeCareAbout,
@@ -499,9 +483,10 @@ Calc_RDden_Transect<-function(data, survey_colony_f=survey_colony, grouping_fiel
   abun<-dcast(a, formula=SITEVISITID +SITE + TRANSECT+GROUP~ RDCond, value.var="RDabun",sum,fill=0)
   
   #trarea<-Calc_SurveyArea_By_Transect(data) #calculate survey area/site
-  uTA=unique(data[,c("SITEVISITID","SITE","TRANSECT","TRANSECTAREA")])
-  ab.tr<-join(x = uTA,y = abun,by=c("SITEVISITID","SITE","TRANSECT"))
-  ab.tr[is.na(ab.tr)]<-0
+  uTA=unique(scl[,c("SITEVISITID","SITE","TRANSECT","TRANSECTAREA")])
+  ab.tr<-left_join(x = uTA,y = abun)
+  #ab.tr<-left_join(x = uTA,y = abun,by=c("SITEVISITID","SITE","TRANSECT"))
+  ab.tr[is.na(ab.tr),]<-0
 
   #Check NAs - Should be empty...
   new_DF <- sum(rowSums(is.na(ab.tr))) # should be 0
@@ -518,12 +503,12 @@ Calc_RDden_Transect<-function(data, survey_colony_f=survey_colony, grouping_fiel
 
 
 
-#Updated 12/13/19
+#Updated 1/24/20
 Calc_CONDden_Transect<-function(data,survey_colony_f=survey_colony, grouping_field="S_ORDER"){
   scl<-subset(data,Fragment==0 &S_ORDER=="Scleractinia")
   
   #Add a column that indicates (1= yes, 0= no) whether the colony had a chronic disease
-  scl$Chronic<-ifelse(scl$CONDITION_1 %in% c("SGA","PTR","FUG")|scl$CONDITION_2 %in% c("SGA","PTR","FUG")|scl$CONDITION_3 %in% c("SGA","PTR","FUG"),"CHRO",NA)
+  scl$Chronic<-ifelse(scl$CONDITION_1 %in% c("SGA","PTR","FUG")|scl$CONDITION_2 %in% c("SGA","PTR","FUG")|scl$CONDITION_3 %in% c("SGA","PTR","FUG"),"CHRO","NONE")
   
   #Change varibles to factors
   factor_cols <- c("CONDITION_1","CONDITION_2","CONDITION_3","Chronic")
@@ -539,7 +524,7 @@ Calc_CONDden_Transect<-function(data,survey_colony_f=survey_colony, grouping_fie
   rd.new=rd;  rd.new[,DATAcol][rd.new[,DATAcol]>1]=1  
   
   #merge data with colony level metadata and sum conditions by transect and taxoncode
-  allrd3<-join(rd.new,survey_colony_f,by=MDcol)
+  allrd3<-left_join(rd.new,survey_colony_f)
   ConditionsWeCareAbout=names(allrd3[(length(MDcol)+1):dim(rd.new)[2]])
   allrd3_l <- gather(data = allrd3, key = Cond, value = abun,
                      ConditionsWeCareAbout,
@@ -557,8 +542,8 @@ Calc_CONDden_Transect<-function(data,survey_colony_f=survey_colony, grouping_fie
   #Convert back to wide format
   abun<-dcast(a, formula=SITEVISITID +SITE + TRANSECT+GROUP~ Cond, value.var="CONDabun",sum,fill=0)
   
-  uTA=unique(data[,c("SITEVISITID","SITE","TRANSECT","TRANSECTAREA")])
-  ab.tr<-join(x = uTA,y = abun,by=c("SITEVISITID","SITE","TRANSECT"))
+  uTA=unique(scl[,c("SITEVISITID","SITE","TRANSECT","TRANSECTAREA")])
+  ab.tr<-left_join(x = uTA,y = abun)
   ab.tr[is.na(ab.tr)]<-0
   
   #Check NAs - Should be empty...
@@ -567,7 +552,7 @@ Calc_CONDden_Transect<-function(data,survey_colony_f=survey_colony, grouping_fie
   
   #calcualte density of each condition, for output
   out<-ab.tr
-  out[ ,which(names(out)==DATAcol[1]):ncol(out)]=out[ ,which(names(out)==DATAcol[1]):ncol(out)]/out$SEGAREA # selects every row and 2nd to last columns
+  out[,which(names(out)==DATAcol[1]):ncol(out)]=out[,which(names(out)==DATAcol[1]):ncol(out)]/out$TRANSECTAREA # selects every row and 2nd to last columns
   
   colnames(out)[which(colnames(out) == 'GROUP')] <- grouping_field #change group to whatever your grouping field is.
   
@@ -714,11 +699,11 @@ Calc_Strata=function(site_data,grouping_field,metric_field,pres.abs_field="Adpre
   strat.temp<-ddply(subset(site_data,GROUP=="SSSS"),.(REGION,ISLAND,ANALYSIS_YEAR,DOMAIN_SCHEMA,ANALYSIS_SCHEMA,NH),summarize,temp=sum(NH,na.rm=TRUE)) #calculate # of possible sites in a given stratum
   Strata_NH<-ddply(strat.temp,.(REGION,ISLAND,ANALYSIS_YEAR,DOMAIN_SCHEMA,ANALYSIS_SCHEMA),summarize,N_h.as=sum(NH,na.rm=TRUE)) #calculate # of possible sites in a given stratum
   Dom_NH<-ddply(Strata_NH,.(REGION,ISLAND,ANALYSIS_YEAR,DOMAIN_SCHEMA),summarize,Dom_N_h=sum(N_h.as,na.rm=TRUE))#calculate # of possible sites in a given domain, use this to calculate weighting factor
-  Strata_NH<-merge(Dom_NH,Strata_NH, by= c("REGION","ISLAND","ANALYSIS_YEAR","DOMAIN_SCHEMA")) #add Dom_N_h into Strata_NH df
+  Strata_NH<-left_join(Strata_NH,Dom_NH) #add Dom_N_h into Strata_NH df
   Strata_NH$w_h.as<-Strata_NH$N_h.as/Strata_NH$Dom_N_h # add schema weighting factor to schema dataframe
   
   #Now add back the Analysis_Schema Dom_N_h, Nh and wh to site_data - can't use match because we need to merge based on analysis scheme and analysis year
-  site_data<-merge(site_data,Strata_NH, by= c("REGION","ISLAND","ANALYSIS_YEAR","DOMAIN_SCHEMA","ANALYSIS_SCHEMA"))
+  site_data<-left_join(site_data,Strata_NH)
   
   #Calculate summary metrics at the stratum level (rolled up from site level)
   Strata_roll=ddply(site_data,.(REGION,ISLAND,ANALYSIS_YEAR,DOMAIN_SCHEMA,ANALYSIS_SCHEMA,REEF_ZONE,DB_RZ,GROUP,Dom_N_h),summarize,
@@ -758,6 +743,8 @@ Calc_Strata=function(site_data,grouping_field,metric_field,pres.abs_field="Adpre
 
 #This function is very similar to Calc_Strata, but calculates the Domain NH by adding up all possible strata in a domain rather than just the ones that were sampled to calculate 
 #total domain area and strata weights
+#This is an older function so make sure it's up to date with changes that have been made to rest of script 
+
 # Calc_Analysis_Strata=function(site_data,sec,grouping_field,metric_field,pres.abs_field="Adpres.abs",M_hi=250){
 #   
 #   #Build in flexibility to look at genus or taxon level
@@ -828,11 +815,11 @@ Calc_Domain=function(site_data,grouping_field="S_ORDER",metric_field,pres.abs_fi
   #Build in flexibility to look at genus or taxon level
   Strata_data$GROUP<-Strata_data[,grouping_field]
 
-  DomainStr_NH=ddply(subset(Strata_data,GROUP=="SSSS"),.(ANALYSIS_YEAR,DOMAIN_SCHEMA),summarize,DomainSumN_h=sum(N_h,na.rm=TRUE)) #total possible sites in a domain
-  Strata_data<-merge(Strata_data, DomainStr_NH,by=c("ANALYSIS_YEAR","DOMAIN_SCHEMA"))# add previous to strata data
+  DomainStr_NH=ddply(subset(Strata_data,GROUP=="SSSS"),.(REGION,ANALYSIS_YEAR,DOMAIN_SCHEMA),summarize,DomainSumN_h=sum(N_h,na.rm=TRUE)) #total possible sites in a domain
+  Strata_data<-left_join(Strata_data, DomainStr_NH)# add previous to strata data
   Strata_data$w_h=Strata_data$N_h/Strata_data$DomainSumN_h
   
-  Domain_roll=ddply(Strata_data,.(ANALYSIS_YEAR,DOMAIN_SCHEMA,GROUP),summarize,
+  Domain_roll=ddply(Strata_data,.(REGION,ANALYSIS_YEAR,DOMAIN_SCHEMA,GROUP),summarize,
                     D._st=sum(w_h*D._h,na.rm=TRUE), #Domain weighted estimate (sum of Weighted strata density)
                     varD._st=sum(w_h^2*varD._h,na.rm=TRUE), #Domain weighted variance estimate
                     Y._st=sum(Y._h,na.rm=TRUE), #Domain total abundance (sum of extrapolated strata abundance)
@@ -969,10 +956,7 @@ Calc_Domain_Cover_Rich=function(site_data,metric_field=c("CORAL","CCA","MA","TUR
 ###POOLING FUNCTIONS FOR PREVALENCE DATA----
 
 #STRATA ROLL UP FUNCTION-This function calculates mean, var, SE and CV at the strata level. I've built in flexilbity to use either genus or taxoncode
-# You can input any metric you would like (eg. adult density, mean % old dead,etc). Note that for any metric that does not involve density of colonies, 
-# Y._h (total colony abundance in stratum),varY._h (variance in total abundance), SE_Y._h and CV_Y._h are meaningless-DO NOT USE
-#Note: for whatever reason, the grouping, other and metric fields need to be in this order. If you don't want to include an other field then add "DUMMY" as the second variable when you are running this function.
-#e.g. st<-Calc_Strata(data.mon,"GENUS_CODE","DUMMY","ColDen")
+# You can input any RD cause or condition metric you would like . 
 
 Calc_Strata_Prevalence=function(site_data,grouping_field,metric_field){
   
@@ -984,23 +968,22 @@ Calc_Strata_Prevalence=function(site_data,grouping_field,metric_field){
   site_data$METRIC<-as.numeric(site_data$METRIC)
   
   #For a Given ANALYSIS_SCHEMA, we need to pool N_h, and generate w_h
-  Strata_NH<-ddply(subset(site_data,GROUP=="SSSS"),.(REGION,ISLAND,ANALYSIS_YEAR,DOMAIN_SCHEMA,ANALYSIS_SCHEMA),summarize,N_h=median(NH,na.rm=TRUE)) #calculate # of possible sites in a given stratum
-  Dom_NH<-ddply(Strata_NH,.(REGION,ISLAND,ANALYSIS_YEAR,DOMAIN_SCHEMA),summarize,Dom_N_h=sum(N_h,na.rm=TRUE))#calculate # of possible sites in a given domain
-  Strata_NH$Dom_N_h<-Dom_NH$Dom_N_h[match(Strata_NH$DOMAIN_SCHEMA,Dom_NH$DOMAIN_SCHEMA)]# add Dom_N_h to schema dataframe
-  Strata_NH$w_h<-Strata_NH$N_h/Strata_NH$Dom_N_h # add schema weighting factor to schema dataframe
+  strat.temp<-ddply(subset(site_data,GROUP=="SSSS"),.(REGION,ISLAND,ANALYSIS_YEAR,DOMAIN_SCHEMA,ANALYSIS_SCHEMA,NH),summarize,temp=sum(NH,na.rm=TRUE)) #calculate # of possible sites in a given stratum
+  Strata_NH<-ddply(strat.temp,.(REGION,ISLAND,ANALYSIS_YEAR,DOMAIN_SCHEMA,ANALYSIS_SCHEMA),summarize,N_h.as=sum(NH,na.rm=TRUE)) #calculate # of possible sites in a given stratum
+  Dom_NH<-ddply(Strata_NH,.(REGION,ISLAND,ANALYSIS_YEAR,DOMAIN_SCHEMA),summarize,Dom_N_h=sum(N_h.as,na.rm=TRUE))#calculate # of possible sites in a given domain, use this to calculate weighting factor
+  Strata_NH<-left_join(Strata_NH,Dom_NH) #add Dom_N_h into Strata_NH df
+  Strata_NH$w_h.as<-Strata_NH$N_h.as/Strata_NH$Dom_N_h # add schema weighting factor to schema dataframe
   
-  #Now add back the Analysis_Schema Nh and wh to site_data
-  site_data$N_h.as<-Strata_NH$N_h[match(site_data$ANALYSIS_SCHEMA,Strata_NH$ANALYSIS_SCHEMA)]
-  site_data$w_h.as<-Strata_NH$w_h[match(site_data$ANALYSIS_SCHEMA,Strata_NH$ANALYSIS_SCHEMA)]
-  
+  #Now add back the Analysis_Schema Dom_N_h, Nh and wh to site_data - can't use match because we need to merge based on analysis scheme and analysis year
+  site_data<-left_join(site_data,Strata_NH)
 
   #Calculate summary metrics at the stratum level (rolled up from site level)
   Strata_roll=ddply(site_data,.(REGION,ISLAND,ANALYSIS_YEAR,DOMAIN_SCHEMA,ANALYSIS_SCHEMA,REEF_ZONE,DB_RZ,GROUP),summarize,
                     n_h=length(SITE),# No. of Sites surveyed in a Strata
                     N_h=median(N_h.as,na.rm=T),# Strata Area (as N 50x50 grids) - median allows you to pick 1 value
                     w_h=median(w_h.as,na.rm=T),# weigting factor for a given stratum- median allows you to pick 1 value
-                    C_h=mean(METRIC,na.rm=T), # Mean density colonies with specific condition in a Stratum
-                    S1C_h=var(METRIC,na.rm=T), #sample variance in condition density between sites
+                    C_h=mean(METRIC,na.rm=T), # Mean density colonies with specific RD cause or condition in a Stratum
+                    S1C_h=var(METRIC,na.rm=T), #sample variance in RD cause or condition density between sites
                     varC_h=(1-(n_h/N_h))*S1C_h/n_h, #Strata level  variance of mean condition density
                     nmtot=(N_h*250), #total possible area
                     th=10, #minimum sampling unit
@@ -1038,8 +1021,8 @@ Calc_Domain_Prevalence=function(site_data,grouping_field="S_ORDER",metric_field)
   #Build in flexibility to look at genus or taxon level
   Strata_data$GROUP<-Strata_data[,grouping_field]
   
-  DomainStr_NH=ddply(subset(Strata_data,GROUP=="SSSS"),.(REGION,ISLAND,ANALYSIS_YEAR,DOMAIN_SCHEMA),summarize,N_h=sum(N_h,na.rm=TRUE)) #total possible sites in a domain
-  Strata_data$DomainSumN_h=DomainStr_NH$N_h[match(Strata_data$DOMAIN_SCHEMA,DomainStr_NH$DOMAIN_SCHEMA)] # add previous to strata data
+  DomainStr_NH=ddply(subset(Strata_data,GROUP=="SSSS"),.(REGION,ANALYSIS_YEAR,DOMAIN_SCHEMA),summarize,DomainSumN_h=sum(N_h,na.rm=TRUE)) #total possible sites in a domain
+  Strata_data<-left_join(Strata_data, DomainStr_NH)# add previous to strata data
   Strata_data$w_h=Strata_data$N_h/Strata_data$DomainSumN_h
   
   Domain_roll=ddply(Strata_data,.(REGION,ISLAND,ANALYSIS_YEAR,DOMAIN_SCHEMA,GROUP),summarize,
