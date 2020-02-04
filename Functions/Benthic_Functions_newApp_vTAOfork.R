@@ -47,7 +47,7 @@ Convert_to_Taxoncode<-function(data,taxamaster){
   a<-ddply(data,.(REGION,OBS_YEAR,S_ORDER,GENUS_CODE,SPCODE), #create a list of Genera and Species by region and year
            summarise,
            count=length(COLONYID))
-  b<-left_join(a,taxamaster,by=c("REGION","OBS_YEAR","SPCODE")) #join isn't working- it's converting taxon_name to NA
+  b<-left_join(a,taxamaster,by=c("REGION","OBS_YEAR","SPCODE")) 
   b$TAXONCODE<-ifelse(b$S_ORDER!="Scleractinia",as.character(b$SPCODE),
                       ifelse(is.na(b$TAXON_NAME), as.character(b$GENUS_CODE),as.character(b$SPCODE))) #Change spcode to genus code if we do not uniformly id that taxon to species level
   b$TAXONCODE[b$TAXONCODE==""] <- "UNKN" #Convert unknown species or codes that aren't in our taxa list to unknown
@@ -167,7 +167,7 @@ Calc_SurveyArea_By_Seg<-function(data) {
   return(tr.df)
 }
 
-
+#updated 2/4/20
 ## This function calculates colony density at the segment scale by first calculating the total survey area (using Calc_SurveyArea_By_Seg) then calculating colony density
 Calc_ColDen_Seg<-function(data, grouping_field="GENUS_CODE"){
   
@@ -180,7 +180,7 @@ Calc_ColDen_Seg<-function(data, grouping_field="GENUS_CODE"){
   
   #Convert from long to wide and insert 0s for taxa that weren't found at each site. 
   ca0=spread(a,key=GROUP,value=ColCount,fill=0) #Keepin' it TIDYR
-  data.cols<-names(ca0[which(names(ca0)=="AAAA"):dim(ca0)[2]]) #define your data coloumns
+  data.cols<-names(ca0[8:dim(ca0)[2]]) #define your data coloumns- note you need to index by column number not by names-you may have situations where there are no AAAA
   field.cols<-c("METHOD","SITE", "SITEVISITID", "TRANSECT","SEGMENT","Fragment") #define field columns
   
   ### Drop all fragments, but don't drop a fragment-only transect... ###
@@ -298,12 +298,12 @@ Calc_RDden_Seg<-function(data, survey_colony_f=survey_colony, grouping_field="S_
   return(out)
 }
 
-#Updated 12/13/19
+#Updated 2/4/20
 Calc_CONDden_Seg<-function(data,survey_colony_f=survey_colony, grouping_field="S_ORDER"){
   scl<-subset(data,Fragment==0 &S_ORDER=="Scleractinia")
   
   #Add a column that indicates (1= yes, 0= no) whether the colony had a chronic disease
-  scl$Chronic<-ifelse(scl$CONDITION_1 %in% c("SGA","PTR","FUG")|scl$CONDITION_2 %in% c("SGA","PTR","FUG")|scl$CONDITION_3 %in% c("SGA","PTR","FUG"),"CHRO",NA)
+  scl$Chronic<-ifelse(scl$CONDITION_1 %in% c("SGA","PTR","FUG")|scl$CONDITION_2 %in% c("SGA","PTR","FUG")|scl$CONDITION_3 %in% c("SGA","PTR","FUG"),"CHRO","NONE")
   
   #Change varibles to factors
   factor_cols <- c("CONDITION_1","CONDITION_2","CONDITION_3","Chronic")
@@ -314,12 +314,14 @@ Calc_CONDden_Seg<-function(data,survey_colony_f=survey_colony, grouping_field="S
   
   #convert from long to wide and fill in 0s
   rd<-dcast(long, formula=METHOD+SITEVISITID + SITE+TRANSECT+SEGMENT+COLONYID ~ CONDtype, value.var="CONDtype",length,fill=0)
+  x<-c("CHRO");rd[x[!(x %in% colnames(rd))]] = 0 #if data does not have CHRO, add this column with 0s
+  
   MDcol=c("METHOD","SITEVISITID","SITE","TRANSECT","SEGMENT","COLONYID")
   DATAcol=setdiff(names(rd),MDcol)
   rd.new=rd;  rd.new[,DATAcol][rd.new[,DATAcol]>1]=1  
   
   #merge data with colony level metadata and sum conditions by transect and taxoncode
-  allrd3<-join(rd.new,survey_colony_f,by=MDcol)
+  allrd3<-left_join(rd.new,survey_colony_f)
   ConditionsWeCareAbout=names(allrd3[(length(MDcol)+1):dim(rd.new)[2]])
   allrd3_l <- gather(data = allrd3, key = Cond, value = abun,
                      ConditionsWeCareAbout,
@@ -381,7 +383,7 @@ Calc_ColDen_Transect<-function(data, grouping_field="GENUS_CODE"){
   #Convert from long to wide and insert 0s for taxa that weren't found at each site. 
   #ca<-dcast(a, formula=SITE + SITEVISITID +TRANSECT +Fragment+S_ORDER~ GROUP, value.var="ColCount",fill=0)
   ca0=spread(a,key=GROUP,value=ColCount,fill=0) #Keepin' it TIDYR
-  data.cols<-names(ca0[which(names(ca0)=="AAAA"):dim(ca0)[2]]) #define your data coloumns
+  data.cols<-names(ca0[7:dim(ca0)[2]]) #define your data coloumns- note you need to index by column number not by names-you may have situations where there are no AAAA
   field.cols<-c("SITE", "SITEVISITID", "TRANSECT","Fragment") #define field columns
   
   ### Drop all fragments, but don't drop a fragment-only transect... ###
@@ -520,6 +522,7 @@ Calc_CONDden_Transect<-function(data,survey_colony_f=survey_colony, grouping_fie
   
   #convert from long to wide and fill in 0s
   rd<-dcast(long, formula=SITEVISITID + SITE+TRANSECT+COLONYID ~ CONDtype, value.var="CONDtype",length,fill=0)
+  x<-c("CHRO");rd[x[!(x %in% colnames(rd))]] = 0 #if data does not have CHRO, add this column with 0s
   MDcol=c("SITEVISITID","SITE","TRANSECT","COLONYID")
   DATAcol=setdiff(names(rd),MDcol)
   rd.new=rd;  rd.new[,DATAcol][rd.new[,DATAcol]>1]=1  
