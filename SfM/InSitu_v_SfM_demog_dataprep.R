@@ -60,6 +60,9 @@ sapply(x,levels)
 sapply(x,class)##Change column names to make code easier to code
 #Logical NAs within RECENT_GENERAL/SPECIFIC_CAUSE_CODEs, conditions, and extents, but only SEVERITY_4 = logical class
 
+#Change OBS_YEAR to factor
+x$OBS_YEAR<-as.factor(x$OBS_YEAR)
+head(x)
 
 #DIVER/ADULT: Column Names Changes... -------------------------------------------------
 colnames(x)[colnames(x)=="TAXONCODE"]<-"SPCODE" #Change column name- we will eventually change this column back to "taxoncode" after we modify the spcode names to match the taxalist we all feel comfortable identifying
@@ -75,6 +78,7 @@ colnames(x)[colnames(x)=="RECENT_GENERAL_CAUSE_CODE_3"]<-"GENRD3" #Change column
 colnames(x)[colnames(x)=="RECENT_SPECIFIC_CAUSE_CODE_3"]<-"RD3" #Change column name
 colnames(x)[colnames(x)=="FRAGMENT_YN"]<-"Fragment" #Change column name
 colnames(x)[colnames(x)=="COND"]<-"CONDITION_1" #Change column name
+
 
 #Add column for method type
 x$METHOD<-"DIVER"
@@ -171,11 +175,9 @@ x$RDEXTENT3<-ifelse(x$S_ORDER=="Scleractinia"& is.na(x$RDEXTENT3),0,x$RDEXTENT3)
 taxa<-read.csv("T:/Benthic/Data/Lookup Tables/2013-19_Taxa_MASTER.csv")
 
 #Convert SPCODE in raw colony data to TAXONCODE -generates a look up table
-#x$TAXONCODE<-Convert_to_Taxoncode_tom(data = x,taxamaster = taxa)#not working need to ask tom
-taxa$OBS_YEAR<-as.numeric(as.character(taxa$OBS_YEAR))
-x$SPCODE<-ifelse(x$NO_COLONY_==-1,"AAAA",as.character(x$SPCODE))
+#x$SPCODE<-ifelse(x$NO_COLONY_==-1,"AAAA",as.character(x$SPCODE))
 
-x <-Convert_to_Taxoncode(x,taxa)
+x$TAXONCODE <-Convert_to_Taxoncode(x,taxa)
 
 #Check to make sure SPCODE was converted correctly
 b <- x[x$SPCODE!=x$TAXONCODE,]
@@ -332,6 +334,10 @@ x<-x[,DATA_COLS]
 sapply(x,levels)
 sapply(x,class)
 
+#Change OBS_YEAR to factor
+x$OBS_YEAR<-as.factor(x$OBS_YEAR)
+head(x)
+
 ##Change column names to make code easier to code
 colnames(x)[colnames(x)=="TAXONCODE"]<-"SPCODE" #Change column name
 colnames(x)[colnames(x)=="TRANSECTNUM"]<-"TRANSECT" #Change column name
@@ -393,11 +399,11 @@ x<-subset(x,EXCLUDE_FLAG==0);head(subset(x,EXCLUDE_FLAG==-1))# this dataframe sh
 
 #DIVER/JUVENILES: Assign TAXONCODE --------------------------------------------------------
 #read in list of taxa that we feel comfortable identifying to species or genus level. Note, taxa lists vary by year and region. This will need to be updated through time.
-taxa<-read.csv("T:/Benthic/Data/SpGen_Reference/2013-19_Taxa_MASTER.csv")
+taxa<-read.csv("T:/Benthic/Data/Lookup Tables/2013-19_Taxa_MASTER.csv")
 
 #Convert SPCODE in raw colony data to TAXONCODE -generates a look up table
 #x$TAXONCODE<-Convert_to_Taxoncode_tom(data = x,taxamaster = taxa)#not working need to ask tom
-x<-Convert_to_Taxoncode(x)
+x$TAXONCODE<-Convert_to_Taxoncode(x,taxa)
 
 #Check to make sure SPCODE was converted correctly
 head(x[x$SPCODE!=x$TAXONCODE,])
@@ -472,6 +478,8 @@ head(x)
 View(x)
 nrow(x)
 
+x$OBS_YEAR<-as.factor(x$OBS_YEAR)
+
 
 #SfM/ADULT: Column Names Changes -------------------------------------------------
 colnames(x)[colnames(x)=="MISSION_ID"]<-"MISSIONID" #Change column name
@@ -511,12 +519,12 @@ x$S_ORDER<-ifelse(x$NO_COLONY_==0 & x$SPCODE!="NONE","Scleractinia","NONE") #add
 #I manually removed the bleaching severity 1 colonies - ifelse wasn't working
 
 #Create Genuscode and taxonname column from spcode
-genlookup<-read.csv("T:/Benthic/Data/SpGen_Reference/Genus_lookup.csv")
+genlookup<-read.csv("T:/Benthic/Data/Lookup Tables/Genus_lookup.csv")
 x<-CreateGenusCode(x,genlookup) 
 head(x)
 
 #Generate General RD cause code
-gencodes<-read.csv("T:/Benthic/Data/SpGen_Reference/GeneralRDcode_lookup.csv")
+gencodes<-read.csv("T:/Benthic/Data/Lookup Tables/GeneralRDcode_lookup.csv")
 head(x)
 levels(x$RD1)
 
@@ -546,14 +554,13 @@ nrow(x)
 
 #SfM/ADULT: Assign TAXONCODE --------------------------------------------------------
 #read in list of taxa that we feel comfortable identifying to species or genus level. Note, taxa lists vary by year and region. This will need to be updated through time.
-taxa<-read.csv("T:/Benthic/Data/SpGen_Reference/2013-19_Taxa_MASTER.csv")
+taxa<-read.csv("T:/Benthic/Data/Lookup Tables/2013-19_Taxa_MASTER.csv")
 
 x$SPCODE<-ifelse(x$NO_COLONY_==-1,"AAAA",as.character(x$SPCODE)) #currently no sites have -1 for adults (1/22/2020)
 
 
 #Convert SPCODE in raw colony data to TAXONCODE -generates a look up table
-#x$TAXONCODE<-Convert_to_Taxoncode_tom(data = x,taxamaster = taxa)#not working need to ask tom
-x<-Convert_to_Taxoncode(x)
+x$TAXONCODE<-Convert_to_Taxoncode(x,taxa)
 
 #Check to make sure SPCODE was converted correctly
 head(x[x$SPCODE!=x$TAXONCODE,])
@@ -674,6 +681,8 @@ head(x)
 View(x)
 nrow(x)
 
+x$OBS_YEAR<-as.factor(x$OBS_YEAR)
+
 #SFM/JUVENILE: Column Names Changes... -------------------------------------------------
 colnames(x)[colnames(x)=="FRAGMENT_Y"]<-"Fragment" #Change column name
 colnames(x)[colnames(x)=="SHAPE_Leng"]<-"COLONYLENGTH" #Change column name
@@ -695,7 +704,7 @@ x$COLONYLENGTH<-x$COLONYLENGTH*100 #convert from m to cm
 x$S_ORDER<-ifelse(x$NO_COLONY_==0 & x$SPCODE!="NONE","Scleractinia","NONE") #add S_order column
 
 #Create Genuscode and taxonname column from spcode
-genlookup<-read.csv("T:/Benthic/Data/SpGen_Reference/Genus_lookup.csv")
+genlookup<-read.csv("T:/Benthic/Data/Lookup Tables/Genus_lookup.csv")
 x<-CreateGenusCode(x,genlookup) 
 head(x)
 
@@ -718,14 +727,13 @@ nrow(x)
 
 #SFM/JUVENILE: Assign TAXONCODE --------------------------------------------------------
 #read in list of taxa that we feel comfortable identifying to species or genus level. Note, taxa lists vary by year and region. This will need to be updated through time.
-taxa<-read.csv("T:/Benthic/Data/SpGen_Reference/2013-19_Taxa_MASTER.csv")
+taxa<-read.csv("T:/Benthic/Data/Lookup Tables/2013-19_Taxa_MASTER.csv")
 
 x$SPCODE<-ifelse(x$NO_COLONY_==-1,"AAAA",as.character(x$SPCODE)) #add S_order column
 
 
 #Convert SPCODE in raw colony data to TAXONCODE -generates a look up table
-#x$TAXONCODE<-Convert_to_Taxoncode_tom(data = x,taxamaster = taxa)#not working need to ask tom
-x<-Convert_to_Taxoncode(x)
+x$TAXONCODE<-Convert_to_Taxoncode(x,taxa)
 
 #Check to make sure SPCODE was converted correctly
 head(x[x$SPCODE!=x$TAXONCODE,])
