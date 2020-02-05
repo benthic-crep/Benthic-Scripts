@@ -194,12 +194,6 @@ ad_DATACOLS<-c("METHOD","ANALYST", "REGION","OBS_YEAR","MISSIONID","ISLAND","SEC
             "SEGAREA","TRANSECTAREA","COLONYID","EX_BOUND","Fragment","S_ORDER","GENUS_CODE","SPCODE","TAXONCODE","TAXONNAME",
             "COLONYLENGTH","OLDDEAD","GENRD1","GENRD2","GENRD3","RD1","RDEXTENT1","RD2","RDEXTENT2","RD3",
             "RDEXTENT3","CONDITION_1","EXTENT_1","SEVERITY_1","CONDITION_2","EXTENT_2","SEVERITY_2","CONDITION_3","EXTENT_3","SEVERITY_3")
-#missing: "SEC_NAME","LONGITUDE","MIN_DEPTH_M","TAXONCODE" so I'm remaking without these columns - PROBLEM STEMMS FROM CONVERT_TO_TAXONCODE IN DATAPREP SCRIPT
-# ad_DATACOLS<-c("METHOD","ANALYST", "REGION","OBS_YEAR","MISSIONID","ISLAND","SITEVISITID","SITE","REEF_ZONE","DEPTH_BIN",
-#                "HABITAT_CODE","LATITUDE","TRANSECT","SEGMENT","SEGLENGTH","SEGWIDTH",
-#                "SEGAREA","TRANSECTAREA","COLONYID","EX_BOUND","Fragment","S_ORDER","GENUS_CODE","SPCODE","TAXONNAME",
-#                "COLONYLENGTH","OLDDEAD","GENRD1","GENRD2","GENRD3","RD1","RDEXTENT1","RD2","RDEXTENT2","RD3",
-#                "RDEXTENT3","CONDITION_1","EXTENT_1","SEVERITY_1","CONDITION_2","EXTENT_2","SEVERITY_2","CONDITION_3","EXTENT_3","SEVERITY_3")
 head(ad_diver[,ad_DATACOLS])
 ad_diver<-ad_diver[,ad_DATACOLS]
 
@@ -208,17 +202,8 @@ j_DATACOLS<-c("METHOD","ANALYST", "REGION","OBS_YEAR","MISSIONID","ISLAND","SEC_
         "HABITAT_CODE","LATITUDE","LONGITUDE","MIN_DEPTH_M","MAX_DEPTH_M","TRANSECT","SEGMENT","SEGLENGTH","SEGWIDTH",
         "SEGAREA","TRANSECTAREA","COLONYID","EX_BOUND","Fragment","S_ORDER","GENUS_CODE","SPCODE","TAXONCODE","TAXONNAME",
         "COLONYLENGTH")   
-#Same problem as above
-# j_DATACOLS<-c("METHOD","ANALYST", "REGION","OBS_YEAR","MISSIONID","ISLAND","SITEVISITID","SITE","REEF_ZONE","DEPTH_BIN",
-#               "HABITAT_CODE","LATITUDE","LONGITUDE","TRANSECT","SEGMENT","SEGLENGTH","SEGWIDTH",
-#               "SEGAREA","TRANSECTAREA","COLONYID","EX_BOUND","Fragment","S_ORDER","GENUS_CODE","SPCODE","TAXONNAME",
-#               "COLONYLENGTH")
 head(j_diver[,j_DATACOLS])
 j_diver<-j_diver[,j_DATACOLS]
-
-#Remove columns in sfm dataframes that cannot be found in diver dataframes
-# ad_sfm<-ad_sfm[,ad_DATACOLS]
-# j_sfm<-j_sfm[,j_DATACOLS]
 
 #Combine diver and sfm data 
 awd<-rbind(ad_diver,ad_sfm)
@@ -229,6 +214,10 @@ jwd<-rbind(j_diver,j_sfm)
 SURVEY_COL<-c("METHOD","SITEVISITID", "OBS_YEAR", "REGION", "ISLAND","SEC_NAME", "SITE", "REEF_ZONE",
               "DEPTH_BIN", "LATITUDE", "LONGITUDE","MIN_DEPTH_M","MAX_DEPTH_M","TRANSECT","SEGMENT","COLONYID","GENUS_CODE","TAXONCODE","SPCODE","COLONYLENGTH")
 survey_colony<-unique(awd[,SURVEY_COL])
+
+SURVEY_COL<-c("METHOD","SITEVISITID", "OBS_YEAR", "REGION", "ISLAND","SEC_NAME", "SITE", "REEF_ZONE", "ANALYST",
+              "DEPTH_BIN", "LATITUDE", "LONGITUDE","MIN_DEPTH_M","MAX_DEPTH_M","TRANSECT","SEGMENT","COLONYID","GENUS_CODE","TAXONCODE","SPCODE","COLONYLENGTH")
+survey_colony_DIVER<-unique(awd[,SURVEY_COL])
 
 SURVEY_SITE<-c("METHOD","SITEVISITID", "OBS_YEAR", "REGION", "ISLAND","SEC_NAME", "SITE", "REEF_ZONE",
                "DEPTH_BIN", "LATITUDE", "LONGITUDE","MIN_DEPTH_M","MAX_DEPTH_M")
@@ -273,26 +262,26 @@ awd<-subset(awd,EX_BOUND==0)
 
 
 #Calc_ColDen_Transect
-acd.gen<-Calc_ColDen_Seg(data = awd,grouping_field = "GENUS_CODE");colnames(acd.gen)[colnames(acd.gen)=="ColCount"]<-"AdColCount";colnames(acd.gen)[colnames(acd.gen)=="ColDen"]<-"AdColDen";colnames(acd.gen)[colnames(acd.gen)=="SEGAREA"]<-"SEGAREA_ad"# calculate density at genus level as well as total
-jcd.gen<-Calc_ColDen_Seg(jwd,"GENUS_CODE"); colnames(jcd.gen)[colnames(jcd.gen)=="ColCount"]<-"JuvColCount";colnames(jcd.gen)[colnames(jcd.gen)=="ColDen"]<-"JuvColDen"
+acd.gen<-Calc_ColDen_Seg_DIVER(data = awd,grouping_field = "GENUS_CODE");colnames(acd.gen)[colnames(acd.gen)=="ColCount"]<-"AdColCount";colnames(acd.gen)[colnames(acd.gen)=="ColDen"]<-"AdColDen";colnames(acd.gen)[colnames(acd.gen)=="SEGAREA"]<-"SEGAREA_ad"# calculate density at genus level as well as total
+jcd.gen<-Calc_ColDen_Seg_DIVER(jwd,"GENUS_CODE"); colnames(jcd.gen)[colnames(jcd.gen)=="ColCount"]<-"JuvColCount";colnames(jcd.gen)[colnames(jcd.gen)=="ColDen"]<-"JuvColDen"
 jcd.gen<-subset(jcd.gen,select=-c(SEGAREA))
 
 
 ## This function calculates mean colony length, % recent dead, % old dead, condition severity or condition extent to the segment level
 ## NOTE: can run both adult & juvenile data with this function for COLONYLENGTH
 #c("COLONYLENGTH","RDEXTENT1", "RDEXTENT2", "RDEXTENT3", "OLDDEAD","SEVERITY_1","SEVERITY_2", "SEVERITY_3", "EXTENT_1", "EXTENT_2", "EXTENT_3")
-cl.gen<-Calc_ColMetric_Seg(data = awd,grouping_field = "GENUS_CODE",pool_fields = "COLONYLENGTH"); colnames(cl.gen)[colnames(cl.gen)=="Ave.y"]<-"Ave.cl" #Average % old dead
-od.gen<-Calc_ColMetric_Seg(data = awd,grouping_field = "GENUS_CODE",pool_fields = "OLDDEAD"); colnames(od.gen)[colnames(od.gen)=="Ave.y"]<-"Ave.od" #Average % old dead
-rd.gen<-Calc_ColMetric_Seg(data = awd,grouping_field = "GENUS_CODE",pool_fields = c("RDEXTENT1", "RDEXTENT2","RDEXTENT3")); colnames(rd.gen)[colnames(rd.gen)=="Ave.y"]<-"Ave.rd" #Average % recent dead
+cl.gen<-Calc_ColMetric_Seg_DIVER(data = awd,grouping_field = "GENUS_CODE",pool_fields = "COLONYLENGTH"); colnames(cl.gen)[colnames(cl.gen)=="Ave.y"]<-"Ave.cl" #Average % old dead
+od.gen<-Calc_ColMetric_Seg_DIVER(data = awd,grouping_field = "GENUS_CODE",pool_fields = "OLDDEAD"); colnames(od.gen)[colnames(od.gen)=="Ave.y"]<-"Ave.od" #Average % old dead
+rd.gen<-Calc_ColMetric_Seg_DIVER(data = awd,grouping_field = "GENUS_CODE",pool_fields = c("RDEXTENT1", "RDEXTENT2","RDEXTENT3")); colnames(rd.gen)[colnames(rd.gen)=="Ave.y"]<-"Ave.rd" #Average % recent dead
 
 
 #Calc_RDden_Transect
-rdden.gen<-Calc_RDden_Seg(data=awd,grouping_field ="GENUS_CODE") # Density of recent dead colonies by condition, you will need to subset which ever condition you want. The codes ending in "S" are the general categories
+rdden.gen<-Calc_RDden_Seg_DIVER(data=awd,survey_colony_f=survey_colony_DIVER,grouping_field ="GENUS_CODE") # Density of recent dead colonies by condition, you will need to subset which ever condition you want. The codes ending in "S" are the general categories
 acutedz.gen<-subset(rdden.gen,select = c(METHOD,SITEVISITID,SITE,TRANSECT,SEGMENT,GENUS_CODE,DZGN_G));colnames(acutedz.gen)[colnames(acutedz.gen)=="DZGN_G"]<-"DZGN_G_den" #subset just acute diseased colonies
 
 
 #Calc_CONDden_Transect
-condden.gen<-Calc_CONDden_Seg(data=awd,grouping_field ="GENUS_CODE")# Density of condition colonies by condition, you will need to subset which ever condition you want
+condden.gen<-Calc_CONDden_Seg_DIVER(data=awd,grouping_field ="GENUS_CODE")# Density of condition colonies by condition, you will need to subset which ever condition you want
 ble.gen<-subset(condden.gen,select = c(METHOD,SITEVISITID,SITE,TRANSECT,SEGMENT,GENUS_CODE,BLE));colnames(ble.gen)[colnames(ble.gen)=="BLE"]<-"BLE_den" #subset just bleached colonies
 chronicdz.gen<-subset(condden.gen,select = c(METHOD,SITEVISITID,SITE,TRANSECT,SEGMENT,GENUS_CODE,CHRO));colnames(chronicdz.gen)[colnames(chronicdz.gen)=="CHRO"]<-"CHRO_den" #subset just chronic diseased colonies
 
@@ -340,6 +329,7 @@ if(nrow(data.gen)!=nrow(data.gen2)) {cat("WARNING: Dfs didn't merge properly")}
 
 #Save file for larger comparative analysis
 write.csv(data.gen2,file="T:/Benthic/Data/SfM/Summarized Data/HARAMP_repeats_GENUS_Summarized Data.csv",row.names = F)
+write.csv(data.gen2,file="T:/Benthic/Data/SfM/Summarized Data/HARAMP_repeats_GENUS_ANALYST_Summarized Data.csv",row.names = F)
 
 #Save file for segment calibration
 write.csv(data.gen2,file="T:/Benthic/Data/SfM/Summarized Data/HARAMP_repeats_GENUS_Summarized Data-CALIBRATION.csv",row.names = F)

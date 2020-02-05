@@ -101,6 +101,7 @@ if(length(SIOYerrors)>0){print(paste0("Warning: Raw Data disagree with Survey Ma
 #add SITE MASTER information to x 
 length(unique(x$SITEVISITID)) #check the number of sites in demographic data
 #join 'em
+survey_master$OBS_YEAR<-as.factor(survey_master$OBS_YEAR)
 x<- inner_join(x, survey_master[,c("OBS_YEAR","SITEVISITID","SITE","SEC_NAME","ANALYSIS_YEAR","bANALYSIS_SCHEME","MIN_DEPTH_M","MAX_DEPTH_M")], by=c("OBS_YEAR","SITEVISITID","SITE"))
 
 #Ensure that all rows in X have properly assigned SEC_NAME...
@@ -314,11 +315,6 @@ table(x$REGION, x$OBS_YEAR) #review years and regions in dataframe
 #Convert Segment number from old to new numbering system
 #x$SEGMENT<-ConvertSegNumber(x)
 
-a<-ddply(ad_diver,.(SITE,SEGMENT),summarize,n=length(unique(DIVER)));nrow(t1[t1$n>1,])
-j<-ddply(j_diver,.(SITE,SEGMENT),summarize,n=length(unique(DIVER)));nrow(t1[t1$n>1,])
-
-
-
 #Create vector of column names to include then exclude unwanted columns from dataframe
 DATA_COLS<-c("MISSIONID","REGION","REGION_NAME","ISLAND","ISLANDCODE","SITE","LATITUDE",	"LONGITUDE","REEF_ZONE","DEPTH_BIN","OBS_YEAR",
              "DATE_","NO_SURVEY_YN","EXCLUDE_FLAG","SITEVISITID","HABITAT_CODE","DIVER","TRANSECTNUM","SEGMENT","SEGWIDTH","SEGLENGTH",
@@ -348,7 +344,6 @@ colnames(x)[colnames(x)=="MAXDEPTH"]<-"SITE_MAX_DEPTH" #Change column name
 x$METHOD<-"DIVER"
 
 head(x)
-ddply(x,.(SITE,SEGMENT),summarize,n=length(unique(DIVER)));nrow(t1[t1$n>1,])
 
 
 # Merge Juvenile data and SITE MASTER -------------------------------------
