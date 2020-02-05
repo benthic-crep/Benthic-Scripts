@@ -174,6 +174,7 @@ taxa<-read.csv("T:/Benthic/Data/Lookup Tables/2013-19_Taxa_MASTER.csv")
 #x$TAXONCODE<-Convert_to_Taxoncode_tom(data = x,taxamaster = taxa)#not working need to ask tom
 taxa$OBS_YEAR<-as.numeric(as.character(taxa$OBS_YEAR))
 x$SPCODE<-ifelse(x$NO_COLONY_==-1,"AAAA",as.character(x$SPCODE))
+
 x <-Convert_to_Taxoncode(x,taxa)
 
 #Check to make sure SPCODE was converted correctly
