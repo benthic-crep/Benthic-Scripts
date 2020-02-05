@@ -174,7 +174,7 @@ Calc_ColDen_Seg<-function(data, grouping_field="GENUS_CODE"){
   data$GROUP<-data[,grouping_field] #assign a grouping field for taxa
   
   #Calculate # of colonies for each variable. You need to have S_ORDER and Fragment here so you can incorporate zeros properly later in the code
-  a<-ddply(data, .(METHOD,SITE,SITEVISITID,TRANSECT, SEGMENT,S_ORDER,GROUP,Fragment),
+  a<-ddply(data, .(METHOD,SITE,SITEVISITID,TRANSECT,ANALYST,SEGMENT,S_ORDER,GROUP,Fragment),
            summarise,
            ColCount=length(COLONYID)) #change to count
   

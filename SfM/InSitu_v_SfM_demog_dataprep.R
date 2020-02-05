@@ -116,7 +116,7 @@ head(miss.sites,20)
 #DIVER/ADULT: CLEAN UP ----------------------------------------------------------------
 
 #Generate General RD cause code
-gencodes<-read.csv("T:/Benthic/Data/SpGen_Reference/GeneralRDcode_lookup.csv")
+gencodes<-read.csv("T:/Benthic/Data/Lookup Tables/GeneralRDcode_lookup.csv")
 head(x)
 levels(x$RD1)
 
@@ -168,11 +168,13 @@ x$RDEXTENT3<-ifelse(x$S_ORDER=="Scleractinia"& is.na(x$RDEXTENT3),0,x$RDEXTENT3)
 
 #DIVER/ADULT: Assign TAXONCODE --------------------------------------------------------
 #read in list of taxa that we feel comfortable identifying to species or genus level. Note, taxa lists vary by year and region. This will need to be updated through time.
-taxa<-read.csv("T:/Benthic/Data/SpGen_Reference/2013-19_Taxa_MASTER.csv")
+taxa<-read.csv("T:/Benthic/Data/Lookup Tables/2013-19_Taxa_MASTER.csv")
 
 #Convert SPCODE in raw colony data to TAXONCODE -generates a look up table
 #x$TAXONCODE<-Convert_to_Taxoncode_tom(data = x,taxamaster = taxa)#not working need to ask tom
-x<-Convert_to_Taxoncode(x)
+taxa$OBS_YEAR<-as.numeric(as.character(taxa$OBS_YEAR))
+x$SPCODE<-ifelse(x$NO_COLONY_==-1,"AAAA",as.character(x$SPCODE))
+x <-Convert_to_Taxoncode(x,taxa)
 
 #Check to make sure SPCODE was converted correctly
 b <- x[x$SPCODE!=x$TAXONCODE,]

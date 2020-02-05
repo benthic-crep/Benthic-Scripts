@@ -21,6 +21,12 @@ data.sm<-droplevels(data.sm)
 table(data.sm$SS, data.sm$MethodRep) 
 
 
+#Add column de-anonymizing the observers
+try<-left_join(data.sm,ajwd)
+
+
+
+
 # Plotting Regressions and Bland-Altman by Taxon --------------------------
 
 ### Separate 4 datasets and add the dataset name before the metric columns. Need to set up dataframe this way to make plotting easier.
