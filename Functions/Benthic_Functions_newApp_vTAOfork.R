@@ -367,21 +367,21 @@ Calc_ColDen_Seg_DIVER<-function(data, grouping_field="GENUS_CODE"){
   data$GROUP<-data[,grouping_field] #assign a grouping field for taxa
   
   #Calculate # of colonies for each variable. You need to have S_ORDER and Fragment here so you can incorporate zeros properly later in the code
-  a<-ddply(data, .(METHOD,SITE,SITEVISITID,TRANSECT, SEGMENT,DIVER,S_ORDER,GROUP,Fragment),
+  a<-ddply(data, .(METHOD,SITE,SITEVISITID,TRANSECT, SEGMENT,ANALYST,S_ORDER,GROUP,Fragment),
            summarise,
            ColCount=length(COLONYID)) #change to count
   
   #Convert from long to wide and insert 0s for taxa that weren't found at each site. 
   ca0=spread(a,key=GROUP,value=ColCount,fill=0) #Keepin' it TIDYR
   data.cols<-names(ca0[9:dim(ca0)[2]]) #define your data coloumns- note you need to index by column number not by names-you may have situations where there are no AAAA
-  field.cols<-c("METHOD","SITE", "SITEVISITID", "TRANSECT","SEGMENT","DIVER","Fragment") #define field columns
+  field.cols<-c("METHOD","SITE", "SITEVISITID", "TRANSECT","SEGMENT","ANALYST","Fragment") #define field columns
   
   ### Drop all fragments, but don't drop a fragment-only transect... ###
   #change colony counts for fragments to 0 so that we account for the transects that only had fragments
   ca0[which(ca0$Fragment <0), data.cols]<-0 
   
   #At this point you will have multiple rows for each site/transect so sum data by site and transect. This will help you properly insert 0s
-  field.cols<-c("METHOD","SITE", "SITEVISITID", "TRANSECT","SEGMENT","DIVER")
+  field.cols<-c("METHOD","SITE", "SITEVISITID", "TRANSECT","SEGMENT","ANALYST")
   ca1<-aggregate(ca0[,data.cols], by=ca0[,field.cols], sum) 
   rm(list='ca0')
   
@@ -397,8 +397,8 @@ Calc_ColDen_Seg_DIVER<-function(data, grouping_field="GENUS_CODE"){
   rm(list='ca2')
   
   #Calculate SEGMENT area surveyed and colony density***
-  uTA=unique(data[,c("METHOD","SITE","SITEVISITID","TRANSECT","SEGMENT","DIVER","SEGAREA")])
-  out<-join(uTA,ca3, by=c("METHOD","SITE","SITEVISITID","TRANSECT","SEGMENT","DIVER"))
+  uTA=unique(data[,c("METHOD","SITE","SITEVISITID","TRANSECT","SEGMENT","ANALYST","SEGAREA")])
+  out<-join(uTA,ca3, by=c("METHOD","SITE","SITEVISITID","TRANSECT","SEGMENT","ANALYST"))
   out$ColDen<-out$ColCount/out$SEGAREA
   colnames(out)[which(colnames(out) == 'GROUP')] <- grouping_field #change group to whatever your grouping field is.
   
@@ -416,15 +416,15 @@ Calc_ColMetric_Seg_DIVER<-function(data, grouping_field="GENUS_CODE", pool_field
   scl$GROUP<-scl[,grouping_field]
   scl$y <- rowSums(scl[,pool_fields,drop=FALSE], na.rm=TRUE) #this will allow you to add the 2 recent dead columns if you are looking at this metric
   
-  rd<-ddply(scl, .(METHOD,SITE,SITEVISITID,TRANSECT,SEGMENT,DIVER,GROUP),
+  rd<-ddply(scl, .(METHOD,SITE,SITEVISITID,TRANSECT,SEGMENT,ANALYST,GROUP),
             summarise,
             Ave.y=mean(y, na.rm=TRUE))
   
-  rdtot<-ddply(scl, .(METHOD,SITE,SITEVISITID,TRANSECT,SEGMENT,DIVER),
+  rdtot<-ddply(scl, .(METHOD,SITE,SITEVISITID,TRANSECT,SEGMENT,ANALYST),
                summarise,
                Ave.y=mean(y, na.rm=TRUE))
   rdtot$GROUP<-"SSSS"; rdtot <- rdtot[c(1,2,3,4,5,6,8,7)]
-  rd_wide<-dcast(rd, formula=METHOD+ SITE + SITEVISITID +TRANSECT+SEGMENT+DIVER ~ GROUP, value.var="Ave.y",fill=0)
+  rd_wide<-dcast(rd, formula=METHOD+ SITE + SITEVISITID +TRANSECT+SEGMENT+ANALYST ~ GROUP, value.var="Ave.y",fill=0)
   rd_long <- gather(rd_wide, GROUP, Ave.y, names(rd_wide[7:dim(rd_wide)[2]]), factor_key=TRUE) #convert wide to long format
   rd_long<-rbind(rd,rdtot)
   
@@ -450,8 +450,8 @@ Calc_RDden_Seg_DIVER<-function(data, survey_colony_f=survey_colony, grouping_fie
   
   #convert from long to wide and fill in 0s
   # Tom gave up trying to make this from dcast to spread to 'keep dependencies down', maybe another day...
-  rd<-dcast(scl_l, formula=METHOD+SITEVISITID + SITE+TRANSECT+SEGMENT++DIVER+COLONYID ~ RDtype, value.var="RDtype",length,fill=0)
-  MDcol=c("METHOD","SITEVISITID","SITE","TRANSECT","SEGMENT","DIVER","COLONYID")
+  rd<-dcast(scl_l, formula=METHOD+SITEVISITID + SITE+TRANSECT+SEGMENT+ANALYST+COLONYID ~ RDtype, value.var="RDtype",length,fill=0)
+  MDcol=c("METHOD","SITEVISITID","SITE","TRANSECT","SEGMENT","ANALYST","COLONYID")
   DATAcol=setdiff(names(rd),MDcol)
   rd.new=rd;  rd.new[,DATAcol][rd.new[,DATAcol]>1]=1  
   
@@ -462,20 +462,20 @@ Calc_RDden_Seg_DIVER<-function(data, survey_colony_f=survey_colony, grouping_fie
                      ConditionsWeCareAbout,
                      factor_key=TRUE) #convert wide to long format by condition
   allrd3_l$GROUP<-allrd3_l[,grouping_field]
-  allrd3_lsum<-ddply(allrd3_l, .(METHOD,SITE,SITEVISITID,TRANSECT,SEGMENT,DIVER,GROUP,RDCond), #calc total colonies by taxon and condition
+  allrd3_lsum<-ddply(allrd3_l, .(METHOD,SITE,SITEVISITID,TRANSECT,SEGMENT,ANALYST,GROUP,RDCond), #calc total colonies by taxon and condition
                      summarise,
                      RDabun=sum(abun))
-  out1<-ddply(allrd3_lsum, .(METHOD,SITE,SITEVISITID,TRANSECT,SEGMENT,DIVER,RDCond), #calc total colonies by condition
+  out1<-ddply(allrd3_lsum, .(METHOD,SITE,SITEVISITID,TRANSECT,SEGMENT,ANALYST,RDCond), #calc total colonies by condition
               summarise,
               RDabun=sum(RDabun,na.rm=T))
   out1$GROUP<-"SSSS"; out1 <- out1[c(1,2,3,4,5,6,9,7,8)] #add total colony code
   a<-subset(rbind(allrd3_lsum,out1),!RDCond %in% c("NONE_G","NONE"))
   
   #Convert back to wide format
-  abun<-dcast(a, formula=METHOD+SITEVISITID +SITE + TRANSECT+SEGMENT+DIVER+GROUP~ RDCond, value.var="RDabun",sum,fill=0)
+  abun<-dcast(a, formula=METHOD+SITEVISITID +SITE + TRANSECT+SEGMENT+ANALYST+GROUP~ RDCond, value.var="RDabun",sum,fill=0)
   
-  uTA=unique(data[,c("METHOD","SITEVISITID","SITE","TRANSECT","SEGMENT","DIVER","SEGAREA")])
-  ab.tr<-merge(x = uTA,y = abun,by=c("METHOD","SITEVISITID","SITE","TRANSECT","SEGMENT","DIVER"))
+  uTA=unique(data[,c("METHOD","SITEVISITID","SITE","TRANSECT","SEGMENT","ANALYST","SEGAREA")])
+  ab.tr<-merge(x = uTA,y = abun,by=c("METHOD","SITEVISITID","SITE","TRANSECT","SEGMENT","ANALYST"))
   #ab.tr<-join(x = uTA,y = abun,by=c("SITEVISITID","SITE","TRANSECT","SEGMENT"))#adding NA.1.....
   #Check NAs - Should be empty...
   new_DF <- sum(rowSums(is.na(ab.tr))) # should be 0
@@ -505,10 +505,10 @@ Calc_CONDden_Seg_DIVER<-function(data,survey_colony_f=survey_colony, grouping_fi
   long <- gather(data= scl, key= CONDcat,value=CONDtype, c(CONDITION_1,CONDITION_2,CONDITION_3,Chronic), factor_key=TRUE)
   
   #convert from long to wide and fill in 0s
-  rd<-dcast(long, formula=METHOD+SITEVISITID + SITE+TRANSECT+SEGMENT+DIVER+COLONYID ~ CONDtype, value.var="CONDtype",length,fill=0)
+  rd<-dcast(long, formula=METHOD+SITEVISITID + SITE+TRANSECT+SEGMENT+ANALYST+COLONYID ~ CONDtype, value.var="CONDtype",length,fill=0)
   x<-c("CHRO");rd[x[!(x %in% colnames(rd))]] = 0 #if data does not have CHRO, add this column with 0s
   
-  MDcol=c("METHOD","SITEVISITID","SITE","TRANSECT","SEGMENT","DIVER","COLONYID")
+  MDcol=c("METHOD","SITEVISITID","SITE","TRANSECT","SEGMENT","ANALYST","COLONYID")
   DATAcol=setdiff(names(rd),MDcol)
   rd.new=rd;  rd.new[,DATAcol][rd.new[,DATAcol]>1]=1  
   
@@ -519,20 +519,20 @@ Calc_CONDden_Seg_DIVER<-function(data,survey_colony_f=survey_colony, grouping_fi
                      ConditionsWeCareAbout,
                      factor_key=TRUE) #convert wide to long format by condition
   allrd3_l$GROUP<-allrd3_l[,grouping_field]
-  allrd3_lsum<-ddply(allrd3_l, .(METHOD,SITE,SITEVISITID,TRANSECT,SEGMENT,DIVER,GROUP,Cond), #calc total colonies by taxon and condition
+  allrd3_lsum<-ddply(allrd3_l, .(METHOD,SITE,SITEVISITID,TRANSECT,SEGMENT,ANALYST,GROUP,Cond), #calc total colonies by taxon and condition
                      summarise,
                      CONDabun=sum(abun))
-  out1<-ddply(allrd3_lsum, .(METHOD,SITE,SITEVISITID,TRANSECT,SEGMENT,DIVER,Cond), #calc total colonies by condition
+  out1<-ddply(allrd3_lsum, .(METHOD,SITE,SITEVISITID,TRANSECT,SEGMENT,ANALYST,Cond), #calc total colonies by condition
               summarise,
               CONDabun=sum(CONDabun,na.rm=T))
   out1$GROUP<-"SSSS"; out1 <- out1[c(1,2,3,4,5,6,9,7,8)] #add total colony code
   a<-subset(rbind(allrd3_lsum,out1),!Cond %in% c("NONE_G","NONE"))
   
   #Convert back to wide format
-  abun<-dcast(a, formula=METHOD+SITEVISITID +SITE +TRANSECT+SEGMENT+DIVER+GROUP~ Cond, value.var="CONDabun",sum,fill=0)
+  abun<-dcast(a, formula=METHOD+SITEVISITID +SITE +TRANSECT+SEGMENT+ANALYST+GROUP~ Cond, value.var="CONDabun",sum,fill=0)
   
-  uTA=unique(data[,c("METHOD","SITEVISITID","SITE","TRANSECT","SEGMENT","DIVER","SEGAREA")])
-  ab.tr<-merge(x = uTA,y = abun,by=c("METHOD","SITEVISITID","SITE","TRANSECT","SEGMENT","DIVER"))
+  uTA=unique(data[,c("METHOD","SITEVISITID","SITE","TRANSECT","SEGMENT","ANALYST","SEGAREA")])
+  ab.tr<-merge(x = uTA,y = abun,by=c("METHOD","SITEVISITID","SITE","TRANSECT","SEGMENT","ANALYST"))
   #ab.tr<-join(x = uTA,y = abun,by=c("SITEVISITID","SITE","TRANSECT","SEGMENT"))#adding NA.1.....
   #Check NAs - Should be empty...
   new_DF <- sum(rowSums(is.na(ab.tr))) # should be 0

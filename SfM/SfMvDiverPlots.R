@@ -6,6 +6,7 @@ source("C:/Users/Corinne.Amir/Documents/GitHub/Benthic-Scripts/Functions/SfMvDiv
 
 
 data.gen<-read.csv("T:/Benthic/Data/SfM/Summarized Data/HARAMP_repeats_GENUS_Summarized Data.csv") #meant for comparison
+data.gen<-read.csv("T:/Benthic/Data/SfM/Summarized Data/HARAMP_repeats_GENUS_ANALYST_Summarized Data.csv") #comparison utilizing orginal observer names
 #data.gen<-read.csv("T:/Benthic/Data/SfM/Summarized Data/HARAMP_repeats_GENUS_Summarized Data-CALIBRATION.csv") #meant for calibration
 seglist<-read.csv("T:/Benthic/Data/SfM/Summarized Data/Comparison_seglist.csv") #meant for comparison
 
