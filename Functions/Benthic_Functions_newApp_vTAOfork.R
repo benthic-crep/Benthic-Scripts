@@ -562,8 +562,8 @@ Calc_ColDen_Transect<-function(data, grouping_field="GENUS_CODE"){
   data$GROUP<-data[,grouping_field] #assign a grouping field for taxa
   
   #Remove Tubastrea
-  data$S_ORDER<-ifelse(data$GROUP=="TUSP",NA,data$S_ORDER)
-  data$GROUP<-ifelse(data$GROUP=="TUSP","AAAA",data$GROUP)
+  data$S_ORDER<-ifelse(data$GROUP=="TUSP",NA,as.character(data$S_ORDER))
+  data$GROUP<-ifelse(data$GROUP=="TUSP","AAAA",as.character(data$GROUP))
 
 
   #Calculate # of colonies for each variable. You need to have S_ORDER and Fragment here so you can incorporate zeros properly later in the code
@@ -574,7 +574,7 @@ Calc_ColDen_Transect<-function(data, grouping_field="GENUS_CODE"){
   #Convert from long to wide and insert 0s for taxa that weren't found at each site. 
   #ca<-dcast(a, formula=SITE + SITEVISITID +TRANSECT +Fragment+S_ORDER~ GROUP, value.var="ColCount",fill=0)
   ca0=spread(a,key=GROUP,value=ColCount,fill=0) #Keepin' it TIDYR
-  data.cols<-names(ca0[7:dim(ca0)[2]]) #define your data coloumns- note you need to index by column number not by names-you may have situations where there are no AAAA
+  data.cols<-names(ca0[6:dim(ca0)[2]]) #define your data coloumns- note you need to index by column number not by names-you may have situations where there are no AAAA
   field.cols<-c("SITE", "SITEVISITID", "TRANSECT","Fragment") #define field columns
   
   ### Drop all fragments, but don't drop a fragment-only transect... ###
@@ -612,8 +612,10 @@ Calc_ColDen_Transect<-function(data, grouping_field="GENUS_CODE"){
 ##This function calculates mean colony legnth, % recent dead, % old dead, condition severity or condition extent to the transect level
 Calc_ColMetric_Transect<-function(data, grouping_field="S_ORDER",pool_fields=c("COLONYLENGTH","RDEXTENT1", "RDEXTENT2","RDEXTENT3","OLDDEAD","SEVERITY1","EXTENT1","SEVERITY2","EXTENT2","SEVERITY3","EXTENT3")){
   
-  scl<-subset(data,Fragment==0&S_ORDER=="Scleractinia") #excludes fragments and anything that isn't a hard coral
-  scl$GROUP<-scl[,grouping_field]
+  data$GROUP<-data[,grouping_field]
+  
+  scl<-subset(data,Fragment==0&S_ORDER=="Scleractinia" & GROUP!="TUSP") #excludes fragments and anything that isn't a hard coral
+  
   scl$y <- rowSums(scl[,pool_fields,drop=FALSE], na.rm=TRUE) #this will allow you to add the 2 recent dead columns if you are looking at this metric
   
   rd<-ddply(scl, .(SITE,SITEVISITID,TRANSECT,GROUP),
@@ -637,7 +639,10 @@ Calc_ColMetric_Transect<-function(data, grouping_field="S_ORDER",pool_fields=c("
 
 #Updated 1/24/20
 Calc_RDden_Transect<-function(data, survey_colony_f=survey_colony, grouping_field="S_ORDER"){
-  scl<-subset(data,Fragment==0 &S_ORDER=="Scleractinia")
+
+  data$GROUP<-data[,grouping_field]
+  
+  scl<-subset(data,Fragment==0&S_ORDER=="Scleractinia" & GROUP!="TUSP") #excludes fragments and anything that isn't a hard coral
   
   #add and "_G" to the general cause code so that we distiguish it from specific cause codes
   scl$GENRD1<-paste(scl$GENRD1,"_G",sep="");scl$GENRD2<-paste(scl$GENRD2,"_G",sep="");scl$GENRD3<-paste(scl$GENRD3,"_G",sep="")
@@ -699,7 +704,10 @@ Calc_RDden_Transect<-function(data, survey_colony_f=survey_colony, grouping_fiel
 
 #Updated 1/24/20
 Calc_CONDden_Transect<-function(data,survey_colony_f=survey_colony, grouping_field="S_ORDER"){
-  scl<-subset(data,Fragment==0 &S_ORDER=="Scleractinia")
+  
+  data$GROUP<-data[,grouping_field]
+  
+  scl<-subset(data,Fragment==0&S_ORDER=="Scleractinia" & GROUP!="TUSP") #excludes fragments and anything that isn't a hard coral
   
   #Add a column that indicates (1= yes, 0= no) whether the colony had a chronic disease
   scl$Chronic<-ifelse(scl$CONDITION_1 %in% c("SGA","PTR","FUG")|scl$CONDITION_2 %in% c("SGA","PTR","FUG")|scl$CONDITION_3 %in% c("SGA","PTR","FUG"),"CHRO","NONE")

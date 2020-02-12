@@ -19,8 +19,6 @@ jwd<-read.csv("T:/Benthic/Data/REA Coral Demography & Cover/Analysis Ready Raw d
 
 #Final Tweaks before calculating Site-level data-------------------------------------------------
 #Colony fragments and scleractinans are subseted in the functions 
-
-
 #Add a column for adult fragments so we can remove them from the dataset later (-1 indicates fragment)
 # awd<-CreateFragment(awd)
 awd$Fragment<-ifelse(awd$OBS_YEAR <2018 & awd$COLONYLENGTH <5 & awd$S_ORDER=="Scleractinia",-1,awd$Fragment)
@@ -30,14 +28,18 @@ jwd$Fragment <- 0 # you need to add this column so that you can use the site lev
 
 #Simplify Bleaching Severity categories: in 2019 the team decided to simplify the bleaching severity from 1-5 to 1-3 to improve consistency in severity values
 #This code converts the severity data collected prior to 2019 to a 1-3 scale
-awd_pre<-awd[awd$OBS_YEAR<2019,]
-awd_post<-awd[awd$OBS_YEAR>=2019,]
+awd$DATE_ <- as.Date(awd$DATE_, format = "%Y-%m-%d")
+jwd$DATE_ <- as.Date(jwd$DATE_, format = "%Y-%m-%d")
+
+
+awd_pre <- awd %>% filter(DATE_ < as.Date('2019-07-11'))
+awd_post<-awd %>% filter(DATE_ >= as.Date('2019-07-11'))
 Convert_Severity<-function(data,severity_field,severity_new){
   data$SEV<-data[,severity_field]
   data<-data %>% mutate(sev_new=recode(SEV, 
-                                       `1`="1",
-                                       `2`="1",
-                                       `3`="3",
+                                       `1`="NA",
+                                       `2`="NA",
+                                       `3`="2",
                                        `4`="3",
                                        `5`="3"))
   colnames(data)[which(colnames(data) == 'sev_new')] <- severity_new #change group to whatever your grouping field is.
@@ -63,38 +65,29 @@ head(awd_pre)
 
 
 #Combine dataframes before and after 2019 & check that rows weren't dropped
-awd.<-rbind(awd_pre,awd_post)
+awd.<-rbind(awd_pre,awd_post);write.csv(awd.,"test.csv")
+#Do we want to remove these there are a lot of them.
+#awd.$CONDITION_1<-ifelse(awd.$CONDITION_1 %in% c("BLE","BLP") & is.na(SEVERITY_1),"NDZ",as.character(awd.$CONDITION_1))
 nrow(awd)
 nrow(awd.);head(awd.)
 awd<-awd.; rm("awd.") #remove temporary dataframe if all good. 
 
 
+
+
 #Create a look a table of all of the colony attributes- you will need this the functions below
 SURVEY_COL<-c("DATE_","SITEVISITID", "OBS_YEAR", "REGION", "REGION_NAME", "ISLAND","ISLANDCODE","SEC_NAME", "SITE", "REEF_ZONE",
-               "DEPTH_BIN", "LATITUDE", "LONGITUDE","SITE_MIN_DEPTH","SITE_MAX_DEPTH","TRANSECT","COLONYID","GENUS_CODE","TAXONCODE","SPCODE","COLONYLENGTH")
+               "DEPTH_BIN", "LATITUDE", "LONGITUDE","MIN_DEPTH_M","MAX_DEPTH_M","TRANSECT","SEGMENT","COLONYID","GENUS_CODE","TAXONCODE","SPCODE","COLONYLENGTH")
 survey_colony<-unique(awd[,SURVEY_COL])#new_Aggregate_InputTable(awd, SURVEY_INFO)#TAO 2019/10/07
 
-SURVEY_SITE<-c("DATE_","SITEVISITID", "OBS_YEAR", "REGION", "REGION_NAME", "ISLAND","ISLANDCODE","SEC_NAME", "SITE", "REEF_ZONE",
-               "DEPTH_BIN", "LATITUDE", "LONGITUDE")
+SURVEY_SITE<-c("MISSIONID","DATE_","SITEVISITID", "ANALYSIS_YEAR","OBS_YEAR", "REGION", "REGION_NAME", "ISLAND","ISLANDCODE","SEC_NAME", "SITE", "REEF_ZONE",
+               "DEPTH_BIN", "LATITUDE", "LONGITUDE","MIN_DEPTH_M","MAX_DEPTH_M")
 survey_siteAd<-unique(awd[,SURVEY_SITE])#new_Aggregate_InputTable(awd, SURVEY_INFO)#TAO 2019/10/07
 
-SURVEY_SITE<-c("DATE_","SITEVISITID", "OBS_YEAR", "REGION", "REGION_NAME", "ISLAND","ISLANDCODE","SEC_NAME", "SITE", "REEF_ZONE",
-               "DEPTH_BIN", "LATITUDE", "LONGITUDE")
+SURVEY_SITE<-c("MISSIONID","DATE_","SITEVISITID", "ANALYSIS_YEAR","OBS_YEAR", "REGION", "REGION_NAME", "ISLAND","ISLANDCODE","SEC_NAME", "SITE", "REEF_ZONE",
+               "DEPTH_BIN", "LATITUDE", "LONGITUDE","MIN_DEPTH_M","MAX_DEPTH_M")
 survey_siteJ<-unique(jwd[,SURVEY_SITE])#new_Aggregate_InputTable(awd, SURVEY_INFO)#TAO 2019/10/07
 
-#There can be multiple depths for a given site since more than one transect has been surveyed
-#This code identifies the max and min depth for a site then merges into site visit table for ad and j dataframes
-tmp<-ddply(awd,.(SITEVISITID),summarize,
-           SITE_MAX_DEPTH=max(SITE_MAX_DEPTH),
-           SITE_MIN_DEPTH=max(SITE_MIN_DEPTH))
-nrow(survey_siteAd)
-survey_siteAd<-left_join(survey_siteAd,tmp);nrow(survey_siteAd)
-
-tmp<-ddply(jwd,.(SITEVISITID),summarize,
-           SITE_MAX_DEPTH=max(SITE_MAX_DEPTH),
-           SITE_MIN_DEPTH=max(SITE_MIN_DEPTH))
-nrow(survey_siteJ)
-survey_siteJ<-left_join(survey_siteJ,tmp);nrow(survey_siteJ)
 
 #We did juvenile only surveys in 2017 in PRIA, this will make sure the SV table has both adult and juv sites.
 survey_site<-left_join(survey_siteJ,survey_siteAd);nrow(survey_site) 
@@ -102,9 +95,6 @@ survey_site<-left_join(survey_siteJ,survey_siteAd);nrow(survey_site)
 #TEMPORARY WORK AROUND-ASK MICHAEL TO FIX
 survey_site$REEF_ZONE<-ifelse(survey_site$SITE=="HAW-04285","Forereef",as.character(survey_site$REEF_ZONE))
 
-######################  ######################  ######################  ######################  ###################### 
-###################### COURTNEY AND TOM REVIEWED TO THIS POINT 2019/10/07 ###################### 
-######################  ######################  ######################  ######################  ###################### 
 
 # GENERATE SUMMARY METRICS at the transect-leveL BY GENUS--------------------------------------------------
 #Calc_ColDen_Transect
@@ -306,10 +296,10 @@ nrow(meta)
 
 #Merge site level data and meta data
 site.data.gen2<-left_join(site.data.gen2,meta)
-rich.data.gen<-left_join(rich.gen,meta)
-site.data.sp2<-left_join(site.data.sp2)
-rich.data.sp<-left_join(rich.sp,meta)
-site.data.tax2<-left_join(site.data.tax2)
+rich.data.gen<-left_join(rich.gen,meta,meta)
+site.data.sp2<-left_join(site.data.sp2,meta)
+rich.data.sp<-left_join(rich.sp,meta,meta)
+site.data.tax2<-left_join(site.data.tax2,meta)
 
 rich.data.tax<-left_join(rich.tax,meta)
 

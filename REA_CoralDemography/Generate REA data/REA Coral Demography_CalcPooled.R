@@ -20,16 +20,15 @@ site.data.sp2<-read.csv("T:/Benthic/Data/REA Coral Demography & Cover/Summary Da
 site.data.tax2<-read.csv("T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Site/BenthicREA_sitedata_TAXONCODE.csv")
 
 
-#TEMPORARY FIX-SPEAK WITH DM TO CORRECT IN ORACLE
 #Change all special missions to exclude flag =-1, right now they are 0. Then exclude these sites
-levels(x$MISSIONID)
-x$EXCLUDE_FLAG<-ifelse(x$MISSIONID %in% c("MP1410","MP1512","MP1602","SE1602"),-1,0)
-head(subset(x,EXCLUDE_FLAG==-1))
+levels(site.data.gen2$MISSIONID)
+site.data.gen2$EXCLUDE_FLAG<-ifelse(site.data.gen2$MISSIONID %in% c("MP1410","MP1512","MP1602"),-1,0) #I left SE1602 in (2016 Jarvis and Rose)
+head(subset(site.data.gen2,EXCLUDE_FLAG==-1))
 
 #Actually remove special missions.
-x<-subset(x,EXCLUDE_FLAG==0);
+site.data.gen2<-subset(site.data.gen2,EXCLUDE_FLAG==0);
 # this dataframe should be empty
-head(subset(x,EXCLUDE_FLAG==-1))
+head(subset(site.data.gen2,EXCLUDE_FLAG==-1))
 
 
 # POOLING DATA from Site to Strata and Domain---------------------------------------------------

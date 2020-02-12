@@ -67,7 +67,6 @@ colnames(x)[colnames(x)=="RECENT_SPECIFIC_CAUSE_CODE_3"]<-"RD3" #Change column n
 colnames(x)[colnames(x)=="FRAGMENT_YN"]<-"Fragment" #Change column name
 colnames(x)[colnames(x)=="COND"]<-"CONDITION_1" #Change column name
 
-x$OBS_YEAR<-as.factor(x$OBS_YEAR)#convert to factor to merge with taxa master later in code
 
 if(DEBUG){head(x)}
 
@@ -84,7 +83,7 @@ SIOYerrors<-unique(c(OYerror,SIerror))
 if(length(SIOYerrors)>0){print(paste0("Warning: Raw Data disagree with Survey Master for sitevisitids: ",x$SITEVISITID[SIOYerrors]))}
 
 #merge 'em NOTE: left-join will spit out a Warning message that you are joining on factors that have different levels. Basically you have more sites in survey master than x. This is correct and can be ignored here.
-x<-left_join(x, survey_master[,c("OBS_YEAR","SITEVISITID","SITE","SEC_NAME","ANALYSIS_YEAR","bANALYSIS_SCHEME")])  
+x<-left_join(x, survey_master[,c("OBS_YEAR","SITEVISITID","SITE","SEC_NAME","ANALYSIS_YEAR","bANALYSIS_SCHEME","MIN_DEPTH_M","MAX_DEPTH_M")])  
 
 if(DEBUG){write.csv(x,"test.csv")}
 
@@ -135,6 +134,8 @@ x$RDEXTENT3<-ifelse(x$S_ORDER=="Scleractinia"& is.na(x$RDEXTENT3),0,x$RDEXTENT3)
 #MODIFY WITH CAUTION
 #read in list of taxa that we feel comfortable identifying to species or genus level. Note, taxa lists vary by year and region. This will need to be updated through time.
 taxa<-read.csv("T:/Benthic/Data/Lookup Tables/2013-19_Taxa_MASTER.csv")
+
+x$OBS_YEAR<-as.factor(x$OBS_YEAR)#convert to factor to merge with taxa master
 
 #Convert SPCODE in raw colony data to TAXONCODE -generates a look up table
 #This function will give you warnings that you are joining factors with different levels. THis is correct, but doesn't matter. Ignore
@@ -238,7 +239,7 @@ x[is.na(x$CONDITION_3),"CONDITION_3"]<-"NONE"
 head(x)
 
 awd<-droplevels(x)
-write.csv(awd,file="T:/Benthic/Data/REA Coral Demography & Cover/Analysis Ready Raw data/CoralBelt_E_raw_CLEANED.csv")
+write.csv(awd,file="T:/Benthic/Data/REA Coral Demography & Cover/Analysis Ready Raw data/CoralBelt_E_raw_CLEANED.csv",row.names = FALSE)
 
 
 ## CREATE JUVENILE CLEAN ANALYSIS READY DATA ----
@@ -273,7 +274,6 @@ sapply(x,class)##Change column names to make code easier to code
 
 colnames(x)[colnames(x)=="TAXONCODE"]<-"SPCODE" #Change column name
 colnames(x)[colnames(x)=="TRANSECTNUM"]<-"TRANSECT" #Change column name
-x$OBS_YEAR<-as.factor(x$OBS_YEAR)#convert to factor to merge with taxa master later in code
 
 
 head(x)
@@ -287,7 +287,7 @@ survey_master<-read.csv("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/d
 #x<-merge(x, survey_master[,c("SITE", "SEC_NAME", "ANALYSIS_SEC", "ANALYSIS_YEAR", "ANALYSIS_SCHEME")], by="SITE", all.x=TRUE) #Fish team's original code, we may want to create analysis scheme later in the 
 length(unique(x$SITEVISITID)) #double check that sites weren't dropped
 
-x<-left_join(x, survey_master[,c("OBS_YEAR","SITEVISITID","SITE","SEC_NAME","ANALYSIS_YEAR","bANALYSIS_SCHEME")])  
+x<-left_join(x, survey_master[,c("OBS_YEAR","SITEVISITID","SITE","SEC_NAME","ANALYSIS_YEAR","bANALYSIS_SCHEME","MAX_DEPTH_M", "MIN_DEPTH_M")])  
 length(unique(x$SITEVISITID)) #double check that sites weren't dropped
 
 if (DEBUG) {write.csv(x,"test.csv")}
@@ -325,11 +325,15 @@ x<-subset(x,SEGLENGTH!="NA") #Remove segments that were not surveyed for coral d
 #read in list of taxa that we feel comfortable identifying to species or genus level. Note, taxa lists vary by year and region. This will need to be updated through time.
 taxa<-read.csv("T:/Benthic/Data/Lookup Tables/2013-19_Taxa_MASTER.csv")
 
-taxa$OBS_YEAR<-as.integer(taxa$OBS_YEAR) #need to convert to factor in order to join with taxa df
+x$OBS_YEAR<-as.factor(x$OBS_YEAR) #need to convert to factor in order to join with taxa df
 nrow(x)
 #Convert SPCODE in raw colony data to TAXONCODE -generates a look up table
 x$TAXONCODE<-Convert_to_Taxoncode(data = x,taxamaster = taxa)
 nrow(x)
+
+#Check to make sure SPCODE was converted correctly
+View(subset(x,SPCODE!=TAXONCODE))
+
 
 #If there are issues use this code to create a list SPCODE (lowest taxonomic resolution we have), TAXONCODE (the taxonomic level we all feel comfortable with) and associated genera
 #This is used for spot checking that TAXONCODE was converted properly & can be compared against TAXA MASTER 
@@ -380,10 +384,10 @@ nrow(x)
 
 
 ## CLEAN UP NAs ##
-NegNineCheckCols=c("S_ORDER","TAXONNAME","SITE_MIN_DEPTH","SITE_MAX_DEPTH","COLONYLENGTH")
+NegNineCheckCols=c("S_ORDER","TAXONNAME","COLONYLENGTH")
 x[,NegNineCheckCols][x[,NegNineCheckCols] ==-9] <- NA #Convert missing numeric values to NA (they are entered as -9 in Oracle)
 
 
 jwd<-droplevels(x)
-write.csv(jwd,file="T:/Benthic/Data/REA Coral Demography & Cover/Analysis Ready Raw data/CoralBelt_F_raw_CLEANED.csv")
+write.csv(jwd,file="T:/Benthic/Data/REA Coral Demography & Cover/Analysis Ready Raw data/CoralBelt_F_raw_CLEANED.csv",row.names = FALSE)
 
