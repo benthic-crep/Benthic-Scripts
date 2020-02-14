@@ -23,9 +23,12 @@ bia$SITE<-SiteNumLeadingZeros(bia$SITE)
 #CNET data - from CoralNet
 #These data contain human annotated data. There may be a small subset of robot annotated data. 
 #The robot annoations are included because the confidence threshold in CoralNet was set to 90% allowing the robot to annotate points when it was 90% certain.
-load("T:/Benthic/Data/REA Coral Demography & Cover/Raw from Oracle/ALL_BIA_STR_CNET2.rdata") #load data
-t$SITE<-SiteNumLeadingZeros(t$SITE)
-cnet<-t
+#2019 NWHI data not in these view because it was analyzed as part of a bleaching dataset
+load("T:/Benthic/Data/REA Coral Demography & Cover/Raw from Oracle/ALL_BIA_STR_CNET.rdata") #load data
+cnet$SITE<-SiteNumLeadingZeros(cnet$SITE)
+table(cnet$REGION,cnet$OBS_YEAR)
+
+
 ##Generate Table of all the bia categories to review
 head(bia)
 bia_tab<-ddply(bia,.(TIER_1, CATEGORY_NAME, TIER_2, SUBCATEGORY_NAME, TIER_3, GENERA_NAME),summarize,count=sum(POINTS))
@@ -40,10 +43,9 @@ cnet_tab<-ddply(cnet,.(CATEGORY_CODE,CATEGORY_NAME,SUBCATEGORY_CODE,SUBCATEGORY_
 
 sm<-read.csv("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/data/SURVEY MASTER.csv")
 sm$SITE<-SiteNumLeadingZeros(sm$SITE)
-sm$PERM
 sectors<-read.csv("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/data/Sectors-Strata-Areas.csv")
 
-
+test<-subset(sm,OBS_YEAR=="2019",TRANSECT_PHOTOS=="-1");nrow(test)
 
 # Merge together all Photoquad Datasets & make sure columns match ---------------------------------------
 
@@ -85,6 +87,10 @@ write.csv(test2,"BIA_pointnumbercheck.csv")
 #use this later in the script to make sure sites haven't been dropped after data clean up.
 oracle.site<-ddply(ab,.(REGION,OBS_YEAR),summarize,nSite=length(unique(SITE)))
 oracle.site
+
+#Check this against site master list
+sm.test<-subset(sm,OBS_YEAR=="2019");nrow(sm.test)
+sm.site<-ddply(sm.test,.(REGION,OBS_YEAR),summarize,nSite=length(unique(SITE)));sm.site
 
 #write.csv(ab, file="tmp All BIA BOTH METHODS.csv")
 

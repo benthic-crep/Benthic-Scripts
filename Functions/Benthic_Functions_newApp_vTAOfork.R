@@ -798,12 +798,14 @@ PoolSecStrat=function(site_data){
   site_data$BEN_SEC<-site_data$SEC_NAME
   
   #Changing sector pooling SAMOA
-  site_data$BEN_SEC<-ifelse(site_data$OBS_YEAR=="2018"& site_data$ISLAND =="Tutuila","TUT",as.character(site_data$BEN_SEC))
+  site_data$BEN_SEC<-ifelse(site_data$OBS_YEAR=="2018"&site_data$BEN_SEC %in% c("TUT_NE_OPEN","TUT_AUNUU_A"),"TUT_NE",as.character(site_data$BEN_SEC))
+  site_data$BEN_SEC<-ifelse(site_data$OBS_YEAR=="2018"&site_data$BEN_SEC %in% c("TUT_FAGALUA","TUT_FAGATELE"),"TUT_FAGALUA_FAGATELE",as.character(site_data$BEN_SEC))
+  #site_data$BEN_SEC<-ifelse(site_data$OBS_YEAR=="2018"& site_data$ISLAND =="Tutuila","TUT",as.character(site_data$BEN_SEC)) #Dione suggested we just pool up to island for sector- don't agree
   site_data$BEN_SEC<-ifelse(site_data$OBS_YEAR=="2018"&site_data$BEN_SEC %in% c("TAU_OPEN","TAU_SANCTUARY"),"TAU",as.character(site_data$BEN_SEC))
   site_data$BEN_SEC<-ifelse(site_data$OBS_YEAR=="2018"&site_data$BEN_SEC %in% c("SWA_OPEN","SWA_SANCTUARY"),"SWA",as.character(site_data$BEN_SEC))
   site_data$BEN_SEC<-ifelse(site_data$OBS_YEAR=="2015"&site_data$BEN_SEC %in% c("TAU_OPEN","TAU_SANCTUARY"),"TAU",as.character(site_data$BEN_SEC))
-  site_data$BEN_SEC<-ifelse(site_data$OBS_YEAR=="2015"&site_data$BEN_SEC %in% c("TUT_NE","TUT_AUNUU_A"),"TUT_NE",as.character(site_data$BEN_SEC))
-  site_data$BEN_SEC<-ifelse(site_data$OBS_YEAR=="2015"&site_data$BEN_SEC %in% c("TUT_SW","TUT_FAGALUA"),"TUT_SW",as.character(site_data$BEN_SEC))
+  site_data$BEN_SEC<-ifelse(site_data$OBS_YEAR=="2015"&site_data$BEN_SEC %in% c("TUT_NE_OPEN","TUT_AUNUU_A"),"TUT_NE",as.character(site_data$BEN_SEC))
+  site_data$BEN_SEC<-ifelse(site_data$OBS_YEAR=="2015"&site_data$BEN_SEC %in% c("TUT_SW_OPEN","TUT_FAGALUA"),"TUT_SW",as.character(site_data$BEN_SEC))
   
   #Changing sector pooling PRIA
   site_data <- site_data[!(site_data$OBS_YEAR == "2018" & site_data$ISLAND=="Kingman" & site_data$REEF_ZONE=="Backreef"),] 
@@ -835,33 +837,35 @@ PoolSecStrat=function(site_data){
   site_data$STRATANAME=paste0(site_data$BEN_SEC,"_",site_data$DB_RZ)
   
   #Changing STRATA pooling structure for SAMOA
-  site_data$STRATANAME<-ifelse(site_data$OBS_YEAR=="2015"&site_data$STRATANAME %in% c("TUT_AUNUU_B_FM","TUT_AUNUU_B_FS"),"TUT_AUNUU_B_FMS",as.character(site_data$STRATANAME))
-  site_data$STRATANAME<-ifelse(site_data$OBS_YEAR=="2015"&site_data$BEN_SEC=="ROS_SANCTUARY"&site_data$DB_RZ %in% c("FM","FD"), "ROS_FMD",as.character(site_data$STRATANAME))
-  
-  #Changing STRATA pooling structure for PRIA
-  site_data$STRATANAME<-ifelse(site_data$BEN_SEC=="Johnston"&site_data$DB_RZ %in% c("BM","BD"), "Johnston_BMD",as.character(site_data$STRATANAME))
-  site_data$STRATANAME<-ifelse(site_data$BEN_SEC=="Johnston"&site_data$DB_RZ %in% c("FM","FS"), "Johnston_FMS",as.character(site_data$STRATANAME))
+  # site_data$STRATANAME<-ifelse(site_data$OBS_YEAR=="2015"&site_data$STRATANAME %in% c("TUT_AUNUU_B_FM","TUT_AUNUU_B_FS"),"TUT_AUNUU_B_FMS",as.character(site_data$STRATANAME))
+  # site_data$STRATANAME<-ifelse(site_data$OBS_YEAR=="2015"&site_data$BEN_SEC=="ROS_SANCTUARY"&site_data$DB_RZ %in% c("FM","FD"), "ROS_FMD",as.character(site_data$STRATANAME))
+  # site_data$STRATANAME<-ifelse(site_data$OBS_YEAR=="2018"&site_data$STRATANAME %in% c("TUT_NE_FM","TUT_NE_FS"),"TUT_NE_FMS",as.character(site_data$STRATANAME))
+  # site_data$STRATANAME<-ifelse(site_data$OBS_YEAR=="2018"&site_data$STRATANAME %in% c("TUT_SW_FD","TUT_SW_FM"),"TUT_SW_FDM",as.character(site_data$STRATANAME))
+  # 
+  # #Changing STRATA pooling structure for PRIA
+  # site_data$STRATANAME<-ifelse(site_data$BEN_SEC=="Johnston"&site_data$DB_RZ %in% c("BM","BD"), "Johnston_BMD",as.character(site_data$STRATANAME))
+  # site_data$STRATANAME<-ifelse(site_data$BEN_SEC=="Johnston"&site_data$DB_RZ %in% c("FM","FS"), "Johnston_FMS",as.character(site_data$STRATANAME))
   site_data$STRATANAME<-ifelse(site_data$BEN_SEC=="Johnston"&site_data$REEF_ZONE =="Lagoon", "Johnston_LA",as.character(site_data$STRATANAME))
   
-  #Changing STRATA pooling structure for Guam and CNMI
-  site_data$STRATANAME<-ifelse(site_data$OBS_YEAR=="2014"&site_data$STRATANAME %in% c("Aguijan_FD","Aguijan_FM"),"Aguijan_FMD",as.character(site_data$STRATANAME))
-  
-  #Changing STRATA pooling structure for MHI
-  site_data$STRATANAME<-ifelse(site_data$STRATANAME %in% c("LAN_NORTH_FD","LAN_NORTH_FM"),"LAN_NORTH_FMD",as.character(site_data$STRATANAME))
-  site_data$STRATANAME<-ifelse(site_data$OBS_YEAR=="2016"& site_data$BEN_SEC=="NII_SI"&site_data$DB_RZ %in% c("FM","FD"), "NII_SI_FMD",as.character(site_data$STRATANAME))
-  site_data$STRATANAME<-ifelse(site_data$OBS_YEAR=="2016"& site_data$BEN_SEC=="OAH_NE"&site_data$DB_RZ %in% c("FM","FD"), "OAH_NE_FMD",as.character(site_data$STRATANAME))
-  site_data$STRATANAME<-ifelse(site_data$BEN_SEC=="KAH_SO"&site_data$DB_RZ %in% c("FM","FD"), "KAH_SO_FMD",as.character(site_data$STRATANAME))
-  site_data$STRATANAME<-ifelse(site_data$OBS_YEAR=="2013"&site_data$BEN_SEC=="MAI_CM"&site_data$DB_RZ %in% c("FM","FD"), "MAI_CM_FMD",as.character(site_data$STRATANAME))
-  
-  site_data$STRATANAME<-ifelse(site_data$BEN_SEC=="MAI_SI", "MAI_SI_A",as.character(site_data$STRATANAME))
-  site_data$STRATANAME<-ifelse(site_data$OBS_YEAR=="2016"&site_data$BEN_SEC=="MOL_PALI", "MOL_PALI_A",as.character(site_data$STRATANAME))
-  site_data$STRATANAME<-ifelse(site_data$OBS_YEAR=="2016"&site_data$BEN_SEC=="MOL_SOUTH", "MOL_SOUTH_ALL",as.character(site_data$STRATANAME))
-  site_data$STRATANAME<-ifelse(site_data$OBS_YEAR=="2016"&site_data$BEN_SEC=="MOL_SI"&site_data$DB_RZ %in% c("FM","FD"), "MOL_SI_FMD",as.character(site_data$STRATANAME))
-  
-  #Changing STRATA pooling structure for NWHI
-  site_data$STRATANAME<-ifelse(site_data$OBS_YEAR %in% c("2014","2015")& site_data$BEN_SEC=="Laysan"&site_data$DB_RZ %in% c("FM","FS"), "Laysan_FMS",as.character(site_data$STRATANAME))
-  site_data$STRATANAME<-ifelse(site_data$OBS_YEAR %in% c("2014","2015")& site_data$BEN_SEC=="Maro"&site_data$DB_RZ %in% c("FM","FD"), "Maro_FMD",as.character(site_data$STRATANAME))
-  site_data$STRATANAME<-ifelse(site_data$OBS_YEAR %in% c("2014","2015")& site_data$BEN_SEC=="Pearl & Hermes"&site_data$DB_RZ %in% c("FM","FS"), "Pearl & Hermes_FMS",as.character(site_data$STRATANAME))
+  # #Changing STRATA pooling structure for Guam and CNMI
+  # site_data$STRATANAME<-ifelse(site_data$OBS_YEAR=="2014"&site_data$STRATANAME %in% c("Aguijan_FD","Aguijan_FM"),"Aguijan_FMD",as.character(site_data$STRATANAME))
+  # 
+  # #Changing STRATA pooling structure for MHI
+  # site_data$STRATANAME<-ifelse(site_data$STRATANAME %in% c("LAN_NORTH_FD","LAN_NORTH_FM"),"LAN_NORTH_FMD",as.character(site_data$STRATANAME))
+  # site_data$STRATANAME<-ifelse(site_data$OBS_YEAR=="2016"& site_data$BEN_SEC=="NII_SI"&site_data$DB_RZ %in% c("FM","FD"), "NII_SI_FMD",as.character(site_data$STRATANAME))
+  # site_data$STRATANAME<-ifelse(site_data$OBS_YEAR=="2016"& site_data$BEN_SEC=="OAH_NE"&site_data$DB_RZ %in% c("FM","FD"), "OAH_NE_FMD",as.character(site_data$STRATANAME))
+  # site_data$STRATANAME<-ifelse(site_data$BEN_SEC=="KAH_SO"&site_data$DB_RZ %in% c("FM","FD"), "KAH_SO_FMD",as.character(site_data$STRATANAME))
+  # site_data$STRATANAME<-ifelse(site_data$OBS_YEAR=="2013"&site_data$BEN_SEC=="MAI_CM"&site_data$DB_RZ %in% c("FM","FD"), "MAI_CM_FMD",as.character(site_data$STRATANAME))
+  # 
+  # site_data$STRATANAME<-ifelse(site_data$BEN_SEC=="MAI_SI", "MAI_SI_A",as.character(site_data$STRATANAME))
+  # site_data$STRATANAME<-ifelse(site_data$OBS_YEAR=="2016"&site_data$BEN_SEC=="MOL_PALI", "MOL_PALI_A",as.character(site_data$STRATANAME))
+  # site_data$STRATANAME<-ifelse(site_data$OBS_YEAR=="2016"&site_data$BEN_SEC=="MOL_SOUTH", "MOL_SOUTH_ALL",as.character(site_data$STRATANAME))
+  # site_data$STRATANAME<-ifelse(site_data$OBS_YEAR=="2016"&site_data$BEN_SEC=="MOL_SI"&site_data$DB_RZ %in% c("FM","FD"), "MOL_SI_FMD",as.character(site_data$STRATANAME))
+  # 
+  # #Changing STRATA pooling structure for NWHI
+  # site_data$STRATANAME<-ifelse(site_data$OBS_YEAR %in% c("2014","2015")& site_data$BEN_SEC=="Laysan"&site_data$DB_RZ %in% c("FM","FS"), "Laysan_FMS",as.character(site_data$STRATANAME))
+  # site_data$STRATANAME<-ifelse(site_data$OBS_YEAR %in% c("2014","2015")& site_data$BEN_SEC=="Maro"&site_data$DB_RZ %in% c("FM","FD"), "Maro_FMD",as.character(site_data$STRATANAME))
+  # site_data$STRATANAME<-ifelse(site_data$OBS_YEAR %in% c("2014","2015")& site_data$BEN_SEC=="Pearl & Hermes"&site_data$DB_RZ %in% c("FM","FS"), "Pearl & Hermes_FMS",as.character(site_data$STRATANAME))
   
   #Create a new depth bin column that has the combined depths
   site_data$DB<-site_data$DB_RZ
@@ -1249,8 +1253,8 @@ Calc_Domain_Prevalence=function(site_data,grouping_field="S_ORDER",metric_field)
                              "n","Ntot","prev","SEprev")]
   
   colnames(Domain_roll)[which(colnames(Domain_roll) == 'GROUP')] <- grouping_field #change group to whatever your grouping field is.
-  colnames(Domain_roll)[which(colnames(Domain_roll) == 'prev')] <- paste0("Mean","_",metric_field) 
-  colnames(Domain_roll)[which(colnames(Domain_roll) == 'SEprev')] <- paste0("SE","_",metric_field) 
+  colnames(Domain_roll)[which(colnames(Domain_roll) == 'prev')] <- paste0("Mean","_",metric_field,"_Prev") 
+  colnames(Domain_roll)[which(colnames(Domain_roll) == 'SEprev')] <- paste0("SE","_",metric_field,"_Prev") 
 
   return(Domain_roll)
 }

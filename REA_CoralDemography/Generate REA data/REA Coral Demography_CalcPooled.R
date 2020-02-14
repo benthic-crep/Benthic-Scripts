@@ -30,6 +30,26 @@ site.data.gen2<-subset(site.data.gen2,EXCLUDE_FLAG==0);
 # this dataframe should be empty
 head(subset(site.data.gen2,EXCLUDE_FLAG==-1))
 
+#Taxoncode
+levels(site.data.tax2$MISSIONID)
+site.data.tax2$EXCLUDE_FLAG<-ifelse(site.data.tax2$MISSIONID %in% c("MP1410","MP1512","MP1602"),-1,0) #I left SE1602 in (2016 Jarvis and Rose)
+head(subset(site.data.tax2,EXCLUDE_FLAG==-1))
+
+#Actually remove special missions.
+site.data.tax2<-subset(site.data.tax2,EXCLUDE_FLAG==0);
+# this dataframe should be empty
+head(subset(site.data.tax2,EXCLUDE_FLAG==-1))
+
+#Spcode
+levels(site.data.sp2$MISSIONID)
+site.data.sp2$EXCLUDE_FLAG<-ifelse(site.data.sp2$MISSIONID %in% c("MP1410","MP1512","MP1602"),-1,0) #I left SE1602 in (2016 Jarvis and Rose)
+head(subset(site.data.sp2,EXCLUDE_FLAG==-1))
+
+#Actually remove special missions.
+site.data.sp2<-subset(site.data.sp2,EXCLUDE_FLAG==0);
+# this dataframe should be empty
+head(subset(site.data.sp2,EXCLUDE_FLAG==-1))
+
 
 # POOLING DATA from Site to Strata and Domain---------------------------------------------------
 survey_master<-read.csv("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/data/SURVEY MASTER.csv")
@@ -74,6 +94,8 @@ c.keep2<-c("REGION","ISLAND","ANALYSIS_YEAR","ANALYSIS_SCHEMA","REEF_ZONE","DB_R
            "n_h","N_h","D._h","SE_D._h")
 c.keep3<-c("REGION","ISLAND","ANALYSIS_YEAR","ANALYSIS_SCHEMA","REEF_ZONE","DB_RZ","GENUS_CODE",
            "n_h","N_h","D._h","SE_D._h","avp","SEprop","Y._h","SE_Y._h","CV_Y._h")
+c.keep4<-c("REGION","ISLAND","ANALYSIS_YEAR","ANALYSIS_SCHEMA","REEF_ZONE","DB_RZ","GENUS_CODE",
+           "n_h","N_h","prev","SEprev")
 acdG_st<-Calc_Strata(site.data.gen2,"GENUS_CODE","AdColDen","Adpres.abs");acdG_st=acdG_st[,c.keep]
 colnames(acdG_st)<-c("REGION","ISLAND","ANALYSIS_YEAR","Stratum","REEF_ZONE","DB_RZ","GENUS_CODE","n","Ntot","AdColDen","SE_AdColDen","Adult_avp","Adult_seprop","Adult_Abun","Adult_SE_Abun","Adult_CV")
 
@@ -87,15 +109,15 @@ rdG_st<-Calc_Strata(site.data.gen2,"GENUS_CODE","Ave.rd");rdG_st=rdG_st[,c.keep2
 colnames(rdG_st)<-c("REGION","ISLAND","ANALYSIS_YEAR","Stratum","REEF_ZONE","DB_RZ","GENUS_CODE","n","Ntot","Ave.rd","SE_Ave.rd")
 
 clG_st<-Calc_Strata(site.data.gen2,"GENUS_CODE","Ave.size");clG_st=clG_st[,c.keep2]
-colnames(clG_st)<-c("REGION","ISLAND","ANALYSIS_YEAR","Stratum","REEF_ZONE","DB_RZ","GENUS_CODE","n","Ntot","Ave.Ave.size","SE_Ave.size")
+colnames(clG_st)<-c("REGION","ISLAND","ANALYSIS_YEAR","Stratum","REEF_ZONE","DB_RZ","GENUS_CODE","n","Ntot","Ave.size","SE_Ave.size")
 
-BLEG_st<-Calc_Strata_Prevalence(site.data.gen2,"GENUS_CODE","BLE");BLEG_st=BLEG_st[,c.keep2]
+BLEG_st<-Calc_Strata_Prevalence(site.data.gen2,"GENUS_CODE","BLE");BLEG_st=BLEG_st[,c.keep4]
 colnames(BLEG_st)<-c("REGION","ISLAND","ANALYSIS_YEAR","Stratum","REEF_ZONE","DB_RZ","GENUS_CODE","n","Ntot","BLE","SE_BLE")
 
-AcuteDZG_st<-Calc_Strata_Prevalence(site.data.gen2,"GENUS_CODE","Ave.cl");AcuteDZG_st=AcuteDZG_st[,c.keep2]
+AcuteDZG_st<-Calc_Strata_Prevalence(site.data.gen2,"GENUS_CODE","AcuteDZ");AcuteDZG_st=AcuteDZG_st[,c.keep4]
 colnames(AcuteDZG_st)<-c("REGION","ISLAND","ANALYSIS_YEAR","Stratum","REEF_ZONE","DB_RZ","GENUS_CODE","n","Ntot","AcuteDZ","SE_AcuteDZ")
 
-ChronicDZG_st<-Calc_Strata_Prevalence(site.data.gen2,"GENUS_CODE","Ave.cl");ChronicDZG_st=ChronicDZG_st[,c.keep2]
+ChronicDZG_st<-Calc_Strata_Prevalence(site.data.gen2,"GENUS_CODE","ChronicDZ");ChronicDZG_st=ChronicDZG_st[,c.keep4]
 colnames(ChronicDZG_st)<-c("REGION","ISLAND","ANALYSIS_YEAR","Stratum","REEF_ZONE","DB_RZ","GENUS_CODE","n","Ntot","ChronicDZ","SE_ChronicDZ")
 
 
@@ -120,8 +142,12 @@ rdG_is<-Calc_Domain(site.data.gen2,"GENUS_CODE","Ave.rd")
 rdG_is<-rdG_is[,c("ANALYSIS_YEAR","DOMAIN_SCHEMA","GENUS_CODE","n","Ntot","Mean_Ave.rd","SE_Ave.rd")]
 clG_is<-Calc_Domain(site.data.gen2,"GENUS_CODE","Ave.size")
 clG_is<-clG_is[,c("ANALYSIS_YEAR","DOMAIN_SCHEMA","GENUS_CODE","n","Ntot","Mean_Ave.size","SE_Ave.size")]
-bleG_is<-Calc_Domain_Prevalence(site.data.gen2,"GENUS_CODE","Ave.size")
-bleG_is<-bleG_is[,c("ANALYSIS_YEAR","DOMAIN_SCHEMA","GENUS_CODE","n","Ntot","Mean_BLE_Prevalence","SE_Ave.size")]
+bleG_is<-Calc_Domain_Prevalence(site.data.gen2,"GENUS_CODE","BLE")
+bleG_is<-bleG_is[,c("ANALYSIS_YEAR","DOMAIN_SCHEMA","GENUS_CODE","n","Ntot","Mean_BLE_Prev","SE_BLE_Prev")]
+AcuteDZG_is<-Calc_Domain_Prevalence(site.data.gen2,"GENUS_CODE","AcuteDZ")
+AcuteDZG_is<-AcuteDZG_is[,c("ANALYSIS_YEAR","DOMAIN_SCHEMA","GENUS_CODE","n","Ntot","Mean_AcuteDZ_Prev","SE_AcuteDZ_Prev")]
+ChronicDZG_is<-Calc_Domain_Prevalence(site.data.gen2,"GENUS_CODE","ChronicDZ")
+ChronicDZG_is<-ChronicDZG_is[,c("ANALYSIS_YEAR","DOMAIN_SCHEMA","GENUS_CODE","n","Ntot","Mean_ChronicDZ_Prev","SE_ChronicDZ_Prev")]
 
 
 #Calculate Sector Estimates
@@ -140,13 +166,21 @@ rdG_sec<-Calc_Domain(site.data.gen2,"GENUS_CODE","Ave.rd")
 rdG_sec<-rdG_sec[,c("ANALYSIS_YEAR","DOMAIN_SCHEMA","GENUS_CODE","n","Ntot","Mean_Ave.rd","SE_Ave.rd")]
 clG_sec<-Calc_Domain(site.data.gen2,"GENUS_CODE","Ave.size")
 clG_sec<-clG_sec[,c("ANALYSIS_YEAR","DOMAIN_SCHEMA","GENUS_CODE","n","Ntot","Mean_Ave.size","SE_Ave.size")]
+bleG_sec<-Calc_Domain_Prevalence(site.data.gen2,"GENUS_CODE","BLE")
+bleG_sec<-bleG_sec[,c("ANALYSIS_YEAR","DOMAIN_SCHEMA","GENUS_CODE","n","Ntot","Mean_BLE_Prev","SE_BLE_Prev")]
+AcuteDZG_sec<-Calc_Domain_Prevalence(site.data.gen2,"GENUS_CODE","AcuteDZ")
+AcuteDZG_sec<-AcuteDZG_sec[,c("ANALYSIS_YEAR","DOMAIN_SCHEMA","GENUS_CODE","n","Ntot","Mean_AcuteDZ_Prev","SE_AcuteDZ_Prev")]
+ChronicDZG_sec<-Calc_Domain_Prevalence(site.data.gen2,"GENUS_CODE","ChronicDZ")
+ChronicDZG_sec<-ChronicDZG_sec[,c("ANALYSIS_YEAR","DOMAIN_SCHEMA","GENUS_CODE","n","Ntot","Mean_ChronicDZ_Prev","SE_ChronicDZ_Prev")]
+
+
 
 
 MyMerge <- function(x, y){
   df <- merge(x, y, by= c("REGION","ISLAND","ANALYSIS_YEAR","Stratum","REEF_ZONE","DB_RZ","GENUS_CODE","n","Ntot"), all.x= TRUE, all.y= TRUE)
   return(df)
 }
-st.data.gen<-Reduce(MyMerge, list(acdG_st,jcdG_st,odG_st,rdG_st,clG_st))
+st.data.gen<-Reduce(MyMerge, list(acdG_st,jcdG_st,odG_st,rdG_st,clG_st,BLEG_st,AcuteDZG_st,ChronicDZG_st))
 colnames(st.data.gen)[colnames(st.data.gen)=="ANALYSIS_SCHEMA"]<-"Stratum"
 
 write.csv(st.data.gen,file="T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Stratum/BenthicREA_stratadata_GENUS.csv")
@@ -157,7 +191,7 @@ MyMerge <- function(x, y){
   df <- merge(x, y, by= c("ANALYSIS_YEAR","DOMAIN_SCHEMA","GENUS_CODE","n","Ntot"), all.x= TRUE, all.y= TRUE)
   return(df)
 }
-is.data.gen<-Reduce(MyMerge, list(acdG_is,jcdG_is,odG_is,rdG_is,clG_is))
+is.data.gen<-Reduce(MyMerge, list(acdG_is,jcdG_is,odG_is,rdG_is,clG_is,bleG_is,AcuteDZG_is,ChronicDZG_is))
 colnames(is.data.gen)[colnames(is.data.gen)=="DOMAIN_SCHEMA"]<-"Island"
 
 write.csv(is.data.gen,file="T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Island/BenthicREA_islanddata_GENUS.csv")
@@ -167,10 +201,10 @@ MyMerge <- function(x, y){
   df <- merge(x, y, by= c("ANALYSIS_YEAR","DOMAIN_SCHEMA","GENUS_CODE","n","Ntot"), all.x= TRUE, all.y= TRUE)
   return(df)
 }
-sec.data.gen<-Reduce(MyMerge, list(acdG_sec,jcdG_sec,odG_sec,rdG_sec,clG_sec))
+sec.data.gen<-Reduce(MyMerge, list(acdG_sec,jcdG_sec,odG_sec,rdG_sec,clG_sec,bleG_sec,AcuteDZG_sec,ChronicDZG_sec))
 colnames(sec.data.gen)[colnames(sec.data.gen)=="DOMAIN_SCHEMA"]<-"Sector"
 
-write.csv(is.data.gen,file="T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Sector/BenthicREA_sectordata_GENUS.csv")
+write.csv(sec.data.gen,file="T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Sector/BenthicREA_sectordata_GENUS.csv")
 
 
 
