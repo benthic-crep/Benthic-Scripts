@@ -16,6 +16,17 @@ source("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/lib/GIS_functions.
 site.data.gen2<-read.csv("T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Site/BenthicREA_sitedata_GENUS.csv")
 site.data.tax2<-read.csv("T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Site/BenthicREA_sitedata_TAXONCODE.csv")
 
+
+#Change all special missions to exclude flag =-1, right now they are 0. Then exclude these sites
+levels(site.data.gen2$MISSIONID)
+site.data.gen2<-site.data.gen2[!site.data.gen2$MISSIONID %in% c("MP1410","MP1512","MP1602","SE1602"),]
+site.data.gen2$Year_Island<-paste(site.data.gen2$OBS_YEAR,site.data.gen2$ISLAND,sep="_")
+site.data.gen2<-site.data.gen2[!site.data.gen2$Year_Island %in% c("2017_Baker","2017_Jarvis","2017_Howland"),] 
+
+site.data.gen2<-droplevels(site.data.gen2);levels(site.data.gen2$MISSIONID)
+View(site.data.gen2)
+
+
 #Subset forereef and protected reefs slope
 site.data.gen2<-subset(site.data.gen2,REEF_ZONE %in% c("Forereef","Protected Slope"))
 
@@ -80,9 +91,9 @@ jcdG_sec<-jcdG_sec[,c("REGION","ANALYSIS_YEAR","DOMAIN_SCHEMA","GENUS_CODE","n",
 
 
 
-# write.csv(jcdG_st,file="T:/Benthic/Projects/Juvenile Project/JuvProject_temporal_STRATA.csv")
-# write.csv(jcdG_is,file="T:/Benthic/Projects/Juvenile Project/JuvProject_temporal_ISLAND.csv")
-# write.csv(jcdG_sec,file="T:/Benthic/Projects/Juvenile Project/JuvProject_temporal_SECTOR.csv")
+write.csv(jcdG_st,file="T:/Benthic/Projects/Juvenile Project/JuvProject_temporal_STRATA.csv")
+write.csv(jcdG_is,file="T:/Benthic/Projects/Juvenile Project/JuvProject_temporal_ISLAND.csv")
+write.csv(jcdG_sec,file="T:/Benthic/Projects/Juvenile Project/JuvProject_temporal_SECTOR.csv")
 
 
 ###Plotting
@@ -109,194 +120,7 @@ p1<-ggplot(subset(jcdG_sec,GENUS_CODE=="SSSS"), aes(x=DOMAIN_SCHEMA, y=Mean_JuvC
 p1
 ggsave(plot=p1,file="T:/Benthic/Projects/Juvenile Project/Figures/Juv_Temporal.pdf",width=10,height=10)
 
-# #Percent Change
-# year.df<-NULL
-# year.df$REGION<-c("MARIAN","MARIAN","NWHI","NWHI","NWHI","MHI","MHI","MHI","PRIAs","PRIAs","SAMOA","SAMOA")
-# year.df$ANALYSIS_YEAR<-c("2014","2017","2014","2015","2016","2013","2016","2019","2015","2018","2015","2018")
-# year.df$Time.point<-c("Y1","Y3","Y1","Y2","Y3","Y1","Y3","Y6","Y1","Y3","Y1","Y3")
-# year.df<-as.data.frame(year.df)
-# year.df
-# 
-# 
-# new.df<-left_join(jcdG_st,year.df)
-# 
-# #Wake surveyd in off year- change time point
-# new.df$Time.point[new.df$ISLAND=="Wake"&new.df$ANALYSIS_YEAR=="2014"] <- "Y1"
-# new.df$Time.point[new.df$ISLAND=="Wake"&new.df$ANALYSIS_YEAR=="2017"] <- "Y3"
-# 
-# head(new.df)
 
-####I need to weight by substrate area, but want to see if I like this analysis before diving down that rabbit hole
-# ####CHANGE YEARS TO 1-6####
-# new.df_w<-dcast(new.df, formula= REGION + ISLAND + Stratum + REEF_ZONE + DB_RZ + GENUS_CODE~ Time.point, value.var="JuvColDen",fill=NA)
-# new.df_w<-new.df_w[,-11]
-# head(new.df_w)
-# 
-# nwhi<-subset(new.df_w,REGION=="NWHI")
-# new.df_w<-subset(new.df_w,REGION!="NWHI")
-# 
-# new.df_w$t1<-0
-# new.df_w$t2<-(new.df_w$Y2-new.df_w$Y1)/new.df_w$Y1*100
-# new.df_w$t3<-(new.df_w$Y3-new.df_w$Y1)/new.df_w$Y1*100
-# new.df_w$t4<-NA
-# new.df_w$t5<-NA
-# new.df_w$t6<-(new.df_w$Y6-new.df_w$Y3)/new.df_w$Y3*100
-# 
-# nwhi$t1<-0
-# nwhi$t2<-(nwhi$Y2-nwhi$Y1)/nwhi$Y1*100
-# nwhi$t3<-(nwhi$Y3-nwhi$Y2)/nwhi$Y2*100
-# nwhi$t4<-NA
-# nwhi$t5<-NA
-# nwhi$t6<-NA
-# 
-# perchange<-rbind(new.df_w,nwhi)
-# 
-# ###Some of the strata haven't been surveyed in all 3 years- look into this. 
-# perchange<-perchange[,-c(7:10)]
-# pc_long<-gather(perchange,Year,Change,t1:t6,factor_key = T)
-# 
-# change_sum<-ddply(all.df_long,.(REGION,GENUS_CODE,Year),
-#                   summarize,
-#                   Mean=mean(Change,na.rm=T),
-#                   SE=std.error(Change,na.rm=T))
-# 
-# pc_long<-pc_long %>% mutate(Year=recode(Year, 
-#                                      `t1`="1",
-#                                      `t2`="2",
-#                                      `t3`="3",
-#                                      `t4`="4",
-#                                      `t5`="5",
-#                                      `t6`="6"))
-# pc_long$Year<-as.numeric(pc_long$Year)
-# 
-# p1<-ggplot(subset(pc_long,GENUS_CODE=="SSSS"), aes(x=Year, y=Change, color=REGION)) + 
-#   geom_smooth(method="loess")+
-#   theme_bw() +
-#   theme(
-#     plot.background = element_blank()
-#     ,panel.grid.major = element_blank()
-#     ,panel.grid.minor = element_blank()
-#     ,axis.ticks.x = element_blank() # no x axis ticks
-#     ,axis.title.x = element_text( vjust = -.0001))+ # adjust x axis to lower the same amount as the genus labels
-#   labs(x="Year",y="% Change Mean Density")
-# 
-# 
-# p1
-# #(plot=p1,file="T:/Benthic/Projects/Juvenile Project/Figures/Juv_Temporal.pdf",width=10,height=10)
-# 
-# p1<-ggplot(subset(change_sum,GENUS_CODE=="SSSS"), aes(x=Year, y=Mean, group=REGION)) + 
-#   geom_point(aes(color=REGION)) + 
-#   geom_line(aes(color=REGION))+
-#   geom_errorbar(aes(ymin=Mean-SE, ymax=Mean+SE),width=.15, position=position_dodge(.9))+
-#   theme_bw() +
-#   theme(
-#     axis.text.x = element_text(angle = 90)
-#     ,plot.background = element_blank()
-#     ,panel.grid.major = element_blank()
-#     ,panel.grid.minor = element_blank()
-#     ,axis.ticks.x = element_blank() # no x axis ticks
-#     ,axis.title.x = element_text( vjust = -.0001) # adjust x axis to lower the same amount as the genus labels
-#     ,legend.position="bottom")+
-#   labs(x="Sector",y="Mean Juvenile Density/m2")+
-#   guides(fill=guide_legend(title="Year"))
-# 
-# 
-# p1
-# #(plot=p1,file="T:/Benthic/Projects/Juvenile Project/Figures/Juv_Temporal.pdf",width=10,height=10)
-
-
-
-####Percent Change 2013-2019####
-# 
-# #Wake surveyd in off year- change time point
-# jcdG_st$ANALYSIS_YEAR[jcdG_st$ISLAND=="Wake"&jcdG_st$ANALYSIS_YEAR=="2014"] <- "2015"
-# jcdG_st$ANALYSIS_YEAR[jcdG_st$ISLAND=="Wake"&jcdG_st$ANALYSIS_YEAR=="2017"] <- "2018"
-# 
-# jcdG_st$YEAR<-paste("a",jcdG_st$ANALYSIS_YEAR,sep="")
-# 
-# new.df_w<-dcast(jcdG_st, formula= REGION + ISLAND + Stratum + REEF_ZONE + DB_RZ + GENUS_CODE~ YEAR, value.var="JuvColDen",fill=NA)
-# head(new.df_w)
-# 
-# nwhi<-subset(new.df_w,REGION=="NWHI")
-# mhi<-subset(new.df_w,REGION=="MHI")
-# marian<-subset(new.df_w,REGION=="MARIAN")
-# pria<-subset(new.df_w,REGION=="PRIAs")
-# samoa<-subset(new.df_w,REGION=="SAMOA")
-# 
-# head(mhi)
-# 
-# mhi$t2013<-0
-# mhi$t2014<-NA
-# mhi$t2015<-NA
-# mhi$t2016<-(mhi$a2016-mhi$a2013)/mhi$a2013*100
-# mhi$t2017<-NA
-# mhi$t2018<-NA
-# mhi$t2019<-(mhi$a2019-mhi$a2016)/mhi$a2016*100
-# 
-# nwhi$t2013<-NA
-# nwhi$t2014<-0
-# nwhi$t2015<-(nwhi$a2015-nwhi$a2014)/nwhi$a2014*100
-# nwhi$t2016<-(nwhi$a2016-nwhi$a2015)/nwhi$a2015*100
-# nwhi$t2017<-NA
-# nwhi$t2018<-NA
-# nwhi$t2019<-NA
-# 
-# marian$t2013<-NA
-# marian$t2014<-0
-# marian$t2015<-NA
-# marian$t2016<-NA
-# marian$t2017<-(marian$a2017-marian$a2014)/marian$a2014*100
-# marian$t2018<-NA
-# marian$t2019<-NA
-# 
-# pria$t2013<-NA
-# pria$t2014<-NA
-# pria$t2015<-0
-# pria$t2016<-NA
-# pria$t2017<-NA
-# pria$t2018<-(pria$a2018-pria$a2015)/pria$a2015*100
-# pria$t2019<-NA
-# 
-# samoa$t2013<-NA
-# samoa$t2014<-NA
-# samoa$t2015<-0
-# samoa$t2016<-NA
-# samoa$t2017<-NA
-# samoa$t2018<-(samoa$a2018-samoa$a2015)/samoa$a2015*100
-# samoa$t2019<-NA
-# perchange<-rbind(nwhi,mhi,pria,marian,samoa)
-# 
-# perchange<-perchange[,-c(7:13)]
-# pc_long<-gather(perchange,Year,Change,t2013:t2019,factor_key = T)
-# 
-# # change_sum<-ddply(all.df_long,.(REGION,GENUS_CODE,Year),
-# #                   summarize,
-# #                   Mean=mean(Change,na.rm=T),
-# #                   SE=std.error(Change,na.rm=T))
-# 
-# pc_long<-pc_long %>% mutate(Yearn=recode(Year,
-#                                      `t2013`="2013",
-#                                      `t2014`="2014",
-#                                      `t2015`="2015",
-#                                      `t2016`="2016",
-#                                      `t2017`="2017",
-#                                      `t2018`="2018",
-#                                      `t2019`="2019"))
-# pc_long$Yearn<-as.numeric(as.character(pc_long$Yearn))
-# head(pc_long)
-# 
-# 
-# p1<-ggplot(subset(pc_long,GENUS_CODE=="SSSS"), aes(x=Yearn, y=Change, color=REGION)) + 
-#     geom_smooth(method="loess")+
-#     theme_bw() +
-#     theme(
-#       plot.background = element_blank()
-#       ,panel.grid.major = element_blank()
-#       ,panel.grid.minor = element_blank()
-#       ,axis.ticks.x = element_blank() # no x axis ticks
-#       ,axis.title.x = element_text( vjust = -.0001)) + # adjust x axis to lower the same amount as the genus labels
-#     labs(x="Year",y="% Change Mean Density")
-# p1
 
 ####Absolute Change####
 
@@ -376,9 +200,11 @@ pc_long<-pc_long %>% mutate(Yearn=recode(Year,
                                          `t2019`="2019"))
 pc_long$Yearn<-as.numeric(as.character(pc_long$Yearn))
 head(pc_long)
+pc_long<-cSplit(pc_long, 'DB_RZ', sep="_", type.convert=FALSE);colnames(pc_long)[colnames(pc_long)=="DB_RZ_1"]<-"DEPTH_BIN"
 
+pc_longS<-subset(pc_long,GENUS_CODE=="SSSS")
 
-p1<-ggplot(subset(pc_long,GENUS_CODE=="SSSS"), aes(x=Yearn, y=Change, color=REGION)) + 
+p1<-ggplot(pc_longS, aes(x=Yearn, y=Change, color=REGION)) + 
   geom_smooth(se=FALSE,method="loess",lwd=1.5)+
   geom_point()+
   geom_hline(yintercept=0)+
@@ -395,6 +221,110 @@ p1
 
 ggsave(plot=p1,file="T:/Benthic/Projects/Juvenile Project/Figures/Abschange_REGION_points.pdf",width=8,height=6)
 
+p2<-pc_longS %>%
+  mutate(DEPTH_BIN = fct_relevel(DEPTH_BIN,"Shallow","Mid","Deep")) %>% #reorder varibles 
+  ggplot(aes(x=Yearn, y=Change, color=REGION)) + 
+  geom_smooth(se=FALSE,method="loess",lwd=1.5)+
+  geom_point()+
+  geom_hline(yintercept=0)+
+  facet_wrap(~DEPTH_BIN)+
+  theme_bw() +
+  theme(
+    plot.background = element_blank()
+    ,panel.grid.major = element_blank()
+    ,panel.grid.minor = element_blank()
+    ,axis.ticks.x = element_blank() # no x axis ticks
+    ,axis.title.x = element_text( vjust = -.0001)
+    ,axis.text.x = element_text(angle = 90)) + # adjust x axis to lower the same amount as the genus labels
+  labs(x="Year",y="Abs. Change Mean Density")+
+  scale_x_continuous(breaks=seq(2013,2019,1))
+p2
+
+jcdG_st<-cSplit(jcdG_st, 'DB_RZ', sep="_", type.convert=FALSE);colnames(jcdG_st)[colnames(jcdG_st)=="DB_RZ_1"]<-"DEPTH_BIN"
+jcdG_stS<-subset(jcdG_st,GENUS_CODE=="SSSS")
+jcdG_stS$ANALYSIS_YEAR<-as.numeric(as.character(jcdG_stS$ANALYSIS_YEAR))
+p3<-jcdG_stS %>%
+  mutate(DEPTH_BIN = fct_relevel(DEPTH_BIN,"Shallow","Mid","Deep")) %>% #reorder varibles 
+  ggplot(aes(x=ANALYSIS_YEAR, y=JuvColDen, color=REGION)) + 
+  geom_smooth(se=FALSE,method="loess",lwd=1.5)+
+  geom_point()+
+  facet_wrap(~DEPTH_BIN)+
+  theme_bw() +
+  theme(
+    plot.background = element_blank()
+    ,panel.grid.major = element_blank()
+    ,panel.grid.minor = element_blank()
+    ,axis.ticks.x = element_blank() # no x axis ticks
+    ,axis.title.x = element_text( vjust = -.0001)
+    ,axis.text.x = element_text(angle = 90)) + # adjust x axis to lower the same amount as the genus labels
+  labs(x="Year",y="Mean Juvenile Density")+
+  scale_x_continuous(breaks=seq(2013,2019,1))
+p3
+
+
+
+# p3<-ggplot(subset(pc_long,GENUS_CODE=="SSSS"), aes(x=DEPTH_BIN, y=Change, color=Year)) + 
+#   geom_boxplot()+
+#   geom_hline(yintercept=0)+
+#   facet_wrap(~REGION)+
+#   theme_bw() +
+#   theme(
+#     plot.background = element_blank()
+#     ,panel.grid.major = element_blank()
+#     ,panel.grid.minor = element_blank()
+#     ,axis.ticks.x = element_blank() # no x axis ticks
+#     ,axis.title.x = element_text( vjust = -.0001)) + # adjust x axis to lower the same amount as the genus labels
+#   labs(x="Year",y="Abs. Change Mean Density")
+# p3
+
+
+ggsave(plot=p1,file="T:/Benthic/Projects/Juvenile Project/Figures/Abschange_REGION_points.pdf",width=8,height=6)
+ggsave(plot=p2,file="T:/Benthic/Projects/Juvenile Project/Figures/Abschange_REGION_DEPTH_points.pdf",width=8,height=6)
+ggsave(plot=p3,file="T:/Benthic/Projects/Juvenile Project/Figures/Density_REGION_DEPTH_points.pdf",width=8,height=6)
+
+#General thoughts on patterns
+#The time after the bleaching event is very important. I removed the 2016 and 2017 juvenile data for jarvis, baker and howland. it may be interesting to look at these separately
+
+
+
+##Statistical Analyses
+head(jcdG_stS)
+
+#Check for normality and equal variance
+library(rcompanion)
+#Log transform
+plotNormalHistogram(jcdG_stS$JuvColDen)
+l<-log(jcdG_stS$JuvColDen+1)
+plotNormalHistogram(l)
+qqnorm(l, ylab="Sample Quantiles for logDensity")
+qqline(l, col="red")
+mod<-lm(l~Stratum,data=jcdG_stS)
+qqnorm(residuals(mod),ylab="Sample Quantiles for residuals")
+qqline(residuals(mod), col="red")
+jcdG_stS$logDen<-log(jcdG_stS$JuvColDen+1)
+
+
+
+mod1 <- lmer(logDen~YEAR*REGION+(1|Stratum),data=jcdG_stS)
+
+mod2 <- lmer(logDen~YEAR+(1|Stratum),data=jcdG_stS)
+mod3 <- lmer(logDen~REGION+(1|Stratum),data=jcdG_stS)
+
+modnull <- lmer(logDen~1+(1|Stratum),data=jcdG_stS)
+anova(mod1,mod2,test="chisq")
+anova(mod1,mod3,test="chisq")
+anova(mod1,modnull,test="chisq")
+
+#MHI
+mod1 <- lmer(logDen~YEAR*+(1|Stratum),data=subset(jcdG_stS,REGION=="MHI"&DEPTH_BIN=="Mid"))
+# lsmo <-lsmeans :: lsmeans (mod1, ~ YEAR , adjust = "Tukey") #This is bullshit- don't use lsmeans it says everything is signficant
+# lsmo
+summary(glht(mod1, linfct = mcp(YEAR = "Tukey"))) #this works!
+
+
+
+mod1 <- glmer(logDen~YEAR*REGION+(1|Stratum),data=jcdG_stS)
+summary(mod1)
 
 #Next steps
 #separate out northern and southern CNMI, phoneix and line island
