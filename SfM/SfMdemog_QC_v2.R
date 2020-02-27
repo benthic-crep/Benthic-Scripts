@@ -192,7 +192,7 @@ output[2,]<-c("No errant codes","YES") #change depending on output from previous
 #3. All TRANSECT within v2 of the geodabase should = A (B is for repeats)
 filter(sfm, TRANSECT != "A")
 
-output[3,]<-c("All transects = A","Yes") #change depending on output from previous lines of code
+output[3,]<-c("All transects = A","YES") #change depending on output from previous lines of code
 
 
 #4. Make sure that if NO_COLONY=-1 none of the following columns have been populated
@@ -211,7 +211,7 @@ output[4,]<-c("NO_COLONY segments filled correctly","HAW-4287 Juvenile and NO_co
 
 #5. Calculate the number of annotated segments per site and check that all segments contain both seglengths (except segment 15)
 ##Create a summary table of #segments per site and check against tracking data sheet
-seg.per.site <- ddply(sfm,.(SITE, SEGMENT), summarize, num.annotated = n_distinct(SEGMENT))
+seg.per.site <- ddply(sfm,.(SITE, SEGMENT, SEGLENGTH), summarize, num.annotated = n_distinct(SEGLENGTH))
 eval.seg.per.site <- as.data.frame(acast(seg.per.site, SITE~SEGMENT, length))
 #eval.seg.per.site$Total <- rowSums(eval.seg.per.site)
 View(eval.seg.per.site) 
@@ -281,34 +281,34 @@ output[11,]<-c("All corals with RD >0 have an RDCAUSE code","YES")
 
 
 
-#11. Identify colonies with NO % EXTENT, but a condition - This check should result in 0 records    
+#12. Identify colonies with NO % EXTENT, but a condition - This check should result in 0 records    
 sfm[sfm$EXTENT_1=="0"& sfm$CON_1!="NA",]
 sfm[sfm$EXTENT_2=="0"& sfm$CON_2!="NA",]
 sfm[sfm$EXTENT_3=="0"& sfm$CON_3!="NA",] 
 
-output[11,]<-c("All colonies with a condition have an extent","Errors for AH--ok")
+output[12,]<-c("All colonies with a condition have an extent","KAH-0627 error in CON_1, MOL-2306 error in CON_2")
 
 
 
-#12. Identify colonies that have no condition, but a value in extent - This check should result in 0 records   
+#13. Identify colonies that have no condition, but a value in extent - This check should result in 0 records   
 sfm[sfm$CON_1=="NA"& sfm$EXTENT_1!="0",] 
 sfm[sfm$CON_2=="NA"& sfm$EXTNET_2!="0",]
 sfm[sfm$CON_3=="NA"& sfm$EXTENT_3!="0",] #rowSums(is.na(a)) != ncol(a),]
 
-output[12,]<-c("All colonies with NO condition also have NO extent","MAI-2567 has extent and severity, but no condition")
+output[13,]<-c("All colonies with NO condition also have NO extent","MAI-2567 has extent and severity, but no condition")
 
 
 
-#13. Identify colonies with nothing in condition column, but a value in severity. Double check that these shouldn't be 0  
+#14. Identify colonies with nothing in condition column, but a value in severity. Double check that these shouldn't be 0  
 sfm[sfm$EXTENT_1=="0"& sfm$SEV_1!="0",] #,rowSums(is.na(a)) != ncol(a),]
 sfm[sfm$EXTENT_2=="0"& sfm$SEV_2!="0",]
 sfm[sfm$EXTENT_3=="0"& sfm$SEV_3!="0",]
 
-output[13,]<-c("All colonies with NO extent have NO severity","Yes")
+output[14,]<-c("All colonies with NO extent have NO severity","YES")
 
 
 
-#14. make sure that the only rows with severity filled contain BLE or BLP in condition
+#15. make sure that the only rows with severity filled contain BLE or BLP in condition
 sfm[sfm$SEV_1=="0"& sfm$CON_1 %in% c("BLE","BLP"),]
 sfm[sfm$SEV_2=="0"& sfm$CON_2%in% c("BLE","BLP"),]
 sfm[sfm$SEV_3=="0"& sfm$CON_3%in% c("BLE","BLP"),]
@@ -318,11 +318,11 @@ sfm[sfm$SEV_1!="0"& sfm$CON_1 %notin% c("BLE","BLP"),]
 sfm[sfm$SEV_2!="0"& sfm$CON_2 %notin% c("BLE","BLP"),]
 sfm[sfm$SEV_3!="0"& sfm$CON_3 %notin% c("BLE","BLP"),]
 
-output[14,]<-c("Severity value is present only in colonies with CON = BLE and BLP","MAI-2567 same issue noted in #12")
+output[15,]<-c("Severity value is present only in colonies with CON = BLE and BLP","MAI-2567 same issue noted in #12")
 
 
 
-#15. RD + OD is not greater than 100%
+#16. RD + OD is not greater than 100%
 sfm$OLDDEAD<-as.numeric(sfm$OLDDEAD)
 sfm$RD_2<-as.numeric(sfm$RD_2)
 sfm$RD_1<-as.numeric(sfm$RD_1)
@@ -330,7 +330,7 @@ sfm$RD_3<-as.numeric(sfm$RD_3)
 sfm$totaldead = sfm$RD_1+sfm$RD_2+sfm$RD_3 + sfm$OLDDEAD
 sfm[sfm$totaldead>100,]
 
-output[15,]<-c("RD + OD <=100%","Yes")
+output[16,]<-c("RD + OD <=100%","YES")
 
 
 

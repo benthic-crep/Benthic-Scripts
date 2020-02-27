@@ -1,16 +1,17 @@
-"","QC_check","Status"
-"1","Sites have been completely annotated",NA
-"2","YES","YES"
-"3","All transects = A","Yes"
-"4","NO_COLONY segments filled correctly","HAW-4287 Juvenile and NO_colony = -1"
-"5","All annotated segments have two seglengths","Multiple errors, see csv"
-"6","All sites annotated by one person","YES"
-"7","Species codes are correct","OK -- although several species present that aren't scored to species, only genus"
-"8","All segment widths are correct","Yes"
-"9","Juveniles and Adult colonies have correct labeling","Multiple errors, see csv"
-"10","0% Recent Dead corals do NOT have an RDCAUSE code","YES"
-"11","All colonies with a condition have an extent","Errors for AH--ok"
-"12","All colonies with NO condition also have NO extent","MAI-2567 has extent and severity, but no condition"
-"13","All colonies with NO extent have NO severity","Yes"
-"14","Severity value is present only in colonies with CON = BLE and BLP","MAI-2567 same issue noted in #12"
-"15","RD + OD <=100%","Yes"
+,QC_check,Status
+1,Sites have been completely annotated,NA
+2,YES,YES
+3,All transects = A,Yes
+4,NO_COLONY segments filled correctly,HAW-4287 Juvenile and NO_colony = -1
+5,All annotated segments have two seglengths,"Multiple errors, see csv"
+6,All sites annotated by one person,YES
+7,Species codes are correct,"OK -- although several species present that aren't scored to species, only genus"
+8,All segment widths are correct,Yes
+9,Juveniles and Adult colonies have correct labeling,"Multiple errors, see csv"
+10,0% Recent Dead corals do NOT have an RDCAUSE code,YES
+11,All corals with RD >0 have an RDCAUSE code,YES
+12,All colonies with a condition have an extent,"KAH-0627 error in CON_1, MOL-2306 error in CON_2"
+13,All colonies with NO condition also have NO extent,"MAI-2567 has extent and severity, but no condition"
+14,All colonies with NO extent have NO severity,YES
+15,RD + OD <=100%,Yes
+16,RD + OD <=100%,YES
