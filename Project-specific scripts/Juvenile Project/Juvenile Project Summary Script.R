@@ -11,10 +11,49 @@ DEBUG=TRUE
 source("C:/Users/Courtney.S.Couch/Documents/GitHub/Benthic-Scripts/Functions/Benthic_Functions_newApp_vTAOfork.R")
 source("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/lib/core_functions.R")
 source("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/lib/GIS_functions.R")
+library(VCA)
+
+setwd("C:/Users/Courtney.S.Couch/Documents/Courtney's Files/R Files/ESD/Juvenile Project")
+
+#LOAD DATA
+jwd<-read.csv("C:/Users/Courtney.S.Couch/Documents/Courtney's Files/R Files/ESD/Data/REA Coral Demography & Cover/Analysis Ready Raw data/CoralBelt_F_raw_CLEANED.csv")
+
 
 ## LOAD data
-site.data.gen2<-read.csv("T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Site/BenthicREA_sitedata_GENUS.csv")
-site.data.tax2<-read.csv("T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Site/BenthicREA_sitedata_TAXONCODE.csv")
+# site.data.gen2<-read.csv("T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Site/BenthicREA_sitedata_GENUS.csv")
+# site.data.tax2<-read.csv("T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Site/BenthicREA_sitedata_TAXONCODE.csv")
+
+
+
+#Final Tweaks before calculating Site-level data-------------------------------------------------
+#Colony fragments and scleractinans are subseted in the functions 
+#Add a column for adult fragments so we can remove them from the dataset later (-1 indicates fragment)
+jwd$Fragment <- 0 # you need to add this column so that you can use the site level functions correctly
+jwd$DATE_ <- as.Date(jwd$DATE_, format = "%Y-%m-%d")
+
+
+#Create a look a table of all of the colony attributes- you will need this the functions below
+SURVEY_SITE<-c("MISSIONID","DATE_","SITEVISITID", "ANALYSIS_YEAR","OBS_YEAR", "REGION", "REGION_NAME", "ISLAND","ISLANDCODE","SEC_NAME", "SITE", "REEF_ZONE",
+               "DEPTH_BIN", "LATITUDE", "LONGITUDE","MIN_DEPTH_M","MAX_DEPTH_M")
+survey_siteJ<-unique(jwd[,SURVEY_SITE])#new_Aggregate_InputTable(awd, SURVEY_INFO)#TAO 2019/10/07
+
+
+#We did juvenile only surveys in 2017 in PRIA, this will make sure the SV table has both adult and juv sites.
+survey_site<-left_join(survey_siteJ,survey_siteAd);nrow(survey_site) 
+
+#TEMPORARY WORK AROUND-ASK MICHAEL TO FIX
+survey_site$REEF_ZONE<-ifelse(survey_site$SITE=="HAW-04285","Forereef",as.character(survey_site$REEF_ZONE))
+
+# GENERATE SUMMARY METRICS at the transect-leveL BY GENUS--------------------------------------------------
+#Calc_ColDen_Transect
+jcd.gen<-Calc_ColDen_Transect(jwd,"GENUS_CODE"); colnames(jcd.gen)[colnames(jcd.gen)=="ColCount"]<-"JuvColCount";colnames(jcd.gen)[colnames(jcd.gen)=="ColDen"]<-"JuvColDen";colnames(jcd.gen)[colnames(jcd.gen)=="TRANSECTAREA"]<-"TRANSECTAREA_j"
+
+
+
+
+
+
+
 
 
 #Change all special missions to exclude flag =-1, right now they are 0. Then exclude these sites
@@ -288,12 +327,27 @@ ggsave(plot=p3,file="T:/Benthic/Projects/Juvenile Project/Figures/Density_REGION
 
 
 ##Statistical Analyses
+
+
 head(jcdG_stS)
 
 #Check for normality and equal variance
 library(rcompanion)
 #Log transform
 plotNormalHistogram(jcdG_stS$JuvColDen)
+mod<-lm(JuvColDen~Stratum,data=jcdG_stS)
+qqnorm(residuals(mod),ylab="Sample Quantiles for residuals")
+qqline(residuals(mod), col="red")
+
+jcdG_stS$Den1<-jcdG_stS$JuvColDen+0.5
+
+mod.glm<-glm(Den1~Stratum,data=jcdG_stS,family="gaussian"(link='log'))
+
+
+summary(mod.glm)  # Report the results
+par(mfrow = c(2, 2))  # Split the plotting panel into a 2 x 2 grid
+plot(mod.glm) 
+
 l<-log(jcdG_stS$JuvColDen+1)
 plotNormalHistogram(l)
 qqnorm(l, ylab="Sample Quantiles for logDensity")
@@ -303,8 +357,31 @@ qqnorm(residuals(mod),ylab="Sample Quantiles for residuals")
 qqline(residuals(mod), col="red")
 jcdG_stS$logDen<-log(jcdG_stS$JuvColDen+1)
 
+summary(mod)  # Report the results
+par(mfrow = c(2, 2))  # Split the plotting panel into a 2 x 2 grid
+plot(mod) 
+
+#Take home I can either transform or use gamma distribution
+
+#Variance Component Analysis
+S<-subset(data.gen_temp,GENUS_CODE=="SSSS")
+
+l<-log(S$JuvColDen+1)
+plotNormalHistogram(l)
+qqnorm(l, ylab="Sample Quantiles for logDensity")
+qqline(l, col="red")
+mod<-lm(l~Stratum,data=data.gen_temp)
+qqnorm(residuals(mod),ylab="Sample Quantiles for residuals")
+qqline(residuals(mod), col="red")
+S$logDen<-log(S$JuvColDen+1)
 
 
+S$DB_RZ<-as.factor(S$DB_RZ)
+fit.MS2 <- fitVCA(logDen~DB_RZ/DOMAIN_SCHEMA, S)
+print(fit.MS2, digits=4)
+
+mod<-lmer(logDen~1+(1|ANALYSIS_SCHEMA/DOMAIN_SCHEMA/REGION/OBS_YEAR),data=S)
+summary(mod)
 mod1 <- lmer(logDen~YEAR*REGION+(1|Stratum),data=jcdG_stS)
 
 mod2 <- lmer(logDen~YEAR+(1|Stratum),data=jcdG_stS)
