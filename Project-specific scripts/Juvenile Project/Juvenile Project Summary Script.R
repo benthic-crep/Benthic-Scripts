@@ -12,6 +12,7 @@ source("C:/Users/Courtney.S.Couch/Documents/GitHub/Benthic-Scripts/Functions/Ben
 source("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/lib/core_functions.R")
 source("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/lib/GIS_functions.R")
 library(VCA)
+library(forcats)
 
 setwd("C:/Users/Courtney.S.Couch/Documents/Courtney's Files/R Files/ESD/Juvenile Project")
 
@@ -30,29 +31,76 @@ jwd<-read.csv("C:/Users/Courtney.S.Couch/Documents/Courtney's Files/R Files/ESD/
 #Add a column for adult fragments so we can remove them from the dataset later (-1 indicates fragment)
 jwd$Fragment <- 0 # you need to add this column so that you can use the site level functions correctly
 jwd$DATE_ <- as.Date(jwd$DATE_, format = "%Y-%m-%d")
-
+jwd$METHOD<-"DIVER"
+jwd$ANALYST<-jwd$DIVER
+jwd$SEGAREA<-jwd$SEGLENGTH*jwd$SEGWIDTH
 
 #Create a look a table of all of the colony attributes- you will need this the functions below
-SURVEY_SITE<-c("MISSIONID","DATE_","SITEVISITID", "ANALYSIS_YEAR","OBS_YEAR", "REGION", "REGION_NAME", "ISLAND","ISLANDCODE","SEC_NAME", "SITE", "REEF_ZONE",
+SURVEY_SITE<-c("MISSIONID","DATE_","SITEVISITID", "ANALYSIS_YEAR","OBS_YEAR", "REGION", "REGION_NAME", "ISLAND","ISLANDCODE","SEC_NAME", "SITE","HABITAT_CODE","REEF_ZONE",
                "DEPTH_BIN", "LATITUDE", "LONGITUDE","MIN_DEPTH_M","MAX_DEPTH_M")
-survey_siteJ<-unique(jwd[,SURVEY_SITE])#new_Aggregate_InputTable(awd, SURVEY_INFO)#TAO 2019/10/07
+survey_site<-unique(jwd[,SURVEY_SITE])#new_Aggregate_InputTable(awd, SURVEY_INFO)#TAO 2019/10/07
 
-
-#We did juvenile only surveys in 2017 in PRIA, this will make sure the SV table has both adult and juv sites.
-survey_site<-left_join(survey_siteJ,survey_siteAd);nrow(survey_site) 
 
 #TEMPORARY WORK AROUND-ASK MICHAEL TO FIX
 survey_site$REEF_ZONE<-ifelse(survey_site$SITE=="HAW-04285","Forereef",as.character(survey_site$REEF_ZONE))
 
+#Look at the size class data to determine the min colony size cut off for analysis
+#Subset 2019 Hawaii data
+hi<-subset(jwd,OBS_YEAR=="2019")
+
+ggplot(hi) + 
+  geom_density(aes(x = COLONYLENGTH, fill = ANALYST), alpha = 0.2)+
+  geom_vline(xintercept=1, color = "black")+
+  facet_wrap(~ISLAND)
+
+ggplot(hi) + 
+  geom_density(aes(x = COLONYLENGTH, fill = ISLAND), alpha = 0.2)+
+  facet_wrap(~ISLAND)
+
+s.data<-ddply(hi,.(ISLAND,ANALYST),
+              summarise,
+         min=min(COLONYLENGTH,na.rm=T),
+         mean=mean(COLONYLENGTH,na.rm=T),
+         ncol=length(COLONYLENGTH,na.rm=T))
+
+s.all<-ddply(jwd,.(ISLAND,ANALYST),
+              summarise,
+              min=min(COLONYLENGTH,na.rm=T),
+              mean=mean(COLONYLENGTH,na.rm=T),
+              ncol=length(COLONYLENGTH))
+
+#Subset data >1cm
+jwd<-subset(jwd,COLONYLENGTH>=1|is.na(jwd$COLONYLENGTH))
+
+
 # GENERATE SUMMARY METRICS at the transect-leveL BY GENUS--------------------------------------------------
-#Calc_ColDen_Transect
 jcd.gen<-Calc_ColDen_Transect(jwd,"GENUS_CODE"); colnames(jcd.gen)[colnames(jcd.gen)=="ColCount"]<-"JuvColCount";colnames(jcd.gen)[colnames(jcd.gen)=="ColDen"]<-"JuvColDen";colnames(jcd.gen)[colnames(jcd.gen)=="TRANSECTAREA"]<-"TRANSECTAREA_j"
 
+site.data.gen<-ddply(jcd.gen, .(SITE,SITEVISITID,GENUS_CODE), #calc total colonies by condition
+                     summarise,
+                     JuvColDen=mean(JuvColDen,na.rm=T))
+
+site.data.gen2<-site.data.gen
+                     
+jcd.tax<-Calc_ColDen_Transect(jwd,"TAXONCODE"); colnames(jcd.tax)[colnames(jcd.tax)=="ColCount"]<-"JuvColCount";colnames(jcd.tax)[colnames(jcd.tax)=="ColDen"]<-"JuvColDen";colnames(jcd.tax)[colnames(jcd.tax)=="TRANSECTAREA"]<-"TRANSECTAREA_j"
+
+site.data.tax2<-ddply(jcd.tax, .(SITE,SITEVISITID,TAXONCODE), #calc total colonies by condition
+                      summarise,
+                      JuvColDen=mean(JuvColDen,na.rm=T))
+
+# Merge Site level data with sectors file and export site data ------------
+sectors<-read.csv("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/data/Sectors-Strata-Areas.csv", stringsAsFactors=FALSE)
+
+#Merge together survey meta data and sector area files and check for missmatches 
+meta<-left_join(survey_site,sectors)
+meta[which(is.na(meta$AREA_HA)),]
+nrow(survey_site)
+nrow(meta)
 
 
-
-
-
+#Merge site level data and meta data
+site.data.gen2<-left_join(site.data.gen2,meta)
+site.data.gen2$Juvpres.abs<-ifelse(site.data.gen2$JuvColDen>0,1,0)
 
 
 
@@ -70,7 +118,6 @@ View(site.data.gen2)
 site.data.gen2<-subset(site.data.gen2,REEF_ZONE %in% c("Forereef","Protected Slope"))
 
 # Generate data for temporal analysis---------------------------------------------------
-sectors<-read.csv("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/data/Sectors-Strata-Areas.csv", stringsAsFactors=FALSE)
 site.data.gen2$STRATANAME<- paste(site.data.gen2$SEC_NAME,site.data.gen2$REEF_ZONE,site.data.gen2$DEPTH_BIN,sep="_")
 st.list<-ddply(site.data.gen2,.(OBS_YEAR,REGION,ISLAND,SEC_NAME,STRATANAME),summarize,n=length(unique(SITE)))
 st.list2<-subset(st.list,n>=2);head(st.list)
@@ -129,10 +176,13 @@ jcdG_sec<-Calc_Domain(data.gen_temp,"GENUS_CODE","JuvColDen","Juvpres.abs")
 jcdG_sec<-jcdG_sec[,c("REGION","ANALYSIS_YEAR","DOMAIN_SCHEMA","GENUS_CODE","n","Ntot","Mean_JuvColDen","SE_JuvColDen")]
 
 
+# write.csv(jcdG_st,file="T:/Benthic/Projects/Juvenile Project/JuvProject_temporal_STRATA.csv")
+# write.csv(jcdG_is,file="T:/Benthic/Projects/Juvenile Project/JuvProject_temporal_ISLAND.csv")
+# write.csv(jcdG_sec,file="T:/Benthic/Projects/Juvenile Project/JuvProject_temporal_SECTOR.csv")
 
-write.csv(jcdG_st,file="T:/Benthic/Projects/Juvenile Project/JuvProject_temporal_STRATA.csv")
-write.csv(jcdG_is,file="T:/Benthic/Projects/Juvenile Project/JuvProject_temporal_ISLAND.csv")
-write.csv(jcdG_sec,file="T:/Benthic/Projects/Juvenile Project/JuvProject_temporal_SECTOR.csv")
+write.csv(jcdG_st,file="C:/Users/Courtney.S.Couch/Documents/Courtney's Files/R Files/ESD/Juvenile Project/JuvProject_temporal_STRATA.csv")
+write.csv(jcdG_is,file="C:/Users/Courtney.S.Couch/Documents/Courtney's Files/R Files/ESD/Juvenile Project/JuvProject_temporal_ISLAND.csv")
+write.csv(jcdG_sec,file="C:/Users/Courtney.S.Couch/Documents/Courtney's Files/R Files/ESD/Juvenile Project/JuvProject_temporal_SECTOR.csv")
 
 
 ###Plotting
@@ -157,7 +207,8 @@ p1<-ggplot(subset(jcdG_sec,GENUS_CODE=="SSSS"), aes(x=DOMAIN_SCHEMA, y=Mean_JuvC
 
 
 p1
-ggsave(plot=p1,file="T:/Benthic/Projects/Juvenile Project/Figures/Juv_Temporal.pdf",width=10,height=10)
+#ggsave(plot=p1,file="T:/Benthic/Projects/Juvenile Project/Figures/Juv_Temporal.pdf",width=10,height=10)
+ggsave(plot=p1,file="C:/Users/Courtney.S.Couch/Documents/Courtney's Files/R Files/ESD/Juvenile Project/Figures/Juv_Temporal.pdf",width=10,height=10)
 
 
 
@@ -258,7 +309,8 @@ p1<-ggplot(pc_longS, aes(x=Yearn, y=Change, color=REGION)) +
   scale_x_continuous(breaks=seq(2013,2019,1))
 p1
 
-ggsave(plot=p1,file="T:/Benthic/Projects/Juvenile Project/Figures/Abschange_REGION_points.pdf",width=8,height=6)
+#ggsave(plot=p1,file="T:/Benthic/Projects/Juvenile Project/Figures/Abschange_REGION_points.pdf",width=8,height=6)
+ggsave(plot=p1,file="C:/Users/Courtney.S.Couch/Documents/Courtney's Files/R Files/ESD/Juvenile Project/Figures/Abschange_REGION_points.pdf",width=8,height=6)
 
 p2<-pc_longS %>%
   mutate(DEPTH_BIN = fct_relevel(DEPTH_BIN,"Shallow","Mid","Deep")) %>% #reorder varibles 
@@ -317,9 +369,15 @@ p3
 # p3
 
 
-ggsave(plot=p1,file="T:/Benthic/Projects/Juvenile Project/Figures/Abschange_REGION_points.pdf",width=8,height=6)
-ggsave(plot=p2,file="T:/Benthic/Projects/Juvenile Project/Figures/Abschange_REGION_DEPTH_points.pdf",width=8,height=6)
-ggsave(plot=p3,file="T:/Benthic/Projects/Juvenile Project/Figures/Density_REGION_DEPTH_points.pdf",width=8,height=6)
+# ggsave(plot=p1,file="T:/Benthic/Projects/Juvenile Project/Figures/Abschange_REGION_points.pdf",width=8,height=6)
+# ggsave(plot=p2,file="T:/Benthic/Projects/Juvenile Project/Figures/Abschange_REGION_DEPTH_points.pdf",width=8,height=6)
+# ggsave(plot=p3,file="T:/Benthic/Projects/Juvenile Project/Figures/Density_REGION_DEPTH_points.pdf",width=8,height=6)
+
+ggsave(plot=p1,file="C:/Users/Courtney.S.Couch/Documents/Courtney's Files/R Files/ESD/Juvenile Project/Figures/Abschange_REGION_points.pdf",width=8,height=6)
+ggsave(plot=p2,file="C:/Users/Courtney.S.Couch/Documents/Courtney's Files/R Files/ESD/Juvenile Project/Figures/Abschange_REGION_DEPTH_points.pdf",width=8,height=6)
+ggsave(plot=p3,file="C:/Users/Courtney.S.Couch/Documents/Courtney's Files/R Files/ESD/Juvenile Project/Figures/Density_REGION_DEPTH_points.pdf",width=8,height=6)
+
+
 
 #General thoughts on patterns
 #The time after the bleaching event is very important. I removed the 2016 and 2017 juvenile data for jarvis, baker and howland. it may be interesting to look at these separately
@@ -450,10 +508,104 @@ data.gen_pb$DOMAIN_SCHEMA<-data.gen_pb$SEC_NAME
 jcdG_sec<-Calc_Domain(data.gen_pb,"GENUS_CODE","JuvColDen","Juvpres.abs")
 jcdG_sec<-jcdG_sec[,c("REGION","ANALYSIS_YEAR","DOMAIN_SCHEMA","GENUS_CODE","n","Ntot","Mean_JuvColDen","SE_JuvColDen")]
 
-write.csv(jcdG_st,file="T:/Benthic/Projects/Juvenile Project/JuvProject_pb_STRATA.csv")
-write.csv(jcdG_is,file="T:/Benthic/Projects/Juvenile Project/JuvProject_pb_ISLAND.csv")
-write.csv(jcdG_sec,file="T:/Benthic/Projects/Juvenile Project/JuvProject_pb_SECTOR.csv")
+# write.csv(jcdG_st,file="T:/Benthic/Projects/Juvenile Project/JuvProject_pb_STRATA.csv")
+# write.csv(jcdG_is,file="T:/Benthic/Projects/Juvenile Project/JuvProject_pb_ISLAND.csv")
+# write.csv(jcdG_sec,file="T:/Benthic/Projects/Juvenile Project/JuvProject_pb_SECTOR.csv")
+
+write.csv(jcdG_st,"JuvProject_pb_STRATA.csv")
+write.csv(jcdG_is,"JuvProject_pb_ISLAND.csv")
+write.csv(jcdG_sec,"JuvProject_pb_SECTOR.csv")
 
 
+#Plot Juv Density by habitat type
+
+#Identify sites with NA in HABITAT_CODE
+data.gen_pb[is.na(data.gen_pb$HABITAT_CODE),]
 
 
+#Convert habitat codes to a consolidate list of codes
+
+data.gen_pb<-data.gen_pb %>% mutate(HAB_REDUCED=recode(HABITAT_CODE, 
+                                     `AGR`="Carbonate Reef",
+                                     `APR`="Carbonate Reef",
+                                     `APS`="Carbonate Reef",
+                                     `WAL`="Carbonate Reef",
+                                     `PAV`="Pavement",
+                                     `PPR`="Pavement",
+                                     `RRB`="Rubble",
+                                     `ROB`="Rock & Boulder",
+                                     `SAG`="Spur & Groove",
+                                     `SCR`="Reef with Sand",
+                                     `PSC`="Reef with Sand"))
+
+hab<-ddply(data.gen_pb,.(OBS_YEAR,ISLAND,DEPTH_BIN,HABITAT_CODE,GENUS_CODE),
+           summarize,
+           aveJuvDen=mean(JuvColDen),
+           SEJuvDen=std.error(JuvColDen))
+
+plot2<-ggplot(subset(hab,GENUS_CODE=="SSSS"), aes(x=HABITAT_CODE, y=aveJuvDen, fill=DEPTH_BIN)) + 
+  geom_bar(position=position_dodge(), stat="identity") + 
+  # guides(fill=FALSE) 
+  facet_wrap(~ISLAND, scales="free_x") +
+  geom_errorbar(aes(ymin=aveJuvDen-SEJuvDen, ymax=aveJuvDen+SEJuvDen),width=.15, position=position_dodge(.9))+
+  theme_bw() +
+  theme(
+    axis.text.x = element_text(angle = 90)
+    ,plot.background = element_blank()
+    ,panel.grid.major = element_blank()
+    ,panel.grid.minor = element_blank()
+    ,axis.ticks.x = element_blank() # no x axis ticks
+    ,axis.title.x = element_text( vjust = -.0001) # adjust x axis to lower the same amount as the genus labels
+    ,legend.position="bottom")+
+  labs(x="Habitat Code",y="Mean Juvenile Density/m2")
+
+plot2
+
+
+hab<-ddply(data.gen_pb,.(OBS_YEAR,REGION,DEPTH_BIN,HABITAT_CODE,GENUS_CODE),
+           summarize,
+           aveJuvDen=mean(JuvColDen),
+           SEJuvDen=std.error(JuvColDen))
+
+hab2<-ggplot(subset(hab,GENUS_CODE=="SSSS"), aes(x=HABITAT_CODE, y=aveJuvDen, fill=DEPTH_BIN)) + 
+  geom_bar(position=position_dodge(), stat="identity") + 
+  # guides(fill=FALSE) 
+  facet_wrap(~REGION, scales="free_x") +
+  geom_errorbar(aes(ymin=aveJuvDen-SEJuvDen, ymax=aveJuvDen+SEJuvDen),width=.15, position=position_dodge(.9))+
+  theme_bw() +
+  theme(
+    axis.text.x = element_text(angle = 90)
+    ,plot.background = element_blank()
+    ,panel.grid.major = element_blank()
+    ,panel.grid.minor = element_blank()
+    ,axis.ticks.x = element_blank() # no x axis ticks
+    ,axis.title.x = element_text( vjust = -.0001) # adjust x axis to lower the same amount as the genus labels
+    ,legend.position="bottom")+
+  labs(x="Habitat Code",y="Mean Juvenile Density/m2")
+
+hab2
+
+hab<-ddply(data.gen_pb,.(OBS_YEAR,REGION,DEPTH_BIN,HAB_REDUCED,GENUS_CODE),
+           summarize,
+           aveJuvDen=mean(JuvColDen),
+           SEJuvDen=std.error(JuvColDen))
+
+hab3<-ggplot(subset(hab,GENUS_CODE=="SSSS"), aes(x=HAB_REDUCED, y=aveJuvDen, fill=DEPTH_BIN)) + 
+  geom_bar(position=position_dodge(), stat="identity") + 
+  # guides(fill=FALSE) 
+  facet_wrap(~REGION, scales="free_x") +
+  geom_errorbar(aes(ymin=aveJuvDen-SEJuvDen, ymax=aveJuvDen+SEJuvDen),width=.15, position=position_dodge(.9))+
+  theme_bw() +
+  theme(
+    axis.text.x = element_text(angle = 90)
+    ,plot.background = element_blank()
+    ,panel.grid.major = element_blank()
+    ,panel.grid.minor = element_blank()
+    ,axis.ticks.x = element_blank() # no x axis ticks
+    ,axis.title.x = element_text( vjust = -.0001) # adjust x axis to lower the same amount as the genus labels
+    ,legend.position="bottom")+
+  labs(x="Habitat Code",y="Mean Juvenile Density/m2")
+
+hab3
+
+  
