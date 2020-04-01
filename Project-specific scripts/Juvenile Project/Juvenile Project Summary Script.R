@@ -69,8 +69,21 @@ s.all<-ddply(jwd,.(ISLAND,ANALYST),
               mean=mean(COLONYLENGTH,na.rm=T),
               ncol=length(COLONYLENGTH))
 
-#Subset data >1cm
-jwd<-subset(jwd,COLONYLENGTH>=1|is.na(jwd$COLONYLENGTH))
+#Change colonies that are <1cm or >5cm to NA. I'm not subsetting these data because I need to keep the placeholder in the dataframe in case a site only had colonies <1cm or >5cm
+View(subset(jwd,COLONYLENGTH<1))
+nrow(subset(jwd,COLONYLENGTH<1))
+nrow(jwd)
+jwd$S_ORDER<-ifelse(jwd$COLONYLENGTH<1|jwd$COLONYLENGTH==5,NA,as.character(jwd$S_ORDER))
+jwd$GENUS_CODE<-ifelse(jwd$COLONYLENGTH<1|jwd$COLONYLENGTH==5,NA,as.character(jwd$GENUS_CODE))
+jwd$TAXONCODE<-ifelse(jwd$COLONYLENGTH<1|jwd$COLONYLENGTH==5,NA,as.character(jwd$TAXONCODE))
+jwd$SPCODE<-ifelse(jwd$COLONYLENGTH<1|jwd$COLONYLENGTH==5,NA,as.character(jwd$SPCODE))
+jwd$COLONYLENGTH<-ifelse(jwd$COLONYLENGTH<1|jwd$COLONYLENGTH==5,NA,jwd$COLONYLENGTH)
+
+nrow(subset(jwd,COLONYLENGTH>1))
+View(subset(jwd,COLONYLENGTH>1))
+
+nrow(jwd)
+View(jwd)
 
 
 # GENERATE SUMMARY METRICS at the transect-leveL BY GENUS--------------------------------------------------
@@ -106,7 +119,7 @@ site.data.gen2$Juvpres.abs<-ifelse(site.data.gen2$JuvColDen>0,1,0)
 
 #Change all special missions to exclude flag =-1, right now they are 0. Then exclude these sites
 levels(site.data.gen2$MISSIONID)
-site.data.gen2<-site.data.gen2[!site.data.gen2$MISSIONID %in% c("MP1410","MP1512","MP1602","SE1602"),]
+site.data.gen2<-site.data.gen2[!site.data.gen2$MISSIONID %in% c("MP1410","MP1512","MP1602","SE1602","MP2006"),]
 site.data.gen2$Year_Island<-paste(site.data.gen2$OBS_YEAR,site.data.gen2$ISLAND,sep="_")
 site.data.gen2<-site.data.gen2[!site.data.gen2$Year_Island %in% c("2017_Baker","2017_Jarvis","2017_Howland"),] 
 
@@ -463,14 +476,18 @@ summary(mod1)
 
 #Next steps
 #separate out northern and southern CNMI, phoneix and line island
-#Remove TUSP
-#Subset juvs >2cm
 #weighted density estimates
 #Repeated measures anova for weighted means
 
-# Generate post bleaching data --------------------------------------------
-data.gen_pb<-subset(site.data.gen2,OBS_YEAR>=2016)
+#Subset post bleaching regions and years for downstream driver analysis
+REGION_YEAR<-c("MHI_2016","NWHI_2016","MARIAN_2017","PRIAs_2018","PRIAs_2017","SAMOA_2018")
 
+site.data.gen2$REGION_YEAR<-paste(site.data.gen2$REGION,site.data.gen2$OBS_YEAR,sep="_")
+
+data.gen_pb<-site.data.gen2[site.data.gen2$REGION_YEAR %in% REGION_YEAR,]
+head(data.gen_pb)
+
+#Remove strata that have less than 2 sites/stratum
 st.list<-ddply(data.gen_pb,.(OBS_YEAR,REGION,ISLAND,SEC_NAME,STRATANAME),summarize,n=length(unique(SITE)))
 st.list2<-subset(st.list,n>=2);head(st.list);st.list2<-droplevels(st.list2)
 data.gen_pb<-site.data.gen2[site.data.gen2$STRATANAME %in% c(st.list2$STRATANAME),]
