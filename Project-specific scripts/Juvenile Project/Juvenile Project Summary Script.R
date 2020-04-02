@@ -44,6 +44,7 @@ survey_site<-unique(jwd[,SURVEY_SITE])#new_Aggregate_InputTable(awd, SURVEY_INFO
 #TEMPORARY WORK AROUND-ASK MICHAEL TO FIX
 survey_site$REEF_ZONE<-ifelse(survey_site$SITE=="HAW-04285","Forereef",as.character(survey_site$REEF_ZONE))
 
+
 #Look at the size class data to determine the min colony size cut off for analysis
 #Subset 2019 Hawaii data
 hi<-subset(jwd,OBS_YEAR=="2019")
@@ -86,6 +87,7 @@ nrow(jwd)
 View(jwd)
 
 
+
 # GENERATE SUMMARY METRICS at the transect-leveL BY GENUS--------------------------------------------------
 jcd.gen<-Calc_ColDen_Transect(jwd,"GENUS_CODE"); colnames(jcd.gen)[colnames(jcd.gen)=="ColCount"]<-"JuvColCount";colnames(jcd.gen)[colnames(jcd.gen)=="ColDen"]<-"JuvColDen";colnames(jcd.gen)[colnames(jcd.gen)=="TRANSECTAREA"]<-"TRANSECTAREA_j"
 
@@ -95,12 +97,6 @@ site.data.gen<-ddply(jcd.gen, .(SITE,SITEVISITID,GENUS_CODE), #calc total coloni
 
 site.data.gen2<-site.data.gen
                      
-jcd.tax<-Calc_ColDen_Transect(jwd,"TAXONCODE"); colnames(jcd.tax)[colnames(jcd.tax)=="ColCount"]<-"JuvColCount";colnames(jcd.tax)[colnames(jcd.tax)=="ColDen"]<-"JuvColDen";colnames(jcd.tax)[colnames(jcd.tax)=="TRANSECTAREA"]<-"TRANSECTAREA_j"
-
-site.data.tax2<-ddply(jcd.tax, .(SITE,SITEVISITID,TAXONCODE), #calc total colonies by condition
-                      summarise,
-                      JuvColDen=mean(JuvColDen,na.rm=T))
-
 # Merge Site level data with sectors file and export site data ------------
 sectors<-read.csv("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/data/Sectors-Strata-Areas.csv", stringsAsFactors=FALSE)
 
@@ -126,9 +122,23 @@ site.data.gen2<-site.data.gen2[!site.data.gen2$Year_Island %in% c("2017_Baker","
 site.data.gen2<-droplevels(site.data.gen2);levels(site.data.gen2$MISSIONID)
 View(site.data.gen2)
 
+#Subset just Forereef sites
+site.data.gen2$REEF_ZONE<-ifelse(site.data.gen2$REEF_ZONE=="Protected Slope","Forereef",as.character(site.data.gen2$REEF_ZONE))
+site.data.gen2<-subset(site.data.gen2,REEF_ZONE=="Forereef")
 
-#Subset forereef and protected reefs slope
-site.data.gen2<-subset(site.data.gen2,REEF_ZONE %in% c("Forereef","Protected Slope"))
+#Remove Wake from analysis- we don't have enough replicate strata to conduct downstream analyses
+site.data.gen2<-subset(site.data.gen2,ISLAND!="Wake")
+
+
+#Change Regions
+site.data.gen2$REGION<-ifelse(site.data.gen2$ISLAND %in% c("FDP", "Maug", "Asuncion", "Alamagan", "Pagan", "Agrihan", "Guguan", "Sarigan","Farallon de Pajaros")
+                             ,"NMARIAN", as.character(site.data.gen2$REGION))
+site.data.gen2$REGION<-ifelse(site.data.gen2$ISLAND %in% c("Saipan", "Tinian", "Aguijan", "Rota", "Guam")
+                             ,"SMARIAN", as.character(site.data.gen2$REGION))
+site.data.gen2$REGION<-ifelse(site.data.gen2$ISLAND %in% c("Johnston","Howland","Baker")
+                             ,"Phoenix", as.character(site.data.gen2$REGION))
+site.data.gen2$REGION<-ifelse(site.data.gen2$ISLAND %in% c("Kingman","Palmyra","Jarvis")
+                             ,"Line", as.character(site.data.gen2$REGION))
 
 # Generate data for temporal analysis---------------------------------------------------
 site.data.gen2$STRATANAME<- paste(site.data.gen2$SEC_NAME,site.data.gen2$REEF_ZONE,site.data.gen2$DEPTH_BIN,sep="_")
@@ -139,7 +149,7 @@ st.list2<-subset(st.list,n>=2);head(st.list)
 st.list_w<-dcast(st.list2, formula=REGION+ISLAND+SEC_NAME+STRATANAME~ OBS_YEAR, value.var="n",fill=0)
 dCOLS<-c("2013","2014","2015","2016","2017","2018","2019")
 st.list_w$year_n<-rowSums(st.list_w[,dCOLS] > 0, na.rm=T) #count # of years of data
-st.list_w2<-subset(st.list_w,REGION %in% c("MARIAN","PRIAs","SAMOA") & year_n>=2)
+st.list_w2<-subset(st.list_w,REGION %in% c("NMARIAN","SMARIAN","Line","Phoenix","SAMOA") & year_n>=2)
 st.list_w3<-subset(st.list_w,REGION %in% c("MHI","NWHI") & year_n>=3)
 st.list_w4<-rbind(st.list_w2,st.list_w3)
 
@@ -149,12 +159,6 @@ head(st.list_w4);st.list_w4<-droplevels(st.list_w4)
 data.gen_temp<-site.data.gen2[site.data.gen2$STRATANAME %in% c(st.list_w4$STRATANAME),]
 
 View(data.gen_temp) #double check that strata were dropped correctly
-
-
-#Change Regions
-# NMARorder <- c("FDP", "Maug", "Asuncion", "Alamagan", "Pagan", "Agrihan", "Guguan", "Sarigan")
-# 
-# SMARorder <- c("Saipan", "Tinian", "Aguijan", "Rota", "Guam")
 
 
 #POOL UP
@@ -187,7 +191,6 @@ data.gen_temp$DOMAIN_SCHEMA<-data.gen_temp$SEC_NAME
 
 jcdG_sec<-Calc_Domain(data.gen_temp,"GENUS_CODE","JuvColDen","Juvpres.abs")
 jcdG_sec<-jcdG_sec[,c("REGION","ANALYSIS_YEAR","DOMAIN_SCHEMA","GENUS_CODE","n","Ntot","Mean_JuvColDen","SE_JuvColDen")]
-
 
 # write.csv(jcdG_st,file="T:/Benthic/Projects/Juvenile Project/JuvProject_temporal_STRATA.csv")
 # write.csv(jcdG_is,file="T:/Benthic/Projects/Juvenile Project/JuvProject_temporal_ISLAND.csv")
@@ -228,8 +231,8 @@ ggsave(plot=p1,file="C:/Users/Courtney.S.Couch/Documents/Courtney's Files/R File
 ####Absolute Change####
 
 #Wake surveyd in off year- change time point
-jcdG_st$ANALYSIS_YEAR[jcdG_st$ISLAND=="Wake"&jcdG_st$ANALYSIS_YEAR=="2014"] <- "2015"
-jcdG_st$ANALYSIS_YEAR[jcdG_st$ISLAND=="Wake"&jcdG_st$ANALYSIS_YEAR=="2017"] <- "2018"
+# jcdG_st$ANALYSIS_YEAR[jcdG_st$ISLAND=="Wake"&jcdG_st$ANALYSIS_YEAR=="2014"] <- "2015"
+# jcdG_st$ANALYSIS_YEAR[jcdG_st$ISLAND=="Wake"&jcdG_st$ANALYSIS_YEAR=="2017"] <- "2018"
 
 jcdG_st$YEAR<-paste("a",jcdG_st$ANALYSIS_YEAR,sep="")
 
@@ -238,9 +241,14 @@ head(new.df_w)
 
 nwhi<-subset(new.df_w,REGION=="NWHI")
 mhi<-subset(new.df_w,REGION=="MHI")
-marian<-subset(new.df_w,REGION=="MARIAN")
-pria<-subset(new.df_w,REGION=="PRIAs")
+nmarian<-subset(new.df_w,REGION=="NMARIAN")
+smarian<-subset(new.df_w,REGION=="SMARIAN")
+ph<-subset(new.df_w,REGION=="Phoenix")
+line<-subset(new.df_w,REGION=="Line")
 samoa<-subset(new.df_w,REGION=="SAMOA")
+
+#marian<-subset(new.df_w,REGION=="MARIAN")
+#pria<-subset(new.df_w,REGION=="PRIAs")
 
 head(mhi)
 
@@ -260,21 +268,38 @@ nwhi$t2017<-NA
 nwhi$t2018<-NA
 nwhi$t2019<-NA
 
-marian$t2013<-NA
-marian$t2014<-0
-marian$t2015<-NA
-marian$t2016<-NA
-marian$t2017<-marian$a2017-marian$a2014
-marian$t2018<-NA
-marian$t2019<-NA
+nmarian$t2013<-NA
+nmarian$t2014<-0
+nmarian$t2015<-NA
+nmarian$t2016<-NA
+nmarian$t2017<-nmarian$a2017-nmarian$a2014
+nmarian$t2018<-NA
+nmarian$t2019<-NA
 
-pria$t2013<-NA
-pria$t2014<-NA
-pria$t2015<-0
-pria$t2016<-NA
-pria$t2017<-NA
-pria$t2018<-pria$a2018-pria$a2015
-pria$t2019<-NA
+smarian$t2013<-NA
+smarian$t2014<-0
+smarian$t2015<-NA
+smarian$t2016<-NA
+smarian$t2017<-smarian$a2017-smarian$a2014
+smarian$t2018<-NA
+smarian$t2019<-NA
+
+
+ph$t2013<-NA
+ph$t2014<-NA
+ph$t2015<-0
+ph$t2016<-NA
+ph$t2017<-NA
+ph$t2018<-ph$a2018-ph$a2015
+ph$t2019<-NA
+
+line$t2013<-NA
+line$t2014<-NA
+line$t2015<-0
+line$t2016<-NA
+line$t2017<-NA
+line$t2018<-line$a2018-line$a2015
+line$t2019<-NA
 
 samoa$t2013<-NA
 samoa$t2014<-NA
@@ -283,7 +308,7 @@ samoa$t2016<-NA
 samoa$t2017<-NA
 samoa$t2018<-samoa$a2018-samoa$a2015
 samoa$t2019<-NA
-abschange<-rbind(nwhi,mhi,pria,marian,samoa)
+abschange<-rbind(nwhi,mhi,nmarian,smarian,ph,line,samoa)
 
 abschange<-abschange[,-c(7:13)]
 pc_long<-gather(abschange,Year,Change,t2013:t2019,factor_key = T)
@@ -307,7 +332,9 @@ pc_long<-cSplit(pc_long, 'DB_RZ', sep="_", type.convert=FALSE);colnames(pc_long)
 
 pc_longS<-subset(pc_long,GENUS_CODE=="SSSS")
 
-p1<-ggplot(pc_longS, aes(x=Yearn, y=Change, color=REGION)) + 
+p1<-pc_longS %>%
+  mutate(REGION = fct_relevel(REGION,"NWHI","MHI","Phoenix","Line","SAMOA","SMARIAN","NMARIAN")) %>% #reorder varibles 
+  ggplot(aes(x=Yearn, y=Change, color=REGION)) + 
   geom_smooth(se=FALSE,method="loess",lwd=1.5)+
   geom_point()+
   geom_hline(yintercept=0)+
@@ -326,7 +353,8 @@ p1
 ggsave(plot=p1,file="C:/Users/Courtney.S.Couch/Documents/Courtney's Files/R Files/ESD/Juvenile Project/Figures/Abschange_REGION_points.pdf",width=8,height=6)
 
 p2<-pc_longS %>%
-  mutate(DEPTH_BIN = fct_relevel(DEPTH_BIN,"Shallow","Mid","Deep")) %>% #reorder varibles 
+  mutate(DEPTH_BIN = fct_relevel(DEPTH_BIN,"Shallow","Mid","Deep")) %>% #reorder varibles
+  mutate(REGION = fct_relevel(REGION,"NWHI","MHI","Phoenix","Line","SAMOA","SMARIAN","NMARIAN")) %>% #reorder varibles 
   ggplot(aes(x=Yearn, y=Change, color=REGION)) + 
   geom_smooth(se=FALSE,method="loess",lwd=1.5)+
   geom_point()+
@@ -347,7 +375,9 @@ p2
 jcdG_st<-cSplit(jcdG_st, 'DB_RZ', sep="_", type.convert=FALSE);colnames(jcdG_st)[colnames(jcdG_st)=="DB_RZ_1"]<-"DEPTH_BIN"
 jcdG_stS<-subset(jcdG_st,GENUS_CODE=="SSSS")
 jcdG_stS$ANALYSIS_YEAR<-as.numeric(as.character(jcdG_stS$ANALYSIS_YEAR))
+
 p3<-jcdG_stS %>%
+  mutate(REGION = fct_relevel(REGION,"NWHI","MHI","Phoenix","Line","SAMOA","SMARIAN","NMARIAN")) %>% #reorder varibles 
   mutate(DEPTH_BIN = fct_relevel(DEPTH_BIN,"Shallow","Mid","Deep")) %>% #reorder varibles 
   ggplot(aes(x=ANALYSIS_YEAR, y=JuvColDen, color=REGION)) + 
   geom_smooth(se=FALSE,method="loess",lwd=1.5)+
@@ -447,8 +477,8 @@ qqline(residuals(mod), col="red")
 S$logDen<-log(S$JuvColDen+1)
 
 
-S$DB_RZ<-as.factor(S$DB_RZ)
-fit.MS2 <- fitVCA(logDen~DB_RZ/DOMAIN_SCHEMA, S)
+S$DEPTH_BIN<-as.factor(S$DEPTH_BIN)
+fit.MS2 <- fitVCA(logDen~DEPTH_BIN/DOMAIN_SCHEMA, S)
 print(fit.MS2, digits=4)
 
 mod<-lmer(logDen~1+(1|ANALYSIS_SCHEMA/DOMAIN_SCHEMA/REGION/OBS_YEAR),data=S)
@@ -480,7 +510,7 @@ summary(mod1)
 #Repeated measures anova for weighted means
 
 #Subset post bleaching regions and years for downstream driver analysis
-REGION_YEAR<-c("MHI_2016","NWHI_2016","MARIAN_2017","PRIAs_2018","PRIAs_2017","SAMOA_2018")
+REGION_YEAR<-c("MHI_2016","NWHI_2016","NMARIAN_2017","SMARIAN_2017","Phoenix_2018","Line_2018","SAMOA_2018")
 
 site.data.gen2$REGION_YEAR<-paste(site.data.gen2$REGION,site.data.gen2$OBS_YEAR,sep="_")
 
@@ -490,10 +520,9 @@ head(data.gen_pb)
 #Remove strata that have less than 2 sites/stratum
 st.list<-ddply(data.gen_pb,.(OBS_YEAR,REGION,ISLAND,SEC_NAME,STRATANAME),summarize,n=length(unique(SITE)))
 st.list2<-subset(st.list,n>=2);head(st.list);st.list2<-droplevels(st.list2)
-data.gen_pb<-site.data.gen2[site.data.gen2$STRATANAME %in% c(st.list2$STRATANAME),]
+data.gen_pb<-data.gen_pb[data.gen_pb$STRATANAME %in% c(data.gen_pb$STRATANAME),]
 
 View(data.gen_pb) #double check that strata were dropped correctly
-
 
 #POOL UP
 #Set ANALYSIS_SCHEMA to STRATA and DOMAIN_SCHEMA to whatever the highest level you want estimates for (e.g. sector, island, region)
@@ -542,7 +571,7 @@ data.gen_pb[is.na(data.gen_pb$HABITAT_CODE),]
 
 #Convert habitat codes to a consolidate list of codes
 
-data.gen_pb<-data.gen_pb %>% mutate(HAB_REDUCED=recode(HABITAT_CODE, 
+data.gen_pb<-data.gen_pb %>% mutate(HAB_R1=recode(HABITAT_CODE, 
                                      `AGR`="Carbonate Reef",
                                      `APR`="Carbonate Reef",
                                      `APS`="Carbonate Reef",
@@ -555,17 +584,46 @@ data.gen_pb<-data.gen_pb %>% mutate(HAB_REDUCED=recode(HABITAT_CODE,
                                      `SCR`="Reef with Sand",
                                      `PSC`="Reef with Sand"))
 
-hab<-ddply(data.gen_pb,.(OBS_YEAR,ISLAND,DEPTH_BIN,HABITAT_CODE,GENUS_CODE),
+data.gen_pb<-data.gen_pb %>% mutate(HAB_R2=recode(HABITAT_CODE, 
+                                                  `AGR`="Carbonate Reef",
+                                                  `APR`="Carbonate Reef",
+                                                  `APS`="Carbonate Reef",
+                                                  `WAL`="Carbonate Reef",
+                                                  `PAV`="Basalt",
+                                                  `PPR`="Basalt",
+                                                  `RRB`="Rubble",
+                                                  `ROB`="Basalt",
+                                                  `SAG`="Carbonate Reef",
+                                                  `SCR`="Carbonate Reef",
+                                                  `PSC`="Basalt"))
+
+data.gen_pb<-data.gen_pb %>% mutate(HAB_COMPLEX=recode(HABITAT_CODE, 
+                                                  `AGR`="2",
+                                                  `APR`="2",
+                                                  `APS`="2",
+                                                  `WAL`="2",
+                                                  `PAV`="1",
+                                                  `PPR`="2",
+                                                  `RRB`="3",
+                                                  `ROB`="1",
+                                                  `SAG`="2",
+                                                  `SCR`="2",
+                                                  `PSC`="1"))
+data.gen_pb$HAB_COMPLEX<-as.numeric(data.gen_pb$HAB_COMPLEX)
+
+hab<-ddply(subset(data.gen_pb,GENUS_CODE=="SSSS"),.(OBS_YEAR,ISLAND,DEPTH_BIN,HABITAT_CODE),
            summarize,
            aveJuvDen=mean(JuvColDen),
-           SEJuvDen=std.error(JuvColDen))
+           SEJuvDen=std.error(JuvColDen),
+           n=length(SITE))
 
-plot2<-ggplot(subset(hab,GENUS_CODE=="SSSS"), aes(x=HABITAT_CODE, y=aveJuvDen, fill=DEPTH_BIN)) + 
+plot2<-ggplot(hab, aes(x=HABITAT_CODE, y=aveJuvDen, fill=DEPTH_BIN)) + 
   geom_bar(position=position_dodge(), stat="identity") + 
   # guides(fill=FALSE) 
   facet_wrap(~ISLAND, scales="free_x") +
   geom_errorbar(aes(ymin=aveJuvDen-SEJuvDen, ymax=aveJuvDen+SEJuvDen),width=.15, position=position_dodge(.9))+
   theme_bw() +
+  geom_text(data = hab, aes(x = factor(HABITAT_CODE),  y=aveJuvDen+SEJuvDen+5, label = n), position = position_dodge(1), size = 2.25, color = "black", hjust = 'left')+
   theme(
     axis.text.x = element_text(angle = 90)
     ,plot.background = element_blank()
@@ -579,16 +637,18 @@ plot2<-ggplot(subset(hab,GENUS_CODE=="SSSS"), aes(x=HABITAT_CODE, y=aveJuvDen, f
 plot2
 
 
-hab<-ddply(data.gen_pb,.(OBS_YEAR,REGION,DEPTH_BIN,HABITAT_CODE,GENUS_CODE),
+hab<-ddply(subset(data.gen_pb,GENUS_CODE=="SSSS"),.(OBS_YEAR,REGION,DEPTH_BIN,HAB_R1),
            summarize,
            aveJuvDen=mean(JuvColDen),
-           SEJuvDen=std.error(JuvColDen))
+           SEJuvDen=std.error(JuvColDen),
+           n=length(SITE))
 
-hab2<-ggplot(subset(hab,GENUS_CODE=="SSSS"), aes(x=HABITAT_CODE, y=aveJuvDen, fill=DEPTH_BIN)) + 
+hab2<-ggplot(hab, aes(x=HAB_R1, y=aveJuvDen, fill=DEPTH_BIN)) + 
   geom_bar(position=position_dodge(), stat="identity") + 
   # guides(fill=FALSE) 
   facet_wrap(~REGION, scales="free_x") +
   geom_errorbar(aes(ymin=aveJuvDen-SEJuvDen, ymax=aveJuvDen+SEJuvDen),width=.15, position=position_dodge(.9))+
+  geom_text(data = hab, aes(x = factor(HAB_R1),  y=aveJuvDen+SEJuvDen+5, label = n), position = position_dodge(1), size = 2.25, color = "black", hjust = 'left')+
   theme_bw() +
   theme(
     axis.text.x = element_text(angle = 90)
@@ -602,16 +662,18 @@ hab2<-ggplot(subset(hab,GENUS_CODE=="SSSS"), aes(x=HABITAT_CODE, y=aveJuvDen, fi
 
 hab2
 
-hab<-ddply(data.gen_pb,.(OBS_YEAR,REGION,DEPTH_BIN,HAB_REDUCED,GENUS_CODE),
+hab<-ddply(subset(data.gen_pb,GENUS_CODE=="SSSS"),.(OBS_YEAR,REGION,DEPTH_BIN,HAB_R2),
            summarize,
            aveJuvDen=mean(JuvColDen),
-           SEJuvDen=std.error(JuvColDen))
+           SEJuvDen=std.error(JuvColDen),
+           n=length(SITE))
 
-hab3<-ggplot(subset(hab,GENUS_CODE=="SSSS"), aes(x=HAB_REDUCED, y=aveJuvDen, fill=DEPTH_BIN)) + 
+hab3<-ggplot(hab, aes(x=HAB_R2, y=aveJuvDen, fill=DEPTH_BIN)) + 
   geom_bar(position=position_dodge(), stat="identity") + 
   # guides(fill=FALSE) 
   facet_wrap(~REGION, scales="free_x") +
   geom_errorbar(aes(ymin=aveJuvDen-SEJuvDen, ymax=aveJuvDen+SEJuvDen),width=.15, position=position_dodge(.9))+
+  geom_text(data = hab, aes(x = factor(HAB_R2),  y=aveJuvDen+SEJuvDen+2, label = n), position = position_dodge(1), size = 2.25, color = "black", hjust = 'left')+
   theme_bw() +
   theme(
     axis.text.x = element_text(angle = 90)
@@ -625,4 +687,37 @@ hab3<-ggplot(subset(hab,GENUS_CODE=="SSSS"), aes(x=HAB_REDUCED, y=aveJuvDen, fil
 
 hab3
 
-  
+ggsave(plot=hab2,file="C:/Users/Courtney.S.Couch/Documents/Courtney's Files/R Files/ESD/Juvenile Project/Figures/DensityvGeneralHabtype1.pdf",width=8,height=8)
+ggsave(plot=hab3,file="C:/Users/Courtney.S.Couch/Documents/Courtney's Files/R Files/ESD/Juvenile Project/Figures/DensityvGeneralHabtype2.pdf",width=8,height=8)
+
+
+
+#Take home: There really is no diserable differences across habitat and regions that would allow me to convert habitat to continuous variable
+
+#Tried plotting density vs. general habitat complexity based on habitat code- nope, don't use this method
+hab<-ddply(data.gen_pb,.(OBS_YEAR,REGION,DEPTH_BIN,GENUS_CODE,STRATANAME),
+           summarize,
+           aveJuvDen=mean(JuvColDen),
+           habcomplex=mean(HAB_COMPLEX))
+
+habS<-subset(hab,GENUS_CODE=="SSSS")
+
+hab4<-habS %>%
+  mutate(DEPTH_BIN = fct_relevel(DEPTH_BIN,"Shallow","Mid","Deep")) %>% #reorder varibles
+  mutate(REGION = fct_relevel(REGION,"NWHI","MHI","Phoenix","Line","SAMOA","SMARIAN","NMARIAN")) %>% #reorder varibles 
+  ggplot(aes(x=habcomplex, y=aveJuvDen, color=REGION)) + 
+  geom_smooth(se=FALSE,method="loess",lwd=1.5)+
+  geom_point()+
+  facet_wrap(~DEPTH_BIN)+
+  theme_bw() +
+  theme(
+    plot.background = element_blank()
+    ,panel.grid.major = element_blank()
+    ,panel.grid.minor = element_blank()
+    ,axis.ticks.x = element_blank() # no x axis ticks
+    ,axis.title.x = element_text( vjust = -.0001)
+    ,axis.text.x = element_text(angle = 90)) + # adjust x axis to lower the same amount as the genus labels
+  labs(x="Year",y="Abs. Change Mean Density")+
+  scale_x_continuous(breaks=seq(2013,2019,1))
+p2
+
