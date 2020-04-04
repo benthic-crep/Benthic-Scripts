@@ -13,18 +13,24 @@ source("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/lib/fish_team_func
 source("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/lib/Islandwide Mean&Variance Functions.R")
 
 #Climate data - this is from CPCE
-load("T:/Benthic/Data/REA Coral Demography & Cover/Raw from Oracle/ALL_BIA_CLIMATE_PERM.rdata")   #bia
+#load("T:/Benthic/Data/REA Coral Demography & Cover/Raw from Oracle/ALL_BIA_CLIMATE_PERM.rdata")   #bia
+load("C:/Users/Courtney.S.Couch/Documents/Courtney's Files/R Files/ESD/Data/REA Coral Demography & Cover/Raw from Oracle/ALL_BIA_CLIMATE_PERM.rdata")   #bia
+
 cli$SITE<-SiteNumLeadingZeros(cli$SITE)
 
 #BIA data - this is from CPCE
-load("T:/Benthic/Data/REA Coral Demography & Cover/Raw from Oracle/ALL_BIA_STR_RAW_NEW.rdata")   #bia
+#load("T:/Benthic/Data/REA Coral Demography & Cover/Raw from Oracle/ALL_BIA_STR_RAW_NEW.rdata")   #bia
+load("C:/Users/Courtney.S.Couch/Documents/Courtney's Files/R Files/ESD/Data/REA Coral Demography & Cover/Raw from Oracle/ALL_BIA_STR_RAW_NEW.rdata")   #bia
+
 bia$SITE<-SiteNumLeadingZeros(bia$SITE)
 
 #CNET data - from CoralNet
 #These data contain human annotated data. There may be a small subset of robot annotated data. 
 #The robot annoations are included because the confidence threshold in CoralNet was set to 90% allowing the robot to annotate points when it was 90% certain.
 #2019 NWHI data not in these view because it was analyzed as part of a bleaching dataset
-load("T:/Benthic/Data/REA Coral Demography & Cover/Raw from Oracle/ALL_BIA_STR_CNET.rdata") #load data
+#load("T:/Benthic/Data/REA Coral Demography & Cover/Raw from Oracle/ALL_BIA_STR_CNET.rdata") #load data
+load("C:/Users/Courtney.S.Couch/Documents/Courtney's Files/R Files/ESD/Data/REA Coral Demography & Cover/Raw from Oracle/ALL_BIA_STR_CNET.rdata") #load data
+
 cnet$SITE<-SiteNumLeadingZeros(cnet$SITE)
 table(cnet$REGION,cnet$OBS_YEAR)
 
@@ -137,7 +143,8 @@ head(hal)
 all.tab<-aggregate(ab$POINTS, by=ab[,c("METHOD", "TIER_1", "CATEGORY_NAME", "TIER_2", "SUBCATEGORY_NAME", "TIER_3", "GENERA_NAME")], FUN=length)
 write.csv(all.tab, file="All CATEGORIES BOTH METHODS CLEANED.csv")
 
-save(ab, file="T:/Benthic/Data/REA Coral Demography & Cover/Analysis Ready Raw data/BIA_2010-2018_CLEANED.RData")
+save(ab, file="T:/Benthic/Data/REA Coral Demography & Cover/Analysis Ready Raw data/BIA_2010-2020_CLEANED.RData")
+save(ab, file="C:/Users/Courtney.S.Couch/Documents/Courtney's Files/R Files/ESD/Data/REA Coral Demography & Cover/Analysis Ready Raw data/BIA_2010-2020_CLEANED.RData")
 
 test<-ddply(ab,.(REGION,OBS_YEAR),summarize,nSite=length(unique(SITE)))
 test
@@ -201,10 +208,18 @@ oracle.site #check against original number of sites pulled from oracle
 #You will need TRANSECT_PHOTOS, EXCLUDE FLAG and Oceanography from the SM file to be able to filter out OCC and Special Project sites
 
 sm<-read.csv("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/data/SURVEY MASTER.csv")
+
+#Convert date formats
+sm$DATE_<-mdy(sm$DATE_)
+class(sm$DATE_)
+
+head(sm)
+
 sm$SITE<-SiteNumLeadingZeros(sm$SITE)
-sm<-sm[,c("MISSIONID","SITEVISITID","SITE","ANALYSIS_YEAR","ANALYSIS_SCHEME","OBS_YEAR","SEC_NAME","EXCLUDE_FLAG","TRANSECT_PHOTOS","Oceanography")]
+sm<-sm[,c("DATE_","MISSIONID","SITEVISITID","SITE","ANALYSIS_YEAR","ANALYSIS_SCHEME","OBS_YEAR","SEC_NAME","EXCLUDE_FLAG","TRANSECT_PHOTOS","Oceanography")]
 wsd_t1<-merge(sm,wsd,by=c("SITEVISITID","SITE","OBS_YEAR"),all.y=TRUE)
 head(wsd_t1)
+
 
 #Are there NAs in TRANSECT PHOTOS
 test<-wsd_t1[is.na(wsd_t1$TRANSECT_PHOTOS),]
@@ -212,7 +227,8 @@ View(test) # none of the 2010 imagery has TRANSECT_PHOTOS assigned - ASK MICHAEL
 wsd_t1$TRANSECT_PHOTOS<-"-1" #make sure that all rows = -1
 
 #Save Tier 1 site data to t drive. This file has all sites (fish, benthic and OCC) that were annoated between 2010 and 2018
-write.csv(wsd_t1, file="T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Site/BenthicCover_2010-2019_Tier1_SITE.csv")
+write.csv(wsd_t1, file="T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Site/BenthicCover_2010-2020_Tier1_SITE.csv")
+write.csv(wsd_t1, file="C:/Users/Courtney.S.Couch/Documents/Courtney's Files/R Files/ESD/Data/REA Coral Demography & Cover/Summary Data/Site/BenthicCover_2010-2020_Tier1_SITE.csv")
 
 
 # Generate Site-level Data at TIER 3 level--------------
@@ -248,14 +264,15 @@ test1
 test2
 
 #Save Tier 1 site data to t drive. This file has all sites (fish, benthic and OCC) that were annoated between 2010 and 2018
-write.csv(wsd_t3, file="T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Site/BenthicCover_2010-2019_Tier3_SITE.csv")
+write.csv(wsd_t3, file="T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Site/BenthicCover_2010-2020_Tier3_SITE.csv")
+write.csv(wsd_t3, file="C:/Users/Courtney.S.Couch/Documents/Courtney's Files/R Files/ESD/Data/REA Coral Demography & Cover/Summary Data/Site/BenthicCover_2010-2020_Tier3_SITE.csv")
 
 
 # CHECK THAT DATA IS READY FOR POOLING AND DO SOME FINAL CLEAN UPS --------
 
 #Identify which taxonomic level you would like to summarize
-wsd<-wsd_t1
-#wsd<-wsd_t3
+#wsd<-wsd_t1
+wsd<-wsd_t3
 
 #Define data columns
 data.cols<-T1data.cols
@@ -371,21 +388,27 @@ dps$SampleSE<-dps$SampleSE[dps$SampleSE$N>1,]
 # e.g. SAVE BY ISLAND AND REEF_ZONE PER YEAR
 OUTPUT_LEVEL<-c("REGION","ISLAND","ANALYSIS_SEC","STRATA","ANALYSIS_YEAR") 
 dpst<-Calc_Pooled_Simple(dps$Mean, dps$SampleVar, data.cols, OUTPUT_LEVEL, "AREA_HA")
-write.csv(dpst, file="T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Stratum/BenthicCover_2010-2019_Tier1_STRATA.csv")
-#write.csv(dpst, file="T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Stratum/BenthicCover_2010-2019_Tier3_STRATA.csv")
+# write.csv(dpst, file="T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Stratum/BenthicCover_2010-2019_Tier1_STRATA.csv")
+# write.csv(dpst, file="C:/Users/Courtney.S.Couch/Documents/Courtney's Files/R Files/ESD/Data/REA Coral Demography & Cover/Summary Data/Stratum/BenthicCover_2010-2019_Tier1_STRATA.csv")
+write.csv(dpst, file="T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Stratum/BenthicCover_2010-2019_Tier3_STRATA.csv")
+write.csv(dpst, file="C:/Users/Courtney.S.Couch/Documents/Courtney's Files/R Files/ESD/Data/REA Coral Demography & Cover/Summary Data/Stratum/BenthicCover_2010-2019_Tier3_STRATA.csv")
 
 # e.g. SAVE BY SECTOR PER YEAR
 OUTPUT_LEVEL<-c("REGION","ISLAND","ANALYSIS_SEC","ANALYSIS_YEAR") 
 dpsec<-Calc_Pooled_Simple(dps$Mean, dps$SampleVar, data.cols, OUTPUT_LEVEL, "AREA_HA")
-write.csv(dpsec, file="T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Sector/BenthicCover_2010-2019_Tier1_SECTOR.csv")
-#write.csv(dpsec, file="T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Sector/BenthicCover_2010-2019_Tier3_SECTOR.csv")
+# write.csv(dpsec, file="T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Sector/BenthicCover_2010-2019_Tier1_SECTOR.csv")
+# write.csv(dpsec, file="C:/Users/Courtney.S.Couch/Documents/Courtney's Files/R Files/ESD/Data/REA Coral Demography & Cover/Summary Data/Sector/BenthicCover_2010-2019_Tier1_SECTOR.csv")
+write.csv(dpsec, file="T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Sector/BenthicCover_2010-2019_Tier3_SECTOR.csv")
+write.csv(dpsec, file="C:/Users/Courtney.S.Couch/Documents/Courtney's Files/R Files/ESD/Data/REA Coral Demography & Cover/Summary Data/Sector/BenthicCover_2010-2019_Tier3_SECTOR.csv")
 
 
 # e.g. SAVE BY ISLAND PER YEAR
 OUTPUT_LEVEL<-c("REGION","ISLAND","ANALYSIS_YEAR") 
 dpis<-Calc_Pooled_Simple(dps$Mean, dps$SampleVar, data.cols, OUTPUT_LEVEL, "AREA_HA")
-write.csv(dpis, file="T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Island/BenthicCover_2010-2019_Tier1_ISLAND.csv")
-#write.csv(dpis, file="T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Island/BenthicCover_2010-2019_Tier3_ISLAND.csv")
+# write.csv(dpis, file="T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Island/BenthicCover_2010-2019_Tier1_ISLAND.csv")
+# write.csv(dpis, file="C:/Users/Courtney.S.Couch/Documents/Courtney's Files/R Files/ESD/Data/REA Coral Demography & Cover/Summary Data/Island/BenthicCover_2010-2019_Tier1_ISLAND.csv")
+write.csv(dpis, file="T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Island/BenthicCover_2010-2019_Tier3_ISLAND.csv")
+write.csv(dpis, file="C:/Users/Courtney.S.Couch/Documents/Courtney's Files/R Files/ESD/Data/REA Coral Demography & Cover/Summary Data/Island/BenthicCover_2010-2019_Tier3_ISLAND.csv")
 
 
 

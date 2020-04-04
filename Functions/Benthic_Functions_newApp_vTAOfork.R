@@ -13,6 +13,7 @@ library(lme4)
 library(nlme)
 library(lsmeans)
 library(multcomp)
+library(lubridate)
 # GENERAL FUNCTIONS -------------------------------------------------------
 #convert segment numbers from 1,3,5,7 to 0,5,10,15 to reduce confusion
 ConvertSegNumber<-function(data){

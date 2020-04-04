@@ -336,7 +336,7 @@ p1<-pc_longS %>%
   mutate(REGION = fct_relevel(REGION,"NWHI","MHI","Phoenix","Line","SAMOA","SMARIAN","NMARIAN")) %>% #reorder varibles 
   ggplot(aes(x=Yearn, y=Change, color=REGION)) + 
   geom_smooth(se=FALSE,method="loess",lwd=1.5)+
-  geom_point()+
+  geom_point(color="grey")+
   geom_hline(yintercept=0)+
   theme_bw() +
   theme(
@@ -357,7 +357,7 @@ p2<-pc_longS %>%
   mutate(REGION = fct_relevel(REGION,"NWHI","MHI","Phoenix","Line","SAMOA","SMARIAN","NMARIAN")) %>% #reorder varibles 
   ggplot(aes(x=Yearn, y=Change, color=REGION)) + 
   geom_smooth(se=FALSE,method="loess",lwd=1.5)+
-  geom_point()+
+  geom_point(color="grey")+
   geom_hline(yintercept=0)+
   facet_wrap(~DEPTH_BIN)+
   theme_bw() +
@@ -381,7 +381,7 @@ p3<-jcdG_stS %>%
   mutate(DEPTH_BIN = fct_relevel(DEPTH_BIN,"Shallow","Mid","Deep")) %>% #reorder varibles 
   ggplot(aes(x=ANALYSIS_YEAR, y=JuvColDen, color=REGION)) + 
   geom_smooth(se=FALSE,method="loess",lwd=1.5)+
-  geom_point()+
+  geom_point(color="grey")+
   facet_wrap(~DEPTH_BIN)+
   theme_bw() +
   theme(
@@ -509,6 +509,10 @@ summary(mod1)
 #weighted density estimates
 #Repeated measures anova for weighted means
 
+
+
+# Summarize Post bleaching data for driver analysis -----------------------
+
 #Subset post bleaching regions and years for downstream driver analysis
 REGION_YEAR<-c("MHI_2016","NWHI_2016","NMARIAN_2017","SMARIAN_2017","Phoenix_2018","Line_2018","SAMOA_2018")
 
@@ -558,6 +562,7 @@ jcdG_sec<-jcdG_sec[,c("REGION","ANALYSIS_YEAR","DOMAIN_SCHEMA","GENUS_CODE","n",
 # write.csv(jcdG_is,file="T:/Benthic/Projects/Juvenile Project/JuvProject_pb_ISLAND.csv")
 # write.csv(jcdG_sec,file="T:/Benthic/Projects/Juvenile Project/JuvProject_pb_SECTOR.csv")
 
+write.csv(data.gen_pb,"JuvProject_pb_SITE.csv")
 write.csv(jcdG_st,"JuvProject_pb_STRATA.csv")
 write.csv(jcdG_is,"JuvProject_pb_ISLAND.csv")
 write.csv(jcdG_sec,"JuvProject_pb_SECTOR.csv")
@@ -717,7 +722,32 @@ hab4<-habS %>%
     ,axis.ticks.x = element_blank() # no x axis ticks
     ,axis.title.x = element_text( vjust = -.0001)
     ,axis.text.x = element_text(angle = 90)) + # adjust x axis to lower the same amount as the genus labels
-  labs(x="Year",y="Abs. Change Mean Density")+
-  scale_x_continuous(breaks=seq(2013,2019,1))
+  labs(x="Year",y="Abs. Change Mean Density")
 p2
+
+
+#plot Juvenile density v. depth (continuous)
+d<-subset(data.gen_pb,GENUS_CODE=="SSSS")
+
+jvd<-d %>%
+  mutate(REGION = fct_relevel(REGION,"NWHI","MHI","Phoenix","Line","SAMOA","SMARIAN","NMARIAN")) %>% #reorder varibles 
+  ggplot(aes(x=MAX_DEPTH_M, y=JuvColDen, color=REGION)) + 
+  geom_smooth(se=TRUE,method="lm",lwd=1.5)+
+  geom_point()+
+  facet_wrap(~REGION,scales="free_y")+
+  theme_bw() +
+  theme(
+    plot.background = element_blank()
+    ,panel.grid.major = element_blank()
+    ,panel.grid.minor = element_blank()
+    ,axis.ticks.x = element_blank() # no x axis ticks
+    ,axis.title.x = element_text( vjust = -.0001)
+    ,axis.text.x = element_text(angle = 90)) + # adjust x axis to lower the same amount as the genus labels
+  labs(x="Max Depth(M)",y="Juvenile Density")
+jvd
+
+ggsave(plot=jvd,file="C:/Users/Courtney.S.Couch/Documents/Courtney's Files/R Files/ESD/Juvenile Project/Figures/DensityvDepth_loess.pdf",width=8,height=8)
+ggsave(plot=jvd,file="C:/Users/Courtney.S.Couch/Documents/Courtney's Files/R Files/ESD/Juvenile Project/Figures/DensityvDepth_lm.pdf",width=8,height=8)
+
+#There are 2 FFS forereef sites that have very high Acropora juvenile density. I confirmed this is accurate from the photoquads.
 
