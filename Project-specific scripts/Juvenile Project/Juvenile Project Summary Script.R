@@ -376,12 +376,20 @@ jcdG_st<-cSplit(jcdG_st, 'DB_RZ', sep="_", type.convert=FALSE);colnames(jcdG_st)
 jcdG_stS<-subset(jcdG_st,GENUS_CODE=="SSSS")
 jcdG_stS$ANALYSIS_YEAR<-as.numeric(as.character(jcdG_stS$ANALYSIS_YEAR))
 
+jcd_sum<-ddply(jcdG_stS,.(ANALYSIS_YEAR,REGION,DEPTH_BIN),
+               summarize,
+               jcdMEAN=mean(JuvColDen,na.rm=T),
+               jcdSE=std.error(JuvColDen,na.rm=T))
+
 p3<-jcdG_stS %>%
   mutate(REGION = fct_relevel(REGION,"NWHI","MHI","Phoenix","Line","SAMOA","SMARIAN","NMARIAN")) %>% #reorder varibles 
   mutate(DEPTH_BIN = fct_relevel(DEPTH_BIN,"Shallow","Mid","Deep")) %>% #reorder varibles 
   ggplot(aes(x=ANALYSIS_YEAR, y=JuvColDen, color=REGION)) + 
   geom_smooth(se=FALSE,method="loess",lwd=1.5)+
-  geom_point(color="grey")+
+  #geom_point(color="grey")+
+  #geom_point(color="grey")+
+  geom_point(data=jcd_sum,(aes(y=jcdMEAN, x=ANALYSIS_YEAR)),size=3)+
+  geom_errorbar(data=jcd_sum,aes(ymin=jcdMEAN-jcdSE, ymax=jcdMEAN+jcdSE), width=.2)+
   facet_wrap(~DEPTH_BIN)+
   theme_bw() +
   theme(
