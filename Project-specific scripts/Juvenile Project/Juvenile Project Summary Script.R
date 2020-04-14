@@ -389,7 +389,7 @@ p3<-jcdG_stS %>%
   #geom_point(color="grey")+
   #geom_point(color="grey")+
   geom_point(data=jcd_sum,(aes(y=jcdMEAN, x=ANALYSIS_YEAR)),size=3)+
-  geom_errorbar(data=jcd_sum,aes(ymin=jcdMEAN-jcdSE, ymax=jcdMEAN+jcdSE), width=.2)+
+  geom_errorbar(data=jcd_sum,aes(y=jcdMEAN, x=ANALYSIS_YEAR,ymin=jcdMEAN-jcdSE, ymax=jcdMEAN+jcdSE), width=.2)+
   facet_wrap(~DEPTH_BIN)+
   theme_bw() +
   theme(
