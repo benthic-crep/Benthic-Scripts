@@ -457,6 +457,11 @@ summary(mod.glm)  # Report the results
 par(mfrow = c(2, 2))  # Split the plotting panel into a 2 x 2 grid
 plot(mod.glm) 
 
+plotNormalHistogram(jcdG_stS$JuvColDen)
+mod<-lm(JuvColDen~Stratum,data=jcdG_stS)
+qqnorm(residuals(mod),ylab="Sample Quantiles for residuals")
+qqline(residuals(mod), col="red")
+
 l<-log(jcdG_stS$JuvColDen+1)
 plotNormalHistogram(l)
 qqnorm(l, ylab="Sample Quantiles for logDensity")
