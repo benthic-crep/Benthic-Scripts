@@ -11,10 +11,10 @@ source("C:/Users/Corinne.Amir/Documents/GitHub/Benthic-Scripts/Functions/core_fu
 
 ##read benthic data downloaded from Mission app and subset to the leg you need to QC
 #sfm.raw <- read.csv("HARAMP2019_demographic_v2_mar042020.csv") 
-MA <- read.csv("MA_3232020.csv")
-ML <- read.csv("server_apr152020.csv")
-AH <- read.csv("AH_3232020.csv")
-RS <- read.csv("RS_3232020.csv")
+MA <- read.csv("MA_geodatabase_4-16-2020.csv")
+ML <- read.csv("ML_geodatabase_4-16-2020.csv")
+AH <- read.csv("AH_geodatabase_4-24-2020.csv")
+RS <- read.csv("RS_geodatabase_4-16-2020.csv")
 
 
 head(sfm.raw);nrow(sfm.raw)
@@ -28,7 +28,6 @@ setwd("C:/Users/Corinne.Amir/Documents/GitHub/Benthic-Scripts/SfM") #export csv 
 dim(MA); dim(ML); dim(AH); dim(RS)
 
 sfm.raw <- rbind(MA, ML, AH, RS)
-sfm.raw <- ML
 
 
 #Add a zero/no where rows are blank
@@ -120,8 +119,8 @@ sfm.missing.duplicate.rows <- rbind(
   site.missing <- filter(sfm.raw, SITE %in% c("NA-   NA", "-   NA", "A-   NA")),
   seglength.missing <-filter(sfm.raw, SEGLENGTH %in% c(0.0, "NA")),
   segwidths.missing <- filter(sfm.raw, SEGWIDTH %in% c("0", "NA")),
-  spcode.missing <-  filter(sfm.raw, SPCODE %in% c("NA")),
-  morphcode.missing <-  filter(sfm.raw, MORPH_CODE %in% c("NA")),
+  spcode.missing <-  filter(sfm.raw, SPCODE %in% c("NA", " ", "")),
+  morphcode.missing <-  filter(sfm.raw, MORPH_CODE %in% c("NA", " ", "")),
   transect.missing <-  filter(sfm.raw, TRANSECT %in% c(0, "<Null>", " ")),
   segmennt.missing <-  filter(sfm.raw, SEGMENT %in% c("NA", "<NA>")))
 
@@ -147,9 +146,7 @@ write.csv(sfm.missing, "sfm_missing_rows.csv") #get these rows repopulated (if m
 sfm <- droplevels(anti_join(sfm.raw, sfm.missing))
 
 View(sfm)
-nrow(sfm)
-sapply(sfm,unique)
-sapply(sfm,class)
+nrow(sfm) 
 
 #### If some column classes = logical, Run this function that removes logical NAs ####
 RemoveLogicalNA <- function(b)
@@ -169,6 +166,8 @@ sfm$RDCAUSE3 <- RemoveLogicalNA(sfm$RDCAUSE3)
 sfm$CON_3 <- RemoveLogicalNA(sfm$CON_3)
 sfm$SEV_3 <- RemoveLogicalNA(sfm$SEV_3)
 
+sapply(sfm,unique) 
+sapply(sfm,class)
 
 
 #Add column for segment area
@@ -184,8 +183,8 @@ sfm$SEGAREA <- sfm$SEGLENGTH*sfm$SEGWIDTH
 
 #How many site/segments were annotated 
 sfm$site_seg<-paste(sfm$SITE,sfm$SEGMENT)
-length(unique(sfm$site_seg)) #Feb 19 = 155 unique sites_segs
-length(unique(sfm$SITE)) #
+length(unique(sfm$site_seg)) #Feb 19 = 155 unique sites_segs, Apr 27 = 84 unique site_segs
+length(unique(sfm$SITE)) # Apr 27 = 24 unique sites
 
 # QC Checks ---------------------------------------------------------------
 #Set up output csv file that reports the status of the qc checks
@@ -199,7 +198,8 @@ output<-data.frame(
 partial_SiteSeg_removal <- inner_join(sfm.missing, sfm, by = c("SITE", "SEGMENT")) 
 head(partial_SiteSeg_removal) # a dataframe with no data will be displayed if site-segment pairs were NOT split between missing and populated dataframes = good
 
-output[,1] <- c("Sites have been completely annotated", "MA HAW-4263: two rows have seglength = 0")
+output[,1] <- c("Sites have been completely annotated", "Multiple sites, look at csv")
+                
 
 #if dataframe is populated, export csv and fix the error
 write.csv(partial_SiteSeg_removal, "Error_partial_filled_segments.csv")
@@ -212,7 +212,7 @@ sapply(sfm,unique)
 str(sfm) 
 sapply(sfm, class)
 
-output[2,]<-c("No errant codes","Still has shaded NAs") #change depending on output from previous lines of code
+output[2,]<-c("No errant codes","RDCAUSE2, OLDDEAD, REMNANT, FRAGMENT, Juvenile, EX_BOUND, NO_COLONY, show logical NA") #change depending on output from previous lines of code
 
 
 
@@ -246,7 +246,7 @@ View(eval.seg.per.site)
 #use this file to evaluate where segments may be missing
 write.csv(eval.seg.per.site, "Missing_seg_eval.csv")
 
-output[5,]<-c("All annotated segments have correct #seglengths","YES") #change depending on output from previous line of code
+output[5,]<-c("All annotated segments have correct #seglengths","Multiple errors, see csv") #change depending on output from previous line of code
 
 
 
@@ -263,7 +263,7 @@ output[6,]<-c("All sites annotated by one person","YES")
 #7.Check for incorrect species-V:\PHOTOMOSAIC (1)\HARAMP\HARAMP_2019_codes.csv
 ddply(sfm,.(SPCODE),summarize,temp=length(SPCODE))
 
-output[7,]<-c("Species codes are correct","YES")
+output[7,]<-c("Species codes are correct","13 rows are blank")
 
 
 
@@ -279,7 +279,7 @@ output[8,]<-c("All segment widths are correct","Yes") #change depending on outpu
 sm.colonies.eval <- sfm %>% filter(JUVENILE== -1,SEGAREA != 1); sm.colonies.eval
 lg.colonies.eval <- sfm %>% filter(JUVENILE==0,SEGAREA==1, NO_COLONY==0); lg.colonies.eval
 
-output[9,]<-c("Juveniles and Adult colonies have correct labeling","MA HAW-4263: One juvenile has seglength = 2.5 and another is missing junvenile = -1")
+output[9,]<-c("Juveniles and Adult colonies have correct labeling","MA HAW-4294_10: One juvenile has seglength = 2.5; LAN-1817_0: 3 small corals have JUVENILE = 0")
 
 #If rows have been flagged, export sm_colonies dataframe into a csv file for further QC
 write.csv(sm.colonies.eval, "Juveniles_eval.csv")
@@ -292,7 +292,7 @@ sfm[sfm$RD_1=="0"& sfm$RDCAUSE1!="NA",]
 sfm[sfm$RD_2=="0" & sfm$RDCAUSE2!="NA",]
 sfm[sfm$RD_3=="0"& sfm$RDCAUSE3!="NA",]
 
-output[10,]<-c("0% Recent Dead corals do NOT have an RDCAUSE code","YES")
+output[10,]<-c("0% Recent Dead corals do NOT have an RDCAUSE code","Mult. rows where RDCAUSE2 = <NA>")
 
 
 
@@ -307,10 +307,13 @@ output[11,]<-c("All corals with RD >0 have an RDCAUSE code","YES")
 
 #12. Identify colonies with NO % EXTENT, but a condition - This check should result in 0 records    
 sfm[sfm$EXTENT_1=="0"& sfm$CON_1!="NA",]
-a<-sfm[sfm$EXTENT_2=="0"& sfm$CON_2!="NA",]
+sfm[sfm$EXTENT_2=="0"& sfm$CON_2!="NA",]
 sfm[sfm$EXTENT_3=="0"& sfm$CON_3!="NA",] 
 
-output[12,]<-c("All colonies with a condition have an extent","AH HAW-4277: CON_2 = ALG but Extent_2 = 0, CON_1 = ALG/BLE but Extent and SEV = 0 (x10)")
+output[12,]<-c("All colonies with a condition have an extent",
+               "AH KAH-659_5: 3 corals have CON_1 = BLE but no extent or sev; 
+               MOL-2194_15: CON_1 = ALG but no extent; 
+               HAW-4300_5: CON_2 = BLE, but no extent or sev")
 
 
 
@@ -319,7 +322,9 @@ sfm[sfm$CON_1=="NA"& sfm$EXTENT_1!="0",]
 sfm[sfm$CON_2=="NA"& sfm$EXTNET_2!="0",]
 sfm[sfm$CON_3=="NA"& sfm$EXTENT_3!="0",] #rowSums(is.na(a)) != ncol(a),]
 
-output[13,]<-c("All colonies with NO condition also have NO extent","YES")
+output[13,]<-c("All colonies with NO condition also have NO extent",
+               "MSL MAI-2543_15: extent and sev_3 filled, but not CON_3; 
+               AH KAH-0659_15/5: 4 colonies have sev and extent, but no CON_3")
 
 
 
@@ -342,7 +347,11 @@ sfm[sfm$SEV_1!="0"& sfm$CON_1 %notin% c("BLE","BLP"),]
 sfm[sfm$SEV_2!="0"& sfm$CON_2 %notin% c("BLE","BLP"),]
 sfm[sfm$SEV_3!="0"& sfm$CON_3 %notin% c("BLE","BLP"),]
 
-output[15,]<-c("Severity value is present only in colonies with CON = BLE and BLP","RS HAW-3426: CON_1 = BLE but extent and sev = 0 (x2)")
+output[15,]<-c("Severity value is present only in colonies with CON = BLE and BLP",
+               "MSL LAN-1768_10 & MAI-2543_5: CON_1 = BLE, but no SEV;
+               LAN-1829_10: CON_1 = ALG, but sev exists, CON_1 and 2= ALG;
+               AH KAH-0659_5: for 3 colonies CON_1 = BLE, but no extent or sev, one colony CON_3 blank but has extent and sev;
+               HAW-4300_5: CON_1 = ALG, but no sev")
 
 
 
@@ -354,7 +363,8 @@ sfm$RD_3<-as.numeric(sfm$RD_3)
 sfm$totaldead = sfm$RD_1+sfm$RD_2+sfm$RD_3 + sfm$OLDDEAD
 sfm[sfm$totaldead>100,]
 
-output[16,]<-c("RD + OD <=100%","YES")
+output[16,]<-c("RD + OD <=100%",
+               "MA HAW-4259_10: two colonies have total dead >100, If Old Dead + RD = 100 = dead colony = dont annotate")
 
 
 
