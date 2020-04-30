@@ -22,7 +22,7 @@ site.data.tax2<-read.csv("T:/Benthic/Data/REA Coral Demography & Cover/Summary D
 
 #Change all special missions to exclude flag =-1, right now they are 0. Then exclude these sites
 levels(site.data.gen2$MISSIONID)
-site.data.gen2$EXCLUDE_FLAG<-ifelse(site.data.gen2$MISSIONID %in% c("MP1410","MP1512","MP1602"),-1,0) #I left SE1602 in (2016 Jarvis and Rose)
+site.data.gen2$EXCLUDE_FLAG<-ifelse(site.data.gen2$MISSIONID %in% c("MP1410","MP1512","MP1602","MP2006"),-1,0) #I left SE1602 in (2016 Jarvis and Rose)
 head(subset(site.data.gen2,EXCLUDE_FLAG==-1))
 
 #Actually remove special missions.
@@ -32,7 +32,7 @@ head(subset(site.data.gen2,EXCLUDE_FLAG==-1))
 
 #Taxoncode
 levels(site.data.tax2$MISSIONID)
-site.data.tax2$EXCLUDE_FLAG<-ifelse(site.data.tax2$MISSIONID %in% c("MP1410","MP1512","MP1602"),-1,0) #I left SE1602 in (2016 Jarvis and Rose)
+site.data.tax2$EXCLUDE_FLAG<-ifelse(site.data.tax2$MISSIONID %in% c("MP1410","MP1512","MP1602","MP2006"),-1,0) #I left SE1602 in (2016 Jarvis and Rose)
 head(subset(site.data.tax2,EXCLUDE_FLAG==-1))
 
 #Actually remove special missions.
@@ -42,7 +42,7 @@ head(subset(site.data.tax2,EXCLUDE_FLAG==-1))
 
 #Spcode
 levels(site.data.sp2$MISSIONID)
-site.data.sp2$EXCLUDE_FLAG<-ifelse(site.data.sp2$MISSIONID %in% c("MP1410","MP1512","MP1602"),-1,0) #I left SE1602 in (2016 Jarvis and Rose)
+site.data.sp2$EXCLUDE_FLAG<-ifelse(site.data.sp2$MISSIONID %in% c("MP1410","MP1512","MP1602","MP2006"),-1,0) #I left SE1602 in (2016 Jarvis and Rose)
 head(subset(site.data.sp2,EXCLUDE_FLAG==-1))
 
 #Actually remove special missions.

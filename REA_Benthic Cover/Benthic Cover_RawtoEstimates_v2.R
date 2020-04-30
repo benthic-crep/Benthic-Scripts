@@ -275,8 +275,8 @@ write.csv(wsd_t3, file="C:/Users/Courtney.S.Couch/Documents/Courtney's Files/R F
 wsd<-wsd_t3
 
 #Define data columns
-data.cols<-T1data.cols
-#data.cols<-T3data.cols
+#data.cols<-T1data.cols
+data.cols<-T3data.cols
 
 #remove permanent sites, climate sites and special projects
 wsd$PERM_SITE[is.na(wsd$PERM_SITE)]<-"0"
@@ -314,6 +314,14 @@ levels(wsd$ISLAND)<-c(levels(wsd$ISLAND), "AGS")
 levels(sectors$ISLAND)<-c(levels(sectors$ISLAND), "AGS")
 wsd[wsd$ISLAND %in% SGA,]$ISLAND<-"AGS"
 sectors[sectors$ISLAND %in% SGA,]$ISLAND<-"AGS"
+
+#Talk with TYE ABOUT THIS
+SGA<-c("Guguan", "Alamagan", "Sarigan")
+levels(wsd$SEC_NAME)<-c(levels(wsd$SEC_NAME), "AGS")
+levels(sectors$SEC_NAME)<-c(levels(sectors$SEC_NAME), "AGS")
+wsd[wsd$SEC_NAME %in% SGA,]$SEC_NAME<-"AGS"
+sectors[sectors$SEC_NAME %in% SGA,]$SEC_NAME<-"AGS"
+
 
 #Change Analysis year according to desired pooling
 wsd[is.na(wsd$ANALYSIS_YEAR),]

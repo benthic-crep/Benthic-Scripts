@@ -242,8 +242,8 @@ x[is.na(x$CONDITION_3),"CONDITION_3"]<-"NONE"
 head(x)
 
 awd<-droplevels(x)
-write.csv(awd,file="T:/Benthic/Data/REA Coral Demography & Cover/Analysis Ready Raw data/CoralBelt_E_raw_CLEANED.csv",row.names = FALSE)
-#write.csv(awd,file="C:/Users/Courtney.S.Couch/Documents/Courtney's Files/R Files/ESD/Data/REA Coral Demography & Cover/Analysis Ready Raw data/CoralBelt_E_raw_CLEANED.csv",row.names = FALSE)
+write.csv(awd,file="T:/Benthic/Data/REA Coral Demography & Cover/Analysis Ready Raw data/CoralBelt_Adults_raw_CLEANED.csv",row.names = FALSE)
+#write.csv(awd,file="C:/Users/Courtney.S.Couch/Documents/Courtney's Files/R Files/ESD/Data/REA Coral Demography & Cover/Analysis Ready Raw data/CoralBelt_Adults_raw_CLEANED.csv",row.names = FALSE)
 
 
 ## CREATE JUVENILE CLEAN ANALYSIS READY DATA ----
@@ -396,6 +396,6 @@ x[,NegNineCheckCols][x[,NegNineCheckCols] ==-9] <- NA #Convert missing numeric v
 
 
 jwd<-droplevels(x)
-write.csv(jwd,file="T:/Benthic/Data/REA Coral Demography & Cover/Analysis Ready Raw data/CoralBelt_F_raw_CLEANED.csv",row.names = FALSE)
-#write.csv(jwd,file="C:/Users/Courtney.S.Couch/Documents/Courtney's Files/R Files/ESD/Data/REA Coral Demography & Cover/Analysis Ready Raw data/CoralBelt_F_raw_CLEANED.csv",row.names = FALSE)
+write.csv(jwd,file="T:/Benthic/Data/REA Coral Demography & Cover/Analysis Ready Raw data/CoralBelt_Juveniles_raw_CLEANED.csv",row.names = FALSE)
+#write.csv(jwd,file="C:/Users/Courtney.S.Couch/Documents/Courtney's Files/R Files/ESD/Data/REA Coral Demography & Cover/Analysis Ready Raw data/CoralBelt_Juveniles_raw_CLEANED.csv",row.names = FALSE)
 
