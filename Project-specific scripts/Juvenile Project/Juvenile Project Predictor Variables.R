@@ -30,6 +30,15 @@ sectors<-read.csv("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/data/Se
 #Only use Total Scl juvenile data 
 jwd_siteS<-subset(jwd_site,GENUS_CODE=="SSSS")
 
+#Calculate Strata-level depth
+jwd_siteS$MidDepth<-(jwd_siteS$MAX_DEPTH_M+jwd_siteS$MIN_DEPTH_M)/2
+depth_strat<-ddply(jwd_siteS,.(REGION,ISLAND,SEC_NAME,STRATANAME,DEPTH_BIN),
+                   summarize,
+                   MeanMaxDepth=mean(MAX_DEPTH_M),
+                   MeanMidDepth=mean(MidDepth))
+
+write.csv(depth_strat, file="C:/Users/Courtney.S.Couch/Documents/Courtney's Files/R Files/ESD/Juvenile Project/Predictor Variables/JuvProject_Depth.csv",row.names = F)
+
 
 #Prepare Substrate Height data
 SURVEY_SITE<-c("DATE_","SITEVISITID", "ANALYSIS_YEAR","OBS_YEAR", "REGION", "ISLAND","SEC_NAME", "SITE","HABITAT_CODE","REEF_ZONE",

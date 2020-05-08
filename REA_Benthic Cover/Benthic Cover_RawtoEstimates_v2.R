@@ -309,18 +309,17 @@ wsd$STRATA<-paste(substring(wsd$REEF_ZONE,1,1), substring(wsd$DEPTH_BIN,1,1), se
 sectors$STRATA<-paste(substring(sectors$REEF_ZONE,1,1), substring(sectors$DEPTH_BIN,1,1), sep="")
 
 ## TREAT GUGUAN, ALAMAGAN, SARIGAN AS ONE ISLAND  (REALLY ONE BASE REPORTING UNIT .. BUT SIMPLER TO STICK TO 'ISLAND')
-SGA<-c("Guguan", "Alamagan", "Sarigan")
-levels(wsd$ISLAND)<-c(levels(wsd$ISLAND), "AGS")
-levels(sectors$ISLAND)<-c(levels(sectors$ISLAND), "AGS")
-wsd[wsd$ISLAND %in% SGA,]$ISLAND<-"AGS"
-sectors[sectors$ISLAND %in% SGA,]$ISLAND<-"AGS"
-
-#Talk with TYE ABOUT THIS
-SGA<-c("Guguan", "Alamagan", "Sarigan")
-levels(wsd$SEC_NAME)<-c(levels(wsd$SEC_NAME), "AGS")
-levels(sectors$SEC_NAME)<-c(levels(sectors$SEC_NAME), "AGS")
-wsd[wsd$SEC_NAME %in% SGA,]$SEC_NAME<-"AGS"
-sectors[sectors$SEC_NAME %in% SGA,]$SEC_NAME<-"AGS"
+# SGA<-c("Guguan", "Alamagan", "Sarigan")
+# levels(wsd$ISLAND)<-c(levels(wsd$ISLAND), "AGS")
+# levels(sectors$ISLAND)<-c(levels(sectors$ISLAND), "AGS")
+# wsd[wsd$ISLAND %in% SGA,]$ISLAND<-"AGS"
+# sectors[sectors$ISLAND %in% SGA,]$ISLAND<-"AGS"
+# 
+# SGA<-c("Guguan", "Alamagan", "Sarigan")
+# levels(wsd$SEC_NAME)<-c(levels(wsd$SEC_NAME), "AGS")
+# levels(sectors$SEC_NAME)<-c(levels(sectors$SEC_NAME), "AGS")
+# wsd[wsd$SEC_NAME %in% SGA,]$SEC_NAME<-"AGS"
+# sectors[sectors$SEC_NAME %in% SGA,]$SEC_NAME<-"AGS"
 
 
 #Change Analysis year according to desired pooling

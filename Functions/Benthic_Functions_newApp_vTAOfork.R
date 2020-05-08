@@ -1030,7 +1030,7 @@ Calc_Domain=function(site_data,grouping_field="S_ORDER",metric_field,pres.abs_fi
   Strata_data<-left_join(Strata_data, DomainStr_NH)# add previous to strata data
   Strata_data$w_h=Strata_data$N_h/Strata_data$DomainSumN_h
   
-  Domain_roll=ddply(Strata_data,.(REGION,ANALYSIS_YEAR,DOMAIN_SCHEMA,GROUP),summarize,
+  Domain_roll=ddply(Strata_data,.(REGION,ANALYSIS_YEAR,ISLAND,DOMAIN_SCHEMA,GROUP),summarize,
                     D._st=sum(w_h*D._h,na.rm=TRUE), #Domain weighted estimate (sum of Weighted strata density)
                     varD._st=sum(w_h^2*varD._h,na.rm=TRUE), #Domain weighted variance estimate
                     Y._st=sum(Y._h,na.rm=TRUE), #Domain total abundance (sum of extrapolated strata abundance)
