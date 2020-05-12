@@ -1,7 +1,3 @@
-
-# This script will clean the raw benthic REA data using method E that comes directly from the new data base application.
-#Note- these data represent the revised data structure insituted in November 2018. Several recent dead and condition columns were added
-#These data only include surveys conducted between 2013-2019
 rm(list=ls())
 
 #Set Run Flags
@@ -11,8 +7,6 @@ DEBUG=TRUE
 source("C:/Users/Courtney.S.Couch/Documents/GitHub/Benthic-Scripts/Functions/Benthic_Functions_newApp_vTAOfork.R")
 source("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/lib/core_functions.R")
 source("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/lib/GIS_functions.R")
-library(VCA)
-library(forcats)
 
 setwd("C:/Users/Courtney.S.Couch/Documents/Courtney's Files/R Files/ESD/Juvenile Project")
 
@@ -22,11 +16,8 @@ jwd<-read.csv("C:/Users/Courtney.S.Couch/Documents/Courtney's Files/R Files/ESD/
 
 ## LOAD data
 # site.data.gen2<-read.csv("T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Site/BenthicREA_sitedata_GENUS.csv")
-# site.data.tax2<-read.csv("T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Site/BenthicREA_sitedata_TAXONCODE.csv")
 
-
-
-#Final Tweaks before calculating Site-level data-------------------------------------------------
+#Tweaks before calculating Site-level data-------------------------------------------------
 #Colony fragments and scleractinans are subseted in the functions 
 #Add a column for adult fragments so we can remove them from the dataset later (-1 indicates fragment)
 jwd$Fragment <- 0 # you need to add this column so that you can use the site level functions correctly
@@ -39,7 +30,6 @@ jwd$SEGAREA<-jwd$SEGLENGTH*jwd$SEGWIDTH
 SURVEY_SITE<-c("MISSIONID","DATE_","SITEVISITID", "ANALYSIS_YEAR","OBS_YEAR", "REGION", "REGION_NAME", "ISLAND","ISLANDCODE","SEC_NAME", "SITE","HABITAT_CODE","REEF_ZONE",
                "DEPTH_BIN", "LATITUDE", "LONGITUDE","MIN_DEPTH_M","MAX_DEPTH_M")
 survey_site<-unique(jwd[,SURVEY_SITE])#new_Aggregate_InputTable(awd, SURVEY_INFO)#TAO 2019/10/07
-
 
 #TEMPORARY WORK AROUND-ASK MICHAEL TO FIX
 survey_site$REEF_ZONE<-ifelse(survey_site$SITE=="HAW-04285","Forereef",as.character(survey_site$REEF_ZONE))
@@ -55,7 +45,13 @@ ggplot(hi) +
   facet_wrap(~ISLAND)
 
 ggplot(hi) + 
+  geom_histogram(aes(x = COLONYLENGTH, fill = ANALYST))+
+  geom_vline(xintercept=1, color = "black")+
+  facet_wrap(~ISLAND)
+
+ggplot(hi) + 
   geom_density(aes(x = COLONYLENGTH, fill = ISLAND), alpha = 0.2)+
+  geom_vline(xintercept=1, color = "black")+
   facet_wrap(~ISLAND)
 
 s.data<-ddply(hi,.(ISLAND,ANALYST),
@@ -88,7 +84,7 @@ View(jwd)
 
 
 
-# GENERATE SUMMARY METRICS at the transect-leveL BY GENUS--------------------------------------------------
+# Generate Juvenile Density at the TRANSECT & SITE-LEVEL BY GENUS--------------------------------------------------
 jcd.gen<-Calc_ColDen_Transect(jwd,"GENUS_CODE"); colnames(jcd.gen)[colnames(jcd.gen)=="ColCount"]<-"JuvColCount";colnames(jcd.gen)[colnames(jcd.gen)=="ColDen"]<-"JuvColDen";colnames(jcd.gen)[colnames(jcd.gen)=="TRANSECTAREA"]<-"TRANSECTAREA_j"
 
 site.data.gen<-ddply(jcd.gen, .(SITE,SITEVISITID,GENUS_CODE), #calc total colonies by condition
@@ -110,7 +106,6 @@ nrow(meta)
 #Merge site level data and meta data
 site.data.gen2<-left_join(site.data.gen2,meta)
 site.data.gen2$Juvpres.abs<-ifelse(site.data.gen2$JuvColDen>0,1,0)
-
 
 
 #Change all special missions to exclude flag =-1, right now they are 0. Then exclude these sites
@@ -140,7 +135,7 @@ site.data.gen2$REGION<-ifelse(site.data.gen2$ISLAND %in% c("Johnston","Howland",
 site.data.gen2$REGION<-ifelse(site.data.gen2$ISLAND %in% c("Kingman","Palmyra","Jarvis")
                              ,"LINE", as.character(site.data.gen2$REGION))
 
-# Generate data for temporal analysis---------------------------------------------------
+# GENERATE DATA FOR TEMPORAL ANALYSIS---------------------------------------------------
 site.data.gen2$STRATANAME<- paste(site.data.gen2$SEC_NAME,site.data.gen2$REEF_ZONE,site.data.gen2$DEPTH_BIN,sep="_")
 st.list<-ddply(site.data.gen2,.(OBS_YEAR,REGION,ISLAND,SEC_NAME,STRATANAME),summarize,n=length(unique(SITE)))
 st.list2<-subset(st.list,n>=2);head(st.list)
@@ -153,15 +148,14 @@ st.list_w2<-subset(st.list_w,REGION %in% c("NMARIAN","SMARIAN","LINE","PHOENIX",
 st.list_w3<-subset(st.list_w,REGION %in% c("MHI","NWHI") & year_n>=3)
 st.list_w4<-rbind(st.list_w2,st.list_w3)
 
-head(st.list_w4);st.list_w4<-droplevels(st.list_w4)
+head(st.list_w4);st.list_w4<-droplevels(st.list_w4) #generate the list
 
-
-data.gen_temp<-site.data.gen2[site.data.gen2$STRATANAME %in% c(st.list_w4$STRATANAME),]
+data.gen_temp<-site.data.gen2[site.data.gen2$STRATANAME %in% c(st.list_w4$STRATANAME),] #Subset juv data to only include strata of intersest 
 
 View(data.gen_temp) #double check that strata were dropped correctly
 
 
-#POOL UP
+#POOL UP TO STRATA, SECTOR, ISLAND
 #Set ANALYSIS_SCHEMA to STRATA and DOMAIN_SCHEMA to whatever the highest level you want estimates for (e.g. sector, island, region)
 data.gen_temp$ANALYSIS_SCHEMA<-data.gen_temp$STRATANAME
 data.gen_temp$DOMAIN_SCHEMA<-data.gen_temp$SEC_NAME
@@ -197,14 +191,168 @@ jcdG_sec<-jcdG_sec[,c("REGION","ANALYSIS_YEAR","DOMAIN_SCHEMA","GENUS_CODE","n",
 # write.csv(jcdG_is,file="T:/Benthic/Projects/Juvenile Project/JuvProject_temporal_ISLAND.csv")
 # write.csv(jcdG_sec,file="T:/Benthic/Projects/Juvenile Project/JuvProject_temporal_SECTOR.csv")
 
-write.csv(jcdG_st,file="C:/Users/Courtney.S.Couch/Documents/Courtney's Files/R Files/ESD/Juvenile Project/JuvProject_temporal_STRATA.csv")
-write.csv(jcdG_is,file="C:/Users/Courtney.S.Couch/Documents/Courtney's Files/R Files/ESD/Juvenile Project/JuvProject_temporal_ISLAND.csv")
-write.csv(jcdG_sec,file="C:/Users/Courtney.S.Couch/Documents/Courtney's Files/R Files/ESD/Juvenile Project/JuvProject_temporal_SECTOR.csv")
+write.csv(jcdG_st,file="C:/Users/Courtney.S.Couch/Documents/Courtney's Files/R Files/ESD/Juvenile Project/Response Variables/JuvProject_temporal_STRATA.csv")
+write.csv(jcdG_is,file="C:/Users/Courtney.S.Couch/Documents/Courtney's Files/R Files/ESD/Juvenile Project/Response Variables/JuvProject_temporal_ISLAND.csv")
+write.csv(jcdG_sec,file="C:/Users/Courtney.S.Couch/Documents/Courtney's Files/R Files/ESD/Juvenile Project/Response Variables/JuvProject_temporal_SECTOR.csv")
 
 
-###Plotting
+# CALCULATE DeltaDensity/Year for Correlative Analysis --------------------
+#To remove the confounding effect of time, Calculate change since bleaching event or year following bleaching event
+#I decided to create new list of strata without 2013 MHI sites- terrible sampling and delta den for MHI is calcualted 2019-2016
+# GENERATE DATA FOR TEMPORAL ANALYSIS---------------------------------------------------
+site.data.gen2$STRATANAME<- paste(site.data.gen2$SEC_NAME,site.data.gen2$REEF_ZONE,site.data.gen2$DEPTH_BIN,sep="_")
+st.list<-ddply(site.data.gen2,.(OBS_YEAR,REGION,ISLAND,SEC_NAME,STRATANAME),summarize,n=length(unique(SITE)))
+st.list2<-subset(st.list,n>=2);head(st.list)
+
+#Generate list of strata that were surveyed in all years for a given region and had at least 2 sites/stratum
+st.list_w<-dcast(st.list2, formula=REGION+ISLAND+SEC_NAME+STRATANAME~ OBS_YEAR, value.var="n",fill=0)
+dCOLS<-c("2014","2015","2016","2017","2018","2019")
+st.list_w$year_n<-rowSums(st.list_w[,dCOLS] > 0, na.rm=T) #count # of years of data
+st.list_w2<-subset(st.list_w,REGION %in% c("NMARIAN","SMARIAN","LINE","PHOENIX","SAMOA","MHI") & year_n>=2)
+st.list_w3<-subset(st.list_w,REGION %in% c("NWHI") & year_n>=3)
+st.list_w4<-rbind(st.list_w2,st.list_w3)
+
+head(st.list_w4);st.list_w4<-droplevels(st.list_w4) #generate the list
+
+data.gen_temp<-site.data.gen2[site.data.gen2$STRATANAME %in% c(st.list_w4$STRATANAME),] #Subset juv data to only include strata of intersest 
+
+View(data.gen_temp) #double check that strata were dropped correctly
+
+
+#POOL UP TO STRATA, SECTOR, ISLAND
+#Set ANALYSIS_SCHEMA to STRATA and DOMAIN_SCHEMA to whatever the highest level you want estimates for (e.g. sector, island, region)
+data.gen_temp$ANALYSIS_SCHEMA<-data.gen_temp$STRATANAME
+data.gen_temp$DOMAIN_SCHEMA<-data.gen_temp$SEC_NAME
+data.gen_temp$ANALYSIS_YEAR<-data.gen_temp$OBS_YEAR
+data.gen_temp$DB_RZ<-paste(data.gen_temp$DEPTH_BIN,data.gen_temp$REEF_ZONE,sep="_")
+
+#Create a vector of columns to subset for strata estimates
+c.keep<-c("REGION","ISLAND","DOMAIN_SCHEMA","ANALYSIS_YEAR","ANALYSIS_SCHEMA","REEF_ZONE","DB_RZ","GENUS_CODE",
+          "n_h","N_h","D._h","SE_D._h")
+
+jcdG_st<-Calc_Strata(data.gen_temp,"GENUS_CODE","JuvColDen","Juvpres.abs");jcdG_st=jcdG_st[,c.keep]
+colnames(jcdG_st)<-c("REGION","ISLAND","Sector","ANALYSIS_YEAR","Stratum","REEF_ZONE","DB_RZ","GENUS_CODE","n","Ntot","JuvColDen","SE_JuvColDen")
+jcdG_st$ANALYSIS_YEAR<-as.factor(jcdG_st$ANALYSIS_YEAR)
+head(jcdG_st)
+
+jcdG_st<-cSplit(jcdG_st, 'DB_RZ', sep="_", type.convert=FALSE);colnames(jcdG_st)[colnames(jcdG_st)=="DB_RZ_1"]<-"DEPTH_BIN"
+jcdG_stS<-subset(jcdG_st,GENUS_CODE=="SSSS")
+jcdG_stS$STRATANAME<-jcdG_stS$Stratum
+jcdst_delta<-jcdG_stS
+
+#Identify median date that surveys were conducted for each strata and year
+data.gen_tempS<-subset(data.gen_temp,GENUS_CODE=="SSSS")
+date.sum<-ddply(data.gen_tempS,.(ANALYSIS_YEAR,REGION,DEPTH_BIN,STRATANAME),
+                summarize,
+                DATE_=median(DATE_,na.rm=T))
+date.sum$ANALYSIS_YEAR<-as.factor(date.sum$ANALYSIS_YEAR)
+jcdst_delta$ANALYSIS_YEAR<-as.factor(jcdst_delta$ANALYSIS_YEAR)
+strat.data.new<-left_join(jcdst_delta,date.sum)
+
+#Identify median date that surveys were conducted for region and year
+temp.date<-ddply(data.gen_tempS,.(ANALYSIS_YEAR,REGION),
+                summarize,
+                DATE_=median(DATE_,na.rm=T))
+temp.date
+#Convert date long to wide
+strat.data.new$YEAR<-paste("a",strat.data.new$ANALYSIS_YEAR,sep="")
+tmp<-strat.data.new[,c("REGION","ISLAND","YEAR","Stratum","DEPTH_BIN","DATE_")];head(tmp)
+n.df <- spread(tmp, YEAR, DATE_);head(n.df)
+
+#Calculate difference between dates
+n.df$Tdiff<-NULL
+for (i in c(1:nrow(n.df))){ #opening brace
+  if(n.df$REGION[i] =="LINE"){ #c&p
+    n.df$Tdiff[i] = difftime(as.Date(n.df$a2018[i]) ,as.Date(n.df$a2015[i]) , units = c("weeks")) #c&p
+  } #c&p
+  if(n.df$REGION[i] =="PHOENIX"){ #c&p
+    n.df$Tdiff[i] = difftime(as.Date(n.df$a2018[i]) ,as.Date(n.df$a2015[i]) , units = c("weeks")) #c&p
+  } #c&p
+  if(n.df$REGION[i] =="SAMOA"){ #c&p
+    n.df$Tdiff[i] = difftime(as.Date(n.df$a2018[i]) ,as.Date(n.df$a2015[i]) , units = c("weeks")) #c&p
+  } #c&p
+  if(n.df$REGION[i] =="NMARIAN"){ #c&p
+    n.df$Tdiff[i] = difftime(as.Date(n.df$a2017[i]) ,as.Date(n.df$a2014[i]) , units = c("weeks")) #c&p
+  } #c&p
+  if(n.df$REGION[i] =="SMARIAN"){ #c&p
+    n.df$Tdiff[i] = difftime(as.Date(n.df$a2017[i]) ,as.Date(n.df$a2014[i]) , units = c("weeks")) #c&p
+  } #c&p
+  if(n.df$REGION[i] =="MHI"){ #c&p
+    n.df$Tdiff[i] = difftime(as.Date(n.df$a2019[i]) ,as.Date(n.df$a2016[i]) , units = c("weeks")) #c&p
+  } #c&p
+  if(n.df$REGION[i] =="NWHI"){ #c&p
+    n.df$Tdiff[i] = difftime(as.Date(n.df$a2016[i]) ,as.Date(n.df$a2014[i]) , units = c("weeks")) #c&p
+  } #c&p
+} #closing curly brace for entire forloop
+head(n.df)
+
+n.df$years<-n.df$Tdiff/52 #transform Tdiff into months
+
+tmp<-strat.data.new[,c("REGION","ISLAND","Sector","YEAR","Stratum","DEPTH_BIN","JuvColDen")];head(tmp)
+juv.new <- spread(tmp, YEAR, JuvColDen);head(juv.new)
+
+#Calculate difference in Juv density between years
+juv.new$DeltaDen<-NULL
+for (i in c(1:nrow(juv.new))){ #opening brace
+  if(juv.new$REGION[i] =="LINE"){ #c&p
+    juv.new$DeltaDen[i] = juv.new$a2018[i] - juv.new$a2015[i] #c&p
+  } #c&p
+  if(juv.new$REGION[i] =="PHOENIX"){ #c&p
+    juv.new$DeltaDen[i] = juv.new$a2018[i] - juv.new$a2015[i] #c&p
+  } #c&p
+  if(juv.new$REGION[i] =="SAMOA"){ #c&p
+    juv.new$DeltaDen[i] = juv.new$a2018[i] - juv.new$a2015[i] #c&p
+  } #c&p
+  if(juv.new$REGION[i] =="NMARIAN"){ #c&p
+    juv.new$DeltaDen[i] = juv.new$a2017[i] - juv.new$a2014[i] #c&p
+  } #c&p
+  if(juv.new$REGION[i] =="SMARIAN"){ #c&p
+    juv.new$DeltaDen[i] = juv.new$a2017[i] - juv.new$a2014[i] #c&p
+  } #c&p
+  if(juv.new$REGION[i] =="MHI"){ #c&p
+    juv.new$DeltaDen[i] = juv.new$a2019[i] - juv.new$a2016[i] #c&p
+  } #c&p
+  if(juv.new$REGION[i] =="NWHI"){ #c&p
+    juv.new$DeltaDen[i] = juv.new$a2016[i] - juv.new$a2014[i] #c&p
+  } #c&p
+} #closing curly brace for entire forloop
+head(juv.new)
+
+#Clean up date and juv datasets and merge & CALCULATE Delta density/year
+n.df<-n.df[,c("REGION","ISLAND","Stratum","DEPTH_BIN","years")];head(n.df)
+juv.new<-juv.new[,c("REGION","ISLAND","Sector","Stratum","DEPTH_BIN","DeltaDen")];head(juv.new)
+delta.df<-left_join(juv.new,n.df);head(delta.df)
+delta.df$DeltaDen_mo<-delta.df$DeltaDen/delta.df$years
+View(delta.df)
+
+#Summarize delta density by sec name
+delta.sumS<-ddply(delta.df,.(REGION,Sector),
+                  summarize,
+                  DeltaMEAN=mean(DeltaDen,na.rm=T),
+                  DeltaSE=std.error(DeltaDen,na.rm=T))
+
+delta.sumS<-delta.sumS %>% rename(SEC_NAME = Sector)
+write.csv(delta.df,file="C:/Users/Courtney.S.Couch/Documents/Courtney's Files/R Files/ESD/Juvenile Project/Response Variables/JuvProject_deltadensity_STRATA.csv")
+write.csv(delta.sumS,file="C:/Users/Courtney.S.Couch/Documents/Courtney's Files/R Files/ESD/Juvenile Project/Response Variables/JuvProject_deltadensity_SECTOR.csv")
+
+
+#Identify median Latititude that surveys were conducted for each sector and year
+lat.sum<-ddply(data.gen_tempS,.(REGION,ISLAND),
+                summarize,
+                LATITUDE=median(LATITUDE,na.rm=T))
+
+j.sum<-ddply(delta.df,.(REGION,ISLAND),
+               summarize,
+               DeltaDen=median(DeltaDen,na.rm=T))
+deltaden_lat<-left_join(j.sum,lat.sum)
+
+
+
+# Plotting temporal trends ------------------------------------------------
+
 jcdG_sec$ANALYSIS_YEAR<-as.factor(jcdG_sec$ANALYSIS_YEAR)
 
+#bar plots of juv desnity by sector by year
 p1<-ggplot(subset(jcdG_sec,GENUS_CODE=="SSSS"), aes(x=DOMAIN_SCHEMA, y=Mean_JuvColDen, fill=ANALYSIS_YEAR)) + 
   geom_bar(position=position_dodge(), stat="identity") + 
   # guides(fill=FALSE) 
@@ -228,16 +376,12 @@ p1
 ggsave(plot=p1,file="C:/Users/Courtney.S.Couch/Documents/Courtney's Files/R Files/ESD/Juvenile Project/Figures/Juv_Temporal.pdf",width=10,height=10)
 
 
-
 ####Absolute Change####
-
-#Wake surveyd in off year- change time point
-# jcdG_st$ANALYSIS_YEAR[jcdG_st$ISLAND=="Wake"&jcdG_st$ANALYSIS_YEAR=="2014"] <- "2015"
-# jcdG_st$ANALYSIS_YEAR[jcdG_st$ISLAND=="Wake"&jcdG_st$ANALYSIS_YEAR=="2017"] <- "2018"
-
 jcdG_st$YEAR<-paste("a",jcdG_st$ANALYSIS_YEAR,sep="")
 
-new.df_w<-dcast(jcdG_st, formula= REGION + ISLAND + Stratum + REEF_ZONE + DB_RZ + GENUS_CODE~ YEAR, value.var="JuvColDen",fill=NA)
+tmp<-jcdG_st[,c("REGION","ISLAND","Sector","Stratum","REEF_ZONE","DEPTH_BIN","GENUS_CODE","JuvColDen","YEAR")]
+
+new.df_w<-spread(tmp,YEAR,JuvColDen)
 head(new.df_w)
 
 nwhi<-subset(new.df_w,REGION=="NWHI")
@@ -247,9 +391,6 @@ smarian<-subset(new.df_w,REGION=="SMARIAN")
 ph<-subset(new.df_w,REGION=="PHOENIX")
 line<-subset(new.df_w,REGION=="LINE")
 samoa<-subset(new.df_w,REGION=="SAMOA")
-
-#marian<-subset(new.df_w,REGION=="MARIAN")
-#pria<-subset(new.df_w,REGION=="PRIAs")
 
 head(mhi)
 
@@ -311,13 +452,8 @@ samoa$t2018<-samoa$a2018-samoa$a2015
 samoa$t2019<-NA
 abschange<-rbind(nwhi,mhi,nmarian,smarian,ph,line,samoa)
 
-abschange<-abschange[,-c(7:13)]
+abschange<-abschange[,-c(8:14)]; head(abschange)
 pc_long<-gather(abschange,Year,Change,t2013:t2019,factor_key = T)
-
-# change_sum<-ddply(all.df_long,.(REGION,GENUS_CODE,Year),
-#                   summarize,
-#                   Mean=mean(Change,na.rm=T),
-#                   SE=std.error(Change,na.rm=T))
 
 pc_long<-pc_long %>% mutate(Yearn=recode(Year,
                                          `t2013`="2013",
@@ -329,10 +465,9 @@ pc_long<-pc_long %>% mutate(Yearn=recode(Year,
                                          `t2019`="2019"))
 pc_long$Yearn<-as.numeric(as.character(pc_long$Yearn))
 head(pc_long)
-pc_long<-cSplit(pc_long, 'DB_RZ', sep="_", type.convert=FALSE);colnames(pc_long)[colnames(pc_long)=="DB_RZ_1"]<-"DEPTH_BIN"
-
 pc_longS<-subset(pc_long,GENUS_CODE=="SSSS")
 
+#Point plot of absolute change in mean density by region
 p1<-pc_longS %>%
   mutate(REGION = fct_relevel(REGION,"NWHI","MHI","PHOENIX","LINE","SAMOA","SMARIAN","NMARIAN")) %>% #reorder varibles 
   ggplot(aes(x=Yearn, y=Change, color=REGION)) + 
@@ -353,6 +488,7 @@ p1
 #ggsave(plot=p1,file="T:/Benthic/Projects/Juvenile Project/Figures/Abschange_REGION_points.pdf",width=8,height=6)
 ggsave(plot=p1,file="C:/Users/Courtney.S.Couch/Documents/Courtney's Files/R Files/ESD/Juvenile Project/Figures/Abschange_REGION_points.pdf",width=8,height=6)
 
+#Point plot of absolute change in mean density by region and depth bin
 p2<-pc_longS %>%
   mutate(DEPTH_BIN = fct_relevel(DEPTH_BIN,"Shallow","Mid","Deep")) %>% #reorder varibles
   mutate(REGION = fct_relevel(REGION,"NWHI","MHI","PHOENIX","LINE","SAMOA","SMARIAN","NMARIAN")) %>% #reorder varibles 
@@ -373,63 +509,8 @@ p2<-pc_longS %>%
   scale_x_continuous(breaks=seq(2013,2019,1))
 p2
 
-jcdG_st<-cSplit(jcdG_st, 'DB_RZ', sep="_", type.convert=FALSE);colnames(jcdG_st)[colnames(jcdG_st)=="DB_RZ_1"]<-"DEPTH_BIN"
-jcdG_stS<-subset(jcdG_st,GENUS_CODE=="SSSS")
 
-
-#Calculate Delta Density/Year for correlative analysis
-data.gen_tempS<-subset(data.gen_temp,GENUS_CODE=="SSSS")
-jcdG_stS$STRATANAME<-jcdG_stS$Stratum
-
-
-#Identify median date that surveys were conducted for each strata and year
-date.sum<-ddply(data.gen_tempS,.(ANALYSIS_YEAR,REGION,DEPTH_BIN,STRATANAME),
-               summarize,
-               DATE_=median(DATE_,na.rm=T))
-date.sum$ANALYSIS_YEAR<-as.factor(date.sum$ANALYSIS_YEAR)
-jcdG_stS$ANALYSIS_YEAR<-as.factor(jcdG_stS$ANALYSIS_YEAR)
-strat.data.new<-left_join(jcdG_stS,date.sum)
-
-#remove day
-#strat.data.new$new.date<-format(strat.data.new$DATE_, format="%Y-%m");class(strat.data.new$new.date)
-strat.data.new$YEAR<-paste("a",strat.data.new$ANALYSIS_YEAR,sep="")
-tmp<-strat.data.new[,c("REGION","ISLAND","YEAR","Stratum","DEPTH_BIN","DATE_")];head(tmp)
-
-n.df <- spread(tmp, YEAR, DATE_);head(n.df)
-
-
-n.df$t.<-difftime(as.Date(n.df$a2018) ,as.Date(n.df$a2015) , units = c("weeks"))
-
-n.df$Tdiff<-NULL
-  for (i in c(1:nrow(n.df))){ #opening brace
-    if(n.df$REGION[i] =="LINE"){ #c&p
-      n.df$Tdiff[i] = difftime(as.Date(n.df$a2018) ,as.Date(n.df$a2015) , units = c("weeks")) #c&p
-    } #c&p
-    if(n.df$REGION[i] =="PHOENIX"){ #c&p
-        n.df$Tdiff[i] = difftime(as.Date(n.df$a2018) ,as.Date(n.df$a2015) , units = c("weeks")) #c&p
-      } #c&p
-    if(n.df$REGION[i] =="SAMOA"){ #c&p
-        n.df$Tdiff[i] = difftime(as.Date(n.df$a2018) ,as.Date(n.df$a2015) , units = c("weeks")) #c&p
-      } #c&p
-    if(n.df$REGION[i] =="N.MARIAN"){ #c&p
-        n.df$Tdiff[i] = difftime(as.Date(n.df$a2017) ,as.Date(n.df$a2014) , units = c("weeks")) #c&p
-      } #c&p
-    if(n.df$REGION[i] =="S.MARIAN"){ #c&p
-      n.df$Tdiff[i] = difftime(as.Date(n.df$a2017) ,as.Date(n.df$a2014) , units = c("weeks")) #c&p
-    } #c&p
-    if(n.df$REGION[i] =="MHI"){ #c&p
-      n.df$Tdiff[i] = difftime(as.Date(n.df$a2019) ,as.Date(n.df$a2016) , units = c("weeks")) #c&p
-    } #c&p
-    if(n.df$REGION[i] =="NWHI"){ #c&p
-      n.df$Tdiff[i] = difftime(as.Date(n.df$a2016) ,as.Date(n.df$a2014) , units = c("weeks")) #c&p
-    } #c&p
-  } #closing curly brace for entire forloop
-  
-
-
-
-
-###################
+#Plot mean density over time
 jcdG_stS$ANALYSIS_YEAR<-as.numeric(as.character(jcdG_stS$ANALYSIS_YEAR))
 
 jcd_sum<-ddply(jcdG_stS,.(ANALYSIS_YEAR,REGION,DEPTH_BIN),
@@ -437,6 +518,7 @@ jcd_sum<-ddply(jcdG_stS,.(ANALYSIS_YEAR,REGION,DEPTH_BIN),
                jcdMEAN=mean(JuvColDen,na.rm=T),
                jcdSE=std.error(JuvColDen,na.rm=T))
 
+#density v year by region and depth
 p3<-jcdG_stS %>%
   mutate(REGION = fct_relevel(REGION,"NWHI","MHI","PHOENIX","LINE","SAMOA","SMARIAN","NMARIAN")) %>% #reorder varibles 
   ggplot(aes(x=ANALYSIS_YEAR, y=JuvColDen, color=REGION)) + 
@@ -458,6 +540,7 @@ p3<-jcdG_stS %>%
   scale_x_continuous(breaks=seq(2013,2019,1))
 p3
 
+#density v year by region and depth- REGION FACET
 p4<-
   ggplot(jcdG_stS,aes(x=ANALYSIS_YEAR, y=JuvColDen, color=DEPTH_BIN)) + 
   geom_smooth(se=FALSE,method="loess",lwd=1.5)+
@@ -476,11 +559,11 @@ p4<-
   scale_x_continuous(breaks=seq(2013,2019,1))
 p4
 
+#Mean density v year by region
 jcd_sumR<-ddply(jcdG_stS,.(ANALYSIS_YEAR,REGION),
                summarize,
                jcdMEAN=mean(JuvColDen,na.rm=T),
                jcdSE=std.error(JuvColDen,na.rm=T))
-
 
 p5<-jcdG_stS %>%
   mutate(REGION = fct_relevel(REGION,"NWHI","MHI","PHOENIX","LINE","SAMOA","SMARIAN","NMARIAN")) %>% #reorder varibles 
@@ -519,13 +602,12 @@ p6<-jcd_sumR %>%
   labs(x="Year",y="Mean Juvenile Density")
 p6
 
-library(RColorBrewer)
 #blues_2 = brewer.pal(name="BuPu", n=2)
 jcd_sumR$ANALYSIS_YEAR<-as.factor(jcd_sumR$ANALYSIS_YEAR)
 #Add Posthoc groupings from LMMs
 jcd_sumR<- jcd_sumR[order(jcd_sumR$REGION),];jcd_sumR
 #jcd_sumR$sig<-c("","","","ab","b","c","a","b","a","b","a","b","","","","")
-jcd_sumR$sig<-c("a","b","ab","b","c","","","","","","a","b","a","b","","")
+jcd_sumR$sig<-c("","","ab","b","c","","","","","","a","b","a","b","","")
 
 jcd_sumR$Bleaching<-c("Pre/During","Post","Pre/During","Post","Post","Post","Post","Pre/During","Post","Post","Pre/During","Post","Pre/During","Post","Post","Post")
 
@@ -533,7 +615,7 @@ jcd_sumR$Bleaching<-c("Pre/During","Post","Pre/During","Post","Post","Post","Pos
 jcd_sumR$REGION <- factor(jcd_sumR$REGION, levels = c("NWHI","MHI","PHOENIX","LINE","SAMOA","SMARIAN","NMARIAN"))
 jcd_sumR$Bleaching <- factor(jcd_sumR$Bleaching, levels = c("Pre/During","Post"))
 
-
+#bar plot of juv by region by year with post hoc tests and bleaching event timing
 p7 <- ggplot(jcd_sumR, aes(x=ANALYSIS_YEAR, y=jcdMEAN,fill=Bleaching)) +
   geom_bar(stat = "identity", position = position_dodge2(preserve='single'), width = 1, color="black") +
   geom_errorbar(data=jcd_sumR,aes(y=jcdMEAN, x=ANALYSIS_YEAR,ymin=jcdMEAN-jcdSE, ymax=jcdMEAN+jcdSE), width=.2)+
@@ -560,20 +642,189 @@ p7 <- ggplot(jcd_sumR, aes(x=ANALYSIS_YEAR, y=jcdMEAN,fill=Bleaching)) +
   geom_hline(yintercept = 15)
 p7
 
+#bar plot of juv by region by year with post hoc tests -NO BLEACHING
 
-# p3<-ggplot(subset(pc_long,GENUS_CODE=="SSSS"), aes(x=DEPTH_BIN, y=Change, color=Year)) + 
-#   geom_boxplot()+
-#   geom_hline(yintercept=0)+
-#   facet_wrap(~REGION)+
-#   theme_bw() +
-#   theme(
-#     plot.background = element_blank()
-#     ,panel.grid.major = element_blank()
-#     ,panel.grid.minor = element_blank()
-#     ,axis.ticks.x = element_blank() # no x axis ticks
-#     ,axis.title.x = element_text( vjust = -.0001)) + # adjust x axis to lower the same amount as the genus labels
-#   labs(x="Year",y="Abs. Change Mean Density")
-# p3
+p8 <- ggplot(jcd_sumR, aes(x=ANALYSIS_YEAR, y=jcdMEAN)) +
+  geom_bar(stat = "identity", position = position_dodge2(preserve='single'), width = 1, color="black") +
+  geom_errorbar(data=jcd_sumR,aes(y=jcdMEAN, x=ANALYSIS_YEAR,ymin=jcdMEAN-jcdSE, ymax=jcdMEAN+jcdSE), width=.2)+
+  facet_grid(~REGION, scales = "free_x", space = "free") +
+  theme_bw() +
+  theme(panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        panel.spacing = unit(0, "lines"),
+        strip.background = element_blank(),
+        strip.placement = "outside",
+        strip.text = element_text(size = 12),
+        #legend.position = "none",
+        axis.line = element_line(color = "black"),
+        text = element_text(size = 12),
+        axis.text.y = element_text(colour="black"),
+        axis.text.x = element_text(angle = 90)) +
+  xlab("Year") +
+  ylab("Mean Juvenile Density") +
+  scale_y_continuous(expand = c(0,0), limits = c(0,15)) +
+  geom_text(data=jcd_sumR,aes(x=ANALYSIS_YEAR,y=jcdMEAN+jcdSE,label=jcd_sumR$sig, group = REGION),
+            position = position_dodge(),
+            vjust = -0.5) +
+  geom_hline(yintercept = 15)
+p8
+
+
+#Plotting Delta Density/Year 
+delta.sum<-ddply(delta.df,.(REGION),
+                summarize,
+                DeltaMEAN=mean(DeltaDen,na.rm=T),
+                DeltaSE=std.error(DeltaDen,na.rm=T))
+
+#Add Posthoc groupings from LMMs
+delta.sum<- delta.sum[order(delta.sum$REGION),];delta.sum
+#delta.sum$sig<-c("","","ab","b","c","","","","","","a","b","a","b","","")
+
+delta.sum$REGION <- factor(delta.sum$REGION, levels = c("NWHI","MHI","PHOENIX","LINE","SAMOA","SMARIAN","NMARIAN"))
+
+p9 <- ggplot(delta.sum, aes(x=REGION, y=DeltaMEAN)) +
+  geom_bar(stat = "identity", position = position_dodge2(preserve='single'), width = 1, color="black") +
+  geom_errorbar(data=delta.sum,aes(y=DeltaMEAN, x=REGION,ymin=DeltaMEAN-DeltaSE, ymax=DeltaMEAN+DeltaSE), width=.2)+
+  theme_bw() +
+  theme(panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        panel.spacing = unit(0, "lines"),
+        strip.background = element_blank(),
+        strip.placement = "outside",
+        strip.text = element_text(size = 12),
+        #legend.position = "none",
+        axis.line = element_line(color = "black"),
+        text = element_text(size = 12),
+        axis.text.y = element_text(colour="black"),
+        axis.text.x = element_text(angle = 90)) +
+  xlab("Region") +
+  ylab("Mean Change in Juvenile Density/Year")
+  #geom_text(data=jcd_sumR,aes(x=ANALYSIS_YEAR,y=jcdMEAN+jcdSE,label=jcd_sumR$sig, group = REGION),
+            #position = position_dodge(),
+            #vjust = -0.5)
+p9
+
+
+#Plotting Delta Density/Year 
+delta.sumI<-ddply(delta.df,.(REGION,ISLAND),
+                 summarize,
+                 DeltaMEAN=mean(DeltaDen,na.rm=T),
+                 DeltaSE=std.error(DeltaDen,na.rm=T))
+
+barplot1 %>% 
+  mutate_if(is.character, as.numeric) %>% 
+  ggplot(aes(fct_reorder(X, Y, .desc = TRUE), Y, fill = Group))
+
+p10 <- ggplot(delta.sumI, aes(x=reorder(ISLAND,-DeltaMEAN), y=DeltaMEAN,fill=REGION)) +
+  geom_bar(stat = "identity", position = position_dodge2(preserve='single'), width = 1, color="black") +
+  geom_errorbar(data=delta.sumI,aes(y=DeltaMEAN, x=ISLAND,ymin=DeltaMEAN-DeltaSE, ymax=DeltaMEAN+DeltaSE), width=.2)+
+  theme_bw() +
+  theme(panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        panel.spacing = unit(0, "lines"),
+        strip.background = element_blank(),
+        strip.placement = "outside",
+        strip.text = element_text(size = 12),
+        #legend.position = "none",
+        axis.line = element_line(color = "black"),
+        text = element_text(size = 12),
+        axis.text.y = element_text(colour="black"),
+        axis.text.x = element_text(vjust=0,angle = 90)) +
+  xlab("Island") +
+  ylab("Mean Change in Juvenile Density/Year")
+
+p10
+
+test <- delta.sumI %>%
+  arrange(desc(DeltaMEAN)) %>%
+  mutate(ISLAND = factor(ISLAND, levels = .$ISLAND))
+
+#Lolipop plot
+p11 <- ggplot(test, aes(x=ISLAND, y=DeltaMEAN,color=REGION)) +
+  geom_segment(aes(x=ISLAND, xend=ISLAND, y=0, yend=DeltaMEAN) , size=1) +
+  geom_point(size=3)+
+  theme_bw() +
+  theme(panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        panel.spacing = unit(0, "lines"),
+        strip.background = element_blank(),
+        strip.placement = "outside",
+        strip.text = element_text(size = 12),
+        #legend.position = "none",
+        axis.line = element_line(color = "black"),
+        text = element_text(size = 12),
+        axis.text.y = element_text(colour="black"),
+        axis.text.x = element_text(vjust=0,angle = 90)) +
+  #coord_flip() +
+  geom_hline(yintercept=0, color = "black")+
+  xlab("Island") +
+  ylab("Mean Change in Juvenile Density/Year")
+
+p11
+
+
+
+#Plot delta density by region and depth bin
+delta.sumD<-ddply(delta.df,.(REGION,DEPTH_BIN),
+                 summarize,
+                 DeltaMEAN=mean(DeltaDen,na.rm=T),
+                 DeltaSE=std.error(DeltaDen,na.rm=T))
+
+#Add Posthoc groupings from LMMs
+#delta.sumD<- delta.sum[order(delta.sumD$REGION),];delta.sumD
+#delta.sum$sig<-c("","","ab","b","c","","","","","","a","b","a","b","","")
+
+delta.sumD$REGION <- factor(delta.sumD$REGION, levels = c("NWHI","MHI","PHOENIX","LINE","SAMOA","SMARIAN","NMARIAN"))
+delta.sumD$DEPTH_BIN <- factor(delta.sumD$DEPTH_BIN, levels = c("Shallow","Mid","Deep"))
+
+p12 <- ggplot(delta.sumD, aes(x=REGION, y=DeltaMEAN,fill=DEPTH_BIN)) +
+  geom_bar(stat = "identity", position = position_dodge2(preserve='single'), width = 1, color="black") +
+  geom_errorbar(data=delta.sumD,aes(y=DeltaMEAN, x=REGION,ymin=DeltaMEAN-DeltaSE, ymax=DeltaMEAN+DeltaSE), width=.2)+
+  facet_grid(~DEPTH_BIN, scales = "free_x", space = "free") +
+  theme_bw() +
+  theme(panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        panel.spacing = unit(0, "lines"),
+        strip.background = element_blank(),
+        strip.placement = "outside",
+        strip.text = element_text(size = 12),
+        #legend.position = "none",
+        axis.line = element_line(color = "black"),
+        text = element_text(size = 12),
+        axis.text.y = element_text(colour="black"),
+        axis.text.x = element_text(angle = 90)) +
+  xlab("Region") +
+  ylab("Mean Change in Juvenile Density/Year")
+#geom_text(data=jcd_sumR,aes(x=ANALYSIS_YEAR,y=jcdMEAN+jcdSE,label=jcd_sumR$sig, group = REGION),
+#position = position_dodge(),
+#vjust = -0.5)
+p12
+
+
+p13 <- ggplot(deltaden_lat, aes(x=LATITUDE, y=DeltaDen,color=DeltaDen)) +
+  geom_segment(aes(x=LATITUDE, xend=LATITUDE, y=0, yend=DeltaDen) , size=1) +
+  geom_point(size=3)+
+  geom_point(shape = 1,size = 3,colour = "black")+
+  theme_bw() +
+  theme(panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        panel.spacing = unit(0, "lines"),
+        strip.background = element_blank(),
+        strip.placement = "outside",
+        strip.text = element_text(size = 12),
+        #legend.position = "none",
+        axis.line = element_line(color = "black"),
+        text = element_text(size = 12),
+        axis.text.y = element_text(colour="black"),
+        axis.text.x = element_text(vjust=0,angle = 90)) +
+  scale_color_gradient2(name="Delta Density/Year",midpoint = 0, low = "firebrick4", mid = "white",
+                        high = "royalblue4", space = "Lab" )+
+coord_flip() +
+  geom_hline(yintercept=0, color = "black")+
+  xlab("Latitude") +
+  ylab("Mean Change in Juvenile Density/Year")
+
+p13
 
 
 # ggsave(plot=p1,file="T:/Benthic/Projects/Juvenile Project/Figures/Abschange_REGION_points.pdf",width=8,height=6)
@@ -587,6 +838,12 @@ ggsave(plot=p3,file="C:/Users/Courtney.S.Couch/Documents/Courtney's Files/R File
 ggsave(plot=p4,file="C:/Users/Courtney.S.Couch/Documents/Courtney's Files/R Files/ESD/Juvenile Project/Figures/Density_DEPTH_REGION__points.pdf",width=8,height=6)
 ggsave(plot=p5,file="C:/Users/Courtney.S.Couch/Documents/Courtney's Files/R Files/ESD/Juvenile Project/Figures/Density_REGION__points.pdf",width=8,height=6)
 ggsave(plot=p7,file="C:/Users/Courtney.S.Couch/Documents/Courtney's Files/R Files/ESD/Juvenile Project/Figures/Density_Year_Bar_bleaching.pdf",width=9,height=6)
+ggsave(plot=p8,file="C:/Users/Courtney.S.Couch/Documents/Courtney's Files/R Files/ESD/Juvenile Project/Figures/Density_Year_Bar.pdf",width=9,height=6)
+ggsave(plot=p9,file="C:/Users/Courtney.S.Couch/Documents/Courtney's Files/R Files/ESD/Juvenile Project/Figures/DeltaDensity_Region.pdf",width=9,height=6)
+ggsave(plot=p10,file="C:/Users/Courtney.S.Couch/Documents/Courtney's Files/R Files/ESD/Juvenile Project/Figures/DeltaDensity_island.pdf",width=9,height=6)
+ggsave(plot=p11,file="C:/Users/Courtney.S.Couch/Documents/Courtney's Files/R Files/ESD/Juvenile Project/Figures/DeltaDensity_island_lolliop.pdf",width=9,height=6)
+ggsave(plot=p12,file="C:/Users/Courtney.S.Couch/Documents/Courtney's Files/R Files/ESD/Juvenile Project/Figures/DeltaDensity_RegionDepth.pdf",width=9,height=6)
+ggsave(plot=p13,file="C:/Users/Courtney.S.Couch/Documents/Courtney's Files/R Files/ESD/Juvenile Project/Figures/DeltaDensity_latitude_lolliop.pdf",width=9,height=6)
 
 
 
@@ -594,10 +851,7 @@ ggsave(plot=p7,file="C:/Users/Courtney.S.Couch/Documents/Courtney's Files/R File
 #The time after the bleaching event is very important. I removed the 2016 and 2017 juvenile data for jarvis, baker and howland. it may be interesting to look at these separately
 
 
-
-##Statistical Analyses
-
-
+# MIXED MODELING -SPATIAL TEMPORAL PATTERNS -------------------------------
 head(jcdG_stS)
 
 #Check for normality and equal variance
@@ -751,14 +1005,14 @@ data.gen_pb$DOMAIN_SCHEMA<-data.gen_pb$SEC_NAME
 jcdG_sec<-Calc_Domain(data.gen_pb,"GENUS_CODE","JuvColDen","Juvpres.abs")
 jcdG_sec<-jcdG_sec[,c("REGION","ANALYSIS_YEAR","DOMAIN_SCHEMA","GENUS_CODE","n","Ntot","Mean_JuvColDen","SE_JuvColDen")]
 
-# write.csv(jcdG_st,file="T:/Benthic/Projects/Juvenile Project/JuvProject_pb_STRATA.csv")
-# write.csv(jcdG_is,file="T:/Benthic/Projects/Juvenile Project/JuvProject_pb_ISLAND.csv")
-# write.csv(jcdG_sec,file="T:/Benthic/Projects/Juvenile Project/JuvProject_pb_SECTOR.csv")
+# write.csv(jcdG_st,file="T:/Benthic/Projects/Juvenile Project/Response Variables/JuvProject_pb_STRATA.csv")
+# write.csv(jcdG_is,file="T:/Benthic/Projects/Juvenile Project/Response Variables/JuvProject_pb_ISLAND.csv")
+# write.csv(jcdG_sec,file="T:/Benthic/Projects/Juvenile Project/Response Variables/JuvProject_pb_SECTOR.csv")
 
-write.csv(data.gen_pb,"JuvProject_pb_SITE.csv")
-write.csv(jcdG_st,"JuvProject_pb_STRATA.csv")
-write.csv(jcdG_is,"JuvProject_pb_ISLAND.csv")
-write.csv(jcdG_sec,"JuvProject_pb_SECTOR.csv")
+write.csv(data.gen_pb,file="C:/Users/Courtney.S.Couch/Documents/Courtney's Files/R Files/ESD/Juvenile Project/Response Variables/JuvProject_pb_SITE.csv")
+write.csv(jcdG_st,file="C:/Users/Courtney.S.Couch/Documents/Courtney's Files/R Files/ESD/Juvenile Project/Response Variables/JuvProject_pb_STRATA.csv")
+write.csv(jcdG_is,file="C:/Users/Courtney.S.Couch/Documents/Courtney's Files/R Files/ESD/Juvenile Project/Response Variables/JuvProject_pb_ISLAND.csv")
+write.csv(jcdG_sec,file="C:/Users/Courtney.S.Couch/Documents/Courtney's Files/R Files/ESD/Juvenile Project/Response Variables/JuvProject_pb_SECTOR.csv")
 
 
 #Plot Juv Density by habitat type
