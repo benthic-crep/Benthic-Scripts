@@ -5,12 +5,11 @@
 rm(list=ls())
 
 #LOAD LIBRARY FUNCTIONS ... 
-source("C:/Users/Morgan.Winston/Documents/GitHub/Benthic-Scripts/Functions/Benthic_Functions.R")
-source("C:/Users/Morgan.Winston/Documents/GitHub/fish-paste/lib/core_functions.R")
+# source("C:/Users/Morgan.Winston/Documents/GitHub/Benthic-Scripts/Functions/Benthic_Functions.R")
+# source("C:/Users/Morgan.Winston/Documents/GitHub/fish-paste/lib/core_functions.R")
 
 ## LOAD benthic data
-setwd("T:/Benthic/Data/REA Coral Demography/Raw from Oracle")
-load("ALL_REA_METHODA_RAW.Rdata")
+load("T:/Benthic/Data/REA Coral Demography & Cover/Raw from Oracle/ALL_REA_METHODA_RAW.Rdata")
 df$SITE<-SiteNumLeadingZeros(df$SITE) # Change site number such as MAR-22 to MAR-0022
 a<-df
 
@@ -51,8 +50,7 @@ methoda<-a
 ################
 
 ## LOAD benthic data
-setwd("T:/Benthic/Data/REA Coral Demography/Raw from Oracle")
-load("ALL_REA_METHODB_RAW.Rdata")
+load("T:/Benthic/Data/REA Coral Demography & Cover/Raw from OracleALL_REA_METHODB_RAW.Rdata")
 df$SITE<-SiteNumLeadingZeros(df$SITE) # Change site number such as MAR-22 to MAR-0022
 b <-df
 

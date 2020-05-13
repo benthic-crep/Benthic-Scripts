@@ -583,6 +583,24 @@ p5<-jcdG_stS %>%
   scale_x_continuous(breaks=seq(2013,2019,1))
 p5
 
+p5.5<-jcdG_stS %>%
+  mutate(REGION = fct_relevel(REGION,"NWHI","MHI","PHOENIX","LINE","SAMOA","SMARIAN","NMARIAN")) %>% #reorder varibles 
+  ggplot(aes(x=ANALYSIS_YEAR, y=JuvColDen, color=REGION)) + 
+  geom_smooth(se=T,method="loess",lwd=1.5)+
+  geom_point(data=jcd_sumR,(aes(y=jcdMEAN, x=ANALYSIS_YEAR)),size=3)+
+  theme_bw() +
+  theme(
+    plot.background = element_blank()
+    ,panel.grid.major = element_blank()
+    ,panel.grid.minor = element_blank()
+    ,axis.ticks.x = element_blank() # no x axis ticks
+    ,axis.title.x = element_text( vjust = -.0001)
+    ,axis.text.x = element_text(angle = 90)) + # adjust x axis to lower the same amount as the genus labels
+  labs(x="Year",y="Mean Juvenile Density")+
+  scale_x_continuous(breaks=seq(2013,2019,1))
+p5.5
+
+
 jcd_sumR$ANALYSIS_YEAR<-as.factor(jcd_sumR$ANALYSIS_YEAR)
 p6<-jcd_sumR %>%
   mutate(REGION = fct_relevel(REGION,"NWHI","MHI","PHOENIX","LINE","SAMOA","SMARIAN","NMARIAN")) %>% #reorder varibles 
@@ -616,8 +634,8 @@ jcd_sumR$REGION <- factor(jcd_sumR$REGION, levels = c("NWHI","MHI","PHOENIX","LI
 jcd_sumR$Bleaching <- factor(jcd_sumR$Bleaching, levels = c("Pre/During","Post"))
 
 #bar plot of juv by region by year with post hoc tests and bleaching event timing
-p7 <- ggplot(jcd_sumR, aes(x=ANALYSIS_YEAR, y=jcdMEAN,fill=Bleaching)) +
-  geom_bar(stat = "identity", position = position_dodge2(preserve='single'), width = 1, color="black") +
+p7 <- ggplot(jcd_sumR, aes(x=ANALYSIS_YEAR, y=jcdMEAN)) +
+  geom_bar(stat = "identity", position = position_dodge2(preserve='single'), width = 1, color="black",fill="#6666FF") +
   geom_errorbar(data=jcd_sumR,aes(y=jcdMEAN, x=ANALYSIS_YEAR,ymin=jcdMEAN-jcdSE, ymax=jcdMEAN+jcdSE), width=.2)+
   facet_grid(~REGION, scales = "free_x", space = "free") +
   theme_bw() +
@@ -632,7 +650,7 @@ p7 <- ggplot(jcd_sumR, aes(x=ANALYSIS_YEAR, y=jcdMEAN,fill=Bleaching)) +
         text = element_text(size = 12),
         axis.text.y = element_text(colour="black"),
         axis.text.x = element_text(angle = 90)) +
-  scale_fill_manual(values = c("#CCCCFF","#6666FF")) +
+  #scale_fill_manual(values = c("#CCCCFF","#6666FF")) +
   xlab("Year") +
   ylab("Mean Juvenile Density") +
   scale_y_continuous(expand = c(0,0), limits = c(0,15)) +
@@ -698,7 +716,8 @@ p9 <- ggplot(delta.sum, aes(x=REGION, y=DeltaMEAN)) +
         axis.text.y = element_text(colour="black"),
         axis.text.x = element_text(angle = 90)) +
   xlab("Region") +
-  ylab("Mean Change in Juvenile Density/Year")
+  ylab(expression("Mean"~Delta~"Juvenile Density/Year"))
+
   #geom_text(data=jcd_sumR,aes(x=ANALYSIS_YEAR,y=jcdMEAN+jcdSE,label=jcd_sumR$sig, group = REGION),
             #position = position_dodge(),
             #vjust = -0.5)
@@ -731,7 +750,7 @@ p10 <- ggplot(delta.sumI, aes(x=reorder(ISLAND,-DeltaMEAN), y=DeltaMEAN,fill=REG
         axis.text.y = element_text(colour="black"),
         axis.text.x = element_text(vjust=0,angle = 90)) +
   xlab("Island") +
-  ylab("Mean Change in Juvenile Density/Year")
+  ylab(expression("Mean"~Delta~"Juvenile Density/Year"))
 
 p10
 
@@ -758,7 +777,7 @@ p11 <- ggplot(test, aes(x=ISLAND, y=DeltaMEAN,color=REGION)) +
   #coord_flip() +
   geom_hline(yintercept=0, color = "black")+
   xlab("Island") +
-  ylab("Mean Change in Juvenile Density/Year")
+  ylab(expression("Mean"~Delta~"Juvenile Density/Year"))
 
 p11
 
@@ -794,7 +813,7 @@ p12 <- ggplot(delta.sumD, aes(x=REGION, y=DeltaMEAN,fill=DEPTH_BIN)) +
         axis.text.y = element_text(colour="black"),
         axis.text.x = element_text(angle = 90)) +
   xlab("Region") +
-  ylab("Mean Change in Juvenile Density/Year")
+  ylab(expression("Mean"~Delta~"Juvenile Density/Year"))
 #geom_text(data=jcd_sumR,aes(x=ANALYSIS_YEAR,y=jcdMEAN+jcdSE,label=jcd_sumR$sig, group = REGION),
 #position = position_dodge(),
 #vjust = -0.5)
@@ -812,17 +831,17 @@ p13 <- ggplot(deltaden_lat, aes(x=LATITUDE, y=DeltaDen,color=DeltaDen)) +
         strip.background = element_blank(),
         strip.placement = "outside",
         strip.text = element_text(size = 12),
-        #legend.position = "none",
+        legend.position = "bottom",
         axis.line = element_line(color = "black"),
         text = element_text(size = 12),
         axis.text.y = element_text(colour="black"),
         axis.text.x = element_text(vjust=0,angle = 90)) +
-  scale_color_gradient2(name="Delta Density/Year",midpoint = 0, low = "firebrick4", mid = "white",
+  scale_color_gradient2(name=expression(Delta~"Density/Year"),midpoint = 0, low = "firebrick4", mid = "white",
                         high = "royalblue4", space = "Lab" )+
 coord_flip() +
   geom_hline(yintercept=0, color = "black")+
   xlab("Latitude") +
-  ylab("Mean Change in Juvenile Density/Year")
+  ylab(expression("Mean"~Delta~"Juvenile Density/Year"))
 
 p13
 
@@ -837,13 +856,15 @@ ggsave(plot=p2,file="C:/Users/Courtney.S.Couch/Documents/Courtney's Files/R File
 ggsave(plot=p3,file="C:/Users/Courtney.S.Couch/Documents/Courtney's Files/R Files/ESD/Juvenile Project/Figures/Density_REGION_DEPTH_points.pdf",width=8,height=6)
 ggsave(plot=p4,file="C:/Users/Courtney.S.Couch/Documents/Courtney's Files/R Files/ESD/Juvenile Project/Figures/Density_DEPTH_REGION__points.pdf",width=8,height=6)
 ggsave(plot=p5,file="C:/Users/Courtney.S.Couch/Documents/Courtney's Files/R Files/ESD/Juvenile Project/Figures/Density_REGION__points.pdf",width=8,height=6)
+ggsave(plot=p5.5,file="C:/Users/Courtney.S.Couch/Documents/Courtney's Files/R Files/ESD/Juvenile Project/Figures/Density_REGION__loess_CI.pdf",width=8,height=6)
+
 ggsave(plot=p7,file="C:/Users/Courtney.S.Couch/Documents/Courtney's Files/R Files/ESD/Juvenile Project/Figures/Density_Year_Bar_bleaching.pdf",width=9,height=6)
 ggsave(plot=p8,file="C:/Users/Courtney.S.Couch/Documents/Courtney's Files/R Files/ESD/Juvenile Project/Figures/Density_Year_Bar.pdf",width=9,height=6)
 ggsave(plot=p9,file="C:/Users/Courtney.S.Couch/Documents/Courtney's Files/R Files/ESD/Juvenile Project/Figures/DeltaDensity_Region.pdf",width=9,height=6)
 ggsave(plot=p10,file="C:/Users/Courtney.S.Couch/Documents/Courtney's Files/R Files/ESD/Juvenile Project/Figures/DeltaDensity_island.pdf",width=9,height=6)
 ggsave(plot=p11,file="C:/Users/Courtney.S.Couch/Documents/Courtney's Files/R Files/ESD/Juvenile Project/Figures/DeltaDensity_island_lolliop.pdf",width=9,height=6)
 ggsave(plot=p12,file="C:/Users/Courtney.S.Couch/Documents/Courtney's Files/R Files/ESD/Juvenile Project/Figures/DeltaDensity_RegionDepth.pdf",width=9,height=6)
-ggsave(plot=p13,file="C:/Users/Courtney.S.Couch/Documents/Courtney's Files/R Files/ESD/Juvenile Project/Figures/DeltaDensity_latitude_lolliop.pdf",width=9,height=6)
+ggsave(plot=p13,file="C:/Users/Courtney.S.Couch/Documents/Courtney's Files/R Files/ESD/Juvenile Project/Figures/DeltaDensity_latitude_lolliop.pdf",width=6,height=6)
 
 
 
@@ -910,50 +931,52 @@ print(fit.MS2, digits=4)
 
 mod<-lmer(logDen~1+(1|ANALYSIS_SCHEMA/DOMAIN_SCHEMA/REGION/OBS_YEAR),data=S)
 summary(mod)
-mod1 <- lmer(logDen~YEAR*REGION+(1|Sector),data=jcdG_stS)
 
-mod2 <- lmer(logDen~YEAR+(1|Sector),data=jcdG_stS)
-mod3 <- lmer(logDen~REGION+(1|Sector),data=jcdG_stS)
+jcdG_stS$ANALYSIS_YEAR<-as.factor(jcdG_stS$ANALYSIS_YEAR)
+mod1 <- lmer(logDen~ANALYSIS_YEAR*REGION+(1|ISLAND/Sector),data=jcdG_stS)
+
+mod2 <- lmer(logDen~ANALYSIS_YEAR+(1|ISLAND/Sector),data=jcdG_stS)
+mod3 <- lmer(logDen~REGION+(1|ISLAND/Sector),data=jcdG_stS)
 
 modnull <- lmer(logDen~1+(1|Sector),data=jcdG_stS)
-anova(mod1,mod2,test="chisq")
-anova(mod1,mod3,test="chisq")
 anova(mod1,modnull,test="chisq")
+anova(modnull,mod3,test="chisq")
+anova(mod2,modnull, test="chisq")
+
+#emmeans(mod1,list(pairwise~ANALYSIS_YEAR+REGION),adjust="Tukey")
 
 #Test for differences between Years for each region
 #MHI
-mod1 <- lmer(logDen~YEAR+(1|Sector),data=subset(jcdG_stS,REGION=="MHI"))
-# lsmo <-lsmeans :: lsmeans (mod1, ~ YEAR , adjust = "Tukey") #This is bullshit- don't use lsmeans it says everything is signficant
-# lsmo
-summary(glht(mod1, linfct = mcp(YEAR = "Tukey"))) #this works!
+mod1 <- lmer(logDen~ANALYSIS_YEAR+(1|ISLAND/Sector),data=subset(jcdG_stS,REGION=="MHI"))
+summary(glht(mod1, linfct = mcp(ANALYSIS_YEAR = "Tukey"))) #this works!
 
 #NWHI
-mod1 <- lmer(logDen~YEAR+(1|Sector),data=subset(jcdG_stS,REGION=="NWHI"))
-summary(glht(mod1, linfct = mcp(YEAR = "Tukey"))) #this works!
+mod1 <- lmer(logDen~ANALYSIS_YEAR+(1|Sector),data=subset(jcdG_stS,REGION=="NWHI"))
+summary(glht(mod1, linfct = mcp(ANALYSIS_YEAR = "Tukey"))) #this works!
 
 #PHOENIX
 modnull <- lmer(logDen~1+(1|Sector),data=subset(jcdG_stS,REGION=="PHOENIX"))
-mod1 <- lmer(logDen~YEAR+(1|Sector),data=subset(jcdG_stS,REGION=="PHOENIX"))
+mod1 <- lmer(logDen~ANALYSIS_YEAR+(1|Sector),data=subset(jcdG_stS,REGION=="PHOENIX"))
 anova(mod1,modnull,test="chisq")
 
 #LINE
 modnull <- lmer(logDen~1+(1|Sector),data=subset(jcdG_stS,REGION=="LINE"))
-mod1 <- lmer(logDen~YEAR+(1|Sector),data=subset(jcdG_stS,REGION=="LINE"))
+mod1 <- lmer(logDen~ANALYSIS_YEAR+(1|Sector),data=subset(jcdG_stS,REGION=="LINE"))
 anova(mod1,modnull,test="chisq")
 
 #Samoa
 modnull <- lmer(logDen~1+(1|Sector),data=subset(jcdG_stS,REGION=="SAMOA"))
-mod1 <- lmer(logDen~YEAR+(1|Sector),data=subset(jcdG_stS,REGION=="SAMOA"))
+mod1 <- lmer(logDen~ANALYSIS_YEAR+(1|Sector),data=subset(jcdG_stS,REGION=="SAMOA"))
 anova(mod1,modnull,test="chisq")
 
 #SMARIAN
 modnull <- lmer(logDen~1+(1|Sector),data=subset(jcdG_stS,REGION=="SMARIAN"))
-mod1 <- lmer(logDen~YEAR+(1|Sector),data=subset(jcdG_stS,REGION=="SMARIAN"))
+mod1 <- lmer(logDen~ANALYSIS_YEAR+(1|Sector),data=subset(jcdG_stS,REGION=="SMARIAN"))
 anova(mod1,modnull,test="chisq")
 
 #NMARIAN
 modnull <- lmer(logDen~1+(1|Sector),data=subset(jcdG_stS,REGION=="NMARIAN"))
-mod1 <- lmer(logDen~YEAR+(1|Sector),data=subset(jcdG_stS,REGION=="NMARIAN"))
+mod1 <- lmer(logDen~ANALYSIS_YEAR+(1|Sector),data=subset(jcdG_stS,REGION=="NMARIAN"))
 anova(mod1,modnull,test="chisq")
 
 
