@@ -22,9 +22,9 @@ t2<-ddply(j_sfm,.(SITE,SEGMENT),summarize,n=length(unique(ANALYST)))
 t1
 t2
 
-#We are missing some annotator data from seg HAW-4294 5 and 10, remove these for now.
-ad_sfm<-subset(ad_sfm,SITE != c("HAW-04294"))
-j_sfm<-subset(j_sfm,SITE != "HAW-04294")
+# #We are missing some annotator data from seg HAW-4294 5 and 10, remove these for now.
+# ad_sfm<-subset(ad_sfm,SITE != c("HAW-04294"))
+# j_sfm<-subset(j_sfm,SITE != "HAW-04294")
 
 
 ###FOR CALIBRATION: Use this script to assign transect
@@ -81,9 +81,23 @@ SURVEY_SITE<-c("METHOD","SITEVISITID", "OBS_YEAR", "REGION", "ISLAND","SEC_NAME"
                "DEPTH_BIN", "LATITUDE", "LONGITUDE","MIN_DEPTH_M","MAX_DEPTH_M")
 survey_site<-unique(ad_sfm[,SURVEY_SITE])
 
-SURVEY_Seg<-c("METHOD","SITEVISITID", "OBS_YEAR", "REGION", "ISLAND","SEC_NAME", "SITE", "REEF_ZONE",
+SURVEY<-c("METHOD","SITEVISITID", "OBS_YEAR", "REGION", "ISLAND","SEC_NAME", "SITE", "REEF_ZONE",
               "DEPTH_BIN","HABITAT_CODE", "LATITUDE", "LONGITUDE","MIN_DEPTH_M","MAX_DEPTH_M","METHOD","TRANSECT","SEGMENT")
-survey_segment<-unique(ad_sfm[,SURVEY_Seg])
+surveyment<-unique(ad_sfm[,SURVEY])
+
+
+#Double check that the number of segments in the geodatabase matches what annoators said they completed 
+#metadata file manually assembled from the tracking sheet pulled from google drive 
+meta<-read.csv("C:/Users/Courtney.S.Couch/Documents/GitHub/Benthic-Scripts/SfM/Method Comparision/HARAMP2019_SfM_Meta.csv")
+meta<-meta[,c("REGION","ISLAND","SITE","Mosaic_Issues","Segments_Annotated","Rugosity")]
+head(meta)
+
+seg_tally<-ddply(surveyment,.(REGION,ISLAND,SITE),
+                 summarize,
+                 Segments_Annotated=length(unique(SEGMENT)))
+
+miss.seg<-anti_join(seg_tally, meta, by="Segments_Annotated") #identify number of segments that don't match in geodatabase vs. tracking sheet
+
 
 #Combine juvenile and adult data
 aj_sfm<-full_join(ad_sfm,j_sfm) #fixes NA problem
@@ -101,15 +115,6 @@ seglist<-seglist %>% filter(seglist$SfM_1!=0);dim(seglist)
 seglist<-seglist %>% filter(seglist$SfM_2!=0);dim(seglist)
 #Once filtering is completed, nrow should = 43 (FOR COMPARISON)
 
-write.csv(seglist,file="T:/Benthic/Data/SfM/Calibration QC/Comparison_seglist.csv",row.names = F)
-
-# 
-# #Remove site-segments that are not present among all methods
-# dim(aj_sfm)
-# aj_sfm<-subset(aj_sfm,SS%in%seglist$SS)
-# dim(aj_sfm)
-# length(unique(aj_sfm$SS))
-# table(aj_sfm$SS,aj_sfm$METHOD)
 
 
 
@@ -120,26 +125,26 @@ ad_sfm<-subset(ad_sfm,EX_BOUND==0)
 
 
 #Calc_ColDen_Transect
-acd.gen<-Calc_ColDen_Seg(data = ad_sfm,grouping_field = "GENUS_CODE");colnames(acd.gen)[colnames(acd.gen)=="ColCount"]<-"AdColCount";colnames(acd.gen)[colnames(acd.gen)=="ColDen"]<-"AdColDen";colnames(acd.gen)[colnames(acd.gen)=="SEGAREA"]<-"SEGAREA_ad"# calculate density at genus level as well as total
-jcd.gen<-Calc_ColDen_Seg(j_sfm,"GENUS_CODE"); colnames(jcd.gen)[colnames(jcd.gen)=="ColCount"]<-"JuvColCount";colnames(jcd.gen)[colnames(jcd.gen)=="ColDen"]<-"JuvColDen"
+acd.gen<-Calc_ColDen(data = ad_sfm,grouping_field = "GENUS_CODE");colnames(acd.gen)[colnames(acd.gen)=="ColCount"]<-"AdColCount";colnames(acd.gen)[colnames(acd.gen)=="ColDen"]<-"AdColDen";colnames(acd.gen)[colnames(acd.gen)=="SEGAREA"]<-"SEGAREA_ad"# calculate density at genus level as well as total
+jcd.gen<-Calc_ColDen(j_sfm,"GENUS_CODE"); colnames(jcd.gen)[colnames(jcd.gen)=="ColCount"]<-"JuvColCount";colnames(jcd.gen)[colnames(jcd.gen)=="ColDen"]<-"JuvColDen"
 jcd.gen<-subset(jcd.gen,select=-c(SEGAREA))
 
 
 ## This function calculates mean colony length, % recent dead, % old dead, condition severity or condition extent to the segment level
 ## NOTE: can run both adult & juvenile data with this function for COLONYLENGTH
 #c("COLONYLENGTH","RDEXTENT1", "RDEXTENT2", "RDEXTENT3", "OLDDEAD","SEVERITY_1","SEVERITY_2", "SEVERITY_3", "EXTENT_1", "EXTENT_2", "EXTENT_3")
-cl.gen<-Calc_ColMetric_Seg(data = ad_sfm,grouping_field = "GENUS_CODE",pool_fields = "COLONYLENGTH"); colnames(cl.gen)[colnames(cl.gen)=="Ave.y"]<-"Ave.cl" #Average % old dead
-od.gen<-Calc_ColMetric_Seg(data = ad_sfm,grouping_field = "GENUS_CODE",pool_fields = "OLDDEAD"); colnames(od.gen)[colnames(od.gen)=="Ave.y"]<-"Ave.od" #Average % old dead
-rd.gen<-Calc_ColMetric_Seg(data = ad_sfm,grouping_field = "GENUS_CODE",pool_fields = c("RDEXTENT1", "RDEXTENT2","RDEXTENT3")); colnames(rd.gen)[colnames(rd.gen)=="Ave.y"]<-"Ave.rd" #Average % recent dead
+cl.gen<-Calc_ColMetric(data = ad_sfm,grouping_field = "GENUS_CODE",pool_fields = "COLONYLENGTH"); colnames(cl.gen)[colnames(cl.gen)=="Ave.y"]<-"Ave.cl" #Average % old dead
+od.gen<-Calc_ColMetric(data = ad_sfm,grouping_field = "GENUS_CODE",pool_fields = "OLDDEAD"); colnames(od.gen)[colnames(od.gen)=="Ave.y"]<-"Ave.od" #Average % old dead
+rd.gen<-Calc_ColMetric(data = ad_sfm,grouping_field = "GENUS_CODE",pool_fields = c("RDEXTENT1", "RDEXTENT2","RDEXTENT3")); colnames(rd.gen)[colnames(rd.gen)=="Ave.y"]<-"Ave.rd" #Average % recent dead
 
 
 #Calc_RDden_Transect
-rdden.gen<-Calc_RDden_Seg(data=ad_sfm,grouping_field ="GENUS_CODE") # Density of recent dead colonies by condition, you will need to subset which ever condition you want. The codes ending in "S" are the general categories
+rdden.gen<-Calc_RDden(data=ad_sfm,grouping_field ="GENUS_CODE") # Density of recent dead colonies by condition, you will need to subset which ever condition you want. The codes ending in "S" are the general categories
 acutedz.gen<-subset(rdden.gen,select = c(METHOD,SITEVISITID,SITE,TRANSECT,SEGMENT,GENUS_CODE,DZGN_G));colnames(acutedz.gen)[colnames(acutedz.gen)=="DZGN_G"]<-"DZGN_G_den" #subset just acute diseased colonies
 
 
 #Calc_CONDden_Transect
-condden.gen<-Calc_CONDden_Seg(data=ad_sfm,grouping_field ="GENUS_CODE")# Density of condition colonies by condition, you will need to subset which ever condition you want
+condden.gen<-Calc_CONDden(data=ad_sfm,grouping_field ="GENUS_CODE")# Density of condition colonies by condition, you will need to subset which ever condition you want
 ble.gen<-subset(condden.gen,select = c(METHOD,SITEVISITID,SITE,TRANSECT,SEGMENT,GENUS_CODE,BLE));colnames(ble.gen)[colnames(ble.gen)=="BLE"]<-"BLE_den" #subset just bleached colonies
 chronicdz.gen<-subset(condden.gen,select = c(METHOD,SITEVISITID,SITE,TRANSECT,SEGMENT,GENUS_CODE,CHRO));colnames(chronicdz.gen)[colnames(chronicdz.gen)=="CHRO"]<-"CHRO_den" #subset just chronic diseased colonies
 
@@ -180,10 +185,13 @@ t1<-t1%>%filter(t1$SfM_2!=0);dim(t1)
 
 
 #Make final dataframe to save
-data.gen2<-left_join(data.gen,survey_segment)
+data.gen2<-left_join(data.gen,surveyment)
 if(nrow(data.gen)!=nrow(data.gen2)) {cat("WARNING: Dfs didn't merge properly")}
 
-#Save file for segment calibration
+#Save file for method comparsion
 write.csv(data.gen,file="T:/Benthic/Data/SfM/Calibration QC/HARAMP_repeats_GENUS_Summarized Data-CALIBRATION.csv",row.names = F)
 
+write.csv(jwd,file="C:/Users/Courtney.S.Couch/Documents/GitHub/Benthic-Scripts/SfM/Method Comparision/HARAMP19_SfMGENUS_SITE.csv",row.names = F)
+write.csv(jwd,file="C:/Users/Courtney.S.Couch/Documents/GitHub/Benthic-Scripts/SfM/Method Comparision/HARAMP19_SfMGENUS_STRATA.csv",row.names = F)
+write.csv(jwd,file="C:/Users/Courtney.S.Couch/Documents/GitHub/Benthic-Scripts/SfM/Method Comparision/HARAMP19_SfMGENUS_SECTOR.csv",row.names = F)
 

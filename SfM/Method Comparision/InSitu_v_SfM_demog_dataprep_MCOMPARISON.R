@@ -166,17 +166,20 @@ NegNineCheckCols=c("RDEXTENT1","GENRD1","RD1","RDEXTENT2","GENRD2","RD2","GENRD3
 x[,NegNineCheckCols][x[,NegNineCheckCols]==-9] <- NA #Convert missing numeric values to NA (they are entered as -9 in Oracle)
 
 
-#Make sure that all segments only have 1 annotator
-tmp<-ddply(x,.(SITE,SEGMENT),
-           summarize,
-           n=length(unique(ANNOTATOR)))
-
-st.list2<-subset(st.list,n>=2);head(st.list)
-head(st.list_w4);st.list_w4<-droplevels(st.list_w4) #generate the list
-data.gen_temp<-site.data.gen2[site.data.gen2$STRATANAME %in% c(st.list_w4$STRATANAME),] #Subset data to only include strata of intersest 
-
-
-
+# #Make sure that all segments only have 1 annotator
+# tmp<-ddply(x,.(SITE,SEGMENT),
+#            summarize,
+#            n=length(unique(ANNOTATOR)))
+# 
+# st.list2<-subset(st.list,n>=2);head(st.list)
+# head(st.list_w4);st.list_w4<-droplevels(st.list_w4) #generate the list
+# data.gen_temp<-site.data.gen2[site.data.gen2$STRATANAME %in% c(st.list_w4$STRATANAME),] #Subset data to only include strata of intersest 
+# 
+# #https://stackoverflow.com/questions/45804730/randomly-remove-duplicated-rows-using-dplyr
+# 
+# df1 %>% 
+#   group_by(KEYVARIABLE) %>%
+#   sample_n(1)
 
 
 
@@ -220,7 +223,7 @@ x[is.na(x$CONDITION_3),"CONDITION_3"]<-"NONE"
 head(x)
 
 awd<-droplevels(x)
-write.csv(awd,file="T:/Benthic/Data/SfM/Method Comparison/HARAMP19_SfMAdult_MC_CLEANED.csv",row.names = F)
+write.csv(jwd,file="C:/Users/Courtney.S.Couch/Documents/GitHub/Benthic-Scripts/SfM/Method Comparision/HARAMP19_SfMAdult_CLEANED.csv",row.names = F)
 
 #Check number of Site-Segments that contain at least 2 annotators ----------------------------------------------------
 analyst.per.ss<-x %>% filter(ANALYST=="RS" | ANALYST=="MW" | ANALYST=="MA")
@@ -354,7 +357,7 @@ x[,NegNineCheckCols][x[,NegNineCheckCols] ==-9] <- NA #Convert missing numeric v
 
 
 jwd<-droplevels(x)
-write.csv(jwd,file="T:/Benthic/Data/SfM/Calibration QC/HARAMP19_SfMJuv_CLEANED.csv",row.names = F)
+write.csv(jwd,file="C:/Users/Courtney.S.Couch/Documents/GitHub/Benthic-Scripts/SfM/Method Comparision/HARAMP19_SfMJuv_CLEANED.csv",row.names = F)
 
 #Check number of Site-Segments that contain at least 2 divers ----------------------------------------------------
 analyst.per.ss <- ddply(x,.(SITE, SEGMENT), summarize, num.analyst = n_distinct(ANALYST))
