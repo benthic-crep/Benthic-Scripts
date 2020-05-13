@@ -1,3 +1,6 @@
+#This script cleans and prepared the SfM-generated data from the full set of method comparision sites from RAMP
+#The data you read into this script is the exported Arc geodatabase that has already been QC'd. 
+#A number columns need to be added or modified to follow the format of the REA deomographic data from Oracle
 
 rm(list=ls())
 
@@ -14,7 +17,7 @@ source("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/lib/GIS_functions.
 
 
 # SFM/ADULT: CLEAN ANALYSIS READY DATA ----------------------------------------------------
-df<-read.csv("T:/Benthic/Data/SfM/Comparision/HARAMP2019_QCdsfm_ADULT.csv")
+df<-read.csv("T:/Benthic/Data/SfM/Method Comparison/HARAMP2019_QCdsfm_ADULT.csv")
 
 x<-df
 head(x)
@@ -77,8 +80,7 @@ nrow(df);nrow(x) #make sure rows weren't dropped
 
 #SfM/ADULT: Merge Adult data and  SURVEY MASTER  -------------------------------------
 survey_master<-read.csv("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/data/SURVEY MASTER.csv")
-# setwd("C:/Users/Corinne.Amir/Documents/GitHub/Benthic-Scripts/SfM")
-# survey_master <- read.csv("SURVEY MASTER.csv")
+# survey_master <- read.csv("C:/Users/Corinne.Amir/Documents/GitHub/Benthic-Scripts/SfM/SURVEY MASTER.csv")
 
 colnames(survey_master)[colnames(survey_master)=="LATITUDE_SV"]<-"LATITUDE" #Change column name
 colnames(survey_master)[colnames(survey_master)=="LONGITUDE_SV"]<-"LONGITUDE" #Change column name
@@ -164,6 +166,20 @@ NegNineCheckCols=c("RDEXTENT1","GENRD1","RD1","RDEXTENT2","GENRD2","RD2","GENRD3
 x[,NegNineCheckCols][x[,NegNineCheckCols]==-9] <- NA #Convert missing numeric values to NA (they are entered as -9 in Oracle)
 
 
+#Make sure that all segments only have 1 annotator
+tmp<-ddply(x,.(SITE,SEGMENT),
+           summarize,
+           n=length(unique(ANNOTATOR)))
+
+st.list2<-subset(st.list,n>=2);head(st.list)
+head(st.list_w4);st.list_w4<-droplevels(st.list_w4) #generate the list
+data.gen_temp<-site.data.gen2[site.data.gen2$STRATANAME %in% c(st.list_w4$STRATANAME),] #Subset data to only include strata of intersest 
+
+
+
+
+
+
 #SfM/ADULT: Clean up NAs ------------------------------------------------------------
 tmp.lev<-levels(x$GENRD1); tmp.lev
 levels(x$GENRD1)<-c(tmp.lev, "NONE") # change to NONE
@@ -204,7 +220,7 @@ x[is.na(x$CONDITION_3),"CONDITION_3"]<-"NONE"
 head(x)
 
 awd<-droplevels(x)
-write.csv(awd,file="T:/Benthic/Data/SfM/Calibration QC/HARAMP19_SfMAdult_CLEANED.csv",row.names = F)
+write.csv(awd,file="T:/Benthic/Data/SfM/Method Comparison/HARAMP19_SfMAdult_MC_CLEANED.csv",row.names = F)
 
 #Check number of Site-Segments that contain at least 2 annotators ----------------------------------------------------
 analyst.per.ss<-x %>% filter(ANALYST=="RS" | ANALYST=="MW" | ANALYST=="MA")
@@ -214,7 +230,7 @@ analyst.per.ss <- filter(analyst.per.ss, num.analyst>1)
 
 
 # SFM/JUVENILE: CLEAN ANALYSIS READY DATA -------------------------------------
-df<-read.csv("T:/Benthic/Data/SfM/Calibration QC/HARAMP2019_QCdsfm_JUV.csv") #851 rows
+df<-read.csv("T:/Benthic/Data/SfM/Method Comparison/HARAMP2019_QCdsfm_JUV.csv") #851 rows
 
 x<-df
 head(x)
