@@ -17,7 +17,7 @@ source("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/lib/GIS_functions.
 
 
 # SFM/ADULT: CLEAN ANALYSIS READY DATA ----------------------------------------------------
-df<-read.csv("T:/Benthic/Data/SfM/Method Comparison/HARAMP2019_QCdsfm_ADULT.csv")
+df<-read.csv("C:/Users/Courtney.S.Couch/Documents/GitHub/Benthic-Scripts/SfM/Method Comparision/HARAMP2019_v2_output_may132020.csv")
 
 x<-df
 head(x)
@@ -32,23 +32,36 @@ colnames(x)[colnames(x)=="RD_2"]<-"RDEXTENT2" #Change column name
 colnames(x)[colnames(x)=="RD_3"]<-"RDEXTENT3" #Change column name
 colnames(x)[colnames(x)=="RDCAUSE2"]<-"RD2" #Change column name
 colnames(x)[colnames(x)=="RDCAUSE3"]<-"RD3" #Change column name
-colnames(x)[colnames(x)=="FRAGMENT_Y"]<-"Fragment" #Change column name
+colnames(x)[colnames(x)=="FRAGMENT"]<-"Fragment" #Change column name
 colnames(x)[colnames(x)=="CON_1"]<-"CONDITION_1" #Change column name
 colnames(x)[colnames(x)=="CON_2"]<-"CONDITION_2" #Change column name
 colnames(x)[colnames(x)=="CON_3"]<-"CONDITION_3" #Change column name
 colnames(x)[colnames(x)=="SEV_1"]<-"SEVERITY_1" #Change column name
 colnames(x)[colnames(x)=="SEV_2"]<-"SEVERITY_2" #Change column name
 colnames(x)[colnames(x)=="SEV_3"]<-"SEVERITY_3" #Change column name
-colnames(x)[colnames(x)=="SHAPE_Leng"]<-"COLONYLENGTH" #Change column name
+colnames(x)[colnames(x)=="Shape_Leng"]<-"COLONYLENGTH" #Change column name
 colnames(x)[colnames(x)=="FID"]<-"COLONYID" #Change column name
 
+#COLONYID HAS DUPLICATES-temporary workaround
+x$COLONYID<-c(1:length(x$COLONYID));head(x)
 
 #Add column for method type
 x$METHOD<-"SfM"
 
 if(DEBUG){head(x)}
 
+#Subset just the Adult data
+x<-subset()
+
+
+
+#Take a look at who annotated sites and double check that repeat segments aren't included
+#Note:NII-02584 was split by Mollie and Rhonda- make sure to include both annotator's data
 table(x$SITE,x$ANALYST)
+tmp<-ddply(x,.(ANALYST),
+           summarize,
+           n=length(unique(SITE)))
+tmp$prop<-tmp$n/90*100 #% of sites that each annotator annoated
 
 
 #SfM/ADULT: Adding and Modifying columns --------------------------------------------
@@ -56,17 +69,23 @@ table(x$SITE,x$ANALYST)
 #Fill in columns with values that we know should not be different across any of the rows
 x$OBS_YEAR <- as.vector(rep(2019, times = nrow(x)))
 x$COLONYLENGTH<-x$COLONYLENGTH*100 #convert from m to cm
-x$S_ORDER<-ifelse(x$NO_COLONY_==0 & x$SPCODE!="NONE","Scleractinia","NONE") #add S_order column
+x$S_ORDER<-ifelse(x$NO_COLONY==0 & x$SPCODE!="NONE","Scleractinia","NONE") #add S_order column
 
-#I manually removed the bleaching severity 1 colonies - ifelse wasn't working
+#Change bleaching severity = 1 to NA
+x[x$CONDITION_1 =="BLE" & x$SEVERITY_1=="1", 24:26] <- NA
+subset(x,CONDITION_1=="BLE")
+x[x$CONDITION_2 =="BLE" & x$SEVERITY_2=="1", 27:29] <- NA
+subset(x,CONDITION_2=="BLE")
+x[x$CONDITION_3 =="BLE" & x$SEVERITY_3=="1", 30:32] <- NA
+subset(x,CONDITION_3=="BLE")
 
 #Create Genuscode and taxonname column from spcode
-genlookup<-read.csv("T:/Benthic/Data/SpGen_Reference/Genus_lookup.csv")
+genlookup<-read.csv("T:/Benthic/Data/Lookup Tables/Genus_lookup.csv")
 x<-CreateGenusCode(x,genlookup) 
 head(x)
 
 #Generate General RD cause code
-gencodes<-read.csv("T:/Benthic/Data/SpGen_Reference/GeneralRDcode_lookup.csv")
+gencodes<-read.csv("T:/Benthic/Data/Lookup Tables/GeneralRDcode_lookup.csv")
 head(x)
 levels(x$RD1)
 
@@ -87,7 +106,7 @@ colnames(survey_master)[colnames(survey_master)=="LONGITUDE_SV"]<-"LONGITUDE" #C
 
 
 x<-left_join(x,survey_master[,c("REGION","OBS_YEAR","ISLAND","SITEVISITID","SITE","SEC_NAME",
-                            "REEF_ZONE","DEPTH_BIN","HABITAT_CODE","LATITUDE","LONGITUDE","MIN_DEPTH_M","MAX_DEPTH_M")],by=c("OBS_YEAR","SITE"))
+                            "REEF_ZONE","DEPTH_BIN","HABITAT_CODE","LATITUDE","LONGITUDE","MIN_DEPTH_M","MAX_DEPTH_M")])
 
 head(x)
 nrow(x)
@@ -95,10 +114,10 @@ nrow(x)
 
 #SfM/ADULT: Assign TAXONCODE --------------------------------------------------------
 #read in list of taxa that we feel comfortable identifying to species or genus level. Note, taxa lists vary by year and region. This will need to be updated through time.
-taxa<-read.csv("T:/Benthic/Data/SpGen_Reference/2013-19_Taxa_MASTER.csv")
+taxa<-read.csv("T:/Benthic/Data/Lookup Tables/2013-20_Taxa_MASTER.csv")
 taxa$OBS_YEAR<-as.numeric(as.character(taxa$OBS_YEAR))
 
-x$SPCODE<-ifelse(x$NO_COLONY_==-1,"AAAA",as.character(x$SPCODE)) 
+x$SPCODE<-ifelse(x$NO_COLONY==-1,"AAAA",as.character(x$SPCODE)) 
 
 
 #Convert SPCODE in raw colony data to TAXONCODE -generates a look up table
@@ -143,6 +162,10 @@ head(subset(x,GENUS_CODE=="AAAA"))
 head(subset(x,SPCODE=="AAAA"))
 
 
+test<-subset(x,SPCODE=="UNKN")
+table(test$ANALYST) # look at who has unknowns- go back to the imagery to double check ID
+write.csv(test,"unknowns_to_check.csv")
+
 #In order to record no colonies observed in a segment, we need to create a small colony on the image.This code removes that size measure
 x$COLONYLENGTH<-ifelse(x$SPCODE=="AAAA",0,as.character(x$COLONYLENGTH))
 
@@ -164,23 +187,6 @@ NegNineCheckCols=c("RDEXTENT1","GENRD1","RD1","RDEXTENT2","GENRD2","RD2","GENRD3
                    "RDEXTENT3","CONDITION_1","CONDITION_2","CONDITION_3","EXTENT_1","EXTENT_2","EXTENT_3","SEVERITY_1",
                    "SEVERITY_2","SEVERITY_3","GENUS_CODE","S_ORDER")
 x[,NegNineCheckCols][x[,NegNineCheckCols]==-9] <- NA #Convert missing numeric values to NA (they are entered as -9 in Oracle)
-
-
-# #Make sure that all segments only have 1 annotator
-# tmp<-ddply(x,.(SITE,SEGMENT),
-#            summarize,
-#            n=length(unique(ANNOTATOR)))
-# 
-# st.list2<-subset(st.list,n>=2);head(st.list)
-# head(st.list_w4);st.list_w4<-droplevels(st.list_w4) #generate the list
-# data.gen_temp<-site.data.gen2[site.data.gen2$STRATANAME %in% c(st.list_w4$STRATANAME),] #Subset data to only include strata of intersest 
-# 
-# #https://stackoverflow.com/questions/45804730/randomly-remove-duplicated-rows-using-dplyr
-# 
-# df1 %>% 
-#   group_by(KEYVARIABLE) %>%
-#   sample_n(1)
-
 
 
 #SfM/ADULT: Clean up NAs ------------------------------------------------------------
@@ -223,13 +229,7 @@ x[is.na(x$CONDITION_3),"CONDITION_3"]<-"NONE"
 head(x)
 
 awd<-droplevels(x)
-write.csv(jwd,file="C:/Users/Courtney.S.Couch/Documents/GitHub/Benthic-Scripts/SfM/Method Comparision/HARAMP19_SfMAdult_CLEANED.csv",row.names = F)
-
-#Check number of Site-Segments that contain at least 2 annotators ----------------------------------------------------
-analyst.per.ss<-x %>% filter(ANALYST=="RS" | ANALYST=="MW" | ANALYST=="MA")
-analyst.per.ss$ANALYST<-droplevels(analyst.per.ss$ANALYST)
-analyst.per.ss <- ddply(x,.(SITE, SEGMENT), summarize, num.analyst = n_distinct(ANALYST))
-analyst.per.ss <- filter(analyst.per.ss, num.analyst>1) 
+write.csv(awd,file="C:/Users/Courtney.S.Couch/Documents/GitHub/Benthic-Scripts/SfM/Method Comparision/HARAMP19_SfMAdult_CLEANED.csv",row.names = F)
 
 
 # SFM/JUVENILE: CLEAN ANALYSIS READY DATA -------------------------------------
