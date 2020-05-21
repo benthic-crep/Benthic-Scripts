@@ -7,61 +7,38 @@ rm(list=ls())
 source("C:/Users/Courtney.S.Couch/Documents/GitHub/Benthic-Scripts/Functions/Benthic_Functions_newApp_vTAOfork.R")
 source("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/lib/core_functions.R")
 source("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/lib/GIS_functions.R")
-# source("C:/Users/Corinne.Amir/Documents/GitHub/Benthic-Scripts/Functions/Benthic_Functions_newApp_vTAOfork.R")
-# source("C:/Users/Corinne.Amir/Documents/GitHub/fish-paste/lib/core_functions.R")
-# source("C:/Users/Corinne.Amir/Documents/GitHub/fish-paste/lib/GIS_functions.R")
 
 #Read in files
-ad_sfm<-read.csv("T:/Benthic/Data/SfM/Method Comparison/HARAMP19_SfMAdult_MCLEANED.csv")
-j_sfm<-read.csv("T:/Benthic/Data/SfM/Method Comparison/HARAMP19_SfMJuv_MCLEANED.csv") 
+ad_sfm<-read.csv("C:/Users/Courtney.S.Couch/Documents/GitHub/Benthic-Scripts/SfM/Method Comparision/HARAMP19_SfMAdult_MCLEANED.csv")
+j_sfm<-read.csv("C:/Users/Courtney.S.Couch/Documents/GitHub/Benthic-Scripts/SfM/Method Comparision/HARAMP19_SfMJuv_MCLEANED.csv") 
+sectors<-read.csv("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/data/Sectors-Strata-Areas.csv", stringsAsFactors=FALSE)
+
+#TEMPORARILY REMOVE ARI'S DATA BECAUSE ISN'T COMPLETE
+ad_sfm<-subset(ad_sfm,ANALYST!="AH")
+j_sfm<-subset(ad_sfm,ANALYST!="AH")
+
+#Double check that the number of segments in the geodatabase matches what annoators said they completed 
+#metadata file manually assembled from the tracking sheet pulled from google drive 
+meta<-read.csv("C:/Users/Courtney.S.Couch/Documents/GitHub/Benthic-Scripts/SfM/Method Comparision/HARAMP2019_SfM_Meta.csv")
+meta<-meta[,c("REGION","ISLAND","SITE","Mosaic_Issues","Segments_Annotated","Rugosity")]
+head(meta)
+
+#Missing segments from geodatabase
+seg_tally<-ddply(ad_sfm,.(REGION,ISLAND,SITE),
+                 summarize,
+                 Segments_Annotated=length(unique(SEGMENT)))
+
+miss.seg<-anti_join(seg_tally, meta, by="Segments_Annotated") #identify number of segments that don't match in geodatabase vs. tracking sheet
 
 
-#Check number of unique site-segments
-t1<-ddply(ad_sfm,.(SITE,SEGMENT),summarize,n=length(unique(ANALYST)))
-t2<-ddply(j_sfm,.(SITE,SEGMENT),summarize,n=length(unique(ANALYST)))
-t1
-t2
+gd.list<-unique(ad_sfm$SITE)
+meta.list<-unique(meta$SITE)
 
-# #We are missing some annotator data from seg HAW-4294 5 and 10, remove these for now.
-# ad_sfm<-subset(ad_sfm,SITE != c("HAW-04294"))
-# j_sfm<-subset(j_sfm,SITE != "HAW-04294")
-
-
-###FOR CALIBRATION: Use this script to assign transect
-#Create Transect column and use this to code duplicate segments
-ad_sfm<-ad_sfm %>% mutate(TRANSECT=recode(ANALYST,
-                                        `MA`="1",
-                                        `RS`="2",
-                                        `MW`="2",
-                                        `CA`="3",
-                                        `ML`="4",
-                                        `FL`="5",
-                                        `AH`="6",
-                                        `NA`="NA"))
-#Check that segments were changed correctly
-ad_sfm<-droplevels(ad_sfm)
-table(ad_sfm$SITE,ad_sfm$TRANSECT)
-
-#Create Transect column and use this to code duplicate segments
-j_sfm<-j_sfm %>% mutate(TRANSECT=recode(ANALYST,
-                                          `MA`="1",
-                                          `RS`="2",
-                                          `MW`="2",
-                                          `CA`="3",
-                                          `ML`="4",
-                                          `FL`="5",
-                                          `AH`="6",
-                                          `NA`="NA"))
-#Check that segments were changed correctly
-j_sfm<-droplevels(j_sfm)
-table(j_sfm$SITE,j_sfm$TRANSECT)
+miss.site<-anti_join(meta.list,gd.list, by="SITE") #identify number of segments that don't match in geodatabase vs. tracking sheet
 
 
 
 
-##Calcuate segment and transect area and add column for transect area
-ad_sfm$MISSIONID<-"SE1902"
-j_sfm$MISSIONID<-"SE1902"
 
 ad_sfm$TRANSECTAREA<-Transectarea(ad_sfm)
 j_sfm$TRANSECTAREA<-Transectarea(j_sfm)
@@ -86,67 +63,41 @@ SURVEY<-c("METHOD","SITEVISITID", "OBS_YEAR", "REGION", "ISLAND","SEC_NAME", "SI
 surveyment<-unique(ad_sfm[,SURVEY])
 
 
-#Double check that the number of segments in the geodatabase matches what annoators said they completed 
-#metadata file manually assembled from the tracking sheet pulled from google drive 
-meta<-read.csv("C:/Users/Courtney.S.Couch/Documents/GitHub/Benthic-Scripts/SfM/Method Comparision/HARAMP2019_SfM_Meta.csv")
-meta<-meta[,c("REGION","ISLAND","SITE","Mosaic_Issues","Segments_Annotated","Rugosity")]
-head(meta)
-
-seg_tally<-ddply(surveyment,.(REGION,ISLAND,SITE),
-                 summarize,
-                 Segments_Annotated=length(unique(SEGMENT)))
-
-miss.seg<-anti_join(seg_tally, meta, by="Segments_Annotated") #identify number of segments that don't match in geodatabase vs. tracking sheet
 
 
 #Combine juvenile and adult data
 aj_sfm<-full_join(ad_sfm,j_sfm) #fixes NA problem
 
 
-#Create a site list containing list of sites double surveyed by sfm and divers
-aj_sfm$MethodRep <- paste0(aj_sfm$METHOD,"_",aj_sfm$TRANSECT)
-aj_sfm$SS <- paste0(aj_sfm$SITE,"_",aj_sfm$SEGMENT)
-
-seglist <- as.data.frame.matrix(table(aj_sfm$SS, aj_sfm$MethodRep));dim(seglist)
-seglist$SS <-rownames(seglist)
-seglist<-seglist %>% filter(seglist$DIVER_1!=0);dim(seglist)
-seglist<-seglist %>% filter(seglist$DIVER_2!=0);dim(seglist)
-seglist<-seglist %>% filter(seglist$SfM_1!=0);dim(seglist)
-seglist<-seglist %>% filter(seglist$SfM_2!=0);dim(seglist)
-#Once filtering is completed, nrow should = 43 (FOR COMPARISON)
-
-
-
 
 
 # GENERATE SUMMARY METRICS at the Segment-leveL BY GENUS--------------------------------------------------
 #REMOVE COLONIES THAT COULD'T BE FULLY ANNOTATED IN SFM
-ad_sfm<-subset(ad_sfm,EX_BOUND==0)
 
 
 #Calc_ColDen_Transect
-acd.gen<-Calc_ColDen(data = ad_sfm,grouping_field = "GENUS_CODE");colnames(acd.gen)[colnames(acd.gen)=="ColCount"]<-"AdColCount";colnames(acd.gen)[colnames(acd.gen)=="ColDen"]<-"AdColDen";colnames(acd.gen)[colnames(acd.gen)=="SEGAREA"]<-"SEGAREA_ad"# calculate density at genus level as well as total
-jcd.gen<-Calc_ColDen(j_sfm,"GENUS_CODE"); colnames(jcd.gen)[colnames(jcd.gen)=="ColCount"]<-"JuvColCount";colnames(jcd.gen)[colnames(jcd.gen)=="ColDen"]<-"JuvColDen"
-jcd.gen<-subset(jcd.gen,select=-c(SEGAREA))
+acd.gen<-Calc_ColDen_Transect(data = ad_sfm,grouping_field = "GENUS_CODE");colnames(acd.gen)[colnames(acd.gen)=="ColCount"]<-"AdColCount";colnames(acd.gen)[colnames(acd.gen)=="ColDen"]<-"AdColDen";colnames(acd.gen)[colnames(acd.gen)=="SEGAREA"]<-"SEGAREA_ad"# calculate density at genus level as well as total
+jcd.gen<-Calc_ColDen_Transect(j_sfm,"GENUS_CODE"); colnames(jcd.gen)[colnames(jcd.gen)=="ColCount"]<-"JuvColCount";colnames(jcd.gen)[colnames(jcd.gen)=="ColDen"]<-"JuvColDen"
 
 
 ## This function calculates mean colony length, % recent dead, % old dead, condition severity or condition extent to the segment level
 ## NOTE: can run both adult & juvenile data with this function for COLONYLENGTH
 #c("COLONYLENGTH","RDEXTENT1", "RDEXTENT2", "RDEXTENT3", "OLDDEAD","SEVERITY_1","SEVERITY_2", "SEVERITY_3", "EXTENT_1", "EXTENT_2", "EXTENT_3")
-cl.gen<-Calc_ColMetric(data = ad_sfm,grouping_field = "GENUS_CODE",pool_fields = "COLONYLENGTH"); colnames(cl.gen)[colnames(cl.gen)=="Ave.y"]<-"Ave.cl" #Average % old dead
-od.gen<-Calc_ColMetric(data = ad_sfm,grouping_field = "GENUS_CODE",pool_fields = "OLDDEAD"); colnames(od.gen)[colnames(od.gen)=="Ave.y"]<-"Ave.od" #Average % old dead
-rd.gen<-Calc_ColMetric(data = ad_sfm,grouping_field = "GENUS_CODE",pool_fields = c("RDEXTENT1", "RDEXTENT2","RDEXTENT3")); colnames(rd.gen)[colnames(rd.gen)=="Ave.y"]<-"Ave.rd" #Average % recent dead
+ex_b<-subset(ad_sfm,EX_BOUND==0)
+cl.gen<-Calc_ColMetric_Transect(data = ex_b,grouping_field = "GENUS_CODE",pool_fields = "COLONYLENGTH"); colnames(cl.gen)[colnames(cl.gen)=="Ave.y"]<-"Ave.cl" #Average % old dead
+od.gen<-Calc_ColMetric_Transect(data = ad_sfm,grouping_field = "GENUS_CODE",pool_fields = "OLDDEAD"); colnames(od.gen)[colnames(od.gen)=="Ave.y"]<-"Ave.od" #Average % old dead
+rd.gen<-Calc_ColMetric_Transect(data = ad_sfm,grouping_field = "GENUS_CODE",pool_fields = c("RDEXTENT1", "RDEXTENT2","RDEXTENT3")); colnames(rd.gen)[colnames(rd.gen)=="Ave.y"]<-"Ave.rd" #Average % recent dead
 
 
 #Calc_RDden_Transect
-rdden.gen<-Calc_RDden(data=ad_sfm,grouping_field ="GENUS_CODE") # Density of recent dead colonies by condition, you will need to subset which ever condition you want. The codes ending in "S" are the general categories
-acutedz.gen<-subset(rdden.gen,select = c(METHOD,SITEVISITID,SITE,TRANSECT,SEGMENT,GENUS_CODE,DZGN_G));colnames(acutedz.gen)[colnames(acutedz.gen)=="DZGN_G"]<-"DZGN_G_den" #subset just acute diseased colonies
+rdden.gen<-Calc_RDden_Transect(data=ad_sfm,grouping_field ="GENUS_CODE") # Density of recent dead colonies by condition, you will need to subset which ever condition you want. The codes ending in "S" are the general categories
+acutedz.gen<-subset(rdden.gen,select = c(SITEVISITID,SITE,TRANSECT,GENUS_CODE,DZGN_G));colnames(acutedz.gen)[colnames(acutedz.gen)=="DZGN_G"]<-"DZGN_den" #subset just acute diseased colonies
 
 
 #Calc_CONDden_Transect
-condden.gen<-Calc_CONDden(data=ad_sfm,grouping_field ="GENUS_CODE")# Density of condition colonies by condition, you will need to subset which ever condition you want
-ble.gen<-subset(condden.gen,select = c(METHOD,SITEVISITID,SITE,TRANSECT,SEGMENT,GENUS_CODE,BLE));colnames(ble.gen)[colnames(ble.gen)=="BLE"]<-"BLE_den" #subset just bleached colonies
-chronicdz.gen<-subset(condden.gen,select = c(METHOD,SITEVISITID,SITE,TRANSECT,SEGMENT,GENUS_CODE,CHRO));colnames(chronicdz.gen)[colnames(chronicdz.gen)=="CHRO"]<-"CHRO_den" #subset just chronic diseased colonies
+condden.gen<-Calc_CONDden_Transect(data=ad_sfm,grouping_field ="GENUS_CODE")# Density of condition colonies by condition, you will need to subset which ever condition you want
+ble.gen<-subset(condden.gen,select = c(SITEVISITID,SITE,TRANSECT,GENUS_CODE,BLE));colnames(ble.gen)[colnames(ble.gen)=="BLE"]<-"BLE_den" #subset just bleached colonies
+chronicdz.gen<-subset(condden.gen,select = c(SITEVISITID,SITE,TRANSECT,GENUS_CODE,CHRO));colnames(chronicdz.gen)[colnames(chronicdz.gen)=="CHRO"]<-"CHRO_den" #subset just chronic diseased colonies
 
 #Calc_Richness_Transect
 #rich.gen<-Calc_Richness_Transect(ad_sfm,"GENUS_CODE")
@@ -154,7 +105,7 @@ chronicdz.gen<-subset(condden.gen,select = c(METHOD,SITEVISITID,SITE,TRANSECT,SE
 
 #Join density and partial moratlity data together.You will need to replace the DUMMY field with the one you want
 data.gen <- join_all(list(acd.gen,jcd.gen,cl.gen,od.gen,rd.gen,acutedz.gen,chronicdz.gen,ble.gen), 
-                by=c("METHOD","SITE","SITEVISITID","TRANSECT","SEGMENT","GENUS_CODE"), type='full')
+                by=c("SITE","SITEVISITID","TRANSECT","GENUS_CODE"), type='full')
 head(data.gen)
 
 
@@ -164,34 +115,166 @@ data.gen$AdColCount[is.na(data.gen$AdColCount)]<-0;data.gen$AdColDen[is.na(data.
 
 
 #Calculate transect level prevalence for acute dz, chronic dz and bleaching
-data.gen$DZGN_G_prev<-(data.gen$DZGN_G_den*data.gen$SEGAREA_ad)/data.gen$AdColCount*100
-data.gen$BLE_prev<-(data.gen$BLE_den*data.gen$SEGAREA_ad)/data.gen$AdColCount*100
-data.gen$CHRO_prev<-(data.gen$CHRO_den*data.gen$SEGAREA_ad)/data.gen$AdColCount*100
+data.gen$AcuteDZ_prev<-(data.gen$DZGN_den*data.gen$TRANSECTAREA)/data.gen$AdColCount*100
+data.gen$BLE_prev<-(data.gen$BLE_den*data.gen$TRANSECTAREA)/data.gen$AdColCount*100
+data.gen$CHRO_prev<-(data.gen$CHRO_den*data.gen$TRANSECTAREA)/data.gen$AdColCount*100
 
 View(data.gen)
 
-
-#Concatenate method, Site,Transect and segment
-data.gen$MethodRep<-paste(data.gen$METHOD,data.gen$TRANSECT,sep="_")
-data.gen$SS<-paste(data.gen$SITE,data.gen$SEGMENT,sep="_")
+#We only surveyed 1 transect/site so data.gen is site-level data
+site.data.gen2<-dplyr::select(data.gen,-c(TRANSECT,TRANSECTAREA))
 
 
-#Check that each site-segment remaining has 2 divers and 2 annotators
-t1<-ddply(data.gen,.(SITE,SEGMENT),summarize,n=length(unique(MethodRep)));nrow(t1[t1$n==6,]) 
+#Merge site data with metadata
 
-t1<-as.data.frame.matrix(table(data.gen$SS,data.gen$MethodRep));dim(t1)
-t1<-t1%>%filter(t1$SfM_1!=0);dim(t1) 
-t1<-t1%>%filter(t1$SfM_2!=0);dim(t1) 
+# Merge Site level data with sectors file and export site data ------------
+sectors<-read.csv("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/data/Sectors-Strata-Areas.csv", stringsAsFactors=FALSE)
+
+#Merge together survey meta data and sector area files and check for missmatches 
+meta<-left_join(survey_site,sectors)
+meta[which(is.na(meta$AREA_HA)),]
+nrow(survey_site)
+nrow(meta)
 
 
-#Make final dataframe to save
-data.gen2<-left_join(data.gen,surveyment)
-if(nrow(data.gen)!=nrow(data.gen2)) {cat("WARNING: Dfs didn't merge properly")}
+#Merge site level data and meta data
+site.data.gen2<-left_join(site.data.gen2,meta)
+
+
+#Set ANALYSIS_SCHEMA to STRATA and DOMAIN_SCHEMA to whatever the highest level you want estimates for (e.g. sector, island, region)
+site.data.gen2$ANALYSIS_SCHEMA<-site.data.gen2$STRATANAME
+site.data.gen2$DOMAIN_SCHEMA<-site.data.gen2$ISLAND
+
+
+#Calculate metrics at Strata-level-We need to work on combining metrics into 1 function
+
+#Create a vector of columns to subset for strata estimates
+c.keep<-c("REGION","ISLAND","ANALYSIS_YEAR","ANALYSIS_SCHEMA","REEF_ZONE","DB_RZ","GENUS_CODE",
+          "n_h","N_h","D._h","SE_D._h","avp","SEprop","Y._h","SE_Y._h","CV_Y._h")
+c.keep2<-c("REGION","ISLAND","ANALYSIS_YEAR","ANALYSIS_SCHEMA","REEF_ZONE","DB_RZ","GENUS_CODE",
+           "n_h","N_h","D._h","SE_D._h")
+c.keep3<-c("REGION","ISLAND","ANALYSIS_YEAR","ANALYSIS_SCHEMA","REEF_ZONE","DB_RZ","GENUS_CODE",
+           "n_h","N_h","D._h","SE_D._h","avp","SEprop","Y._h","SE_Y._h","CV_Y._h")
+c.keep4<-c("REGION","ISLAND","ANALYSIS_YEAR","ANALYSIS_SCHEMA","REEF_ZONE","DB_RZ","GENUS_CODE",
+           "n_h","N_h","prev","SEprev")
+
+acdG_st<-Calc_Strata(site.data.gen2,"GENUS_CODE","AdColDen","Adpres.abs");acdG_st=acdG_st[,c.keep]
+colnames(acdG_st)<-c("REGION","ISLAND","ANALYSIS_YEAR","Stratum","REEF_ZONE","DB_RZ","GENUS_CODE","n","Ntot","AdColDen","SE_AdColDen","Adult_avp","Adult_seprop","Adult_Abun","Adult_SE_Abun","Adult_CV")
+
+jcdG_st<-Calc_Strata(site.data.gen2,"GENUS_CODE","JuvColDen","Juvpres.abs");jcdG_st=jcdG_st[,c.keep]
+colnames(jcdG_st)<-c("REGION","ISLAND","ANALYSIS_YEAR","Stratum","REEF_ZONE","DB_RZ","GENUS_CODE","n","Ntot","JuvColDen","SE_JuvColDen","Juv_avp","Juv_seprop","Juv_Abun","Juv_SE_Abun","Juv_CV")
+
+odG_st<-Calc_Strata(site.data.gen2,"GENUS_CODE","Ave.od");odG_st=odG_st[,c.keep2]
+colnames(odG_st)<-c("REGION","ISLAND","ANALYSIS_YEAR","Stratum","REEF_ZONE","DB_RZ","GENUS_CODE","n","Ntot","Ave.od","SE_Ave.od")
+
+rdG_st<-Calc_Strata(site.data.gen2,"GENUS_CODE","Ave.rd");rdG_st=rdG_st[,c.keep2]
+colnames(rdG_st)<-c("REGION","ISLAND","ANALYSIS_YEAR","Stratum","REEF_ZONE","DB_RZ","GENUS_CODE","n","Ntot","Ave.rd","SE_Ave.rd")
+
+clG_st<-Calc_Strata(site.data.gen2,"GENUS_CODE","Ave.size");clG_st=clG_st[,c.keep2]
+colnames(clG_st)<-c("REGION","ISLAND","ANALYSIS_YEAR","Stratum","REEF_ZONE","DB_RZ","GENUS_CODE","n","Ntot","Ave.size","SE_Ave.size")
+
+BLEG_st<-Calc_Strata_Prevalence(site.data.gen2,"GENUS_CODE","BLE");BLEG_st=BLEG_st[,c.keep4]
+colnames(BLEG_st)<-c("REGION","ISLAND","ANALYSIS_YEAR","Stratum","REEF_ZONE","DB_RZ","GENUS_CODE","n","Ntot","BLE","SE_BLE")
+
+AcuteDZG_st<-Calc_Strata_Prevalence(site.data.gen2,"GENUS_CODE","AcuteDZ");AcuteDZG_st=AcuteDZG_st[,c.keep4]
+colnames(AcuteDZG_st)<-c("REGION","ISLAND","ANALYSIS_YEAR","Stratum","REEF_ZONE","DB_RZ","GENUS_CODE","n","Ntot","AcuteDZ","SE_AcuteDZ")
+
+ChronicDZG_st<-Calc_Strata_Prevalence(site.data.gen2,"GENUS_CODE","ChronicDZ");ChronicDZG_st=ChronicDZG_st[,c.keep4]
+colnames(ChronicDZG_st)<-c("REGION","ISLAND","ANALYSIS_YEAR","Stratum","REEF_ZONE","DB_RZ","GENUS_CODE","n","Ntot","ChronicDZ","SE_ChronicDZ")
+
+
+# c.keep<-c("REGION","ISLAND","ANALYSIS_YEAR","DOMAIN_SCHEMA","ANALYSIS_SCHEMA","n_h","N_h","D._h","SE_D._h")
+# rich_st<-Calc_Strata_Cover_Rich(rich.data,"Richness");rich_st=rich_st[,c.keep]
+# colnames(rich_st)<-c("REGION","ISLAND","ANALYSIS_YEAR","Sector","REEF_ZONE","DB_RZ","Stratum","n","Ntot","Richness","SE_Richess") 
+
+
+#Double Check that revised pooling is adding up NH (total sites) correctly
+View(acdG_st)
+View(sectors)
+
+
+#Calculate Island Estimates
+acdG_is<-Calc_Domain(site.data.gen2,"GENUS_CODE","AdColDen","Adpres.abs")
+acdG_is<-acdG_is[,c("REGION","ANALYSIS_YEAR","DOMAIN_SCHEMA","GENUS_CODE","n","Ntot","Mean_AdColDen","SE_AdColDen")]
+jcdG_is<-Calc_Domain(site.data.gen2,"GENUS_CODE","JuvColDen","Juvpres.abs")
+jcdG_is<-jcdG_is[,c("REGION","ANALYSIS_YEAR","DOMAIN_SCHEMA","GENUS_CODE","n","Ntot","Mean_JuvColDen","SE_JuvColDen")]
+odG_is<-Calc_Domain(site.data.gen2,"GENUS_CODE","Ave.od")
+odG_is<-odG_is[,c("REGION","ANALYSIS_YEAR","DOMAIN_SCHEMA","GENUS_CODE","n","Ntot","Mean_Ave.od","SE_Ave.od")]
+rdG_is<-Calc_Domain(site.data.gen2,"GENUS_CODE","Ave.rd")
+rdG_is<-rdG_is[,c("REGION","ANALYSIS_YEAR","DOMAIN_SCHEMA","GENUS_CODE","n","Ntot","Mean_Ave.rd","SE_Ave.rd")]
+clG_is<-Calc_Domain(site.data.gen2,"GENUS_CODE","Ave.size")
+clG_is<-clG_is[,c("REGION","ANALYSIS_YEAR","DOMAIN_SCHEMA","GENUS_CODE","n","Ntot","Mean_Ave.size","SE_Ave.size")]
+bleG_is<-Calc_Domain_Prevalence(site.data.gen2,"GENUS_CODE","BLE")
+bleG_is<-bleG_is[,c("REGION","ANALYSIS_YEAR","DOMAIN_SCHEMA","GENUS_CODE","n","Ntot","Mean_BLE_Prev","SE_BLE_Prev")]
+AcuteDZG_is<-Calc_Domain_Prevalence(site.data.gen2,"GENUS_CODE","AcuteDZ")
+AcuteDZG_is<-AcuteDZG_is[,c("REGION","ANALYSIS_YEAR","DOMAIN_SCHEMA","GENUS_CODE","n","Ntot","Mean_AcuteDZ_Prev","SE_AcuteDZ_Prev")]
+ChronicDZG_is<-Calc_Domain_Prevalence(site.data.gen2,"GENUS_CODE","ChronicDZ")
+ChronicDZG_is<-ChronicDZG_is[,c("REGION","ANALYSIS_YEAR","DOMAIN_SCHEMA","GENUS_CODE","n","Ntot","Mean_ChronicDZ_Prev","SE_ChronicDZ_Prev")]
+
+
+#Calculate Sector Estimates
+site.data.gen2$ANALYSIS_SCHEMA<-site.data.gen2$STRATANAME
+site.data.gen2$DOMAIN_SCHEMA<-site.data.gen2$BEN_SEC
+rich.data$ANALYSIS_SCHEMA<-rich.data$STRATANAME
+rich.data$DOMAIN_SCHEMA<-rich.data$BEN_SEC
+
+acdG_sec<-Calc_Domain(site.data.gen2,"GENUS_CODE","AdColDen","Adpres.abs")
+acdG_sec<-acdG_sec[,c("REGION","ANALYSIS_YEAR","ISLAND","DOMAIN_SCHEMA","GENUS_CODE","n","Ntot","Mean_AdColDen","SE_AdColDen")]
+jcdG_sec<-Calc_Domain(site.data.gen2,"GENUS_CODE","JuvColDen","Juvpres.abs")
+jcdG_sec<-jcdG_sec[,c("REGION","ANALYSIS_YEAR","ISLAND","DOMAIN_SCHEMA","GENUS_CODE","n","Ntot","Mean_JuvColDen","SE_JuvColDen")]
+odG_sec<-Calc_Domain(site.data.gen2,"GENUS_CODE","Ave.od")
+odG_sec<-odG_sec[,c("REGION","ANALYSIS_YEAR","ISLAND","DOMAIN_SCHEMA","GENUS_CODE","n","Ntot","Mean_Ave.od","SE_Ave.od")]
+rdG_sec<-Calc_Domain(site.data.gen2,"GENUS_CODE","Ave.rd")
+rdG_sec<-rdG_sec[,c("REGION","ANALYSIS_YEAR","ISLAND","DOMAIN_SCHEMA","GENUS_CODE","n","Ntot","Mean_Ave.rd","SE_Ave.rd")]
+clG_sec<-Calc_Domain(site.data.gen2,"GENUS_CODE","Ave.size")
+clG_sec<-clG_sec[,c("REGION","ANALYSIS_YEAR","ISLAND","DOMAIN_SCHEMA","GENUS_CODE","n","Ntot","Mean_Ave.size","SE_Ave.size")]
+bleG_sec<-Calc_Domain_Prevalence(site.data.gen2,"GENUS_CODE","BLE")
+bleG_sec<-bleG_sec[,c("REGION","ANALYSIS_YEAR","ISLAND","DOMAIN_SCHEMA","GENUS_CODE","n","Ntot","Mean_BLE_Prev","SE_BLE_Prev")]
+AcuteDZG_sec<-Calc_Domain_Prevalence(site.data.gen2,"GENUS_CODE","AcuteDZ")
+AcuteDZG_sec<-AcuteDZG_sec[,c("REGION","ANALYSIS_YEAR","ISLAND","DOMAIN_SCHEMA","GENUS_CODE","n","Ntot","Mean_AcuteDZ_Prev","SE_AcuteDZ_Prev")]
+ChronicDZG_sec<-Calc_Domain_Prevalence(site.data.gen2,"GENUS_CODE","ChronicDZ")
+ChronicDZG_sec<-ChronicDZG_sec[,c("REGION","ANALYSIS_YEAR","ISLAND","DOMAIN_SCHEMA","GENUS_CODE","n","Ntot","Mean_ChronicDZ_Prev","SE_ChronicDZ_Prev")]
+
+
+
+
+MyMerge <- function(x, y){
+  df <- merge(x, y, by= c("REGION","ISLAND","ANALYSIS_YEAR","Stratum","REEF_ZONE","DB_RZ","GENUS_CODE","n","Ntot"), all.x= TRUE, all.y= TRUE)
+  return(df)
+}
+st.data.gen<-Reduce(MyMerge, list(acdG_st,jcdG_st,odG_st,rdG_st,clG_st,BLEG_st,AcuteDZG_st,ChronicDZG_st))
+colnames(st.data.gen)[colnames(st.data.gen)=="ANALYSIS_SCHEMA"]<-"Stratum"
+
+write.csv(st.data.gen,file="T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Stratum/BenthicREA_stratadata_GENUS.csv")
+# write.csv(rich_st,"Pacificwide_richness_frf_str3.csv")
+
+
+MyMerge <- function(x, y){
+  df <- merge(x, y, by= c("REGION","ANALYSIS_YEAR","DOMAIN_SCHEMA","GENUS_CODE","n","Ntot"), all.x= TRUE, all.y= TRUE)
+  return(df)
+}
+is.data.gen<-Reduce(MyMerge, list(acdG_is,jcdG_is,odG_is,rdG_is,clG_is,bleG_is,AcuteDZG_is,ChronicDZG_is))
+colnames(is.data.gen)[colnames(is.data.gen)=="DOMAIN_SCHEMA"]<-"Island"
+
+write.csv(is.data.gen,file="T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Island/BenthicREA_islanddata_GENUS.csv")
+
+
+MyMerge <- function(x, y){
+  df <- merge(x, y, by= c("REGION","ANALYSIS_YEAR","ISLAND","DOMAIN_SCHEMA","GENUS_CODE","n","Ntot"), all.x= TRUE, all.y= TRUE)
+  return(df)
+}
+sec.data.gen<-Reduce(MyMerge, list(acdG_sec,jcdG_sec,odG_sec,rdG_sec,clG_sec,bleG_sec,AcuteDZG_sec,ChronicDZG_sec))
+colnames(sec.data.gen)[colnames(sec.data.gen)=="DOMAIN_SCHEMA"]<-"Sector"
+
+write.csv(sec.data.gen,file="T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Sector/BenthicREA_sectordata_GENUS.csv")
+
+
+data.gen$METHOD<-"SfM"
+
+
 
 #Save file for method comparsion
-write.csv(data.gen,file="T:/Benthic/Data/SfM/Calibration QC/HARAMP_repeats_GENUS_Summarized Data-CALIBRATION.csv",row.names = F)
-
-write.csv(jwd,file="C:/Users/Courtney.S.Couch/Documents/GitHub/Benthic-Scripts/SfM/Method Comparision/HARAMP19_SfMGENUS_SITE.csv",row.names = F)
+write.csv(data.gen,file="C:/Users/Courtney.S.Couch/Documents/GitHub/Benthic-Scripts/SfM/Method Comparision/HARAMP19_SfMGENUS_SITE.csv",row.names = F)
 write.csv(jwd,file="C:/Users/Courtney.S.Couch/Documents/GitHub/Benthic-Scripts/SfM/Method Comparision/HARAMP19_SfMGENUS_STRATA.csv",row.names = F)
 write.csv(jwd,file="C:/Users/Courtney.S.Couch/Documents/GitHub/Benthic-Scripts/SfM/Method Comparision/HARAMP19_SfMGENUS_SECTOR.csv",row.names = F)
 

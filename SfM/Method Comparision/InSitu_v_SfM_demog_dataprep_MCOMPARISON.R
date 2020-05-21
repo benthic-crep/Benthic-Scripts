@@ -15,11 +15,13 @@ source("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/lib/GIS_functions.
 # source("C:/Users/Corinne.Amir/Documents/GitHub/fish-paste/lib/core_functions.R")
 # source("C:/Users/Corinne.Amir/Documents/GitHub/fish-paste/lib/GIS_functions.R")
 
+setwd("C:/Users/Courtney.S.Couch/Documents/GitHub/Benthic-Scripts/SfM/Method Comparision")
 
 # SFM/ADULT: CLEAN ANALYSIS READY DATA ----------------------------------------------------
 df<-read.csv("C:/Users/Courtney.S.Couch/Documents/GitHub/Benthic-Scripts/SfM/Method Comparision/HARAMP2019_v2_output_may132020.csv")
 
-x<-df
+#Subset just the Adult data
+x<-subset(df,SEGLENGTH=="2.5")
 head(x)
 View(x)
 nrow(x)
@@ -40,19 +42,12 @@ colnames(x)[colnames(x)=="SEV_1"]<-"SEVERITY_1" #Change column name
 colnames(x)[colnames(x)=="SEV_2"]<-"SEVERITY_2" #Change column name
 colnames(x)[colnames(x)=="SEV_3"]<-"SEVERITY_3" #Change column name
 colnames(x)[colnames(x)=="Shape_Leng"]<-"COLONYLENGTH" #Change column name
-colnames(x)[colnames(x)=="FID"]<-"COLONYID" #Change column name
 
-#COLONYID HAS DUPLICATES-temporary workaround
-x$COLONYID<-c(1:length(x$COLONYID));head(x)
 
 #Add column for method type
 x$METHOD<-"SfM"
 
 if(DEBUG){head(x)}
-
-#Subset just the Adult data
-x<-subset()
-
 
 
 #Take a look at who annotated sites and double check that repeat segments aren't included
@@ -70,6 +65,13 @@ tmp$prop<-tmp$n/90*100 #% of sites that each annotator annoated
 x$OBS_YEAR <- as.vector(rep(2019, times = nrow(x)))
 x$COLONYLENGTH<-x$COLONYLENGTH*100 #convert from m to cm
 x$S_ORDER<-ifelse(x$NO_COLONY==0 & x$SPCODE!="NONE","Scleractinia","NONE") #add S_order column
+x$TRANSECT<-1
+x$COLONYID<-paste(x$SITE,x$SEGMENT,x$SPCODE,x$COLONYLENGTH,sep="_")
+
+#Check for duplicate COLONYIDs
+x$COLONYID[duplicated(x$COLONYID)]
+x<-x[!duplicated(x$COLONYID), ] #remove duplicate rows (temporary workaround for now until we can figure out what is going on in the export)
+
 
 #Change bleaching severity = 1 to NA
 x[x$CONDITION_1 =="BLE" & x$SEVERITY_1=="1", 24:26] <- NA
@@ -105,7 +107,7 @@ colnames(survey_master)[colnames(survey_master)=="LATITUDE_SV"]<-"LATITUDE" #Cha
 colnames(survey_master)[colnames(survey_master)=="LONGITUDE_SV"]<-"LONGITUDE" #Change column name
 
 
-x<-left_join(x,survey_master[,c("REGION","OBS_YEAR","ISLAND","SITEVISITID","SITE","SEC_NAME",
+x<-left_join(x,survey_master[,c("MISSIONID","REGION","OBS_YEAR","ISLAND","SITEVISITID","SITE","SEC_NAME",
                             "REEF_ZONE","DEPTH_BIN","HABITAT_CODE","LATITUDE","LONGITUDE","MIN_DEPTH_M","MAX_DEPTH_M")])
 
 head(x)
@@ -175,7 +177,7 @@ head(x)
 nrow(x)
 
 #Reorder columns
-x<-x[,c("METHOD","ANALYST", "REGION","OBS_YEAR","ISLAND","SEC_NAME","SITEVISITID","SITE","REEF_ZONE","DEPTH_BIN",
+x<-x[,c("METHOD","ANALYST", "MISSIONID","REGION","OBS_YEAR","ISLAND","SEC_NAME","SITEVISITID","SITE","TRANSECT","REEF_ZONE","DEPTH_BIN",
   "HABITAT_CODE","LATITUDE","LONGITUDE","MIN_DEPTH_M","MAX_DEPTH_M","SEGMENT","SEGLENGTH","SEGWIDTH",
   "SEGAREA","COLONYID","Fragment","S_ORDER","GENUS_CODE","SPCODE","TAXONCODE","TAXONNAME",
   "EX_BOUND","COLONYLENGTH","OLDDEAD","GENRD1","GENRD2","GENRD3","RD1","RDEXTENT1","RD2","RDEXTENT2","RD3",
@@ -229,21 +231,22 @@ x[is.na(x$CONDITION_3),"CONDITION_3"]<-"NONE"
 head(x)
 
 awd<-droplevels(x)
-write.csv(awd,file="C:/Users/Courtney.S.Couch/Documents/GitHub/Benthic-Scripts/SfM/Method Comparision/HARAMP19_SfMAdult_CLEANED.csv",row.names = F)
+write.csv(awd,file="C:/Users/Courtney.S.Couch/Documents/GitHub/Benthic-Scripts/SfM/Method Comparision/HARAMP19_SfMAdult_MCLEANED.csv",row.names = F)
 
 
 # SFM/JUVENILE: CLEAN ANALYSIS READY DATA -------------------------------------
-df<-read.csv("T:/Benthic/Data/SfM/Method Comparison/HARAMP2019_QCdsfm_JUV.csv") #851 rows
-
-x<-df
+#Subset just the Adult data
+x<-subset(df,SEGLENGTH=="1")
 head(x)
 View(x)
 nrow(x)
 
 #SFM/JUVENILE: Column Names Changes... -------------------------------------------------
-colnames(x)[colnames(x)=="FRAGMENT_Y"]<-"Fragment" #Change column name
-colnames(x)[colnames(x)=="SHAPE_Leng"]<-"COLONYLENGTH" #Change column name
+colnames(x)[colnames(x)=="FRAGMENT"]<-"Fragment" #Change column name
+colnames(x)[colnames(x)=="Shape_Leng"]<-"COLONYLENGTH" #Change column name
 colnames(x)[colnames(x)=="FID"]<-"COLONYID" #Change column name
+
+x$COLONYID<-c(1:length(x$COLONYID)) #temporary workaround
 
 #Add column for method type
 x$METHOD<-"SfM"
@@ -258,10 +261,17 @@ table(x$SITE,x$ANALYST)
 #Fill in columns with values that we know should not be different across any of the rows
 x$OBS_YEAR <- as.vector(rep(2019, times = nrow(x)))
 x$COLONYLENGTH<-x$COLONYLENGTH*100 #convert from m to cm
-x$S_ORDER<-ifelse(x$NO_COLONY_==0 & x$SPCODE!="NONE","Scleractinia","NONE") #add S_order column
+x$S_ORDER<-ifelse(x$NO_COLONY==0 & x$SPCODE!="NONE","Scleractinia","NONE") #add S_order column
+x$TRANSECT<-1
+x$COLONYID<-paste(x$SITE,x$SEGMENT,x$SPCODE,x$COLONYLENGTH,sep="_")
+
+#Check for duplicate COLONYIDs
+x$COLONYID[duplicated(x$COLONYID)]
+x<-x[!duplicated(x$COLONYID), ] #remove duplicate rows (temporary workaround for now until we can figure out what is going on in the export)
+
 
 #Create Genuscode and taxonname column from spcode
-genlookup<-read.csv("T:/Benthic/Data/SpGen_Reference/Genus_lookup.csv")
+genlookup<-read.csv("T:/Benthic/Data/Lookup Tables/Genus_lookup.csv")
 x<-CreateGenusCode(x,genlookup) 
 head(x)
 
@@ -274,7 +284,7 @@ colnames(survey_master)[colnames(survey_master)=="LATITUDE_SV"]<-"LATITUDE" #Cha
 colnames(survey_master)[colnames(survey_master)=="LONGITUDE_SV"]<-"LONGITUDE" #Change column name
 
 
-x<-left_join(x,survey_master[,c("REGION","OBS_YEAR","ISLAND","SITEVISITID","SITE","SEC_NAME",
+x<-left_join(x,survey_master[,c("MISSIONID","REGION","OBS_YEAR","ISLAND","SITEVISITID","SITE","SEC_NAME",
                                 "REEF_ZONE","DEPTH_BIN","HABITAT_CODE","LATITUDE","LONGITUDE","MIN_DEPTH_M","MAX_DEPTH_M")],by=c("OBS_YEAR","SITE"))
 
 head(x)
@@ -284,9 +294,9 @@ nrow(x)
 
 #SFM/JUVENILE: Assign TAXONCODE --------------------------------------------------------
 #read in list of taxa that we feel comfortable identifying to species or genus level. Note, taxa lists vary by year and region. This will need to be updated through time.
-taxa<-read.csv("T:/Benthic/Data/SpGen_Reference/2013-19_Taxa_MASTER.csv")
+taxa<-read.csv("T:/Benthic/Data/Lookup Tables/2013-20_Taxa_MASTER.csv")
 taxa$OBS_YEAR<-as.numeric(as.character(taxa$OBS_YEAR))
-x$SPCODE<-ifelse(x$NO_COLONY_==-1,"AAAA",as.character(x$SPCODE)) 
+x$SPCODE<-ifelse(x$NO_COLONY==-1,"AAAA",as.character(x$SPCODE)) 
 
 
 #Convert SPCODE in raw colony data to TAXONCODE -generates a look up table
@@ -329,23 +339,16 @@ head(subset(x,GENUS_CODE=="UNKN"&S_ORDER=="Scleractinia"))
 head(subset(x,GENUS_CODE=="AAAA"))
 head(subset(x,SPCODE=="AAAA"))
 
-#head() function in this case (1/22/2020) have unequal nrow, so double check that UNKNs are in the same rows for all columns containing UNKN
-a1<- subset(x,TAXONCODE=="UNKN"&S_ORDER=="Scleractinia")
-a2<- subset(x,GENUS_CODE=="UNKN"&S_ORDER=="Scleractinia")
-
 
 #In order to record no colonies observed in a segment, we need to create a small colony on the image.This code removes that size measure
 x$COLONYLENGTH<-ifelse(x$SPCODE=="AAAA",0,as.character(x$COLONYLENGTH))
-
-#Remove colonies with EX_BOUND = -1
-x <- subset(x, EX_BOUND==0)
 
 # sapply(x,levels)
 head(x)
 nrow(x)
 
 #Reorder columns
-x<-x[,c("METHOD","ANALYST", "REGION","OBS_YEAR","ISLAND","SEC_NAME","SITEVISITID","SITE","REEF_ZONE","DEPTH_BIN",
+x<-x[,c("METHOD","ANALYST", "MISSIONID","REGION","OBS_YEAR","ISLAND","SEC_NAME","SITEVISITID","SITE","TRANSECT","REEF_ZONE","DEPTH_BIN",
         "HABITAT_CODE","LATITUDE","LONGITUDE","MIN_DEPTH_M","MAX_DEPTH_M","SEGMENT","SEGLENGTH","SEGWIDTH",
         "SEGAREA","COLONYID","Fragment","S_ORDER","GENUS_CODE","SPCODE","TAXONCODE","TAXONNAME",
         "EX_BOUND","COLONYLENGTH")]         
@@ -357,9 +360,6 @@ x[,NegNineCheckCols][x[,NegNineCheckCols] ==-9] <- NA #Convert missing numeric v
 
 
 jwd<-droplevels(x)
-write.csv(jwd,file="C:/Users/Courtney.S.Couch/Documents/GitHub/Benthic-Scripts/SfM/Method Comparision/HARAMP19_SfMJuv_CLEANED.csv",row.names = F)
+write.csv(jwd,file="C:/Users/Courtney.S.Couch/Documents/GitHub/Benthic-Scripts/SfM/Method Comparision/HARAMP19_SfMJuv_MCLEANED.csv",row.names = F)
 
-#Check number of Site-Segments that contain at least 2 divers ----------------------------------------------------
-analyst.per.ss <- ddply(x,.(SITE, SEGMENT), summarize, num.analyst = n_distinct(ANALYST))
-analyst.per.ss <- filter(analyst.per.ss, num.analyst>1)
 

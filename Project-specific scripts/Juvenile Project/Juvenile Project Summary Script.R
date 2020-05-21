@@ -167,7 +167,7 @@ c.keep<-c("REGION","ISLAND","DOMAIN_SCHEMA","ANALYSIS_YEAR","ANALYSIS_SCHEMA","R
           "n_h","N_h","D._h","SE_D._h")
 
 jcdG_st<-Calc_Strata(data.gen_temp,"GENUS_CODE","JuvColDen","Juvpres.abs");jcdG_st=jcdG_st[,c.keep]
-colnames(jcdG_st)<-c("REGION","ISLAND","Sector","ANALYSIS_YEAR","Stratum","REEF_ZONE","DB_RZ","GENUS_CODE","n","Ntot","JuvColDen","SE_JuvColDen")
+colnames(jcdG_st)<-c("REGION","ISLAND","SEC_NAME","ANALYSIS_YEAR","STRATANAME","REEF_ZONE","DB_RZ","GENUS_CODE","n","Ntot","JuvColDen","SE_JuvColDen")
 jcdG_st$ANALYSIS_YEAR<-as.factor(jcdG_st$ANALYSIS_YEAR)
 head(jcdG_st)
 
@@ -231,13 +231,12 @@ c.keep<-c("REGION","ISLAND","DOMAIN_SCHEMA","ANALYSIS_YEAR","ANALYSIS_SCHEMA","R
           "n_h","N_h","D._h","SE_D._h")
 
 jcdG_st<-Calc_Strata(data.gen_temp,"GENUS_CODE","JuvColDen","Juvpres.abs");jcdG_st=jcdG_st[,c.keep]
-colnames(jcdG_st)<-c("REGION","ISLAND","Sector","ANALYSIS_YEAR","Stratum","REEF_ZONE","DB_RZ","GENUS_CODE","n","Ntot","JuvColDen","SE_JuvColDen")
+colnames(jcdG_st)<-c("REGION","ISLAND","SEC_NAME","ANALYSIS_YEAR","STRATANAME","REEF_ZONE","DB_RZ","GENUS_CODE","n","Ntot","JuvColDen","SE_JuvColDen")
 jcdG_st$ANALYSIS_YEAR<-as.factor(jcdG_st$ANALYSIS_YEAR)
 head(jcdG_st)
 
 jcdG_st<-cSplit(jcdG_st, 'DB_RZ', sep="_", type.convert=FALSE);colnames(jcdG_st)[colnames(jcdG_st)=="DB_RZ_1"]<-"DEPTH_BIN"
 jcdG_stS<-subset(jcdG_st,GENUS_CODE=="SSSS")
-jcdG_stS$STRATANAME<-jcdG_stS$Stratum
 jcdst_delta<-jcdG_stS
 
 #Identify median date that surveys were conducted for each strata and year
@@ -256,7 +255,7 @@ temp.date<-ddply(data.gen_tempS,.(ANALYSIS_YEAR,REGION),
 temp.date
 #Convert date long to wide
 strat.data.new$YEAR<-paste("a",strat.data.new$ANALYSIS_YEAR,sep="")
-tmp<-strat.data.new[,c("REGION","ISLAND","YEAR","Stratum","DEPTH_BIN","DATE_")];head(tmp)
+tmp<-strat.data.new[,c("REGION","ISLAND","YEAR","STRATANAME","DEPTH_BIN","DATE_")];head(tmp)
 n.df <- spread(tmp, YEAR, DATE_);head(n.df)
 
 #Calculate difference between dates
@@ -288,7 +287,7 @@ head(n.df)
 
 n.df$years<-n.df$Tdiff/52 #transform Tdiff into months
 
-tmp<-strat.data.new[,c("REGION","ISLAND","Sector","YEAR","Stratum","DEPTH_BIN","JuvColDen")];head(tmp)
+tmp<-strat.data.new[,c("REGION","ISLAND","SEC_NAME","YEAR","STRATANAME","DEPTH_BIN","JuvColDen")];head(tmp)
 juv.new <- spread(tmp, YEAR, JuvColDen);head(juv.new)
 
 #Calculate difference in Juv density between years
@@ -319,19 +318,18 @@ for (i in c(1:nrow(juv.new))){ #opening brace
 head(juv.new)
 
 #Clean up date and juv datasets and merge & CALCULATE Delta density/year
-n.df<-n.df[,c("REGION","ISLAND","Stratum","DEPTH_BIN","years")];head(n.df)
-juv.new<-juv.new[,c("REGION","ISLAND","Sector","Stratum","DEPTH_BIN","DeltaDen")];head(juv.new)
+n.df<-n.df[,c("REGION","ISLAND","STRATANAME","DEPTH_BIN","years")];head(n.df)
+juv.new<-juv.new[,c("REGION","ISLAND","SEC_NAME","STRATANAME","DEPTH_BIN","DeltaDen")];head(juv.new)
 delta.df<-left_join(juv.new,n.df);head(delta.df)
 delta.df$DeltaDen_mo<-delta.df$DeltaDen/delta.df$years
 View(delta.df)
 
 #Summarize delta density by sec name
-delta.sumS<-ddply(delta.df,.(REGION,Sector),
+delta.sumS<-ddply(delta.df,.(REGION,SEC_NAME),
                   summarize,
                   DeltaMEAN=mean(DeltaDen,na.rm=T),
                   DeltaSE=std.error(DeltaDen,na.rm=T))
 
-delta.sumS<-delta.sumS %>% rename(SEC_NAME = Sector)
 write.csv(delta.df,file="C:/Users/Courtney.S.Couch/Documents/Courtney's Files/R Files/ESD/Juvenile Project/Response Variables/JuvProject_deltadensity_STRATA.csv")
 write.csv(delta.sumS,file="C:/Users/Courtney.S.Couch/Documents/Courtney's Files/R Files/ESD/Juvenile Project/Response Variables/JuvProject_deltadensity_SECTOR.csv")
 
@@ -379,7 +377,7 @@ ggsave(plot=p1,file="C:/Users/Courtney.S.Couch/Documents/Courtney's Files/R File
 ####Absolute Change####
 jcdG_st$YEAR<-paste("a",jcdG_st$ANALYSIS_YEAR,sep="")
 
-tmp<-jcdG_st[,c("REGION","ISLAND","Sector","Stratum","REEF_ZONE","DEPTH_BIN","GENUS_CODE","JuvColDen","YEAR")]
+tmp<-jcdG_st[,c("REGION","ISLAND","SEC_NAME","STRATANAME","REEF_ZONE","DEPTH_BIN","GENUS_CODE","JuvColDen","YEAR")]
 
 new.df_w<-spread(tmp,YEAR,JuvColDen)
 head(new.df_w)
@@ -879,13 +877,13 @@ head(jcdG_stS)
 library(rcompanion)
 #Log transform
 plotNormalHistogram(jcdG_stS$JuvColDen)
-mod<-lm(JuvColDen~Stratum,data=jcdG_stS)
+mod<-lm(JuvColDen~STRATANAME,data=jcdG_stS)
 qqnorm(residuals(mod),ylab="Sample Quantiles for residuals")
 qqline(residuals(mod), col="red")
 
 jcdG_stS$Den1<-jcdG_stS$JuvColDen+0.5
 
-mod.glm<-glm(Den1~Stratum,data=jcdG_stS,family="gaussian"(link='log'))
+mod.glm<-glm(Den1~STRATANAME,data=jcdG_stS,family="gaussian"(link='log'))
 
 
 summary(mod.glm)  # Report the results
@@ -893,7 +891,7 @@ par(mfrow = c(2, 2))  # Split the plotting panel into a 2 x 2 grid
 plot(mod.glm) 
 
 plotNormalHistogram(jcdG_stS$JuvColDen)
-mod<-lm(JuvColDen~Stratum,data=jcdG_stS)
+mod<-lm(JuvColDen~STRATANAME,data=jcdG_stS)
 qqnorm(residuals(mod),ylab="Sample Quantiles for residuals")
 qqline(residuals(mod), col="red")
 
@@ -901,7 +899,7 @@ l<-log(jcdG_stS$JuvColDen+1)
 plotNormalHistogram(l)
 qqnorm(l, ylab="Sample Quantiles for logDensity")
 qqline(l, col="red")
-mod<-lm(l~Stratum,data=jcdG_stS)
+mod<-lm(l~STRATANAME,data=jcdG_stS)
 qqnorm(residuals(mod),ylab="Sample Quantiles for residuals")
 qqline(residuals(mod), col="red")
 jcdG_stS$logDen<-log(jcdG_stS$JuvColDen+1)
@@ -919,26 +917,40 @@ l<-log(S$JuvColDen+1)
 plotNormalHistogram(l)
 qqnorm(l, ylab="Sample Quantiles for logDensity")
 qqline(l, col="red")
-mod<-lm(l~Stratum,data=data.gen_temp)
+mod<-lm(l~STRATANAME,data=data.gen_temp)
 qqnorm(residuals(mod),ylab="Sample Quantiles for residuals")
 qqline(residuals(mod), col="red")
 S$logDen<-log(S$JuvColDen+1)
 
 
 S$DEPTH_BIN<-as.factor(S$DEPTH_BIN)
-fit.MS2 <- fitVCA(logDen~DEPTH_BIN/DOMAIN_SCHEMA, S)
-print(fit.MS2, digits=4)
+S$STRATANAME<-as.factor(S$STRATANAME)
+S$ISLAND<-as.factor(S$ISLAND)
+S$DOMAIN_SCHEMA<-as.factor(S$DOMAIN_SCHEMA)
+S$REGION<-as.factor(S$REGION)
 
-mod<-lmer(logDen~1+(1|ANALYSIS_SCHEMA/DOMAIN_SCHEMA/REGION/OBS_YEAR),data=S)
+#Still doesn't work
+# fitMM1 <- fitLMM(logDen~(1+(STRATANAME))/(DOMAIN_SCHEMA)/(REGION),S)
+# fitMM1
+# 
+# 
+# fit.MS2 <- fitVCA(logDen~STRATANAME/DOMAIN_SCHEMA/ISLAND/REGION,S,method="anova")
+# print(fit.MS2, digits=4)
+
+#Need to check with Nyssa or Mary to see if it's ok to extract variance from lmer outputs
+mod<-lmer(logDen~1+(1|STRATANAME/DOMAIN_SCHEMA/REGION/OBS_YEAR),data=S)
+summary(mod)
+
+mod<-lmer(logDen~1+(1|STRATANAME)+(1|DEPTH_BIN)+(1|DOMAIN_SCHEMA)+ (1|REGION)+ (1|OBS_YEAR),data=S)
 summary(mod)
 
 jcdG_stS$ANALYSIS_YEAR<-as.factor(jcdG_stS$ANALYSIS_YEAR)
-mod1 <- lmer(logDen~ANALYSIS_YEAR*REGION+(1|ISLAND/Sector),data=jcdG_stS)
+mod1 <- lmer(logDen~ANALYSIS_YEAR*REGION+(1|ISLAND/SEC_NAME),data=jcdG_stS)
 
-mod2 <- lmer(logDen~ANALYSIS_YEAR+(1|ISLAND/Sector),data=jcdG_stS)
-mod3 <- lmer(logDen~REGION+(1|ISLAND/Sector),data=jcdG_stS)
+mod2 <- lmer(logDen~ANALYSIS_YEAR+(1|ISLAND/SEC_NAME),data=jcdG_stS)
+mod3 <- lmer(logDen~REGION+(1|ISLAND/SEC_NAME),data=jcdG_stS)
 
-modnull <- lmer(logDen~1+(1|Sector),data=jcdG_stS)
+modnull <- lmer(logDen~1+(1|SEC_NAME),data=jcdG_stS)
 anova(mod1,modnull,test="chisq")
 anova(modnull,mod3,test="chisq")
 anova(mod2,modnull, test="chisq")
@@ -947,36 +959,36 @@ anova(mod2,modnull, test="chisq")
 
 #Test for differences between Years for each region
 #MHI
-mod1 <- lmer(logDen~ANALYSIS_YEAR+(1|ISLAND/Sector),data=subset(jcdG_stS,REGION=="MHI"))
+mod1 <- lmer(logDen~ANALYSIS_YEAR+(1|ISLAND/SEC_NAME),data=subset(jcdG_stS,REGION=="MHI"))
 summary(glht(mod1, linfct = mcp(ANALYSIS_YEAR = "Tukey"))) #this works!
 
 #NWHI
-mod1 <- lmer(logDen~ANALYSIS_YEAR+(1|Sector),data=subset(jcdG_stS,REGION=="NWHI"))
+mod1 <- lmer(logDen~ANALYSIS_YEAR+(1|SEC_NAME),data=subset(jcdG_stS,REGION=="NWHI"))
 summary(glht(mod1, linfct = mcp(ANALYSIS_YEAR = "Tukey"))) #this works!
 
 #PHOENIX
-modnull <- lmer(logDen~1+(1|Sector),data=subset(jcdG_stS,REGION=="PHOENIX"))
-mod1 <- lmer(logDen~ANALYSIS_YEAR+(1|Sector),data=subset(jcdG_stS,REGION=="PHOENIX"))
+modnull <- lmer(logDen~1+(1|SEC_NAME),data=subset(jcdG_stS,REGION=="PHOENIX"))
+mod1 <- lmer(logDen~ANALYSIS_YEAR+(1|SEC_NAME),data=subset(jcdG_stS,REGION=="PHOENIX"))
 anova(mod1,modnull,test="chisq")
 
 #LINE
-modnull <- lmer(logDen~1+(1|Sector),data=subset(jcdG_stS,REGION=="LINE"))
-mod1 <- lmer(logDen~ANALYSIS_YEAR+(1|Sector),data=subset(jcdG_stS,REGION=="LINE"))
+modnull <- lmer(logDen~1+(1|SEC_NAME),data=subset(jcdG_stS,REGION=="LINE"))
+mod1 <- lmer(logDen~ANALYSIS_YEAR+(1|SEC_NAME),data=subset(jcdG_stS,REGION=="LINE"))
 anova(mod1,modnull,test="chisq")
 
 #Samoa
-modnull <- lmer(logDen~1+(1|Sector),data=subset(jcdG_stS,REGION=="SAMOA"))
-mod1 <- lmer(logDen~ANALYSIS_YEAR+(1|Sector),data=subset(jcdG_stS,REGION=="SAMOA"))
+modnull <- lmer(logDen~1+(1|SEC_NAME),data=subset(jcdG_stS,REGION=="SAMOA"))
+mod1 <- lmer(logDen~ANALYSIS_YEAR+(1|SEC_NAME),data=subset(jcdG_stS,REGION=="SAMOA"))
 anova(mod1,modnull,test="chisq")
 
 #SMARIAN
-modnull <- lmer(logDen~1+(1|Sector),data=subset(jcdG_stS,REGION=="SMARIAN"))
-mod1 <- lmer(logDen~ANALYSIS_YEAR+(1|Sector),data=subset(jcdG_stS,REGION=="SMARIAN"))
+modnull <- lmer(logDen~1+(1|SEC_NAME),data=subset(jcdG_stS,REGION=="SMARIAN"))
+mod1 <- lmer(logDen~ANALYSIS_YEAR+(1|SEC_NAME),data=subset(jcdG_stS,REGION=="SMARIAN"))
 anova(mod1,modnull,test="chisq")
 
 #NMARIAN
-modnull <- lmer(logDen~1+(1|Sector),data=subset(jcdG_stS,REGION=="NMARIAN"))
-mod1 <- lmer(logDen~ANALYSIS_YEAR+(1|Sector),data=subset(jcdG_stS,REGION=="NMARIAN"))
+modnull <- lmer(logDen~1+(1|SEC_NAME),data=subset(jcdG_stS,REGION=="NMARIAN"))
+mod1 <- lmer(logDen~ANALYSIS_YEAR+(1|SEC_NAME),data=subset(jcdG_stS,REGION=="NMARIAN"))
 anova(mod1,modnull,test="chisq")
 
 
@@ -1010,7 +1022,7 @@ c.keep<-c("REGION","ISLAND","ANALYSIS_YEAR","ANALYSIS_SCHEMA","REEF_ZONE","DB_RZ
           "n_h","N_h","D._h","SE_D._h")
 
 jcdG_st<-Calc_Strata(data.gen_pb,"GENUS_CODE","JuvColDen","Juvpres.abs");jcdG_st=jcdG_st[,c.keep]
-colnames(jcdG_st)<-c("REGION","ISLAND","ANALYSIS_YEAR","Stratum","REEF_ZONE","DB_RZ","GENUS_CODE","n","Ntot","JuvColDen","SE_JuvColDen")
+colnames(jcdG_st)<-c("REGION","ISLAND","ANALYSIS_YEAR","STRATANAME","REEF_ZONE","DB_RZ","GENUS_CODE","n","Ntot","JuvColDen","SE_JuvColDen")
 
 #Double Check that revised pooling is adding up NH (total sites) correctly
 View(jcdG_st)

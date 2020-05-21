@@ -22,6 +22,9 @@ setwd("C:/Users/Courtney.S.Couch/Documents/Courtney's Files/R Files/ESD/Juvenile
 #LOAD DATA
 jwd_strat<-read.csv("C:/Users/Courtney.S.Couch/Documents/Courtney's Files/R Files/ESD/Juvenile Project/JuvProject_pb_STRATA.csv")#Post bleaching strata-level juvenile data
 jwd_site<-read.csv("C:/Users/Courtney.S.Couch/Documents/Courtney's Files/R Files/ESD/Juvenile Project/JuvProject_pb_SITE.csv")#Post bleaching strata-level juvenile data
+d_strat<-read.csv("C:/Users/Courtney.S.Couch/Documents/Courtney's Files/R Files/ESD/Juvenile Project/Response Variables/JuvProject_deltadensity_STRATA.csv")
+
+
 sh<-read.csv("C:/Users/Courtney.S.Couch/Documents/Courtney's Files/R Files/ESD/Juvenile Project/Predictor Variables/ESD_Fish_Complexity.csv")#Substrate height from fish sites
 cover1<-read.csv("C:/Users/Courtney.S.Couch/Documents/Courtney's Files/R Files/ESD/Data/REA Coral Demography & Cover/Summary Data/Site/BenthicCover_2010-2019_Tier1_SITE.csv")#Cover from all sites
 cover3<-read.csv("C:/Users/Courtney.S.Couch/Documents/Courtney's Files/R Files/ESD/Data/REA Coral Demography & Cover/Summary Data/Site/BenthicCover_2010-2019_Tier3_SITE.csv")#Cover from all sites
