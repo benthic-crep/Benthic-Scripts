@@ -31,14 +31,23 @@ all.site<-rbind(sfm_site,diver_site)
 all.str<-rbind(sfm_str,diver_str)
 all.sec<-rbind(sfm_sec,diver_sec)
 
-colnames(sfm_site)[4:12] <- paste("SfM_", colnames(sfm_site[,c(4:12)]), sep = "")
+colnames(sfm_site)[4:12] <- paste("SfM_", colnames(sfm_site[,c(4:12)]), sep = "");sfm_site<-dplyr::select(sfm_site,-(METHOD))
 colnames(sfm_str)[10:25] <- paste("SfM_", colnames(sfm_str[,c(10:25)]), sep = "")
 colnames(sfm_sec)[8:23] <- paste("SfM_", colnames(sfm_sec[,c(8:23)]), sep = "")
 
-colnames(diver_site)[4:12] <- paste("Diver_", colnames(diver_site[,c(4:12)]), sep = "")
+colnames(diver_site)[4:12] <- paste("Diver_", colnames(diver_site[,c(4:12)]), sep = "");diver_site<-dplyr::select(diver_site,-(METHOD))
 colnames(diver_str)[10:25] <- paste("Diver_", colnames(diver_str[,c(10:25)]), sep = "")
 colnames(diver_sec)[8:23] <- paste("Diver_", colnames(diver_sec[,c(8:23)]), sep = "")
 
 site.wide<-full_join(sfm_site,diver_site);head(site.wide)
+head(site.wide)
+#Change NAs for abunanance and density metrics to 0. Don't change NAs in the partial mortality columns to 0
+site.wide$Diver_JuvColDen[is.na(site.wide$Diver_JuvColDen)]<-0
+site.wide$Diver_AdColDen[is.na(site.wide$Diver_AdColDen)]<-0
+site.wide$SfM_JuvColDen[is.na(site.wide$SfM_JuvColDen)]<-0
+site.wide$SfM_AdColDen[is.na(site.wide$SfM_AdColDen)]<-0
+
+head(site.wide)
+
 
 

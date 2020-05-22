@@ -18,7 +18,11 @@ source("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/lib/GIS_functions.
 setwd("C:/Users/Courtney.S.Couch/Documents/GitHub/Benthic-Scripts/SfM/Method Comparision")
 
 # SFM/ADULT: CLEAN ANALYSIS READY DATA ----------------------------------------------------
-df<-read.csv("C:/Users/Courtney.S.Couch/Documents/GitHub/Benthic-Scripts/SfM/Method Comparision/HARAMP2019_v2_output_may132020.csv")
+df<-read.csv("C:/Users/Courtney.S.Couch/Documents/GitHub/Benthic-Scripts/SfM/Method Comparision/HARAMP2019_output_052220.csv")
+
+#Identify unknown corals to help ID
+unk<-subset(df,SPCODE=="UNKN")
+View(unk)
 
 #Subset just the Adult data
 x<-subset(df,SEGLENGTH=="2.5")
@@ -232,6 +236,8 @@ head(x)
 
 awd<-droplevels(x)
 write.csv(awd,file="C:/Users/Courtney.S.Couch/Documents/GitHub/Benthic-Scripts/SfM/Method Comparision/HARAMP19_SfMAdult_MCLEANED.csv",row.names = F)
+
+
 
 
 # SFM/JUVENILE: CLEAN ANALYSIS READY DATA -------------------------------------

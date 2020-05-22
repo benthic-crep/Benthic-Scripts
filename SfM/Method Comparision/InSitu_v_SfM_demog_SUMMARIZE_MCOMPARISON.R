@@ -37,9 +37,6 @@ meta.list<-unique(meta$SITE)
 miss.site<-anti_join(meta.list,gd.list, by="SITE") #identify number of segments that don't match in geodatabase vs. tracking sheet
 
 
-
-
-
 ad_sfm$TRANSECTAREA<-Transectarea(ad_sfm)
 j_sfm$TRANSECTAREA<-Transectarea(j_sfm)
 
@@ -60,11 +57,13 @@ survey_site<-unique(ad_sfm[,SURVEY_SITE])
 
 SURVEY<-c("METHOD","SITEVISITID", "OBS_YEAR", "REGION", "ISLAND","SEC_NAME", "SITE", "REEF_ZONE",
               "DEPTH_BIN","HABITAT_CODE", "LATITUDE", "LONGITUDE","MIN_DEPTH_M","MAX_DEPTH_M","METHOD","TRANSECT","SEGMENT")
-surveyment<-unique(ad_sfm[,SURVEY])
+survey_segment<-unique(ad_sfm[,SURVEY])
+
+nrow(survey_site)
 
 
-#Combine juvenile and adult data
-aj_sfm<-full_join(ad_sfm,j_sfm) #fixes NA problem
+# #Combine juvenile and adult data
+# aj_sfm<-full_join(ad_sfm,j_sfm) #fixes NA problem
 
 
 # GENERATE SUMMARY METRICS at the Segment-leveL BY GENUS--------------------------------------------------
@@ -101,7 +100,7 @@ chronicdz.gen<-subset(condden.gen,select = c(SITEVISITID,SITE,TRANSECT,GENUS_COD
 data.gen <- join_all(list(acd.gen,jcd.gen,cl.gen,od.gen,rd.gen,acutedz.gen,chronicdz.gen,ble.gen), 
                 by=c("SITE","SITEVISITID","TRANSECT","GENUS_CODE"), type='full')
 head(data.gen)
-
+length(unique(data.gen$SITE))
 
 #Change NAs for abunanance and density metrics to 0. Don't change NAs in the partial mortality columns to 0
 data.gen$JuvColCount[is.na(data.gen$JuvColCount)]<-0;data.gen$JuvColDen[is.na(data.gen$JuvColDen)]<-0
