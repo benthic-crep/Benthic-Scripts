@@ -13,6 +13,32 @@ sfm_site<-read.csv("C:/Users/Courtney.S.Couch/Documents/GitHub/Benthic-Scripts/S
 sfm_str<-read.csv("C:/Users/Courtney.S.Couch/Documents/GitHub/Benthic-Scripts/SfM/Method Comparision/HARAMP19_SfMGENUS_STRATA.csv")
 sfm_sec<-read.csv("C:/Users/Courtney.S.Couch/Documents/GitHub/Benthic-Scripts/SfM/Method Comparision/HARAMP19_SfMGENUS_SECTOR.csv")
 
-diver_site<-read.csv("T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Site/BenthicREA_sitedata_GENUS.csv")
-diver_str<-read.csv("T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Site/BenthicREA_stratadata_GENUS.csv")
-diver_sec<-read.csv("T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Site/BenthicREA_sectordata_GENUS.csv")
+diver_site<-read.csv("C:/Users/Courtney.S.Couch/Documents/GitHub/Benthic-Scripts/SfM/Method Comparision/HARAMP19_DiverGENUS_SITE.csv")
+diver_str<-read.csv("C:/Users/Courtney.S.Couch/Documents/GitHub/Benthic-Scripts/SfM/Method Comparision/HARAMP19_DiverGENUS_STRATA.csv")
+diver_sec<-read.csv("C:/Users/Courtney.S.Couch/Documents/GitHub/Benthic-Scripts/SfM/Method Comparision/HARAMP19_DiverGENUS_SECTOR.csv")
+
+#Select columns to keep in site data
+sfm_site<-dplyr::select(sfm_site, c(SITE,SITEVISITID,GENUS_CODE,AdColCount,AdColDen,JuvColDen,Ave.size,Ave.od,Ave.rd,
+                                    BLE_prev,AcuteDZ_prev,ChronicDZ_prev,METHOD,ISLAND,SEC_NAME,DEPTH_BIN,LATITUDE,LONGITUDE,
+                                    MIN_DEPTH_M,MAX_DEPTH_M))
+
+diver_site<-dplyr::select(diver_site, c(SITE,SITEVISITID,GENUS_CODE,AdColCount,AdColDen,JuvColDen,Ave.size,Ave.od,Ave.rd,
+                                    BLE_prev,AcuteDZ_prev,ChronicDZ_prev,METHOD,ISLAND,SEC_NAME,DEPTH_BIN,LATITUDE,LONGITUDE,
+                                    MIN_DEPTH_M,MAX_DEPTH_M))
+
+#Combine diver and sfm data in long format
+all.site<-rbind(sfm_site,diver_site)
+all.str<-rbind(sfm_str,diver_str)
+all.sec<-rbind(sfm_sec,diver_sec)
+
+colnames(sfm_site)[4:12] <- paste("SfM_", colnames(sfm_site[,c(4:12)]), sep = "")
+colnames(sfm_str)[10:25] <- paste("SfM_", colnames(sfm_str[,c(10:25)]), sep = "")
+colnames(sfm_sec)[8:23] <- paste("SfM_", colnames(sfm_sec[,c(8:23)]), sep = "")
+
+colnames(diver_site)[4:12] <- paste("Diver_", colnames(diver_site[,c(4:12)]), sep = "")
+colnames(diver_str)[10:25] <- paste("Diver_", colnames(diver_str[,c(10:25)]), sep = "")
+colnames(diver_sec)[8:23] <- paste("Diver_", colnames(diver_sec[,c(8:23)]), sep = "")
+
+site.wide<-full_join(sfm_site,diver_site);head(site.wide)
+
+
