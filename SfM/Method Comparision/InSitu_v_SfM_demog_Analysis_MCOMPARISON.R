@@ -49,5 +49,5 @@ site.wide$SfM_AdColDen[is.na(site.wide$SfM_AdColDen)]<-0
 
 head(site.wide)
 
-
+head(subset(site.wide,GENUS_CODE=="SSSS"))
 

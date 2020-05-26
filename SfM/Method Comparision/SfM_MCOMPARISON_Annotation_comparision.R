@@ -158,5 +158,5 @@ p2<-ggplot(all.data, aes(x=ANALYST, y=abun_seg, fill=CONDITION_1)) +
   )
 p2
 
-# ggsave(p1,file="T:/Benthic/Data/SfM/Calibration Plots/RDconditionsCalibration.pdf",width=12,height=10)
-# ggsave(p2,file="T:/Benthic/Data/SfM/Calibration Plots/ConditionsCalibration.pdf",width=12,height=10)
+ggsave(p1,file="C:/Users/Courtney.S.Couch/Documents/GitHub/Benthic-Scripts/SfM/Method Comparision/Figures/RDCauses_100Belt.pdf",width=12,height=10)
+ggsave(p2,file="C:/Users/Courtney.S.Couch/Documents/GitHub/Benthic-Scripts/SfM/Method Comparision/Figures/Conditions_100Belt.pdf",width=12,height=10)

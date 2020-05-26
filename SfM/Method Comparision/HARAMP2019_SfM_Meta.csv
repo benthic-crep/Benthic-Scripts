@@ -1,107 +1,107 @@
-DATE_,REGION,ISLAND,SITE,Survey_Size,Notes,Exposure_Correct,Rugosity,Repeated_Segment,Mosaic_Issues,Repeats_Status,Segments_Annotated
-4/21/2019,MHI,MAI,MAI-02537,3x20m,,,med,,,,4
-4/22/2019,MHI,MAI,MAI-02532,3x20m,,,med,,,,4
-4/22/2019,MHI,MAI,MAI-02534,3x20m,,,med,,,,4
-4/24/2019,MHI,MAI,MAI-02502,3x20m,quite a few dark images,RS,med,,,,4
-4/25/2019,MHI,KAH,KAH-0627,3x20m,quite a few dark photos,RS,med,,REM,,4
-4/25/2019,MHI,KAH,KAH-0659,3x20m,,,med,,SAND,,4
-4/28/2019,MHI,MOL,MOL-02221,3x13m,,,med,,,,4
-4/28/2019,MHI,MOL,MOL-02233,3x20m,Lots of dark photos,RS,med,,BO,,4
-5/1/2019,MHI,MOL,MOL-02291,3x13m,,,med,,,,3
-5/3/2019,MHI,MOL,MOL-02276,3x20m,"Photos #5881-5885 had fins, so moved to MISC",RS,med,,RUG_BLUR,,4
-5/6/2019,MHI,KAH,KAH-0608,3x13m,,,med,,,,4
-5/6/2019,MHI,KAH,KAH-0632,3x20m,,RS,med,,,,4
-5/6/2019,MHI,KAH,KAH-0646,3x13m,"marker 63,64 moved",,med,,PAV,,4
-5/6/2019,MHI,KAH,KAH-0663,3x20m,Marker moved,RS,med,,BARMOVED,,4
-7/10/2019,MHI,LAN,LAN-01768,3x20m,,,med,,PCOM,,4
-7/10/2019,MHI,LAN,LAN-01788,3x18m,,,med,,MCAP,,4
-7/10/2019,MHI,LAN,LAN-01814,3x20m,,,med,,,,4
-7/10/2019,MHI,LAN,LAN-01816,3x20m,,,med,,RUG,,4
-7/10/2019,MHI,LAN,LAN-01829,3x20m,murky site,,med,,MURK,,4
-7/11/2019,MHI,HAW,HAW-04263,3x20m,,,med,5,,Complete,4
-7/12/2019,MHI,HAW,HAW-04252,3x13m,,,med,,,,3
-7/12/2019,MHI,HAW,HAW-04267,3x20m,sd card 2A in camera 7,,med,,PCOM,,4
-7/12/2019,MHI,HAW,HAW-04283,3x20m,sd card 2A in camera 7,,med,0,,Complete,4
-7/12/2019,MHI,HAW,HAW-04285,3x20m,murky site,,med,,MURK,,4
-7/13/2019,MHI,HAW,HAW-04237,3x20m,,,med,,BO,,4
-7/16/2019,MHI,HAW,HAW-04240,3x20m,,,med,5,,Complete,4
-7/16/2019,MHI,HAW,HAW-04241,3x20m,,,med,5_10,,Complete,4
-7/17/2019,MHI,HAW,HAW-04268,3x20m,,,med,0,,Complete,4
-7/17/2019,MHI,HAW,HAW-04294,3x20m,"PCOM, huge guessing game for PCOM colonies (delineating strictly by structure)-- do not feel confident at all about this one, seg 5 thrice annotated",AG,med,5,PCOM,Complete,4
-7/19/2019,MHI,HAW,HAW-04292,3x20m,only three markers,,med,5_10_15,,Complete,4
-7/20/2019,MHI,LAN,LAN-01813,3x20m,,,med,5,,Complete,4
-7/26/2019,MHI,NII,NII-02584,3x20m,,,med,10,BO,Complete,4
-4/21/2019,MHI,MAI,MAI-02515,3x13m,Some SfM photos moved to MISC (had fins or arms in photos),,low,,PAV,,3
-4/22/2019,MHI,MAI,MAI-02520,3x13m,,,low,,,,3
-4/22/2019,MHI,MAI,MAI-02529,3x20m,,,low,,,,4
-4/22/2019,MHI,MAI,MAI-02530,3x20m,,,low,,,,4
-4/22/2019,MHI,MAI,MAI-02543,3x20m,Some photos very dark,RS,low,,PAV_MURK,,4
-4/23/2019,MHI,MAI,MAI-02505,3x20m,"murk and surge, markers probably moved",,low,,MURK,,4
-4/25/2019,MHI,KAH,KAH-0619,3x15m,,,low,,SAND,,3
-4/26/2019,MHI,LAN,LAN-01795,3X13m,Lots of dark photos,,low,,PCOM,,3
-4/26/2019,MHI,LAN,LAN-01819,3X20,,,low,,PAV,,4
-4/27/2019,MHI,MAI,MAI-02544,3x13m,no marker at 0 segment,,low,,PAV,,4
-5/1/2019,MHI,MOL,MOL-02286,3x20m,,,low,,PAV,,4
-5/1/2019,MHI,MOL,MOL-02300,3x20m,Some dark,RS,low,,PAV,,4
-5/1/2019,MHI,MOL,MOL-02306,3x20m,Murktastic site- silty photos; PQ photos too silty,RS,low,,MURK,,4
-5/2/2019,MHI,MOL,MOL-02280,3x30m,"19,20 & 33,34 marker moved",,low,,PAV,,4
-5/3/2019,MHI,MOL,MOL-02263,3x20m,,,low,,PAV,,4
-5/6/2019,MHI,KAH,KAH-0672,3x13m,,,low,,,,3
-7/12/2019,MHI,HAW,HAW-04257,3x20m,,,low,,,,4
-7/12/2019,MHI,HAW,HAW-04272,3x20m,,AG,low,,,,4
-7/12/2019,MHI,HAW,HAW-04278,3x20m,sd card 2A in camera 7,,low,0_5,SAND,Complete,4
-7/13/2019,MHI,HAW,HAW-04221,3x20m,,,low,0,,complete,4
-7/14/2019,MHI,HAW,HAW-04220,3x13m,,,low,,,,3
-7/16/2019,MHI,HAW,HAW-04260,3x20m,,,low,0,PAV,Complete,4
-7/17/2019,MHI,HAW,HAW-04287,3x20m,"bent marker 3,4 and 57,58 - do not use for rescale",AG,low,15,,Complete,4
-7/17/2019,MHI,HAW,HAW-04296,3x13m,,,low,0,,Complete,3
-7/17/2019,MHI,HAW,HAW-04304,3x13m,,AG,low,,,,3
-7/24/2019,MHI,KAU,KAU-02115,3x20m,,RS,low,5,PAV,Complete,4
-7/25/2019,MHI,NII,NII-02594,3x20m,,,low,0_5_10_15,PAV,Complete,4
-7/27/2019,MHI,KAU,KAU-02160,3x20m,,RS,low,5,,complete,4
-7/28/2019,MHI,KAU,KAU-02133,3x20m,,,low,5_15,PAV,Complete,4
-7/31/2019,MHI,OAH,OAH-03235,3x20m,,,low,0_15,PAV,Complete,4
-8/3/2019,MHI,OAH,OAH-03232,3x20m,,,low,10,PAV,Complete,4
-8/3/2019,MHI,OAH,OAH-03234,3x20m,,,low,5,PAV,complete,4
-4/21/2019,MHI,MAI,MAI-02527,3x20m,some dark photos,RS,high,,PCOM,,4
-4/22/2019,MHI,MAI,MAI-02541,3x20m,"some dark photos, only half of photos were moved over from photo download folder - fixed by RS on 6/20",RS,high,,RUG,,4
-4/23/2019,MHI,MAI,MAI-02466,3x13m,,,high,,RUG,,3
-4/23/2019,MHI,MAI,MAI-02489,3x20m,,,high,,PCOM,,4
-4/24/2019,MHI,MAI,MAI-02459,3x15m,"many images with ruler in view, written as MAI-2549 on datasheet in photo",,high,,PCOM,,3
-4/24/2019,MHI,MAI,MAI-02483,3x20m,no picture of slate,,high,,PCOM,,4
-4/25/2019,MHI,KAH,KAH-0635,3x20m,some dark photos,RS,high,,RUG,,4
-4/27/2019,MHI,MAI,MAI-02546,3x20m,Photos are dark Photo #4056 had fin in it; moved to MISC,RS,high,,BO,,4
-4/27/2019,MHI,MAI,MAI-02567,3x20m,Some photos dark,RS,high,,BO,,4
-4/27/2019,MHI,MAI,MAI-02586,3x20m,quite a few dark photos,RS,high,,BO,,4
-4/28/2019,MHI,MOL,MOL-02227,3x20m,Some almost black,RS,high,,BO,,4
-4/28/2019,MHI,MOL,MOL-02242,3x20m,,,high,,BO,,4
-4/29/2019,MHI,MOL,MOL-02194,3x13m,,,high,,BO_MURK,,4
-4/29/2019,MHI,MOL,MOL-02197,3x20m,quite a few dark photos,RS,high,,BO,,4
-4/29/2019,MHI,MOL,MOL-02240,3x20m,"most photos very dark, last pass was extra pass over transect; PQ photos are out of focus",RS,high,,BO_MURK,,4
-5/2/2019,MHI,MOL,MOL-02254,3x13m,,,high,,PCOM_RUG,,3
-5/2/2019,MHI,MOL,MOL-02260,3x20m,,,high,,PCOM_BLUR_COLOR,,4
-5/2/2019,MHI,MOL,MOL-02265,3x13m,,,high,,PCOM_RUG,,3
-5/2/2019,MHI,MOL,MOL-02266,3x20m,,,high,,MCAP,,3
-5/2/2019,MHI,MOL,MOL-02283,3x20m,,,high,,MURK,,4
-5/3/2019,MHI,MOL,MOL-02255,3x20m,a lot of dark photos,RS,high,,PCOM,,4
-5/4/2019,MHI,HAW,HAW-03433,3x20m,some dark photos,RS,high,,BO,,4
-5/4/2019,MHI,HAW,HAW-03434,3x13m,not color corrected,,high,,BO_COLOR,,3
-5/4/2019,MHI,HAW,HAW-03436,3x13m,Some dark,RS,high,,BO,,4
-5/4/2019,MHI,HAW,HAW-03441,3x20m,Lots of dark photos,,high,,BO,,4
-5/4/2019,MHI,HAW,HAW-03445,3x20m,,,high,,BO,,4
-5/4/2019,MHI,HAW,HAW-03451,3x20m,Slate photo taken at end. Many photos dark.,RS,high,,BO,,4
-5/4/2019,MHI,HAW,HAW-03465,3x20m,Some with blue water; moved to MISC,,high,,BO,,4
-5/6/2019,MHI,KAH,KAH-0662,3x20m,,,high,,BO_RUG,,4
-7/11/2019,MHI,HAW,HAW-04277,3x20m,,AG,high,,,,4
-7/11/2019,MHI,HAW,HAW-04300,3x13m,was duplicate site HAW-4249,,high,,PCOM_MURK_COLOR,,3
-7/13/2019,MHI,HAW,HAW-04239,3x13m,,,high,,,,3
-7/13/2019,MHI,HAW,HAW-04247,3x20m,murky site,,high,,MURK,,3
-7/14/2019,MHI,HAW,HAW-04208,3x20m,"marker 63,64 bent - do not use for scale",AG,high,,BO,,4
-7/14/2019,MHI,HAW,HAW-04224,3x20m,"marker 63,64 bent - do not use for scale",AG,high,,BO,,4
-7/14/2019,MHI,HAW,HAW-04231,3x20m,"marker 63,64 bent - do not use for scale",AG,high,0,BO,Complete,4
-7/17/2019,MHI,HAW,HAW-04264,3x20m,was duplicate site #4239,AG,high,0_10_15,BO,Complete,4
-7/19/2019,MHI,HAW,HAW-04259,3x13m,,,high,5,PCOM,Complete,3
-7/19/2019,MHI,HAW,HAW-04299,3x20m,,,high,5_10_15,BO,Complete,4
-7/20/2019,MHI,LAN,LAN-01811,3x20m,,,high,0_5_10_15,BO,Complete,4
-7/20/2019,MHI,LAN,LAN-01817,3x20m,,AG,high,5,,Complete,4
-7/27/2019,MHI,KAU,KAU-02166,3x20m,,RS,high,0,BO,Complete,4
+DATE_,ISLAND,SITE,Survey_Size,Notes,Exposure_Correct,Rugosity,Repeated_Segment,Mosaic_Issues,Repeats_Status,Segments_Annotated
+7/11/2019,Hawaii,HAW-04263,3x20m,,,med,5,,Complete,4
+7/12/2019,Hawaii,HAW-04252,3x13m,,,med,,,,3
+7/12/2019,Hawaii,HAW-04267,3x20m,sd card 2A in camera 7,,med,,PCOM,,4
+7/12/2019,Hawaii,HAW-04283,3x20m,sd card 2A in camera 7,,med,0,,Complete,4
+7/12/2019,Hawaii,HAW-04285,3x20m,murky site,,med,,MURK,,4
+7/13/2019,Hawaii,HAW-04237,3x20m,,,med,,BO,,4
+7/16/2019,Hawaii,HAW-04240,3x20m,,,med,5,,Complete,4
+7/16/2019,Hawaii,HAW-04241,3x20m,,,med,5_10,,Complete,4
+7/17/2019,Hawaii,HAW-04268,3x20m,,,med,0,,Complete,4
+7/17/2019,Hawaii,HAW-04294,3x20m,"PCOM, huge guessing game for PCOM colonies (delineating strictly by structure)-- do not feel confident at all about this one, seg 5 thrice annotated",AG,med,5,PCOM,Complete,4
+7/19/2019,Hawaii,HAW-04292,3x20m,only three markers,,med,5_10_15,,Complete,4
+7/12/2019,Hawaii,HAW-04257,3x20m,,,low,,,,4
+7/12/2019,Hawaii,HAW-04272,3x20m,,AG,low,,,,4
+7/12/2019,Hawaii,HAW-04278,3x20m,sd card 2A in camera 7,,low,0_5,SAND,Complete,4
+7/13/2019,Hawaii,HAW-04221,3x20m,,,low,0,,complete,4
+7/14/2019,Hawaii,HAW-04220,3x13m,,,low,,,,3
+7/16/2019,Hawaii,HAW-04260,3x20m,,,low,0,PAV,Complete,4
+7/17/2019,Hawaii,HAW-04287,3x20m,"bent marker 3,4 and 57,58 - do not use for rescale",AG,low,15,,Complete,4
+7/17/2019,Hawaii,HAW-04296,3x13m,,,low,0,,Complete,3
+7/17/2019,Hawaii,HAW-04304,3x13m,,AG,low,,,,3
+5/4/2019,Hawaii,HAW-03433,3x20m,some dark photos,RS,high,,BO,,4
+5/4/2019,Hawaii,HAW-03434,3x13m,not color corrected,,high,,BO_COLOR,,3
+5/4/2019,Hawaii,HAW-03436,3x13m,Some dark,RS,high,,BO,,4
+5/4/2019,Hawaii,HAW-03441,3x20m,Lots of dark photos,,high,,BO,,4
+5/4/2019,Hawaii,HAW-03445,3x20m,,,high,,BO,,4
+5/4/2019,Hawaii,HAW-03451,3x20m,Slate photo taken at end. Many photos dark.,RS,high,,BO,,4
+5/4/2019,Hawaii,HAW-03465,3x20m,Some with blue water; moved to MISC,,high,,BO,,4
+7/11/2019,Hawaii,HAW-04277,3x20m,,AG,high,,,,4
+7/11/2019,Hawaii,HAW-04300,3x13m,was duplicate site HAW-4249,,high,,PCOM_MURK_COLOR,,3
+7/13/2019,Hawaii,HAW-04239,3x13m,,,high,,,,3
+7/13/2019,Hawaii,HAW-04247,3x20m,murky site,,high,,MURK,,3
+7/14/2019,Hawaii,HAW-04208,3x20m,"marker 63,64 bent - do not use for scale",AG,high,,BO,,4
+7/14/2019,Hawaii,HAW-04224,3x20m,"marker 63,64 bent - do not use for scale",AG,high,,BO,,4
+7/14/2019,Hawaii,HAW-04231,3x20m,"marker 63,64 bent - do not use for scale",AG,high,0,BO,Complete,4
+7/17/2019,Hawaii,HAW-04264,3x20m,was duplicate site #4239,AG,high,0_10_15,BO,Complete,4
+7/19/2019,Hawaii,HAW-04259,3x13m,,,high,5,PCOM,Complete,3
+7/19/2019,Hawaii,HAW-04299,3x20m,,,high,5_10_15,BO,Complete,4
+4/25/2019,Kahoolawe,KAH-00627,3x20m,quite a few dark photos,RS,med,,REM,,4
+4/25/2019,Kahoolawe,KAH-00659,3x20m,,,med,,SAND,,4
+5/6/2019,Kahoolawe,KAH-00608,3x13m,,,med,,,,4
+5/6/2019,Kahoolawe,KAH-00632,3x20m,,RS,med,,,,4
+5/6/2019,Kahoolawe,KAH-00646,3x13m,"marker 63,64 moved",,med,,PAV,,4
+5/6/2019,Kahoolawe,KAH-00663,3x20m,Marker moved,RS,med,,BARMOVED,,4
+4/25/2019,Kahoolawe,KAH-00619,3x15m,,,low,,SAND,,3
+5/6/2019,Kahoolawe,KAH-00672,3x13m,,,low,,,,3
+4/25/2019,Kahoolawe,KAH-00635,3x20m,some dark photos,RS,high,,RUG,,4
+5/6/2019,Kahoolawe,KAH-00662,3x20m,,,high,,BO_RUG,,4
+7/24/2019,Kauai,KAU-02115,3x20m,,RS,low,5,PAV,Complete,4
+7/27/2019,Kauai,KAU-02160,3x20m,,RS,low,5,,complete,4
+7/28/2019,Kauai,KAU-02133,3x20m,,,low,5_15,PAV,Complete,4
+7/27/2019,Kauai,KAU-02166,3x20m,,RS,high,0,BO,Complete,4
+7/10/2019,Lanai,LAN-01768,3x20m,,,med,,PCOM,,4
+7/10/2019,Lanai,LAN-01788,3x18m,,,med,,MCAP,,4
+7/10/2019,Lanai,LAN-01814,3x20m,,,med,,,,4
+7/10/2019,Lanai,LAN-01816,3x20m,,,med,,RUG,,4
+7/10/2019,Lanai,LAN-01829,3x20m,murky site,,med,,MURK,,4
+7/20/2019,Lanai,LAN-01813,3x20m,,,med,5,,Complete,4
+4/26/2019,Lanai,LAN-01795,3X13m,Lots of dark photos,,low,,PCOM,,3
+4/26/2019,Lanai,LAN-01819,3X20,,,low,,PAV,,4
+7/20/2019,Lanai,LAN-01811,3x20m,,,high,0_5_10_15,BO,Complete,4
+7/20/2019,Lanai,LAN-01817,3x20m,,AG,high,5,,Complete,4
+4/21/2019,Maui,MAI-02537,3x20m,,,med,,,,4
+4/22/2019,Maui,MAI-02532,3x20m,,,med,,,,4
+4/22/2019,Maui,MAI-02534,3x20m,,,med,,,,4
+4/24/2019,Maui,MAI-02502,3x20m,quite a few dark images,RS,med,,,,4
+4/21/2019,Maui,MAI-02515,3x13m,Some SfM photos moved to MISC (had fins or arms in photos),,low,,PAV,,3
+4/22/2019,Maui,MAI-02520,3x13m,,,low,,,,3
+4/22/2019,Maui,MAI-02529,3x20m,,,low,,,,4
+4/22/2019,Maui,MAI-02530,3x20m,,,low,,,,4
+4/22/2019,Maui,MAI-02543,3x20m,Some photos very dark,RS,low,,PAV_MURK,,4
+4/23/2019,Maui,MAI-02505,3x20m,"murk and surge, markers probably moved",,low,,MURK,,4
+4/27/2019,Maui,MAI-02544,3x13m,no marker at 0 segment,,low,,PAV,,4
+4/21/2019,Maui,MAI-02527,3x20m,some dark photos,RS,high,,PCOM,,4
+4/22/2019,Maui,MAI-02541,3x20m,"some dark photos, only half of photos were moved over from photo download folder - fixed by RS on 6/20",RS,high,,RUG,,4
+4/23/2019,Maui,MAI-02466,3x13m,,,high,,RUG,,3
+4/23/2019,Maui,MAI-02489,3x20m,,,high,,PCOM,,4
+4/24/2019,Maui,MAI-02459,3x15m,"many images with ruler in view, written as MAI-2549 on datasheet in photo",,high,,PCOM,,3
+4/24/2019,Maui,MAI-02483,3x20m,no picture of slate,,high,,PCOM,,4
+4/27/2019,Maui,MAI-02546,3x20m,Photos are dark Photo #4056 had fin in it; moved to MISC,RS,high,,BO,,4
+4/27/2019,Maui,MAI-02567,3x20m,Some photos dark,RS,high,,BO,,4
+4/27/2019,Maui,MAI-02586,3x20m,quite a few dark photos,RS,high,,BO,,4
+4/28/2019,Molokai,MOL-02221,3x13m,,,med,,,,4
+4/28/2019,Molokai,MOL-02233,3x20m,Lots of dark photos,RS,med,,BO,,4
+5/1/2019,Molokai,MOL-02291,3x13m,,,med,,,,3
+5/3/2019,Molokai,MOL-02276,3x20m,"Photos #5881-5885 had fins, so moved to MISC",RS,med,,RUG_BLUR,,4
+5/1/2019,Molokai,MOL-02286,3x20m,,,low,,PAV,,4
+5/1/2019,Molokai,MOL-02300,3x20m,Some dark,RS,low,,PAV,,4
+5/1/2019,Molokai,MOL-02306,3x20m,Murktastic site- silty photos; PQ photos too silty,RS,low,,MURK,,4
+5/2/2019,Molokai,MOL-02280,3x30m,"19,20 & 33,34 marker moved",,low,,PAV,,4
+5/3/2019,Molokai,MOL-02263,3x20m,,,low,,PAV,,4
+4/28/2019,Molokai,MOL-02227,3x20m,Some almost black,RS,high,,BO,,4
+4/28/2019,Molokai,MOL-02242,3x20m,,,high,,BO,,4
+4/29/2019,Molokai,MOL-02194,3x13m,,,high,,BO_MURK,,4
+4/29/2019,Molokai,MOL-02197,3x20m,quite a few dark photos,RS,high,,BO,,4
+4/29/2019,Molokai,MOL-02240,3x20m,"most photos very dark, last pass was extra pass over transect; PQ photos are out of focus",RS,high,,BO_MURK,,4
+5/2/2019,Molokai,MOL-02254,3x13m,,,high,,PCOM_RUG,,3
+5/2/2019,Molokai,MOL-02260,3x20m,,,high,,PCOM_BLUR_COLOR,,4
+5/2/2019,Molokai,MOL-02265,3x13m,,,high,,PCOM_RUG,,3
+5/2/2019,Molokai,MOL-02266,3x20m,,,high,,MCAP,,3
+5/2/2019,Molokai,MOL-02283,3x20m,,,high,,MURK,,4
+5/3/2019,Molokai,MOL-02255,3x20m,a lot of dark photos,RS,high,,PCOM,,4
+7/26/2019,Niihau,NII-02584,3x20m,,,med,10,BO,Complete,4
+7/25/2019,Niihau,NII-02594,3x20m,,,low,0_5_10_15,PAV,Complete,4
+7/31/2019,Oahu,OAH-03235,3x20m,,,low,0_15,PAV,Complete,4
+8/3/2019,Oahu,OAH-03232,3x20m,,,low,10,PAV,Complete,4
+8/3/2019,Oahu,OAH-03234,3x20m,,,low,5,PAV,complete,4

@@ -25,10 +25,10 @@ unk<-subset(df,SPCODE=="UNKN")
 View(unk)
 
 #Subset just the Adult data
-x<-subset(df,SEGLENGTH=="2.5")
+ad<-subset(df,SEGLENGTH=="2.5")
 head(x)
 View(x)
-nrow(x)
+x<-ad
 
 
 #SfM/ADULT: Column Names Changes -------------------------------------------------
@@ -51,8 +51,6 @@ colnames(x)[colnames(x)=="Shape_Leng"]<-"COLONYLENGTH" #Change column name
 #Add column for method type
 x$METHOD<-"SfM"
 
-if(DEBUG){head(x)}
-
 
 #Take a look at who annotated sites and double check that repeat segments aren't included
 #Note:NII-02584 was split by Mollie and Rhonda- make sure to include both annotator's data
@@ -66,7 +64,6 @@ tmp$prop<-tmp$n/90*100 #% of sites that each annotator annoated
 #SfM/ADULT: Adding and Modifying columns --------------------------------------------
 
 #Fill in columns with values that we know should not be different across any of the rows
-x$OBS_YEAR <- as.vector(rep(2019, times = nrow(x)))
 x$COLONYLENGTH<-x$COLONYLENGTH*100 #convert from m to cm
 x$S_ORDER<-ifelse(x$NO_COLONY==0 & x$SPCODE!="NONE","Scleractinia","NONE") #add S_order column
 x$TRANSECT<-1
@@ -76,14 +73,13 @@ x$COLONYID<-paste(x$SITE,x$SEGMENT,x$SPCODE,x$COLONYLENGTH,sep="_")
 x$COLONYID[duplicated(x$COLONYID)]
 x<-x[!duplicated(x$COLONYID), ] #remove duplicate rows (temporary workaround for now until we can figure out what is going on in the export)
 
-
 #Change bleaching severity = 1 to NA
-x[x$CONDITION_1 =="BLE" & x$SEVERITY_1=="1", 24:26] <- NA
-subset(x,CONDITION_1=="BLE")
-x[x$CONDITION_2 =="BLE" & x$SEVERITY_2=="1", 27:29] <- NA
-subset(x,CONDITION_2=="BLE")
-x[x$CONDITION_3 =="BLE" & x$SEVERITY_3=="1", 30:32] <- NA
-subset(x,CONDITION_3=="BLE")
+awd<-awd %>% mutate_at(.vars = c("CONDITION_1", "EXTENT_1", "SEVERITY_1"), 
+                       funs(ifelse(CONDITION_1 =="BLE" & SEVERITY_1=="1", NA, .)))
+awd<-awd %>% mutate_at(.vars = c("CONDITION_2", "EXTENT_2", "SEVERITY_2"), 
+                       funs(ifelse(CONDITION_1 =="BLE" & SEVERITY_1=="1", NA, .)))
+awd<-awd %>% mutate_at(.vars = c("CONDITION_3", "EXTENT_3", "SEVERITY_3"), 
+                       funs(ifelse(CONDITION_1 =="BLE" & SEVERITY_1=="1", NA, .)))
 
 #Create Genuscode and taxonname column from spcode
 genlookup<-read.csv("T:/Benthic/Data/Lookup Tables/Genus_lookup.csv")
@@ -100,7 +96,6 @@ x<-CreateGenRDCode(x,"RD2","GENRD2",gencodes)
 x<-CreateGenRDCode(x,"RD3","GENRD3",gencodes)
 
 head(x)
-nrow(df);nrow(x) #make sure rows weren't dropped
 
 
 #SfM/ADULT: Merge Adult data and  SURVEY MASTER  -------------------------------------
@@ -115,7 +110,7 @@ x<-left_join(x,survey_master[,c("MISSIONID","REGION","OBS_YEAR","ISLAND","SITEVI
                             "REEF_ZONE","DEPTH_BIN","HABITAT_CODE","LATITUDE","LONGITUDE","MIN_DEPTH_M","MAX_DEPTH_M")])
 
 head(x)
-nrow(x)
+if(nrow(ad)!=nrow(x)) {cat("WARNING:Data were dropped")} #Check that adult data weren't dropped  
 
 
 #SfM/ADULT: Assign TAXONCODE --------------------------------------------------------
@@ -167,18 +162,8 @@ head(subset(x,GENUS_CODE=="UNKN"&S_ORDER=="Scleractinia"))
 head(subset(x,GENUS_CODE=="AAAA"))
 head(subset(x,SPCODE=="AAAA"))
 
-
-test<-subset(x,SPCODE=="UNKN")
-table(test$ANALYST) # look at who has unknowns- go back to the imagery to double check ID
-write.csv(test,"unknowns_to_check.csv")
-
 #In order to record no colonies observed in a segment, we need to create a small colony on the image.This code removes that size measure
 x$COLONYLENGTH<-ifelse(x$SPCODE=="AAAA",0,as.character(x$COLONYLENGTH))
-
-
-# sapply(x,levels)
-head(x)
-nrow(x)
 
 #Reorder columns
 x<-x[,c("METHOD","ANALYST", "MISSIONID","REGION","OBS_YEAR","ISLAND","SEC_NAME","SITEVISITID","SITE","TRANSECT","REEF_ZONE","DEPTH_BIN",
@@ -242,10 +227,12 @@ write.csv(awd,file="C:/Users/Courtney.S.Couch/Documents/GitHub/Benthic-Scripts/S
 
 # SFM/JUVENILE: CLEAN ANALYSIS READY DATA -------------------------------------
 #Subset just the Adult data
-x<-subset(df,SEGLENGTH=="1")
+j<-subset(df,SEGLENGTH=="1")
 head(x)
 View(x)
 nrow(x)
+
+x<-j
 
 #SFM/JUVENILE: Column Names Changes... -------------------------------------------------
 colnames(x)[colnames(x)=="FRAGMENT"]<-"Fragment" #Change column name
@@ -265,7 +252,6 @@ table(x$SITE,x$ANALYST)
 #SFM/JUVENILE: Adding and Modifying columns --------------------------------------------
 
 #Fill in columns with values that we know should not be different across any of the rows
-x$OBS_YEAR <- as.vector(rep(2019, times = nrow(x)))
 x$COLONYLENGTH<-x$COLONYLENGTH*100 #convert from m to cm
 x$S_ORDER<-ifelse(x$NO_COLONY==0 & x$SPCODE!="NONE","Scleractinia","NONE") #add S_order column
 x$TRANSECT<-1
@@ -282,6 +268,7 @@ x<-CreateGenusCode(x,genlookup)
 head(x)
 
 
+
 #SFM/JUVENILE: Merge Juvenile data and SURVEY MASTER (SfM) -------------------------------------
 survey_master<-read.csv("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/data/SURVEY MASTER.csv")
 #survey_master <- read.csv("SURVEY MASTER.csv")
@@ -296,6 +283,7 @@ x<-left_join(x,survey_master[,c("MISSIONID","REGION","OBS_YEAR","ISLAND","SITEVI
 head(x)
 nrow(x)
 
+if(nrow(j)!=nrow(x)) {cat("WARNING:Data were dropped")} #Check that adult data weren't dropped  
 
 
 #SFM/JUVENILE: Assign TAXONCODE --------------------------------------------------------

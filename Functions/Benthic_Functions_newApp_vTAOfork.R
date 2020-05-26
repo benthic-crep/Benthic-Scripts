@@ -135,6 +135,20 @@ Transectarea_old<-function(data,s.df){
   return(data)
 }
 
+#Simplify Bleaching Severity categories: in 2019 the team decided to simplify the bleaching severity from 1-5 to 1-3 to improve consistency in severity values
+Convert_Severity<-function(data,severity_field,severity_new){
+  data$SEV<-data[,severity_field]
+  data<-data %>% mutate(sev_new=recode(SEV, 
+                                       `1`="NA",
+                                       `2`="NA",
+                                       `3`="2",
+                                       `4`="3",
+                                       `5`="3"))
+  colnames(data)[which(colnames(data) == 'sev_new')] <- severity_new #change group to whatever your grouping field is.
+  data<-subset(data,select=-c(SEV))
+  return(data)
+}
+
 
 
 

@@ -37,18 +37,6 @@ jwd$DATE_ <- as.Date(jwd$DATE_, format = "%Y-%m-%d")
 
 awd_pre <- awd %>% filter(DATE_ < as.Date('2019-07-11'))
 awd_post<-awd %>% filter(DATE_ >= as.Date('2019-07-11'))
-Convert_Severity<-function(data,severity_field,severity_new){
-  data$SEV<-data[,severity_field]
-  data<-data %>% mutate(sev_new=recode(SEV, 
-                                       `1`="NA",
-                                       `2`="NA",
-                                       `3`="2",
-                                       `4`="3",
-                                       `5`="3"))
-  colnames(data)[which(colnames(data) == 'sev_new')] <- severity_new #change group to whatever your grouping field is.
-  data<-subset(data,select=-c(SEV))
-return(data)
-}
 
 awd_pre<-Convert_Severity(awd_pre,"SEVERITY_1","SEVERITY_1n")
 awd_pre<-Convert_Severity(awd_pre,"SEVERITY_2","SEVERITY_2n")
