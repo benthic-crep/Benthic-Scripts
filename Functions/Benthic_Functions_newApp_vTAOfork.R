@@ -578,6 +578,7 @@ Calc_CONDden_Seg_DIVER<-function(data,survey_colony_f=survey_colony, grouping_fi
 
 ## TRANSECT LEVEL SUMMARY FUNCTIONS #######
 
+#Modified 5/28/20- added METHOD
 #This function calculates colony density at the transect scale by first calculating the total survey area (using Calc_SurveyArea_By_Transect) then calcuating colony density
 Calc_ColDen_Transect<-function(data, grouping_field="GENUS_CODE"){
   #require(tidyr)
@@ -590,29 +591,29 @@ Calc_ColDen_Transect<-function(data, grouping_field="GENUS_CODE"){
 
 
   #Calculate # of colonies for each variable. You need to have S_ORDER and Fragment here so you can incorporate zeros properly later in the code
-  a<-ddply(data, .(SITE,SITEVISITID,TRANSECT, S_ORDER,GROUP,Fragment),
+  a<-ddply(data, .(METHOD,SITE,SITEVISITID,TRANSECT, S_ORDER,GROUP,Fragment),
            summarise,
            ColCount=length(COLONYID)) #change to count
   
   #Convert from long to wide and insert 0s for taxa that weren't found at each site. 
   #ca<-dcast(a, formula=SITE + SITEVISITID +TRANSECT +Fragment+S_ORDER~ GROUP, value.var="ColCount",fill=0)
   ca0=spread(a,key=GROUP,value=ColCount,fill=0) #Keepin' it TIDYR
-  data.cols<-names(ca0[6:dim(ca0)[2]]) #define your data coloumns- note you need to index by column number not by names-you may have situations where there are no AAAA
-  field.cols<-c("SITE", "SITEVISITID", "TRANSECT","Fragment") #define field columns
+  data.cols<-names(ca0[7:dim(ca0)[2]]) #define your data coloumns- note you need to index by column number not by names-you may have situations where there are no AAAA
+  field.cols<-c("METHOD","SITE", "SITEVISITID", "TRANSECT","Fragment") #define field columns
   
   ### Drop all fragments, but don't drop a fragment-only transect... ###
   #change colony counts for fragments to 0 so that we account for the transects that only had fragments
   ca0[which(ca0$Fragment <0), data.cols]<-0 
   
   #At this point you will have multiple rows for each site/transect so sum data by site and transect. This will help you properly insert 0s
-  field.cols<-c("SITE", "SITEVISITID", "TRANSECT")
+  field.cols<-c("METHOD","SITE", "SITEVISITID", "TRANSECT")
   ca1<-aggregate(ca0[,data.cols], by=ca0[,field.cols], sum) 
   rm(list='ca0')
   
   #Create a list of scleractinian taxa that are in the dataframe as columns then sum across just those taxa to get total scl
   b<-subset(data,S_ORDER=="Scleractinia");taxalist<-as.character(unique(b$GROUP))
   ca1$SSSS<-rowSums(ca1[,taxalist,drop=FALSE]) #calculate total colony density
-  ca2 <- gather(ca1, GROUP, ColCount, names(ca1[4:dim(ca1)[2]]), factor_key=TRUE) #convert wide to long format
+  ca2 <- gather(ca1, GROUP, ColCount, names(ca1[5:dim(ca1)[2]]), factor_key=TRUE) #convert wide to long format
   rm(list='ca1')
   
   #Remove everything that isn't a scleractinian
@@ -622,15 +623,15 @@ Calc_ColDen_Transect<-function(data, grouping_field="GENUS_CODE"){
   
   #Calculate transect area surveyed and colony density***
   #trarea<-Calc_SurveyArea_By_Transect(data)
-  uTA=unique(data[,c("SITE","SITEVISITID","TRANSECT","TRANSECTAREA")])
-  out<-join(uTA,ca3, by=c("SITE","SITEVISITID","TRANSECT"))
+  uTA=unique(data[,c("METHOD","SITE","SITEVISITID","TRANSECT","TRANSECTAREA")])
+  out<-join(uTA,ca3, by=c("METHOD","SITE","SITEVISITID","TRANSECT"))
   out$ColDen<-out$ColCount/out$TRANSECTAREA
   colnames(out)[which(colnames(out) == 'GROUP')] <- grouping_field #change group to whatever your grouping field is.
   
     return(out)
 }
 
-
+#Modified 5/28/20- added METHOD
 #Change percent to proportion
 ##This function calculates mean colony legnth, % recent dead, % old dead, condition severity or condition extent to the transect level
 Calc_ColMetric_Transect<-function(data, grouping_field="S_ORDER",pool_fields=c("COLONYLENGTH","RDEXTENT1", "RDEXTENT2","RDEXTENT3","OLDDEAD","SEVERITY1","EXTENT1","SEVERITY2","EXTENT2","SEVERITY3","EXTENT3")){
@@ -641,16 +642,16 @@ Calc_ColMetric_Transect<-function(data, grouping_field="S_ORDER",pool_fields=c("
   
   scl$y <- rowSums(scl[,pool_fields,drop=FALSE], na.rm=TRUE) #this will allow you to add the 2 recent dead columns if you are looking at this metric
   
-  rd<-ddply(scl, .(SITE,SITEVISITID,TRANSECT,GROUP),
+  rd<-ddply(scl, .(METHOD,SITE,SITEVISITID,TRANSECT,GROUP),
             summarise,
             Ave.y=mean(y, na.rm=TRUE))
   
-  rdtot<-ddply(scl, .(SITE,SITEVISITID,TRANSECT),
+  rdtot<-ddply(scl, .(METHOD,SITE,SITEVISITID,TRANSECT),
                summarise,
                Ave.y=mean(y, na.rm=TRUE))
-  rdtot$GROUP<-"SSSS"; rdtot <- rdtot[c(1,2,3,5,4)]
-  rd_wide<-dcast(rd, formula=SITE + SITEVISITID +TRANSECT~ GROUP, value.var="Ave.y",fill=0)
-  rd_long <- gather(rd_wide, GROUP, Ave.y, names(rd_wide[4:dim(rd_wide)[2]]), factor_key=TRUE) #convert wide to long format
+  rdtot$GROUP<-"SSSS"; rdtot <- rdtot[c(1,2,3,4,6,5)]
+  rd_wide<-dcast(rd, formula=METHOD+SITE + SITEVISITID +TRANSECT~ GROUP, value.var="Ave.y",fill=0)
+  rd_long <- gather(rd_wide, GROUP, Ave.y, names(rd_wide[5:dim(rd_wide)[2]]), factor_key=TRUE) #convert wide to long format
   rd_long<-rbind(rd,rdtot)
   
   colnames(rd_long)[which(colnames(rd_long) == 'GROUP')] <- grouping_field #change group to whatever your grouping field is.
@@ -660,7 +661,7 @@ Calc_ColMetric_Transect<-function(data, grouping_field="S_ORDER",pool_fields=c("
 
 
 
-#Updated 1/24/20
+#Modified 5/28/20- added METHOD
 Calc_RDden_Transect<-function(data, survey_colony_f=survey_colony, grouping_field="S_ORDER"){
 
   data$GROUP<-data[,grouping_field]
@@ -680,8 +681,8 @@ Calc_RDden_Transect<-function(data, survey_colony_f=survey_colony, grouping_fiel
   
   #convert from long to wide and fill in 0s
   # Tom gave up trying to make this from dcast to spread to 'keep dependencies down', maybe another day...
-  rd<-dcast(scl_l, formula=SITEVISITID + SITE+TRANSECT+COLONYID ~ RDtype, value.var="RDtype",length,fill=0)
-  MDcol=c("SITEVISITID","SITE","TRANSECT","COLONYID")
+  rd<-dcast(scl_l, formula=METHOD+SITEVISITID + SITE+TRANSECT+COLONYID ~ RDtype, value.var="RDtype",length,fill=0)
+  MDcol=c("METHOD","SITEVISITID","SITE","TRANSECT","COLONYID")
   DATAcol=setdiff(names(rd),MDcol)
   rd.new=rd;  rd.new[,DATAcol][rd.new[,DATAcol]>1]=1  
 
@@ -692,20 +693,20 @@ Calc_RDden_Transect<-function(data, survey_colony_f=survey_colony, grouping_fiel
                      ConditionsWeCareAbout,
                      factor_key=TRUE) #convert wide to long format by condition
   allrd3_l$GROUP<-allrd3_l[,grouping_field]
-  allrd3_lsum<-ddply(allrd3_l, .(SITE,SITEVISITID,TRANSECT,GROUP,RDCond), #calc total colonies by taxon and condition
+  allrd3_lsum<-ddply(allrd3_l, .(METHOD,SITE,SITEVISITID,TRANSECT,GROUP,RDCond), #calc total colonies by taxon and condition
                  summarise,
                  RDabun=sum(abun))
-  out1<-ddply(allrd3_lsum, .(SITE,SITEVISITID,TRANSECT,RDCond), #calc total colonies by condition
+  out1<-ddply(allrd3_lsum, .(METHOD,SITE,SITEVISITID,TRANSECT,RDCond), #calc total colonies by condition
               summarise,
               RDabun=sum(RDabun,na.rm=T))
-  out1$GROUP<-"SSSS"; out1 <- out1[c(1,2,3,6,4,5)] #add total colony code
+  out1$GROUP<-"SSSS"; out1 <- out1[c(1,2,3,4,5,7,6)] #add total colony code
   a<-subset(rbind(allrd3_lsum,out1),!RDCond %in% c("NONE_G","NONE"))
   
   #Convert back to wide format
-  abun<-dcast(a, formula=SITEVISITID +SITE + TRANSECT+GROUP~ RDCond, value.var="RDabun",sum,fill=0)
+  abun<-dcast(a, formula=METHOD+SITEVISITID +SITE + TRANSECT+GROUP~ RDCond, value.var="RDabun",sum,fill=0)
   
   #trarea<-Calc_SurveyArea_By_Transect(data) #calculate survey area/site
-  uTA=unique(scl[,c("SITEVISITID","SITE","TRANSECT","TRANSECTAREA")])
+  uTA=unique(scl[,c("METHOD","SITEVISITID","SITE","TRANSECT","TRANSECTAREA")])
   ab.tr<-left_join(x = uTA,y = abun)
   #ab.tr<-left_join(x = uTA,y = abun,by=c("SITEVISITID","SITE","TRANSECT"))
   ab.tr[is.na(ab.tr),]<-0
@@ -725,7 +726,7 @@ Calc_RDden_Transect<-function(data, survey_colony_f=survey_colony, grouping_fiel
 
 
 
-#Updated 1/24/20
+#Modified 5/28/20- added METHOD
 Calc_CONDden_Transect<-function(data,survey_colony_f=survey_colony, grouping_field="S_ORDER"){
   
   data$GROUP<-data[,grouping_field]
@@ -743,9 +744,9 @@ Calc_CONDden_Transect<-function(data,survey_colony_f=survey_colony, grouping_fie
   long <- gather(data= scl, key= CONDcat,value=CONDtype, c(CONDITION_1,CONDITION_2,CONDITION_3,Chronic), factor_key=TRUE)
   
   #convert from long to wide and fill in 0s
-  rd<-dcast(long, formula=SITEVISITID + SITE+TRANSECT+COLONYID ~ CONDtype, value.var="CONDtype",length,fill=0)
+  rd<-dcast(long, formula=METHOD+SITEVISITID + SITE+TRANSECT+COLONYID ~ CONDtype, value.var="CONDtype",length,fill=0)
   x<-c("CHRO");rd[x[!(x %in% colnames(rd))]] = 0 #if data does not have CHRO, add this column with 0s
-  MDcol=c("SITEVISITID","SITE","TRANSECT","COLONYID")
+  MDcol=c("METHOD","SITEVISITID","SITE","TRANSECT","COLONYID")
   DATAcol=setdiff(names(rd),MDcol)
   rd.new=rd;  rd.new[,DATAcol][rd.new[,DATAcol]>1]=1  
   
@@ -756,19 +757,19 @@ Calc_CONDden_Transect<-function(data,survey_colony_f=survey_colony, grouping_fie
                      ConditionsWeCareAbout,
                      factor_key=TRUE) #convert wide to long format by condition
   allrd3_l$GROUP<-allrd3_l[,grouping_field]
-  allrd3_lsum<-ddply(allrd3_l, .(SITE,SITEVISITID,TRANSECT,GROUP,Cond), #calc total colonies by taxon and condition
+  allrd3_lsum<-ddply(allrd3_l, .(METHOD,SITE,SITEVISITID,TRANSECT,GROUP,Cond), #calc total colonies by taxon and condition
                      summarise,
                      CONDabun=sum(abun))
-  out1<-ddply(allrd3_lsum, .(SITE,SITEVISITID,TRANSECT,Cond), #calc total colonies by condition
+  out1<-ddply(allrd3_lsum, .(METHOD,SITE,SITEVISITID,TRANSECT,Cond), #calc total colonies by condition
               summarise,
               CONDabun=sum(CONDabun,na.rm=T))
-  out1$GROUP<-"SSSS"; out1 <- out1[c(1,2,3,6,4,5)] #add total colony code
+  out1$GROUP<-"SSSS"; out1 <- out1[c(1,2,3,4,5,7,6)] #add total colony code
   a<-subset(rbind(allrd3_lsum,out1),!Cond %in% c("NONE_G","NONE"))
   
   #Convert back to wide format
-  abun<-dcast(a, formula=SITEVISITID +SITE + TRANSECT+GROUP~ Cond, value.var="CONDabun",sum,fill=0)
+  abun<-dcast(a, formula=METHOD+SITEVISITID +SITE + TRANSECT+GROUP~ Cond, value.var="CONDabun",sum,fill=0)
   
-  uTA=unique(scl[,c("SITEVISITID","SITE","TRANSECT","TRANSECTAREA")])
+  uTA=unique(scl[,c("METHOD","SITEVISITID","SITE","TRANSECT","TRANSECTAREA")])
   ab.tr<-left_join(x = uTA,y = abun)
   ab.tr[is.na(ab.tr)]<-0
   

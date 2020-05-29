@@ -54,7 +54,7 @@ x$METHOD<-"SfM"
 
 #Take a look at who annotated sites and double check that repeat segments aren't included
 #Note:NII-02584 was split by Mollie and Rhonda- make sure to include both annotator's data
-table(x$SITE,x$ANALYST)
+table(x$SITE,x$ANALYST,x$SEGMENT)
 tmp<-ddply(x,.(ANALYST),
            summarize,
            n=length(unique(SITE)))

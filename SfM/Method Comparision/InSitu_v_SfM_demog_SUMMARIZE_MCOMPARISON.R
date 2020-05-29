@@ -48,6 +48,12 @@ miss.site<-dplyr::filter(tmp.seg, is.na(Segments_inGD));miss.site #identify site
 ad_sfm$TRANSECTAREA<-Transectarea(ad_sfm)
 j_sfm$TRANSECTAREA<-Transectarea(j_sfm)
 
+#Double check transect areas
+summary(j_sfm$TRANSECTAREA)
+summary(ad_sfm$TRANSECTAREA)
+
+# head(subset(j_sfm,TRANSECTAREA==4.5)) #look at site LAN-01813
+# View(subset(j_sfm,SITE=="LAN-01813"))
 
 #Check if any site-segments have been dropped 
 t1<-ddply(ad_sfm,.(SITE,SEGMENT),summarize,n=length(unique(ANALYST)));nrow(t1[t1$n>1,])
@@ -80,8 +86,8 @@ nrow(survey_site)
 # GENERATE SUMMARY METRICS at the Segment-leveL BY GENUS--------------------------------------------------
 
 #Calc_ColDen_Transect
-acd.gen<-Calc_ColDen_Transect(data = ad_sfm,grouping_field = "GENUS_CODE");colnames(acd.gen)[colnames(acd.gen)=="ColCount"]<-"AdColCount";colnames(acd.gen)[colnames(acd.gen)=="ColDen"]<-"AdColDen";colnames(acd.gen)[colnames(acd.gen)=="SEGAREA"]<-"SEGAREA_ad"# calculate density at genus level as well as total
-jcd.gen<-Calc_ColDen_Transect(j_sfm,"GENUS_CODE"); colnames(jcd.gen)[colnames(jcd.gen)=="ColCount"]<-"JuvColCount";colnames(jcd.gen)[colnames(jcd.gen)=="ColDen"]<-"JuvColDen"
+acd.gen<-Calc_ColDen_Transect(data = ad_sfm,grouping_field = "GENUS_CODE");colnames(acd.gen)[colnames(acd.gen)=="ColCount"]<-"AdColCount";colnames(acd.gen)[colnames(acd.gen)=="ColDen"]<-"AdColDen";colnames(acd.gen)[colnames(acd.gen)=="TRANSECTAREA"]<-"TRANSECTAREA_ad"# calculate density at genus level as well as total
+jcd.gen<-Calc_ColDen_Transect(j_sfm,"GENUS_CODE"); colnames(jcd.gen)[colnames(jcd.gen)=="ColCount"]<-"JuvColCount";colnames(jcd.gen)[colnames(jcd.gen)=="ColDen"]<-"JuvColDen";colnames(jcd.gen)[colnames(jcd.gen)=="TRANSECTAREA"]<-"TRANSECTAREA_j"
 
 
 ## This function calculates mean colony length, % recent dead, % old dead, condition severity or condition extent to the segment level
@@ -95,13 +101,13 @@ rd.gen<-Calc_ColMetric_Transect(data = ad_sfm,grouping_field = "GENUS_CODE",pool
 
 #Calc_RDden_Transect
 rdden.gen<-Calc_RDden_Transect(data=ad_sfm,grouping_field ="GENUS_CODE") # Density of recent dead colonies by condition, you will need to subset which ever condition you want. The codes ending in "S" are the general categories
-acutedz.gen<-subset(rdden.gen,select = c(SITEVISITID,SITE,TRANSECT,GENUS_CODE,DZGN_G));colnames(acutedz.gen)[colnames(acutedz.gen)=="DZGN_G"]<-"AcuteDZ" #subset just acute diseased colonies
+acutedz.gen<-subset(rdden.gen,select = c(METHOD,SITEVISITID,SITE,TRANSECT,GENUS_CODE,DZGN_G));colnames(acutedz.gen)[colnames(acutedz.gen)=="DZGN_G"]<-"AcuteDZ" #subset just acute diseased colonies
 
 
 #Calc_CONDden_Transect
 condden.gen<-Calc_CONDden_Transect(data=ad_sfm,grouping_field ="GENUS_CODE")# Density of condition colonies by condition, you will need to subset which ever condition you want
-ble.gen<-subset(condden.gen,select = c(SITEVISITID,SITE,TRANSECT,GENUS_CODE,BLE));colnames(ble.gen)[colnames(ble.gen)=="BLE"]<-"BLE" #subset just bleached colonies
-chronicdz.gen<-subset(condden.gen,select = c(SITEVISITID,SITE,TRANSECT,GENUS_CODE,CHRO));colnames(chronicdz.gen)[colnames(chronicdz.gen)=="CHRO"]<-"ChronicDZ"
+ble.gen<-subset(condden.gen,select = c(METHOD,SITEVISITID,SITE,TRANSECT,GENUS_CODE,BLE));colnames(ble.gen)[colnames(ble.gen)=="BLE"]<-"BLE" #subset just bleached colonies
+chronicdz.gen<-subset(condden.gen,select = c(METHOD,SITEVISITID,SITE,TRANSECT,GENUS_CODE,CHRO));colnames(chronicdz.gen)[colnames(chronicdz.gen)=="CHRO"]<-"ChronicDZ"
 
 #Calc_Richness_Transect
 #rich.gen<-Calc_Richness_Transect(ad_sfm,"GENUS_CODE")
@@ -109,7 +115,7 @@ chronicdz.gen<-subset(condden.gen,select = c(SITEVISITID,SITE,TRANSECT,GENUS_COD
 
 #Join density and partial moratlity data together.You will need to replace the DUMMY field with the one you want
 data.gen <- join_all(list(acd.gen,jcd.gen,cl.gen,od.gen,rd.gen,acutedz.gen,chronicdz.gen,ble.gen), 
-                by=c("SITE","SITEVISITID","TRANSECT","GENUS_CODE"), type='full')
+                by=c("METHOD","SITE","SITEVISITID","TRANSECT","GENUS_CODE"), type='full')
 head(data.gen)
 length(unique(data.gen$SITE))
 
@@ -119,9 +125,9 @@ data.gen$AdColCount[is.na(data.gen$AdColCount)]<-0;data.gen$AdColDen[is.na(data.
 
 
 #Calculate transect level prevalence for acute dz, chronic dz and bleaching
-data.gen$AcuteDZ_prev<-(data.gen$AcuteDZ*data.gen$TRANSECTAREA)/data.gen$AdColCount*100
-data.gen$BLE_prev<-(data.gen$BLE*data.gen$TRANSECTAREA)/data.gen$AdColCount*100
-data.gen$ChronicDZ_prev<-(data.gen$ChronicDZ*data.gen$TRANSECTAREA)/data.gen$AdColCount*100
+data.gen$AcuteDZ_prev<-(data.gen$AcuteDZ*data.gen$TRANSECTAREA_ad)/data.gen$AdColCount*100
+data.gen$BLE_prev<-(data.gen$BLE*data.gen$TRANSECTAREA_ad)/data.gen$AdColCount*100
+data.gen$ChronicDZ_prev<-(data.gen$ChronicDZ*data.gen$TRANSECTAREA_ad)/data.gen$AdColCount*100
 
 View(data.gen)
 
@@ -130,8 +136,8 @@ data.gen$Adpres.abs<-ifelse(data.gen$AdColDen>0,1,0)
 data.gen$Juvpres.abs<-ifelse(data.gen$JuvColDen>0,1,0)
 
 #We only surveyed 1 transect/site so data.gen is site-level data
-site.data.gen2<-dplyr::select(data.gen,-c(TRANSECT,TRANSECTAREA))
-
+if(length(unique(data.gen$TRANSECT))>1) {cat("WARNING:MORE THAN 1 TRANSECT/SITE IN DF")} #Check that adult data weren't dropped  
+site.data.gen2<-dplyr::select(data.gen,-(TRANSECT))
 
 #Merge site data with metadata
 
@@ -144,8 +150,6 @@ meta[which(is.na(meta$AREA_HA)),]
 nrow(survey_site)
 nrow(meta)
 
-#TEMPORARILY remove KAU-02016- it's incomplete in current version
-site.data.gen2<-dplyr::filter(site.data.gen2, SITE != "KAU-02016")
 
 #Merge site level data and meta data
 site.data.gen2<-left_join(site.data.gen2,meta);head(site.data.gen2)
@@ -253,6 +257,7 @@ jwd<-read.csv("T:/Benthic/Data/REA Coral Demography & Cover/Analysis Ready Raw d
 awd<-subset(awd,OBS_YEAR=="2019")
 jwd<-subset(jwd,OBS_YEAR=="2019")
 
+
 #Final Tweaks before calculating Site-level data-------------------------------------------------
 #Colony fragments and scleractinans are subseted in the functions 
 #Add a column for adult fragments so we can remove them from the dataset later (-1 indicates fragment)
@@ -301,27 +306,6 @@ nrow(awd.);head(awd.)
 awd<-awd.; rm("awd.") #remove temporary dataframe if all good. 
 
 
-#Create a look a table of all of the colony attributes- you will need this the functions below
-SURVEY_COL<-c("DATE_","SITEVISITID", "OBS_YEAR", "REGION", "REGION_NAME", "ISLAND","ISLANDCODE","SEC_NAME", "SITE", "REEF_ZONE",
-              "DEPTH_BIN", "LATITUDE", "LONGITUDE","MIN_DEPTH_M","MAX_DEPTH_M","TRANSECT","SEGMENT","COLONYID","GENUS_CODE","TAXONCODE","SPCODE","COLONYLENGTH")
-survey_colony<-unique(awd[,SURVEY_COL])#new_Aggregate_InputTable(awd, SURVEY_INFO)#TAO 2019/10/07
-
-SURVEY_SITE<-c("MISSIONID","DATE_","SITEVISITID", "ANALYSIS_YEAR","OBS_YEAR", "REGION", "REGION_NAME", "ISLAND","ISLANDCODE","SEC_NAME", "SITE", "REEF_ZONE",
-               "DEPTH_BIN", "LATITUDE", "LONGITUDE","MIN_DEPTH_M","MAX_DEPTH_M","HABITAT_CODE")
-survey_siteAd<-unique(awd[,SURVEY_SITE])#new_Aggregate_InputTable(awd, SURVEY_INFO)#TAO 2019/10/07
-
-SURVEY_SITE<-c("MISSIONID","DATE_","SITEVISITID", "ANALYSIS_YEAR","OBS_YEAR", "REGION", "REGION_NAME", "ISLAND","ISLANDCODE","SEC_NAME", "SITE", "REEF_ZONE",
-               "DEPTH_BIN", "LATITUDE", "LONGITUDE","MIN_DEPTH_M","MAX_DEPTH_M")
-survey_siteJ<-unique(jwd[,SURVEY_SITE])#new_Aggregate_InputTable(awd, SURVEY_INFO)#TAO 2019/10/07
-
-write.csv(survey_siteAd,"surveysite.csv")
-
-#We did juvenile only surveys in 2017 in PRIA, this will make sure the SV table has both adult and juv sites.
-survey_site<-left_join(survey_siteJ,survey_siteAd);nrow(survey_site) 
-
-#TEMPORARY WORK AROUND-ASK MICHAEL TO FIX
-survey_site$REEF_ZONE<-ifelse(survey_site$SITE=="HAW-04285","Forereef",as.character(survey_site$REEF_ZONE))
-
 #Only include sites and segments surveyed by divers during HARAMP 2019
 awd$SITE_SEG<-paste(awd$SITE,awd$SEGMENT,sep="_")
 jwd$SITE_SEG<-paste(jwd$SITE,jwd$SEGMENT,sep="_")
@@ -332,6 +316,23 @@ jwd<-dplyr::filter(jwd, SITE_SEG %in% c(j_sfm$SITE_SEG));head(jwd)
 length(unique(awd$SITE))
 length(unique(jwd$SITE))
 
+awd$METHOD<-"Diver"
+jwd$METHOD<-"Diver"
+
+#Create a look a table of all of the colony attributes- you will need this the functions below
+SURVEY_COL<-c("METHOD","DATE_","SITEVISITID", "OBS_YEAR", "REGION", "REGION_NAME", "ISLAND","ISLANDCODE","SEC_NAME", "SITE", "REEF_ZONE",
+              "DEPTH_BIN", "LATITUDE", "LONGITUDE","MIN_DEPTH_M","MAX_DEPTH_M","TRANSECT","SEGMENT","COLONYID","GENUS_CODE","TAXONCODE","SPCODE","COLONYLENGTH")
+survey_colony<-unique(awd[,SURVEY_COL])#new_Aggregate_InputTable(awd, SURVEY_INFO)#TAO 2019/10/07
+
+SURVEY_SITE<-c("METHOD","MISSIONID","DATE_","SITEVISITID", "ANALYSIS_YEAR","OBS_YEAR", "REGION", "REGION_NAME", "ISLAND","ISLANDCODE","SEC_NAME", "SITE", "REEF_ZONE",
+               "DEPTH_BIN", "LATITUDE", "LONGITUDE","MIN_DEPTH_M","MAX_DEPTH_M","HABITAT_CODE")
+survey_site<-unique(awd[,SURVEY_SITE])#new_Aggregate_InputTable(awd, SURVEY_INFO)#TAO 2019/10/07
+
+
+#TEMPORARY WORK AROUND-ASK MICHAEL TO FIX
+survey_site$REEF_ZONE<-ifelse(survey_site$SITE=="HAW-04285","Forereef",as.character(survey_site$REEF_ZONE))
+
+
 
 # GENERATE SUMMARY METRICS at the transect-leveL BY GENUS--------------------------------------------------
 #Calc_ColDen_Transect
@@ -339,18 +340,18 @@ acd.gen<-Calc_ColDen_Transect(data = awd,grouping_field = "GENUS_CODE");colnames
 jcd.gen<-Calc_ColDen_Transect(jwd,"GENUS_CODE"); colnames(jcd.gen)[colnames(jcd.gen)=="ColCount"]<-"JuvColCount";colnames(jcd.gen)[colnames(jcd.gen)=="ColDen"]<-"JuvColDen";colnames(jcd.gen)[colnames(jcd.gen)=="TRANSECTAREA"]<-"TRANSECTAREA_j"
 
 #Calc_ColMetric_Transect
-cl.gen<-Calc_ColMetric_Transect(data = awd,grouping_field = "GENUS_CODE",pool_fields = "COLONYLENGTH"); colnames(cl.gen)[colnames(cl.gen)=="Ave.y"]<-"Ave.cl" #Average % old dead
+cl.gen<-Calc_ColMetric_Transect(data = awd,grouping_field = "GENUS_CODE",pool_fields = "COLONYLENGTH"); colnames(cl.gen)[colnames(cl.gen)=="Ave.y"]<-"Ave.size" #Average % old dead
 od.gen<-Calc_ColMetric_Transect(data = awd,grouping_field = "GENUS_CODE",pool_fields = "OLDDEAD"); colnames(od.gen)[colnames(od.gen)=="Ave.y"]<-"Ave.od" #Average % old dead
 rd.gen<-Calc_ColMetric_Transect(data = awd,grouping_field = "GENUS_CODE",pool_fields = c("RDEXTENT1", "RDEXTENT2","RDEXTENT3")); colnames(rd.gen)[colnames(rd.gen)=="Ave.y"]<-"Ave.rd" #Average % recent dead
 
 #Calc_RDden_Transect
 rdden.gen<-Calc_RDden_Transect(awd,survey_colony,"GENUS_CODE") # Density of recent dead colonies by condition, you will need to subset which ever condition you want. The codes ending in "S" are the general categories
-acutedz.gen<-subset(rdden.gen,select = c(SITEVISITID,SITE,TRANSECT,GENUS_CODE,DZGN_G));colnames(acutedz.gen)[colnames(acutedz.gen)=="DZGN_G"]<-"AcuteDZ" #subset just acute diseased colonies
+acutedz.gen<-subset(rdden.gen,select = c(METHOD,SITEVISITID,SITE,TRANSECT,GENUS_CODE,DZGN_G));colnames(acutedz.gen)[colnames(acutedz.gen)=="DZGN_G"]<-"AcuteDZ" #subset just acute diseased colonies
 
 #Calc_CONDden_Transect
 condden.gen<-Calc_CONDden_Transect(awd,survey_colony,"GENUS_CODE")# Density of condition colonies by condition, you will need to subset which ever condition you want
-ble.gen<-subset(condden.gen,select = c(SITEVISITID,SITE,TRANSECT,GENUS_CODE,BLE));colnames(ble.gen)[colnames(ble.gen)=="BLE"]<-"BLE_den" #subset just bleached colonies
-chronicdz.gen<-subset(condden.gen,select = c(SITEVISITID,SITE,TRANSECT,GENUS_CODE,CHRO));colnames(chronicdz.gen)[colnames(chronicdz.gen)=="CHRO"]<-"ChronicDZ" #subset just chronic diseased colonies
+ble.gen<-subset(condden.gen,select = c(METHOD,SITEVISITID,SITE,TRANSECT,GENUS_CODE,BLE));colnames(ble.gen)[colnames(ble.gen)=="BLE"]<-"BLE_den" #subset just bleached colonies
+chronicdz.gen<-subset(condden.gen,select = c(METHOD,SITEVISITID,SITE,TRANSECT,GENUS_CODE,CHRO));colnames(chronicdz.gen)[colnames(chronicdz.gen)=="CHRO"]<-"ChronicDZ" #subset just chronic diseased colonies
 
 #Calc_Richness_Transect
 rich.gen<-Calc_Richness_Transect(awd,"GENUS_CODE")
@@ -362,11 +363,12 @@ jcd.gen$TRANSECT[jcd.gen$TRANSECT==4]<-2
 
 #Merge density and partial moratlity data together.You will need to replace the DUMMY field with the one you want
 MyMerge <- function(x, y){
-  df <- merge(x, y, by= c("SITE","SITEVISITID","TRANSECT","GENUS_CODE"), all.x= TRUE, all.y= TRUE)
+  df <- merge(x, y, by= c("METHOD","SITE","SITEVISITID","TRANSECT","GENUS_CODE"), all.x= TRUE, all.y= TRUE)
   return(df)
 }
 data.gen<-Reduce(MyMerge, list(acd.gen,jcd.gen,cl.gen,od.gen,rd.gen,acutedz.gen,chronicdz.gen,ble.gen));
 head(data.gen)
+
 
 #Change NAs for abunanance and density metrics to 0. Don't change NAs in the partial mortality columns to 0
 data.gen$JuvColCount[is.na(data.gen$JuvColCount)]<-0;data.gen$JuvColDen[is.na(data.gen$JuvColDen)]<-0
@@ -377,13 +379,33 @@ data.gen$AcuteDZ_prev<-(data.gen$AcuteDZ*data.gen$TRANSECTAREA_ad)/data.gen$AdCo
 data.gen$BLE_prev<-(data.gen$BLE_den*data.gen$TRANSECTAREA_ad)/data.gen$AdColCount*100
 data.gen$ChronicDZ_prev<-(data.gen$ChronicDZ*data.gen$TRANSECTAREA_ad)/data.gen$AdColCount*100
 
+#GENERATE SITE-LEVEL DATA BY AVERAGING TRANSECTS-----------------------------------
+site.data.gen2<-ddply(data.gen, .(METHOD,SITE,SITEVISITID,GENUS_CODE,TRANSECTAREA_ad,TRANSECTAREA_j), #calc total colonies by condition
+                      summarise,
+                      AdColCount=sum(AdColCount,na.rm=T),AdColDen=mean(AdColDen,na.rm = T),Ave.od=mean(Ave.od,na.rm = T),
+                      Ave.rd=mean(Ave.rd,na.rm = T),Ave.size=mean(Ave.size,na.rm=T),JuvColDen=mean(JuvColDen,na.rm=T),
+                      BLE=mean(BLE_den,na.rm=T),AcuteDZ=mean(AcuteDZ,na.rm=T),ChronicDZ=mean(ChronicDZ,na.rm=T),
+                      BLE_prev=mean(BLE_prev,na.rm=T),AcuteDZ_prev=mean(AcuteDZ_prev,na.rm=T),ChronicDZ_prev=mean(ChronicDZ_prev,na.rm=T))
+
+
+
+#Add adult and juvenile pres/ab columns
+site.data.gen2$Adpres.abs<-ifelse(site.data.gen2$AdColDen>0,1,0)
+site.data.gen2$Juvpres.abs<-ifelse(site.data.gen2$JuvColDen>0,1,0)
+
+
+#Merge site data with metadata
+#Merge together survey meta data and sector area files and check for missmatches 
+meta<-left_join(survey_site,sectors)
+meta[which(is.na(meta$AREA_HA)),]
+nrow(survey_site)
+nrow(meta)
+
+#Merge site level data and meta data
+site.data.gen2<-left_join(site.data.gen2,meta);head(site.data.gen2)
 
 #######################
 ############################
-data.gen$METHOD<-"Diver"
-
-#Only include the sites that were annotated by SfM
-site.data.gen2<-dplyr::filter(data.gen, SITEVISITID %in% c(survey_site$SITEVISITID));head(site.data.gen2) 
 
 #Set ANALYSIS_SCHEMA to STRATA and DOMAIN_SCHEMA to whatever the highest level you want estimates for (e.g. sector, island, region)
 site.data.gen2$DB_RZ<-paste(site.data.gen2$DEPTH_BIN,site.data.gen2$REEF_ZONE,sep="_")
@@ -473,9 +495,13 @@ colnames(diver.sector)[colnames(diver.sector)=="DOMAIN_SCHEMA"]<-"Sector"
 diver.strat$METHOD<-"Diver"
 diver.sector$METHOD<-"Diver"
 
+diver_site<-site.data.gen2
 
 # #Save file for method comparsion
 write.csv(diver_site,file="C:/Users/Courtney.S.Couch/Documents/GitHub/Benthic-Scripts/SfM/Method Comparision/HARAMP19_DiverGENUS_SITE.csv",row.names = F)
 write.csv(diver.strat,file="C:/Users/Courtney.S.Couch/Documents/GitHub/Benthic-Scripts/SfM/Method Comparision/HARAMP19_DiverGENUS_STRATA.csv",row.names = F)
 write.csv(diver.sector,file="C:/Users/Courtney.S.Couch/Documents/GitHub/Benthic-Scripts/SfM/Method Comparision/HARAMP19_DiverGENUS_SECTOR.csv",row.names = F)
+
+
+###The diver data has duplicate entries that is causing merging issues. Fix this next
 
