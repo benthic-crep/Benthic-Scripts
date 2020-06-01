@@ -73,13 +73,16 @@ x$COLONYID<-paste(x$SITE,x$SEGMENT,x$SPCODE,x$COLONYLENGTH,sep="_")
 x$COLONYID[duplicated(x$COLONYID)]
 x<-x[!duplicated(x$COLONYID), ] #remove duplicate rows (temporary workaround for now until we can figure out what is going on in the export)
 
+#Revise Bleaching data
+x[x=="BLP"]<-"BLE"
+
 #Change bleaching severity = 1 to NA
-awd<-awd %>% mutate_at(.vars = c("CONDITION_1", "EXTENT_1", "SEVERITY_1"), 
-                       funs(ifelse(CONDITION_1 =="BLE" & SEVERITY_1=="1", NA, .)))
-awd<-awd %>% mutate_at(.vars = c("CONDITION_2", "EXTENT_2", "SEVERITY_2"), 
-                       funs(ifelse(CONDITION_1 =="BLE" & SEVERITY_1=="1", NA, .)))
-awd<-awd %>% mutate_at(.vars = c("CONDITION_3", "EXTENT_3", "SEVERITY_3"), 
-                       funs(ifelse(CONDITION_1 =="BLE" & SEVERITY_1=="1", NA, .)))
+x<-x %>% mutate_at(.vars = c("CONDITION_1", "EXTENT_1", "SEVERITY_1"), 
+                   list(~replace(.,CONDITION_1 =='BLE' & SEVERITY_1=='1', NA)));View(x)
+x<-x %>% mutate_at(.vars = c("CONDITION_2", "EXTENT_2", "SEVERITY_2"), 
+                   list(~replace(.,CONDITION_2 =='BLE' & SEVERITY_2=='1', NA)));View(x)
+x<-x %>% mutate_at(.vars = c("CONDITION_3", "EXTENT_3", "SEVERITY_3"), 
+                   list(~replace(.,CONDITION_3 =='BLE' & SEVERITY_3=='1',NA)));View(x)
 
 #Create Genuscode and taxonname column from spcode
 genlookup<-read.csv("T:/Benthic/Data/Lookup Tables/Genus_lookup.csv")
@@ -157,7 +160,6 @@ x$GENUS_CODE<-ifelse(x$TAXONCODE=="AAAA","AAAA",x$GENUS_CODE)
 View(x) #view data in separate window
 
 #Check that Unknown scl were changed correctly
-head(subset(x,TAXONCODE=="UNKN"&S_ORDER=="Scleractinia"),40)
 head(subset(x,GENUS_CODE=="UNKN"&S_ORDER=="Scleractinia"))
 head(subset(x,GENUS_CODE=="AAAA"))
 head(subset(x,SPCODE=="AAAA"))

@@ -70,12 +70,11 @@ j_sfm$SITE_SEG<-paste(j_sfm$SITE,j_sfm$SEGMENT,sep ="_")
 
 # PREP VISUAL DIVER DATA ---------------------------------------------
 ## LOAD benthic data
-awd<-read.csv("T:/Benthic/Data/REA Coral Demography & Cover/Analysis Ready Raw data/CoralBelt_Adults_raw_CLEANED.csv")
-jwd<-read.csv("T:/Benthic/Data/REA Coral Demography & Cover/Analysis Ready Raw data/CoralBelt_Juveniles_raw_CLEANED.csv")
+awd_<-read.csv("T:/Benthic/Data/REA Coral Demography & Cover/Analysis Ready Raw data/CoralBelt_Adults_raw_CLEANED.csv")
+jwd_<-read.csv("T:/Benthic/Data/REA Coral Demography & Cover/Analysis Ready Raw data/CoralBelt_Juveniles_raw_CLEANED.csv")
 
-awd<-subset(awd,OBS_YEAR=="2019")
-jwd<-subset(jwd,OBS_YEAR=="2019")
-
+awd<-subset(awd_,OBS_YEAR=="2019")
+jwd<-subset(jwd_,OBS_YEAR=="2019")
 
 #Colony fragments and scleractinans are subseted in the functions 
 #Add a column for adult fragments so we can remove them from the dataset later (-1 indicates fragment)
@@ -84,12 +83,6 @@ head(subset(awd,Fragment==-1& OBS_YEAR<2018)) #double check that pre 2018 fragme
 awd$Fragment[is.na(awd$Fragment)] <- 0
 jwd$Fragment <- 0 # you need to add this column so that you can use the site level functions correctly
 
-#Change columns to merge with sfm data
-colnames(awd)[which(colnames(awd) == 'DIVER')] <- "ANALYST"
-colnames(jwd)[which(colnames(jwd) == 'DIVER')] <- "ANALYST"
-awd$EX_BOUND<-NA
-awd<-dplyr::select(awd,-c(bANALYSIS_SCHEME,ANALYSIS_YEAR,EXCLUDE_FLAG,REGION_NAME,NO_SURVEY_YN,DATE_))
-jwd<-dplyr::select(jwd,-c(bANALYSIS_SCHEME,ANALYSIS_YEAR,EXCLUDE_FLAG,REGION_NAME,NO_SURVEY_YN,DATE_))
 
 #Simplify Bleaching Severity categories: in 2019 the team decided to simplify the bleaching severity from 1-5 to 1-3 to improve consistency in severity values
 #This code converts the severity data collected prior to 2019 to a 1-3 scale
@@ -112,20 +105,18 @@ awd_pre<-subset(awd_pre,select=-c(SEVERITY_2));colnames(awd_pre)[which(colnames(
 awd_pre$SEVERITY_3<-NA
 
 head(awd_pre)
-awd.<-awd_pre
-
-#Change bleaching severity = 1 to NA
-awd.<-awd. %>% mutate_at(.vars = c("CONDITION_1", "EXTENT_1", "SEVERITY_1"), 
-                         funs(ifelse(CONDITION_1 =="BLE" & SEVERITY_1=="1", NA, .)))
-awd.<-awd. %>% mutate_at(.vars = c("CONDITION_2", "EXTENT_2", "SEVERITY_2"), 
-                         funs(ifelse(CONDITION_1 =="BLE" & SEVERITY_1=="1", NA, .)))
-awd.<-awd. %>% mutate_at(.vars = c("CONDITION_3", "EXTENT_3", "SEVERITY_3"), 
-                         funs(ifelse(CONDITION_1 =="BLE" & SEVERITY_1=="1", NA, .)))
 
 #Combine dataframes before and after 2019 & check that rows weren't dropped
 awd.<-rbind(awd_pre,awd_post);write.csv(awd.,"test.csv")
-#Do we want to remove these there are a lot of them.
-#awd.$CONDITION_1<-ifelse(awd.$CONDITION_1 %in% c("BLE","BLP") & is.na(SEVERITY_1),"NDZ",as.character(awd.$CONDITION_1))
+
+#Change bleaching severity = 1 to NA
+x<-x %>% mutate_at(.vars = c("CONDITION_1", "EXTENT_1", "SEVERITY_1"), 
+                   list(~replace(.,CONDITION_1 =='BLE' & SEVERITY_1=='1', 'NA')));View(x)
+x<-x %>% mutate_at(.vars = c("CONDITION_2", "EXTENT_2", "SEVERITY_2"), 
+                   list(~replace(.,CONDITION_2 =='BLE' & SEVERITY_2=='1', 'NA')));View(x)
+x<-x %>% mutate_at(.vars = c("CONDITION_3", "EXTENT_3", "SEVERITY_3"), 
+                   list(~replace(.,CONDITION_3 =='BLE' & SEVERITY_3=='1', 'NA')));View(x)
+
 nrow(awd)
 nrow(awd.);head(awd.)
 awd<-awd.; rm("awd.") #remove temporary dataframe if all good. 
@@ -135,17 +126,32 @@ awd<-awd.; rm("awd.") #remove temporary dataframe if all good.
 awd$SITE_SEG<-paste(awd$SITE,awd$SEGMENT,sep="_")
 jwd$SITE_SEG<-paste(jwd$SITE,jwd$SEGMENT,sep="_")
 
+#Change columns to merge with sfm data
+colnames(awd)[which(colnames(awd) == 'DIVER')] <- "ANALYST"
+colnames(jwd)[which(colnames(jwd) == 'DIVER')] <- "ANALYST"
+awd$EX_BOUND<-0;awd$EX_BOUND<-as.numeric(awd$EX_BOUND)
+awd$SEGAREA<-awd$SEGLENGTH*awd$SEGWIDTH
+jwd$SEGAREA<-jwd$SEGLENGTH*jwd$SEGWIDTH
+
+awd<-dplyr::select(awd,-c(bANALYSIS_SCHEME,ANALYSIS_YEAR,EXCLUDE_FLAG,REGION_NAME,NO_SURVEY_YN,DATE_,ISLANDCODE))
+jwd<-dplyr::select(jwd,-c(bANALYSIS_SCHEME,ANALYSIS_YEAR,EXCLUDE_FLAG,REGION_NAME,NO_SURVEY_YN,DATE_,ISLANDCODE))
 awd<-dplyr::filter(awd, SITE_SEG %in% c(ad_sfm$SITE_SEG));head(awd) 
 jwd<-dplyr::filter(jwd, SITE_SEG %in% c(j_sfm$SITE_SEG));head(jwd) 
 
 length(unique(awd$SITE))
 length(unique(jwd$SITE))
 
-awd$METHOD<-"Diver"
-jwd$METHOD<-"Diver"
+awd$METHOD<-"Diver";awd$METHOD<-as.factor(awd$METHOD)
+jwd$METHOD<-"Diver";jwd$METHOD<-as.factor(jwd$METHOD)
 
 sort(colnames(awd))
 sort(colnames(ad_sfm))
+
+sort(colnames(jwd))
+sort(colnames(j_sfm))
+
+sapply(awd,class)
+sapply(ad_sfm,class)
 
 awd.all<-rbind(ad_sfm,awd)
 jwd.all<-rbind(j_sfm,jwd)

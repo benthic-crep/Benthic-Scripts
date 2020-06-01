@@ -144,6 +144,7 @@ Convert_Severity<-function(data,severity_field,severity_new){
                                        `3`="2",
                                        `4`="3",
                                        `5`="3"))
+  data$sev_new<-as.integer(data$sev_new)
   colnames(data)[which(colnames(data) == 'sev_new')] <- severity_new #change group to whatever your grouping field is.
   data<-subset(data,select=-c(SEV))
   return(data)
