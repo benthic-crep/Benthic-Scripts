@@ -68,10 +68,10 @@ x$COLONYLENGTH<-x$COLONYLENGTH*100 #convert from m to cm
 x$S_ORDER<-ifelse(x$NO_COLONY==0 & x$SPCODE!="NONE","Scleractinia","NONE") #add S_order column
 x$TRANSECT<-1
 x$COLONYID<-paste(x$SITE,x$SEGMENT,x$SPCODE,x$COLONYLENGTH,sep="_")
+x$COLONYID<-ifelse(x$NO_COLONY==-1,NA,x$COLONYID)
 
 #Check for duplicate COLONYIDs
 x$COLONYID[duplicated(x$COLONYID)]
-x<-x[!duplicated(x$COLONYID), ] #remove duplicate rows (temporary workaround for now until we can figure out what is going on in the export)
 
 #Revise Bleaching data
 x[x=="BLP"]<-"BLE"
