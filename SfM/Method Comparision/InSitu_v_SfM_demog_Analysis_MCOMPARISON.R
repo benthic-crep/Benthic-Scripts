@@ -39,16 +39,18 @@ diver_seg<-subset(seg,METHOD=="Diver")
 
 
 #Set up in wide format
-colnames(sfm_seg)[9:17] <- paste("SfM_", colnames(sfm_seg[,c(9:17)]), sep = "");sfm_seg<-dplyr::select(sfm_seg,-c(METHOD,ANALYST,SEGAREA_ad,SEGAREA_j))
+colnames(sfm_seg)[9:17] <- paste("SfM_", colnames(sfm_seg[,c(9:17)]), sep = "");sfm_seg<-dplyr::select(sfm_seg,-c(METHOD,ANALYST,HABITAT_CODE))
                                                                                                                      
-colnames(diver_seg)[9:17] <- paste("Diver_", colnames(diver_seg[,c(9:17)]), sep = "");diver_seg<-dplyr::select(diver_seg,-c(METHOD,ANALYST,ISLAND,SEC_NAME,DEPTH_BIN,LATITUDE,LONGITUDE,MIN_DEPTH_M,MAX_DEPTH_M,SEGAREA_ad,SEGAREA_j))
+colnames(diver_seg)[9:17] <- paste("Diver_", colnames(diver_seg[,c(9:17)]), sep = "");diver_seg<-dplyr::select(diver_seg,-c(METHOD,ANALYST,ISLAND,HABITAT_CODE,SEC_NAME,DEPTH_BIN,LATITUDE,LONGITUDE,MIN_DEPTH_M,MAX_DEPTH_M))
 
-seg.wide<-merge(sfm_seg,diver_seg,by=c("SITE","SITEVISITID","SEGMENT","GENUS_CODE"),all=T)
+seg.wide<-merge(sfm_seg,diver_seg,by=c("SITE","SITEVISITID","SEGMENT","GENUS_CODE","SEGAREA_ad","SEGAREA_j"),all=T)
 
-View(subset(seg.wide,SITE=="NII-02594")) #Make sure columns merge properly
-View(subset(diver_site,SITE=="NII-02594")) #Make sure columns merge properly
+#################IMPORTANT- CHECK FOR MERGING ERRORS
+View(subset(seg.wide,GENUS_CODE=="SSSS")) #Make sure columns merge properly
 
-#View(seg.wide)
+#Merge together and remove segs that aren't merging properly
+seg.wide<-merge(sfm_seg,diver_seg,by=c("SITE","SITEVISITID","SEGMENT","GENUS_CODE","SEGAREA_ad","SEGAREA_j"))
+View(seg.wide) ##NOTE- LAN-01819 seg 10 SfM is duplicated for some reason-hopefully this will be fixed with final data
 
 # #Change NAs for abunanance and density metrics to 0. Don't change NAs in the partial mortality columns to 0
 seg.wide$Diver_JuvColDen[is.na(seg.wide$Diver_JuvColDen)]<-0
@@ -99,15 +101,10 @@ p22<-PlotAll(seg.wide,"Diver_AcuteDZ_prev","SfM_AcuteDZ_prev","SfM General Disea
 
 
 #Mixed Models
-s<-subset(seg,GENUS_CODE=="SSSS")
-hist(s$AdColDen)
-nrow(s)
-nrow(subset(s,AdColCount==0))
-
-table(s$HABITAT_CODE)
+table(seg$HABITAT_CODE)
 
 #Simplify Habitat codes
-s<-s %>% mutate(HAB_R1=recode(HABITAT_CODE, 
+seg<-seg %>% mutate(HAB_R1=recode(HABITAT_CODE, 
                                                   `AGR`="Carbonate Reef",
                                                   `APR`="Carbonate Reef",
                                                   `PAV`="Pavement",
@@ -117,16 +114,40 @@ s<-s %>% mutate(HAB_R1=recode(HABITAT_CODE,
                                                   `SCR`="Reef with Sand",
                                                   `PSC`="Reef with Sand"))
 
+s<-subset(seg,GENUS_CODE=="SSSS")
+nrow(s)
+nrow(subset(s,AdColCount==0))
+
 nullmod<-glmer(AdColCount~1 + (1|SEC_NAME/SITE)+ offset(SEGAREA_ad),family=poisson,data=s)
 mod1<-glmer(AdColCount~METHOD + (1|SEC_NAME/SITE)+ offset(SEGAREA_ad),family=poisson,data=s)
 mod2<-glmer(AdColCount~METHOD + ANALYST+ (1|SEC_NAME/SITE)+ offset(SEGAREA_ad),family=poisson,data=s)
 mod3<-glmer(AdColCount~ANALYST+ (1|SEC_NAME/SITE)+ offset(SEGAREA_ad),family=poisson,data=s)
 
-fullmod<-glmer(AdColCount~METHOD*MAX_DEPTH_M + (1|SEC_NAME/SITE)+ offset=SEGAREA_ad,family=poisson,data=s)
-fullmod<-glmer(AdColCount~METHOD*HABITAT_CODE + (1|SEC_NAME/SITE)+ offset=SEGAREA_ad,family=poisson,data=s)
-fullmod<-glmer(AdColCount~METHOD*RugosityBin + (1|SEC_NAME/SITE)+ offset=SEGAREA_ad,family=poisson,data=s)
+mod4<-glmer(AdColCount~METHOD*MAX_DEPTH_M + (1|SEC_NAME/SITE)+ offset(SEGAREA_ad),family=poisson,data=s)
+mod5<-glmer(AdColCount~METHOD*HABITAT_CODE + (1|SEC_NAME/SITE)+ offset(SEGAREA_ad),family=poisson,data=s)
+mod6<-glmer(AdColCount~METHOD*RugosityBin + (1|SEC_NAME/SITE)+ offset(SEGAREA_ad),family=poisson,data=s)
 
 anova(mod1,nullmod,test="chisq")
 anova(mod2,nullmod,test="chisq")
 anova(mod2,mod1,test="chisq")
 anova(mod2,mod3,test="chisq")
+anova(mod1,mod4,test="chisq")
+
+
+cat("SSSS ADULTS",sep = "\n", file = "Adult Density GLMER Outputs.doc")
+capture.output(summary(mod1),file="Adult Density GLMER Outputs.doc",append = TRUE)
+capture.output(summary(mod2),file="Adult Density GLMER Outputs.doc",append = TRUE)
+capture.output(summary(mod3),file="Adult Density GLMER Outputs.doc",append = TRUE)
+capture.output(summary(mod4),file="Adult Density GLMER Outputs.doc",append = TRUE)
+capture.output(summary(mod5),file="Adult Density GLMER Outputs.doc",append = TRUE)
+
+capture.output(anova(mod1,nullmod,test="chisq"),file="Adult Density GLMER Outputs.doc",append = TRUE)
+capture.output(anova(mod2,nullmod,test="chisq"),file="Adult Density GLMER Outputs.doc",append = TRUE)
+capture.output(anova(mod2,nullmod,test="chisq"),file="Adult Density GLMER Outputs.doc",append = TRUE)
+capture.output(anova(mod2,mod1,test="chisq"),file="Adult Density GLMER Outputs.doc",append = TRUE)
+capture.output(anova(mod2,mod3,test="chisq"),file="Adult Density GLMER Outputs.doc",append = TRUE)
+capture.output(anova(mod1,mod4,test="chisq"),file="Adult Density GLMER Outputs.doc",append = TRUE)
+
+
+
+

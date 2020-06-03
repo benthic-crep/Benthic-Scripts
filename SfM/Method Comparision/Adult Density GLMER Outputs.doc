@@ -1,0 +1,190 @@
+SSSS ADULTS
+Generalized linear mixed model fit by maximum likelihood (Laplace Approximation) ['glmerMod']
+ Family: poisson  ( log )
+Formula: AdColCount ~ METHOD + (1 | SEC_NAME/SITE) + offset(SEGAREA_ad)
+   Data: s
+
+     AIC      BIC   logLik deviance df.resid 
+  5727.1   5745.0  -2859.6   5719.1      647 
+
+Scaled residuals: 
+    Min      1Q  Median      3Q     Max 
+-6.3847 -1.2361 -0.2345  1.0069  9.1026 
+
+Random effects:
+ Groups        Name        Variance Std.Dev.
+ SITE:SEC_NAME (Intercept) 1.17173  1.0825  
+ SEC_NAME      (Intercept) 0.02776  0.1666  
+Number of obs: 651, groups:  SITE:SEC_NAME, 91; SEC_NAME, 18
+
+Fixed effects:
+            Estimate Std. Error z value Pr(>|z|)
+(Intercept) -0.01403    0.13989  -0.100    0.920
+METHODSfM   -0.01793    0.01821  -0.985    0.325
+
+Correlation of Fixed Effects:
+          (Intr)
+METHODSfM -0.065
+Generalized linear mixed model fit by maximum likelihood (Laplace Approximation) ['glmerMod']
+ Family: poisson  ( log )
+Formula: AdColCount ~ METHOD + ANALYST + (1 | SEC_NAME/SITE) + offset(SEGAREA_ad)
+   Data: s
+
+     AIC      BIC   logLik deviance df.resid 
+  5462.7   5538.8  -2714.3   5428.7      634 
+
+Scaled residuals: 
+    Min      1Q  Median      3Q     Max 
+-6.4716 -1.2299 -0.1671  0.9507  8.3449 
+
+Random effects:
+ Groups        Name        Variance  Std.Dev. 
+ SITE:SEC_NAME (Intercept) 1.188e+00 1.0897773
+ SEC_NAME      (Intercept) 3.093e-08 0.0001759
+Number of obs: 651, groups:  SITE:SEC_NAME, 91; SEC_NAME, 18
+
+Fixed effects:
+            Estimate Std. Error z value Pr(>|z|)    
+(Intercept)  0.17022    0.13944   1.221 0.222194    
+METHODSfM   -0.03145    0.05526  -0.569 0.569304    
+ANALYSTAH_  -0.30724    0.16226  -1.893 0.058300 .  
+ANALYSTBH    0.10426    0.12527   0.832 0.405241    
+ANALYSTBVA  -0.09762    0.08220  -1.188 0.234998    
+ANALYSTCA    0.01018    0.07721   0.132 0.895145    
+ANALYSTCSC  -0.60954    0.09805  -6.216 5.09e-10 ***
+ANALYSTFL    0.10227    0.09096   1.124 0.260867    
+ANALYSTJDG  -0.24287    0.08967  -2.709 0.006757 ** 
+ANALYSTM_A   0.03517    0.08718   0.403 0.686651    
+ANALYSTMA    0.04786    0.06566   0.729 0.466074    
+ANALYSTMSL  -0.46212    0.06684  -6.914 4.72e-12 ***
+ANALYSTMSW   0.04158    0.09260   0.449 0.653387    
+ANALYSTRS   -0.06048    0.07516  -0.805 0.420988    
+ANALYSTTO   -0.35017    0.09252  -3.785 0.000154 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+convergence code: 0
+Model failed to converge with max|grad| = 0.00186211 (tol = 0.001, component 1)
+
+Generalized linear mixed model fit by maximum likelihood (Laplace Approximation) ['glmerMod']
+ Family: poisson  ( log )
+Formula: AdColCount ~ ANALYST + (1 | SEC_NAME/SITE) + offset(SEGAREA_ad)
+   Data: s
+
+     AIC      BIC   logLik deviance df.resid 
+  5461.0   5532.7  -2714.5   5429.0      635 
+
+Scaled residuals: 
+    Min      1Q  Median      3Q     Max 
+-6.4307 -1.2282 -0.1734  0.9630  8.3264 
+
+Random effects:
+ Groups        Name        Variance  Std.Dev. 
+ SITE:SEC_NAME (Intercept) 1.189e+00 1.0904907
+ SEC_NAME      (Intercept) 2.211e-08 0.0001487
+Number of obs: 651, groups:  SITE:SEC_NAME, 91; SEC_NAME, 18
+
+Fixed effects:
+             Estimate Std. Error z value Pr(>|z|)    
+(Intercept)  0.138513   0.127867   1.083  0.27870    
+ANALYSTAH_  -0.272935   0.150517  -1.813  0.06978 .  
+ANALYSTBH    0.136457   0.111646   1.222  0.22162    
+ANALYSTBVA  -0.065997   0.060441  -1.092  0.27487    
+ANALYSTCA    0.009779   0.077208   0.127  0.89921    
+ANALYSTCSC  -0.577848   0.080615  -7.168 7.61e-13 ***
+ANALYSTFL    0.097852   0.090651   1.079  0.28039    
+ANALYSTJDG  -0.214866   0.074813  -2.872  0.00408 ** 
+ANALYSTM_A   0.067529   0.065945   1.024  0.30582    
+ANALYSTMA    0.048304   0.065649   0.736  0.46186    
+ANALYSTMSL  -0.465062   0.066654  -6.977 3.01e-12 ***
+ANALYSTMSW   0.075796   0.070240   1.079  0.28054    
+ANALYSTRS   -0.037402   0.063154  -0.592  0.55370    
+ANALYSTTO   -0.319292   0.074842  -4.266 1.99e-05 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+Generalized linear mixed model fit by maximum likelihood (Laplace Approximation) ['glmerMod']
+ Family: poisson  ( log )
+Formula: AdColCount ~ METHOD * MAX_DEPTH_M + (1 | SEC_NAME/SITE) + offset(SEGAREA_ad)
+   Data: s
+
+     AIC      BIC   logLik deviance df.resid 
+  5722.6   5749.5  -2855.3   5710.6      645 
+
+Scaled residuals: 
+    Min      1Q  Median      3Q     Max 
+-6.2199 -1.2196 -0.2166  1.0454  9.0491 
+
+Random effects:
+ Groups        Name        Variance Std.Dev.
+ SITE:SEC_NAME (Intercept) 1.16265  1.0783  
+ SEC_NAME      (Intercept) 0.03602  0.1898  
+Number of obs: 651, groups:  SITE:SEC_NAME, 91; SEC_NAME, 18
+
+Fixed effects:
+                       Estimate Std. Error z value Pr(>|z|)   
+(Intercept)           -0.047948   0.281182  -0.171  0.86460   
+METHODSfM             -0.126095   0.041587  -3.032  0.00243 **
+MAX_DEPTH_M            0.001926   0.017885   0.108  0.91426   
+METHODSfM:MAX_DEPTH_M  0.008944   0.003091   2.893  0.00381 **
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Correlation of Fixed Effects:
+            (Intr) METHODSfM MAX_DE
+METHODSfM   -0.073                 
+MAX_DEPTH_M -0.865  0.078          
+METHODSM:MA  0.066 -0.899    -0.088
+convergence code: 0
+Model failed to converge with max|grad| = 0.00149675 (tol = 0.001, component 1)
+Model is nearly unidentifiable: very large eigenvalue
+ - Rescale variables?
+
+Data: s
+Models:
+nullmod: AdColCount ~ 1 + (1 | SEC_NAME/SITE) + offset(SEGAREA_ad)
+mod1: AdColCount ~ METHOD + (1 | SEC_NAME/SITE) + offset(SEGAREA_ad)
+        Df    AIC    BIC  logLik deviance  Chisq Chi Df Pr(>Chisq)
+nullmod  3 5726.1 5739.5 -2860.0   5720.1                         
+mod1     4 5727.1 5745.0 -2859.6   5719.1 0.9659      1     0.3257
+Data: s
+Models:
+nullmod: AdColCount ~ 1 + (1 | SEC_NAME/SITE) + offset(SEGAREA_ad)
+mod2: AdColCount ~ METHOD + ANALYST + (1 | SEC_NAME/SITE) + offset(SEGAREA_ad)
+        Df    AIC    BIC  logLik deviance  Chisq Chi Df Pr(>Chisq)    
+nullmod  3 5726.1 5739.5 -2860.0   5720.1                             
+mod2    17 5462.7 5538.8 -2714.3   5428.7 291.38     14  < 2.2e-16 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+Data: s
+Models:
+nullmod: AdColCount ~ 1 + (1 | SEC_NAME/SITE) + offset(SEGAREA_ad)
+mod2: AdColCount ~ METHOD + ANALYST + (1 | SEC_NAME/SITE) + offset(SEGAREA_ad)
+        Df    AIC    BIC  logLik deviance  Chisq Chi Df Pr(>Chisq)    
+nullmod  3 5726.1 5739.5 -2860.0   5720.1                             
+mod2    17 5462.7 5538.8 -2714.3   5428.7 291.38     14  < 2.2e-16 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+Data: s
+Models:
+mod1: AdColCount ~ METHOD + (1 | SEC_NAME/SITE) + offset(SEGAREA_ad)
+mod2: AdColCount ~ METHOD + ANALYST + (1 | SEC_NAME/SITE) + offset(SEGAREA_ad)
+     Df    AIC    BIC  logLik deviance  Chisq Chi Df Pr(>Chisq)    
+mod1  4 5727.1 5745.0 -2859.6   5719.1                             
+mod2 17 5462.7 5538.8 -2714.3   5428.7 290.41     13  < 2.2e-16 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+Data: s
+Models:
+mod3: AdColCount ~ ANALYST + (1 | SEC_NAME/SITE) + offset(SEGAREA_ad)
+mod2: AdColCount ~ METHOD + ANALYST + (1 | SEC_NAME/SITE) + offset(SEGAREA_ad)
+     Df    AIC    BIC  logLik deviance  Chisq Chi Df Pr(>Chisq)
+mod3 16 5461.0 5532.7 -2714.5   5429.0                         
+mod2 17 5462.7 5538.8 -2714.3   5428.7 0.3262      1     0.5679
+Data: s
+Models:
+mod1: AdColCount ~ METHOD + (1 | SEC_NAME/SITE) + offset(SEGAREA_ad)
+mod4: AdColCount ~ METHOD * MAX_DEPTH_M + (1 | SEC_NAME/SITE) + offset(SEGAREA_ad)
+     Df    AIC    BIC  logLik deviance  Chisq Chi Df Pr(>Chisq)  
+mod1  4 5727.1 5745.0 -2859.6   5719.1                           
+mod4  6 5722.6 5749.5 -2855.3   5710.6 8.4726      2    0.01446 *
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
