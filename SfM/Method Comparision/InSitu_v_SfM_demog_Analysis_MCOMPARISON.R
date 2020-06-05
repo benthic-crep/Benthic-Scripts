@@ -12,6 +12,11 @@ library(hydroGOF)
 library(tidyverse)
 library(ggpmisc)
 library(lme4)
+library(ggplot2)
+library(sjPlot)
+library(pander)
+library(tidyr)
+
 source("T:/Benthic/Data/SfM/ScriptFiles/SfMvDiver Plotting Functions.R") 
 source("C:/Users/Courtney.S.Couch/Documents/GitHub/Benthic-Scripts/Functions/Benthic_Functions_newApp_vTAOfork.R")
 source("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/lib/core_functions.R")
@@ -66,38 +71,45 @@ head(subset(seg.wide,GENUS_CODE=="SSSS"))
 # Plotting Regressions and Bland-Altman by Taxon --------------------------
 #PlotAll(dataframe, variable 1, variable 2, y-axis name 1, y-axis name 2, x-axis name 1, x-axis name 2)
 
-outpath<- "T:/Benthic/Data/SfM/Method Comparision/Figures"
+outpath<- "T:/Benthic/Data/SfM/Method Comparision/Figures/Adult Density"
 if(!dir.exists(outpath)){dir.create(outpath)}
-p1<-PlotAll(seg.wide,"Diver_AdColDen","SfM_AdColDen","SfM Adult Density","Difference SfM Analyst and Diver", "Diver Adult Density","Mean Adult Density"); p1
+p1<-PlotAll(seg.wide,"Diver_AdColDen","SfM_AdColDen","SfM Adult Density","Difference SfM Analyst and Diver", "Diver Adult Density","Mean Adult Density")
 p1
 
 outpath<-"T:/Benthic/Data/SfM/Method Comparision/Figures/Juvenile Density"
 if(!dir.exists(outpath)){dir.create(outpath)}
-p4<-PlotAll(seg.wide,"Diver_JuvColDen","SfM_JuvColDen","SfM Juvenile Density","Difference SfM Analyst and Diver", "Diver Juvenile Density","Mean Juvenile Density"); p4
+p4<-PlotAll(seg.wide,"Diver_JuvColDen","SfM_JuvColDen","SfM Juvenile Density","Difference SfM Analyst and Diver", "Diver Juvenile Density","Mean Juvenile Density")
+p4
 
 outpath<-"T:/Benthic/Data/SfM/Method Comparision/Figures/Colony Size"
 if(!dir.exists(outpath)){dir.create(outpath)}
 p7<-PlotAll(seg.wide,"Diver_Ave.size","SfM_Ave.size","SfM Colony Length","Difference SfM Analyst and Diver", "Diver Colony Length","Mean Colony Length")
+p7
 
 outpath<-"T:/Benthic/Data/SfM/Method Comparision/Figures/Old Dead"
 if(!dir.exists(outpath)){dir.create(outpath)}
 p10<-PlotAll(seg.wide,"Diver_Ave.od","SfM_Ave.od","SfM Average Old Dead Pct","Difference SfM Analyst and Diver", "Diver Average Old Dead Pct","Average Old Dead Pct")
+p10
 
 outpath<-"T:/Benthic/Data/SfM/Method Comparision/Figures/Recent Dead"
 if(!dir.exists(outpath)){dir.create(outpath)}
 p13<-PlotAll(seg.wide,"Diver_Ave.rd","SfM_Ave.rd","SfM Average Recent Dead Pct","Difference SfM Analyst and Diver", "Diver Average Recent Dead Pct","Average Recent Dead Pct")
+p13
 
 outpath<-"T:/Benthic/Data/SfM/Method Comparision/Figures/Bleaching"
 if(!dir.exists(outpath)){dir.create(outpath)}
 p16<-PlotAll(seg.wide,"Diver_BLE_prev","SfM_BLE_prev","SfM Bleaching Prevalence","Difference SfM Analyst and Diver", "Diver Bleaching Prevalence","Mean Bleaching Prevalence")
+p16
 
 outpath<-"T:/Benthic/Data/SfM/Method Comparision/Figures/ChronicDZ"
 if(!dir.exists(outpath)){dir.create(outpath)}
 p19<-PlotAll(seg.wide,"Diver_ChronicDZ_prev","SfM_ChronicDZ_prev","SfM Chronic Disease Prevalence","Difference SfM Analyst and Diver", "Diver Chronic Disease Prevalence","Mean Chronic Disease Prevalence")
+p19
 
 outpath<-"T:/Benthic/Data/SfM/Method Comparision/Figures/AcuteDZ"
 if(!dir.exists(outpath)){dir.create(outpath)}
 p22<-PlotAll(seg.wide,"Diver_AcuteDZ_prev","SfM_AcuteDZ_prev","SfM General Disease Prevalence","Difference SfM Analyst and Diver", "Diver General Disease Prevalence","Mean General Disease Prevalence")
+p22
 
 
 #Mixed Models
@@ -114,10 +126,23 @@ seg<-seg %>% mutate(HAB_R1=recode(HABITAT_CODE,
                                                   `SCR`="Reef with Sand",
                                                   `PSC`="Reef with Sand"))
 
-s<-subset(seg,GENUS_CODE=="SSSS")
-nrow(s)
-nrow(subset(s,AdColCount==0))
 
+glmerDensity<-function(d,grouping_field="GENUS_CODE",metric_field="AdColDen"){
+  d$GROUP<-d[,grouping_field]
+  d$METRIC<-d[,metric_field]
+  
+  s<-subset(d,GROUP=="SSSS")
+  nullmod<-glmer(METRIC~1 + (1|SEC_NAME/SITE)+ offset(SEGAREA_ad),family=poisson,data=s)
+  mod1<-glmer(METRIC~METHOD + (1|SEC_NAME/SITE)+ offset(SEGAREA_ad),family=poisson,data=s)
+  mod2<-glmer(METRIC~METHOD + ANALYST+ (1|SEC_NAME/SITE)+ offset(SEGAREA_ad),family=poisson,data=s)
+  mod3<-glmer(METRIC~ANALYST+ (1|SEC_NAME/SITE)+ offset(SEGAREA_ad),family=poisson,data=s)
+  mod4<-glmer(METRIC~METHOD*MAX_DEPTH_M + (1|SEC_NAME/SITE)+ offset(SEGAREA_ad),family=poisson,data=s)
+  mod5<-glmer(METRIC~METHOD*HABITAT_CODE + (1|SEC_NAME/SITE)+ offset(SEGAREA_ad),family=poisson,data=s)
+  
+  }
+
+
+s<-subset(seg,GENUS_CODE=="SSSS")
 nullmod<-glmer(AdColCount~1 + (1|SEC_NAME/SITE)+ offset(SEGAREA_ad),family=poisson,data=s)
 mod1<-glmer(AdColCount~METHOD + (1|SEC_NAME/SITE)+ offset(SEGAREA_ad),family=poisson,data=s)
 mod2<-glmer(AdColCount~METHOD + ANALYST+ (1|SEC_NAME/SITE)+ offset(SEGAREA_ad),family=poisson,data=s)
@@ -127,27 +152,13 @@ mod4<-glmer(AdColCount~METHOD*MAX_DEPTH_M + (1|SEC_NAME/SITE)+ offset(SEGAREA_ad
 mod5<-glmer(AdColCount~METHOD*HABITAT_CODE + (1|SEC_NAME/SITE)+ offset(SEGAREA_ad),family=poisson,data=s)
 mod6<-glmer(AdColCount~METHOD*RugosityBin + (1|SEC_NAME/SITE)+ offset(SEGAREA_ad),family=poisson,data=s)
 
-anova(mod1,nullmod,test="chisq")
+pander(anova(mod1,nullmod,test="chisq"))
+
+
 anova(mod2,nullmod,test="chisq")
 anova(mod2,mod1,test="chisq")
 anova(mod2,mod3,test="chisq")
 anova(mod1,mod4,test="chisq")
-
-
-cat("SSSS ADULTS",sep = "\n", file = "Adult Density GLMER Outputs.doc")
-capture.output(summary(mod1),file="Adult Density GLMER Outputs.doc",append = TRUE)
-capture.output(summary(mod2),file="Adult Density GLMER Outputs.doc",append = TRUE)
-capture.output(summary(mod3),file="Adult Density GLMER Outputs.doc",append = TRUE)
-capture.output(summary(mod4),file="Adult Density GLMER Outputs.doc",append = TRUE)
-capture.output(summary(mod5),file="Adult Density GLMER Outputs.doc",append = TRUE)
-
-capture.output(anova(mod1,nullmod,test="chisq"),file="Adult Density GLMER Outputs.doc",append = TRUE)
-capture.output(anova(mod2,nullmod,test="chisq"),file="Adult Density GLMER Outputs.doc",append = TRUE)
-capture.output(anova(mod2,nullmod,test="chisq"),file="Adult Density GLMER Outputs.doc",append = TRUE)
-capture.output(anova(mod2,mod1,test="chisq"),file="Adult Density GLMER Outputs.doc",append = TRUE)
-capture.output(anova(mod2,mod3,test="chisq"),file="Adult Density GLMER Outputs.doc",append = TRUE)
-capture.output(anova(mod1,mod4,test="chisq"),file="Adult Density GLMER Outputs.doc",append = TRUE)
-
 
 
 

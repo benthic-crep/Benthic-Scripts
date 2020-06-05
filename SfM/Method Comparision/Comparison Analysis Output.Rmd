@@ -9,7 +9,6 @@ knitr::opts_chunk$set(echo = TRUE)
 ----------------------------------------------------------------------
 
 ```{r, include=FALSE}
-
 source("T:/Benthic/Data/SfM/ScriptFiles/SfMvDiver Plotting Functions.R") 
 source("C:/Users/Courtney.S.Couch/Documents/GitHub/Benthic-Scripts/Functions/Benthic_Functions_newApp_vTAOfork.R")
 source("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/lib/core_functions.R")
@@ -32,6 +31,8 @@ library(knitr)
 library(png)
 library(grid)
 library(knitr)
+library(sjPlot)
+library(pander)
 
 
 # read in data
@@ -76,34 +77,51 @@ head(subset(seg.wide,GENUS_CODE=="SSSS"))
 outpath<- "T:/Benthic/Data/SfM/Method Comparision/Figures/Adult Density"
 if(!dir.exists(outpath)){dir.create(outpath)}
 p1<-PlotAll(seg.wide,"Diver_AdColDen","SfM_AdColDen","SfM Adult Density","Difference SfM Analyst and Diver", "Diver Adult Density","Mean Adult Density"); p1
+```
 
+```{r, warning = FALSE, message = FALSE, echo = FALSE,fig.width=8, fig.height=7}
 outpath<-"T:/Benthic/Data/SfM/Method Comparision/Figures/Juvenile Density"
 if(!dir.exists(outpath)){dir.create(outpath)}
 p4<-PlotAll(seg.wide,"Diver_JuvColDen","SfM_JuvColDen","SfM Juvenile Density","Difference SfM Analyst and Diver", "Diver Juvenile Density","Mean Juvenile Density"); p4
-
+```
+```{r, warning = FALSE, message = FALSE, echo = FALSE,fig.width=8, fig.height=7}
 outpath<-"T:/Benthic/Data/SfM/Method Comparision/Figures/Colony Size"
 if(!dir.exists(outpath)){dir.create(outpath)}
 p7<-PlotAll(seg.wide,"Diver_Ave.size","SfM_Ave.size","SfM Colony Length","Difference SfM Analyst and Diver", "Diver Colony Length","Mean Colony Length");p7
-
+```
+```{r, warning = FALSE, message = FALSE, echo = FALSE,fig.width=8, fig.height=7}
 outpath<-"T:/Benthic/Data/SfM/Method Comparision/Figures/Old Dead"
 if(!dir.exists(outpath)){dir.create(outpath)}
 p10<-PlotAll(seg.wide,"Diver_Ave.od","SfM_Ave.od","SfM Average Old Dead Pct","Difference SfM Analyst and Diver", "Diver Average Old Dead Pct","Average Old Dead Pct");p10
-
+```
+```{r, warning = FALSE, message = FALSE, echo = FALSE,fig.width=8, fig.height=7}
 outpath<-"T:/Benthic/Data/SfM/Method Comparision/Figures/Recent Dead"
 if(!dir.exists(outpath)){dir.create(outpath)}
 p13<-PlotAll(seg.wide,"Diver_Ave.rd","SfM_Ave.rd","SfM Average Recent Dead Pct","Difference SfM Analyst and Diver", "Diver Average Recent Dead Pct","Average Recent Dead Pct");p13
-
+```
+```{r, warning = FALSE, message = FALSE, echo = FALSE,fig.width=8, fig.height=7}
 outpath<-"T:/Benthic/Data/SfM/Method Comparision/Figures/Bleaching"
 if(!dir.exists(outpath)){dir.create(outpath)}
 p16<-PlotAll(seg.wide,"Diver_BLE_prev","SfM_BLE_prev","SfM Bleaching Prevalence","Difference SfM Analyst and Diver", "Diver Bleaching Prevalence","Mean Bleaching Prevalence");p16
-
+```
+```{r, warning = FALSE, message = FALSE, echo = FALSE,fig.width=8, fig.height=7}
 outpath<-"T:/Benthic/Data/SfM/Method Comparision/Figures/ChronicDZ"
 if(!dir.exists(outpath)){dir.create(outpath)}
 p19<-PlotAll(seg.wide,"Diver_ChronicDZ_prev","SfM_ChronicDZ_prev","SfM Chronic Disease Prevalence","Difference SfM Analyst and Diver", "Diver Chronic Disease Prevalence","Mean Chronic Disease Prevalence");p19
-
+```
+```{r, warning = FALSE, message = FALSE, echo = FALSE,fig.width=8, fig.height=7}
 outpath<-"T:/Benthic/Data/SfM/Method Comparision/Figures/AcuteDZ"
 if(!dir.exists(outpath)){dir.create(outpath)}
 p22<-PlotAll(seg.wide,"Diver_AcuteDZ_prev","SfM_AcuteDZ_prev","SfM General Disease Prevalence","Difference SfM Analyst and Diver", "Diver General Disease Prevalence","Mean General Disease Prevalence");p22
 
 ```
+##Likelihood Ratio Tests
+```{r, warning = FALSE, message = FALSE, echo = FALSE,fig.width=8, fig.height=7}
+s<-subset(seg,GENUS_CODE=="SSSS")
+nullmod<-glmer(AdColCount~1 + (1|SEC_NAME/SITE)+ offset(SEGAREA_ad),family=poisson,data=s)
+mod1<-glmer(AdColCount~METHOD + (1|SEC_NAME/SITE)+ offset(SEGAREA_ad),family=poisson,data=s)
+mod2<-glmer(AdColCount~METHOD + ANALYST+ (1|SEC_NAME/SITE)+ offset(SEGAREA_ad),family=poisson,data=s)
 
+pander(anova(mod1,nullmod,test="chisq"))
+
+```
