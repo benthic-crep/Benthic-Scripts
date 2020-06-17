@@ -15,10 +15,16 @@ workdir="C:/Users/Courtney.S.Couch/Documents/GitHub/Benthic-Scripts/SfM/Method C
 #make output directory if necessary
 if(!dir.exists(paste0(workdir,"GeoDatabase_Review_Assignments"))){dir.create(paste0(workdir,"GeoDatabase_Review_Assignments"))}
 
-GeoD=read.csv(paste0(workdir,"HARAMP2019_output_052220.csv"))
-GeoD_A=subset(GeoD,SEGLENGTH==2.5)
-GeoD_J=subset(GeoD,SEGLENGTH==1)
-dim(GeoD_A)
+GeoD_A=read.csv(paste0(workdir,"HARAMP2019_QCdsfm_ADULT.csv"))
+GeoD_J=read.csv(paste0(workdir,"HARAMP2019_QCdsfm_JUV.csv"))
+
+#Make changes to juvenile data
+GeoD_J<-subset(GeoD_J,select=-c(FRAGMENT.1))
+GeoD_J$site_seg<-paste(GeoD_J$SITE,GeoD_J$SEGMENT,sep=" ")
+head(GeoD_J)
+
+GeoD<-dplyr::bind_rows(GeoD_A, GeoD_J) #Combine dataframes
+head(GeoD)
 
 
 ### First Assign Adults
@@ -267,6 +273,10 @@ print(paste("Coeff. of Variation between annotator colony counts:",round(cvtt,4)
 print("")
 print(paste("Current assignments amount to",100*round(length(unique(GeoD4Rev_A$site_seg))/length(unique(GeoD$site_seg)),3),"% of Adult Segments, and",100*round(length(unique(GeoD4Rev_J$site_seg))/length(unique(GeoD$site_seg)),3),"% of Juvenile Segments."))
 print(paste("Current assignments amount to",100*round(nrow(GeoD4Rev_A)/nrow(GeoD),3),"% of Adult Colonies, and",100*round(nrow(GeoD4Rev_J)/nrow(GeoD),3),"% of Juvenile Colonies"))
+
+#Add columns for QC review before writing file
+d.cols<-c("Lump_Split_Error","SPCODE_CORRECT","MORPH_CORRECT","RDCAUSE_CORRECT","CONDITION_CORRECT","SEVERITY_CORRECT","SIZE_CORRECT","DELETE_COLONY")
+GeoD4Rev[d.cols] <- NA
 
 
 print("Writing out Assignment Files...")
