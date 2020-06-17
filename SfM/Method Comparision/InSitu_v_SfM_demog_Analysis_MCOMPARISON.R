@@ -16,6 +16,8 @@ library(ggplot2)
 library(sjPlot)
 library(pander)
 library(tidyr)
+library(AICcmodavg)
+
 
 source("T:/Benthic/Data/SfM/ScriptFiles/SfMvDiver Plotting Functions.R") 
 source("C:/Users/Courtney.S.Couch/Documents/GitHub/Benthic-Scripts/Functions/Benthic_Functions_newApp_vTAOfork.R")
@@ -39,8 +41,11 @@ seg<-dplyr::select(seg, c(METHOD,SITE,SITEVISITID,SEGMENT,GENUS_CODE,ANALYST,SEG
 #                                     BLE_prev,AcuteDZ_prev,ChronicDZ_prev,ISLAND,SEC_NAME,DEPTH_BIN,LATITUDE,LONGITUDE,
 #                                     MIN_DEPTH_M,MAX_DEPTH_M))
 
+seg<-subset(seg,SITE!="HAW-04285"&SEGMENT!="5") #Something doesn't look right with dive data. 
 sfm_seg<-subset(seg,METHOD=="SfM")
 diver_seg<-subset(seg,METHOD=="Diver")
+
+
 
 
 #Set up in wide format
@@ -127,6 +132,41 @@ seg<-seg %>% mutate(HAB_R1=recode(HABITAT_CODE,
                                                   `PSC`="Reef with Sand"))
 
 
+#bar plots of juv desnity by sector by year
+p1<-ggplot(subset(seg,GENUS_CODE=="SSSS"), aes(x=HAB_R1, y=AdColDen, fill=METHOD)) + 
+  geom_boxplot() + 
+  # guides(fill=FALSE) 
+  facet_wrap(~SEC_NAME,scales = "free", labeller=label_parsed) +
+  theme_bw() +
+  theme(
+    axis.text.x = element_text(angle = 90)
+    ,plot.background = element_blank()
+    ,panel.grid.major = element_blank()
+    ,panel.grid.minor = element_blank()
+    ,axis.ticks.x = element_blank() # no x axis ticks
+    ,axis.title.x = element_text( vjust = -.0001) # adjust x axis to lower the same amount as the genus labels
+    ,legend.position="bottom")+
+  labs(x="Habitat Type",y="Mean Adult Density/m2")
+
+p1
+
+p2<-ggplot(subset(seg,GENUS_CODE=="SSSS"), aes(x=HAB_R1, y=AdColDen, fill=METHOD)) + 
+  geom_boxplot() + 
+  # guides(fill=FALSE) 
+  theme_bw() +
+  theme(
+    axis.text.x = element_text(angle = 90)
+    ,plot.background = element_blank()
+    ,panel.grid.major = element_blank()
+    ,panel.grid.minor = element_blank()
+    ,axis.ticks.x = element_blank() # no x axis ticks
+    ,axis.title.x = element_text( vjust = -.0001) # adjust x axis to lower the same amount as the genus labels
+    ,legend.position="bottom")+
+  labs(x="Habitat Type",y="Mean Adult Density/m2")
+
+p2
+
+
 glmerDensity<-function(d,grouping_field="GENUS_CODE",metric_field="AdColDen"){
   d$GROUP<-d[,grouping_field]
   d$METRIC<-d[,metric_field]
@@ -145,20 +185,43 @@ glmerDensity<-function(d,grouping_field="GENUS_CODE",metric_field="AdColDen"){
 s<-subset(seg,GENUS_CODE=="SSSS")
 nullmod<-glmer(AdColCount~1 + (1|SEC_NAME/SITE)+ offset(SEGAREA_ad),family=poisson,data=s)
 mod1<-glmer(AdColCount~METHOD + (1|SEC_NAME/SITE)+ offset(SEGAREA_ad),family=poisson,data=s)
-mod2<-glmer(AdColCount~METHOD + ANALYST+ (1|SEC_NAME/SITE)+ offset(SEGAREA_ad),family=poisson,data=s)
+mod2<-glmer(AdColCount~METHOD*ANALYST+ (1|SEC_NAME/SITE)+ offset(SEGAREA_ad),family=poisson,data=s)
 mod3<-glmer(AdColCount~ANALYST+ (1|SEC_NAME/SITE)+ offset(SEGAREA_ad),family=poisson,data=s)
 
 mod4<-glmer(AdColCount~METHOD*MAX_DEPTH_M + (1|SEC_NAME/SITE)+ offset(SEGAREA_ad),family=poisson,data=s)
 mod5<-glmer(AdColCount~METHOD*HABITAT_CODE + (1|SEC_NAME/SITE)+ offset(SEGAREA_ad),family=poisson,data=s)
 mod6<-glmer(AdColCount~METHOD*RugosityBin + (1|SEC_NAME/SITE)+ offset(SEGAREA_ad),family=poisson,data=s)
 
+m
 pander(anova(mod1,nullmod,test="chisq"))
 
 
-anova(mod2,nullmod,test="chisq")
+anova(mod1,nullmod,test="chisq")
 anova(mod2,mod1,test="chisq")
 anova(mod2,mod3,test="chisq")
 anova(mod1,mod4,test="chisq")
 
 
+tab_model(mod2)
 
+#Model Selection
+Cand.set <- list( )
+Cand.set[[1]]<-glmer(AdColCount~1 + (1|SEC_NAME/SITE)+ offset(SEGAREA_ad),family=poisson,data=s)
+Cand.set[[2]]<-glmer(AdColCount~METHOD + (1|SEC_NAME/SITE)+ offset(SEGAREA_ad),family=poisson,data=s)
+Cand.set[[3]]<-glmer(AdColCount~METHOD*ANALYST+ (1|SEC_NAME/SITE)+ offset(SEGAREA_ad),family=poisson,data=s)
+Cand.set[[4]]<-glmer(AdColCount~METHOD*MAX_DEPTH_M + (1|SEC_NAME/SITE)+ offset(SEGAREA_ad),family=poisson,data=s)
+Cand.set[[5]]<-glmer(AdColCount~METHOD*HABITAT_CODE + (1|SEC_NAME/SITE)+ offset(SEGAREA_ad),family=poisson,data=s)
+
+Modnames <- paste("mod", 1:length(Cand.set), sep = " ")
+##generate AICc table
+aictab(cand.set = Cand.set, modnames = Modnames, sort = TRUE)
+##round to 4 digits after decimal point and give log-likelihood
+print(aictab(cand.set = Cand.set, modnames = Modnames, sort = TRUE),
+      digits = 4, LL = TRUE)
+
+library(MuMIn)
+
+r.squaredGLMM(mod2)
+r.squaredGLMM(mod3)
+r.squaredGLMM(mod4)
+r.squaredGLMM(mod5)
