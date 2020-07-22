@@ -19,9 +19,11 @@ GeoD_A=read.csv(paste0(workdir,"HARAMP2019_QCdsfm_ADULT.csv"))
 GeoD_J=read.csv(paste0(workdir,"HARAMP2019_QCdsfm_JUV.csv"))
 
 #Make changes to juvenile data
-GeoD_J<-subset(GeoD_J,select=-c(FRAGMENT.1))
-GeoD_J$site_seg<-paste(GeoD_J$SITE,GeoD_J$SEGMENT,sep=" ")
-head(GeoD_J)
+GeoD_J<-subset(GeoD_J,select=-c(FRAGMENT.1));GeoD_A<-subset(GeoD_A,select=-c(site_seg))
+GeoD_J$site_seg<-paste(GeoD_J$SITE,GeoD_J$SEGMENT,sep="_");GeoD_J$site_seg<-as.factor(GeoD_J$site_seg)
+GeoD_A$site_seg<-paste(GeoD_A$SITE,GeoD_A$SEGMENT,sep="_");GeoD_A$site_seg<-as.factor(GeoD_A$site_seg)
+
+head(GeoD_J);head(GeoD_A)
 
 GeoD<-dplyr::bind_rows(GeoD_A, GeoD_J) #Combine dataframes
 head(GeoD)
@@ -153,7 +155,7 @@ print(paste(NSeg_J,"Segments in Juvenile GeoDatabase"))
 print(paste(length(unique(GeoD_J$SITE)),"Sites in Juvenile GeoDatabase"))
 #subsample GeoD_J to only flagged segments
 AssignedSeg_J=AssignedSeg_A
-GeoD4Rev_J=subset(GeoD_J,site_seg%in%AssignedSeg_J$site_seg)
+GeoD4Rev_J=subset(GeoD_J,site_seg%in%AssignedSeg_J$site_seg);head(GeoD4Rev_J)
 GeoD_Jout=subset(GeoD_J,!site_seg%in%AssignedSeg_J$site_seg)
 NCol_J=nrow(GeoD4Rev_J)
 print("###############################")
@@ -251,7 +253,7 @@ if(NLoops>=MaxLoops){
 }
 
 #Make Joint J and A out DF
-GeoD4Rev=rbind(GeoD4Rev_A,GeoD4Rev_J)
+GeoD4Rev<-dplyr::bind_rows(GeoD4Rev_A, GeoD4Rev_J) #Combine dataframes
 GeoD4Rev[order(GeoD4Rev$site_seg),]
 
 

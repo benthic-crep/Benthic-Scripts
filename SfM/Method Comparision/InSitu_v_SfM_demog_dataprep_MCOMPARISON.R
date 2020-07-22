@@ -18,7 +18,8 @@ source("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/lib/GIS_functions.
 setwd("C:/Users/Courtney.S.Couch/Documents/GitHub/Benthic-Scripts/SfM/Method Comparision")
 
 # SFM/ADULT: CLEAN ANALYSIS READY DATA ----------------------------------------------------
-df<-read.csv("C:/Users/Courtney.S.Couch/Documents/GitHub/Benthic-Scripts/SfM/Method Comparision/HARAMP2019_output_052220.csv")
+df<-read.csv("C:/Users/Courtney.S.Couch/Documents/GitHub/Benthic-Scripts/SfM/Method Comparision/HARAMP2019_QCdsfm_ADULT.csv")
+
 
 #Identify unknown corals to help ID
 unk<-subset(df,SPCODE=="UNKN")
@@ -26,8 +27,6 @@ View(unk)
 
 #Subset just the Adult data
 ad<-subset(df,SEGLENGTH=="2.5")
-head(x)
-View(x)
 x<-ad
 
 
@@ -105,6 +104,9 @@ head(x)
 survey_master<-read.csv("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/data/SURVEY MASTER.csv")
 # survey_master <- read.csv("C:/Users/Corinne.Amir/Documents/GitHub/Benthic-Scripts/SfM/SURVEY MASTER.csv")
 
+
+colnames(survey_master)[colnames(survey_master)=="new_MIN_DEPTH_M"]<-"MIN_DEPTH_M" #Change column name
+colnames(survey_master)[colnames(survey_master)=="new_MAX_DEPTH_M"]<-"MAX_DEPTH_M" #Change column name
 colnames(survey_master)[colnames(survey_master)=="LATITUDE_SV"]<-"LATITUDE" #Change column name
 colnames(survey_master)[colnames(survey_master)=="LONGITUDE_SV"]<-"LONGITUDE" #Change column name
 
@@ -229,7 +231,8 @@ write.csv(awd,file="C:/Users/Courtney.S.Couch/Documents/GitHub/Benthic-Scripts/S
 
 # SFM/JUVENILE: CLEAN ANALYSIS READY DATA -------------------------------------
 #Subset just the Adult data
-j<-subset(df,SEGLENGTH=="1")
+j<-read.csv("C:/Users/Courtney.S.Couch/Documents/GitHub/Benthic-Scripts/SfM/Method Comparision/HARAMP2019_QCdsfm_JUV.csv")
+
 head(x)
 View(x)
 nrow(x)
@@ -275,6 +278,8 @@ head(x)
 survey_master<-read.csv("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/data/SURVEY MASTER.csv")
 #survey_master <- read.csv("SURVEY MASTER.csv")
 
+colnames(survey_master)[colnames(survey_master)=="new_MIN_DEPTH_M"]<-"MIN_DEPTH_M" #Change column name
+colnames(survey_master)[colnames(survey_master)=="new_MAX_DEPTH_M"]<-"MAX_DEPTH_M" #Change column name
 colnames(survey_master)[colnames(survey_master)=="LATITUDE_SV"]<-"LATITUDE" #Change column name
 colnames(survey_master)[colnames(survey_master)=="LONGITUDE_SV"]<-"LONGITUDE" #Change column name
 
