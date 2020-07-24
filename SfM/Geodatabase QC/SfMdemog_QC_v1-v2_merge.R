@@ -1,13 +1,13 @@
 #Merging v1 and v2 geodatabase and ensuring that no site_segs are missing
 #By Corinne Amir
-#Modified 7/22/20 by Courtney Couch
+#Modified 7/24/20 by Courtney Couch
 
 # Read dataframes pulled directly from geodatabases
 #setwd("C:/Users/Corinne.Amir/Documents/GitHub/Benthic-Scripts/SfM/Geodatabase QC")
 setwd("C:/Users/Courtney.S.Couch/Documents/GitHub/Benthic-Scripts/SfM/Geodatabase QC")
 
-v1 <- read.csv("HARAM2019_annotations_v1_MA_july232020.csv") 
-v2 <- read.csv("HARAM2019_annotations_v2_ALL_july232020.csv") 
+v1 <- read.csv("HARAM2019_annotations_v1_MA_july242020.csv") 
+v2 <- read.csv("HARAM2019_annotations_v2_ALL_july242020.csv") 
 
 require(dplyr)
 require(plyr)
@@ -175,7 +175,7 @@ v1 <- v1[,col_order]
 
 
 #Export formatted v1 geodatabase
-write.csv(v1, "HARAMP2019_v1_reformat_FINAL_jul232020.csv",row.names = F)
+write.csv(v1, "HARAMP2019_v1_reformat_FINAL_jul242020.csv",row.names = F)
 
 # 
 # 

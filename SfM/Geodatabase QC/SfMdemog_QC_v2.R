@@ -23,8 +23,8 @@ require(reshape2)
 # RS <- read.csv("RS_geodatabase_4-16-2020.csv")
 # CA <- read.csv("CA_geodatabase_05-07-2020.csv")
 # FL <- read.csv("FL_geodatabase_5-4-2020.csv")
-v2 <- read.csv("HARAM2019_annotations_v2_july222020.csv")
-v1 <- read.csv("HARAMP2019_v1_reformat_FINAL_jul222020.csv") #segments from repeat survey sites (all MA)
+v2 <- read.csv("HARAM2019_annotations_v2_ALL_july242020.csv")
+v1 <- read.csv("HARAMP2019_v1_reformat_FINAL_jul242020.csv") #segments from repeat survey sites (all MA)
 sitelist <- read.csv("C:/Users/Courtney.S.Couch/Documents/GitHub/Benthic-Scripts/SfM/Method Comparision/HARAMP2019_SfM_Meta.csv")
 
 
@@ -54,6 +54,11 @@ sfm.raw$SITE<-SiteNumLeadingZeros(sfm.raw$SITE)
 
 #If not already present from running the v1-v2 merge script, add column for site_segment
 sfm.raw$site_seg<-paste(sfm.raw$SITE,sfm.raw$SEGMENT)
+
+
+#Remove incomplete sites
+sfm.raw <-sfm.raw %>% filter(!SITE %in% c("HAW-04224","MOL-02266"))
+
 
 
 # Check to see if any sites are missing (should have 106 sites)
@@ -152,17 +157,19 @@ sapply(sfm,unique)
 sfm <- sfm %>% filter(SITE != "-   NA" & SITE != "SE1902-   NA") #cant find where these errors are in the gdb
 sfm$OLDDEAD <- as.numeric(sfm$OLDDEAD)
 
-sfm <- mutate(sfm,FRAGMENT = revalue(FRAGMENT, c("No" = 0," " = 0,"0" = 0, "-1" = -1, "Yes" = -1))) %>%
-       mutate(sfm,REMNANT = revalue(REMNANT, c("No" = 0," " = 0,"0" = 0))) %>%
-       mutate(sfm,JUVENILE = revalue(JUVENILE, c("No" = 0," " = 0,"0" = 0, "Yes" = -1))) %>%
-       mutate(sfm,EX_BOUND = revalue(EX_BOUND, c("No" = 0, " " = 0))) %>%
-       mutate(sfm,NO_COLONY = revalue(NO_COLONY, c("No" = 0, " " = 0))) %>%
-       mutate(sfm,RDCAUSE1 = revalue(RDCAUSE1, c(" " = "NA"))) %>%
-       mutate(sfm,RDCAUSE2 = revalue(RDCAUSE2, c(" " = "NA"))) %>%
-       mutate(sfm,RDCAUSE3 = revalue(RDCAUSE3, c(" " = "NA"))) %>%
-       mutate(sfm,CON_1 = revalue(CON_1, c(" " = "NA"))) %>%
-       mutate(sfm,CON_2 = revalue(CON_2, c(" " = "NA"))) %>%
-       mutate(sfm,CON_3 = revalue(CON_3, c(" " = "NA"))) 
+
+sfm<-sfm %>% mutate(FRAGMENT = revalue(FRAGMENT, c("No" = 0," " = 0,"0" = 0, "-1" = -1, "Yes" = -1)),
+               REMNANT = revalue(REMNANT, c("No" = 0," " = 0,"0" = 0)),
+               JUVENILE = revalue(JUVENILE, c("No" = 0," " = 0,"0" = 0, "Yes" = -1)),
+               EX_BOUND = revalue(EX_BOUND, c("No" = 0, " " = 0)),
+               NO_COLONY = revalue(NO_COLONY, c("No" = 0, " " = 0)),
+               RDCAUSE1 = revalue(RDCAUSE1, c(" " = "NA")),
+               RDCAUSE2 = revalue(RDCAUSE2, c(" " = "NA")),
+               RDCAUSE3 = revalue(RDCAUSE3, c(" " = "NA")),
+               CON_1 = revalue(CON_1, c(" " = "NA")),
+               CON_2 = revalue(CON_2, c(" " = "NA")),
+               CON_3 = revalue(CON_3, c(" " = "NA"))) 
+
   
 
 #Add column for segment area
@@ -211,10 +218,10 @@ output[2,]<-c("No errant codes", "some logical NAs and blanks throughout -- ok")
 
 
 
-#3. All TRANSECT within v2 of the geodabase should = A (B is for repeats)
-filter(sfm, TRANSECT != "A")
-
-output[3,]<-c("All transects = A","B sites = v1 gdb -- OK") #change depending on output from previous lines of code
+# #3. All TRANSECT within v2 of the geodabase should = A (B is for repeats)
+# filter(sfm, TRANSECT != "A")
+# 
+# output[3,]<-c("All transects = A","B sites = v1 gdb -- OK") #change depending on output from previous lines of code
 
 
 #4. Make sure that if NO_COLONY=-1 none of the following columns have been populated
@@ -283,8 +290,7 @@ write.csv(lg.colonies.eval, "Adults_eval.csv")
 
 #10. Identify colonies have the same CON code across multiple CON columns
 sfm$CON_3 <- as.factor(sfm$CON_3)
-CON_dup <- select(sfm,c(ANALYST, site_seg, CON_1,CON_2, CON_3)) %>% filter(CON_1!="NA") %>% filter(CON_2!="NA")
-
+CON_dup <- sfm %>% filter(CON_1!="NA") %>% filter(CON_2!="NA")
 levels(CON_dup$CON_1) # come up with complete list of codes used in CON column
 levels(CON_dup$CON_2)
 levels(CON_dup$CON_3)
@@ -306,8 +312,7 @@ output[10,]<-c("Corals do not have duplicate CON codes","YES")
 
 #11. Identify colonies that have the same RDCAUSE code across multiple RDCAUSE columns
 sfm$RDCAUSE3 <- as.factor(sfm$RDCAUSE3)
-RD_dup <- select(sfm,c(ANALYST, site_seg, RDCAUSE1,RDCAUSE2, RDCAUSE3)) %>% 
-          filter(RDCAUSE1!="NA") %>% filter(RDCAUSE2!="NA")
+RD_dup <- sfm %>% filter(RDCAUSE1!="NA") %>% filter(RDCAUSE2!="NA")
 
 levels(RD_dup$RDCAUSE1) # come up with complete list of codes used in RD column
 levels(RD_dup$RDCAUSE2)
@@ -414,7 +419,7 @@ sfm[sfm$totaldead>100,] #RD + OD can equal 100, but not >100
 output[20,]<-c("RD + OD <=100%","YES")
               
 
-#21. Check for duplicate rows in dataframe
+#21. Check for duplicate rows in dataframe - it may be ok that colonies are exactly the same length
 a<-sfm %>% group_by(Shape_Leng,site_seg) %>% filter(n()>1)
 
 output[21,]<-c("No duplicate rows","1 potential duplicate")
@@ -440,7 +445,6 @@ output[23,]<-c("Juvenile colonies have no OLDDEAD, RD, or CON","YES")
 
 
 #Export QC output table with appropriate file name
-setwd("C:/Users/Corinne.Amir/Documents/GitHub/Benthic-Scripts/SfM")
 write.csv(output,"HARAMP2019_sfm_output.csv")
 
 
@@ -455,16 +459,16 @@ j<-subset(j,select=c(FID,ANALYST,OBS_YEAR,MISSION_ID,SITE,TRANSECT,SEGMENT,SEGLE
                      EX_BOUND,JUVENILE,FRAGMENT,REMNANT,Shape_Leng,SEGAREA))
 
 
-#For annotator comparison study
-analyst.per.seg.j<-j %>% filter(ANALYST=="RS" | ANALYST=="MW" | ANALYST=="MA") #for comparison plots NOT calibration plots
-analyst.per.seg.j <- ddply(j,.(SITE, SEGMENT), summarize, num.analyst = n_distinct(ANALYST))
-analyst.multiple.j <- filter(analyst.per.seg.j, num.analyst>1) 
-
-analyst.per.seg.ad<-ad %>% filter(ANALYST=="RS" | ANALYST=="MW" | ANALYST=="MA") #for comparison plots NOT calibration plots
-analyst.per.seg.ad$ANALYST<-droplevels(analyst.per.seg.ad$ANALYST)
-analyst.per.seg.ad <- ddply(analyst.per.seg.ad,.(SITE, SEGMENT), summarize, num.analyst = n_distinct(ANALYST))
-analyst.multiple.ad <- filter(analyst.per.seg.ad, num.analyst>1) 
-
+# #For annotator comparison study
+# analyst.per.seg.j<-j %>% filter(ANALYST=="RS" | ANALYST=="MW" | ANALYST=="MA") #for comparison plots NOT calibration plots
+# analyst.per.seg.j <- ddply(j,.(SITE, SEGMENT), summarize, num.analyst = n_distinct(ANALYST))
+# analyst.multiple.j <- filter(analyst.per.seg.j, num.analyst>1) 
+# 
+# analyst.per.seg.ad<-ad %>% filter(ANALYST=="RS" | ANALYST=="MW" | ANALYST=="MA") #for comparison plots NOT calibration plots
+# analyst.per.seg.ad$ANALYST<-droplevels(analyst.per.seg.ad$ANALYST)
+# analyst.per.seg.ad <- ddply(analyst.per.seg.ad,.(SITE, SEGMENT), summarize, num.analyst = n_distinct(ANALYST))
+# analyst.multiple.ad <- filter(analyst.per.seg.ad, num.analyst>1) 
+# 
 
 
 #Make sure that you have all the segments that are reported as annotated in the tracking datasheet (checked in beginning of script but not official)
@@ -475,10 +479,10 @@ adseglist<-merge(ad,seglist,by=c(SITE,n),all=T)
 
 #Export QC'd data
 #Data ends up in "T:/Benthic/Data/SfM/QC" NOT within Benthic-Scripts Github folder
-setwd('T:/Benthic/Data/SfM/QC/')
+# setwd('T:/Benthic/Data/SfM/QC/')
 write.csv(ad,"HARAMP2019_QCdsfm_ADULT.csv",row.names = F)
 write.csv(j,"HARAMP2019_QCdsfm_JUV.csv",row.names = F)
-write.csv(sfm,"HARAMP2019_output_FINAL_jun162020.csv",row.names = F)
+write.csv(sfm,"HARAMP2019_output_FINAL_jul242020.csv",row.names = F)
 
 
 
