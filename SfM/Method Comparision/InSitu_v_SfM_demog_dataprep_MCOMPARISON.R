@@ -18,17 +18,14 @@ source("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/lib/GIS_functions.
 setwd("C:/Users/Courtney.S.Couch/Documents/GitHub/Benthic-Scripts/SfM/Method Comparision")
 
 # SFM/ADULT: CLEAN ANALYSIS READY DATA ----------------------------------------------------
-df<-read.csv("C:/Users/Courtney.S.Couch/Documents/GitHub/Benthic-Scripts/SfM/Method Comparision/HARAMP2019_QCdsfm_ADULT.csv")
+df<-read.csv("C:/Users/Courtney.S.Couch/Documents/GitHub/Benthic-Scripts/SfM/Geodatabase QC/HARAMP2019_QCdsfm_ADULT.csv")
 
 
 #Identify unknown corals to help ID
 unk<-subset(df,SPCODE=="UNKN")
 View(unk)
 
-#Subset just the Adult data
-ad<-subset(df,SEGLENGTH=="2.5")
-x<-ad
-
+x<-df
 
 #SfM/ADULT: Column Names Changes -------------------------------------------------
 colnames(x)[colnames(x)=="RD_1"]<-"RDEXTENT1" #Change column name
@@ -66,11 +63,9 @@ tmp$prop<-tmp$n/90*100 #% of sites that each annotator annoated
 x$COLONYLENGTH<-x$COLONYLENGTH*100 #convert from m to cm
 x$S_ORDER<-ifelse(x$NO_COLONY==0 & x$SPCODE!="NONE","Scleractinia","NONE") #add S_order column
 x$TRANSECT<-1
-x$COLONYID<-paste(x$SITE,x$SEGMENT,x$SPCODE,x$COLONYLENGTH,sep="_")
+x$COLONYID<-paste(1:length(x$FID))
 x$COLONYID<-ifelse(x$NO_COLONY==-1,NA,x$COLONYID)
 
-#Check for duplicate COLONYIDs
-x$COLONYID[duplicated(x$COLONYID)]
 
 #Revise Bleaching data
 x[x=="BLP"]<-"BLE"
@@ -115,7 +110,7 @@ x<-left_join(x,survey_master[,c("MISSIONID","REGION","OBS_YEAR","ISLAND","SITEVI
                             "REEF_ZONE","DEPTH_BIN","HABITAT_CODE","LATITUDE","LONGITUDE","MIN_DEPTH_M","MAX_DEPTH_M")])
 
 head(x)
-if(nrow(ad)!=nrow(x)) {cat("WARNING:Data were dropped")} #Check that adult data weren't dropped  
+if(nrow(x)!=nrow(x)) {cat("WARNING:Data were dropped")} #Check that adult data weren't dropped  
 
 
 #SfM/ADULT: Assign TAXONCODE --------------------------------------------------------
@@ -231,7 +226,7 @@ write.csv(awd,file="C:/Users/Courtney.S.Couch/Documents/GitHub/Benthic-Scripts/S
 
 # SFM/JUVENILE: CLEAN ANALYSIS READY DATA -------------------------------------
 #Subset just the Adult data
-j<-read.csv("C:/Users/Courtney.S.Couch/Documents/GitHub/Benthic-Scripts/SfM/Method Comparision/HARAMP2019_QCdsfm_JUV.csv")
+j<-read.csv("C:/Users/Courtney.S.Couch/Documents/GitHub/Benthic-Scripts/SfM/Geodatabase QC/HARAMP2019_QCdsfm_JUV.csv")
 
 head(x)
 View(x)
@@ -242,9 +237,10 @@ x<-j
 #SFM/JUVENILE: Column Names Changes... -------------------------------------------------
 colnames(x)[colnames(x)=="FRAGMENT"]<-"Fragment" #Change column name
 colnames(x)[colnames(x)=="Shape_Leng"]<-"COLONYLENGTH" #Change column name
-colnames(x)[colnames(x)=="FID"]<-"COLONYID" #Change column name
 
-x$COLONYID<-c(1:length(x$COLONYID)) #temporary workaround
+nrow(awd)
+x$COLONYID<-c(1:length(x$FID));x$COLONYID<-x$COLONYID+7543
+x$COLONYID<-ifelse(x$NO_COLONY==-1,NA,x$COLONYID)
 
 #Add column for method type
 x$METHOD<-"SfM"
@@ -260,11 +256,6 @@ table(x$SITE,x$ANALYST)
 x$COLONYLENGTH<-x$COLONYLENGTH*100 #convert from m to cm
 x$S_ORDER<-ifelse(x$NO_COLONY==0 & x$SPCODE!="NONE","Scleractinia","NONE") #add S_order column
 x$TRANSECT<-1
-x$COLONYID<-paste(x$SITE,x$SEGMENT,x$SPCODE,x$COLONYLENGTH,sep="_")
-
-#Check for duplicate COLONYIDs
-x$COLONYID[duplicated(x$COLONYID)]
-x<-x[!duplicated(x$COLONYID), ] #remove duplicate rows (temporary workaround for now until we can figure out what is going on in the export)
 
 
 #Create Genuscode and taxonname column from spcode

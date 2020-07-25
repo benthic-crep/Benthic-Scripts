@@ -19,30 +19,34 @@ sectors<-read.csv("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/data/Se
 meta<-read.csv("C:/Users/Courtney.S.Couch/Documents/GitHub/Benthic-Scripts/SfM/Method Comparision/HARAMP2019_SfM_Meta.csv")
 meta<-meta[,c("ISLAND","SITE","Mosaic_Issues","Segments_Annotated","Rugosity")]
 head(meta)
+levels(as.factor(meta$Mosaic_Issues))
 
-#Missing segments from geodatabase FOR ADULTS
-seg_tally<-ddply(ad_sfm,.(ISLAND,SITE),
-                 summarize,
-                 Segments_inGD=length(unique(SEGMENT)))
+table(meta$Mosaic_Issues)
 
-tmp.seg<-full_join(meta,seg_tally)
-View(tmp.seg)
-
-miss.seg<-dplyr::filter(tmp.seg, Segments_Annotated !=Segments_inGD);miss.seg #identify sites that have missing segments
-miss.site<-dplyr::filter(tmp.seg, is.na(Segments_inGD));miss.site #identify sites that have missing segments
-
-
-#Missing segments from geodatabase FOR JUV
-seg_tally<-ddply(j_sfm,.(ISLAND,SITE),
-                 summarize,
-                 Segments_inGD=length(unique(SEGMENT)))
-
-
-tmp.seg<-full_join(meta,seg_tally)
-View(tmp.seg)
-
-miss.seg<-dplyr::filter(tmp.seg, Segments_Annotated !=Segments_inGD);miss.seg #identify sites that have missing segments
-miss.site<-dplyr::filter(tmp.seg, is.na(Segments_inGD));miss.site #identify sites that have missing segments
+# 
+# #Missing segments from geodatabase FOR ADULTS
+# seg_tally<-ddply(ad_sfm,.(ISLAND,SITE),
+#                  summarize,
+#                  Segments_inGD=length(unique(SEGMENT)))
+# 
+# tmp.seg<-full_join(meta,seg_tally)
+# View(tmp.seg)
+# 
+# miss.seg<-dplyr::filter(tmp.seg, Segments_Annotated !=Segments_inGD);miss.seg #identify sites that have missing segments
+# miss.site<-dplyr::filter(tmp.seg, is.na(Segments_inGD));miss.site #identify sites that have missing segments
+# 
+# 
+# #Missing segments from geodatabase FOR JUV
+# seg_tally<-ddply(j_sfm,.(ISLAND,SITE),
+#                  summarize,
+#                  Segments_inGD=length(unique(SEGMENT)))
+# 
+# 
+# tmp.seg<-full_join(meta,seg_tally)
+# View(tmp.seg)
+# 
+# miss.seg<-dplyr::filter(tmp.seg, Segments_Annotated !=Segments_inGD);miss.seg #identify sites that have missing segments
+# miss.site<-dplyr::filter(tmp.seg, is.na(Segments_inGD));miss.site #identify sites that have missing segments
 
 
 ad_sfm$TRANSECTAREA<-Transectarea(ad_sfm)
@@ -56,8 +60,9 @@ summary(ad_sfm$TRANSECTAREA)
 # View(subset(j_sfm,SITE=="LAN-01813"))
 
 #Check if any site-segments have been dropped 
-t1<-ddply(ad_sfm,.(SITE,SEGMENT),summarize,n=length(unique(ANALYST)));nrow(t1[t1$n>1,])
-t1<-ddply(j_sfm,.(SITE,SEGMENT),summarize,n=length(unique(ANALYST)));nrow(t1[t1$n>1,]) 
+length(unique(ad_sfm$SITE_SEG));length(unique(ad_sfm$SITE)) #should be 389 ss and 104 sites
+length(unique(j_sfm$SITE_SEG));length(unique(j_sfm$SITE)) #should be 312 ss and 104 sites
+
 
 ad_sfm$SITE_SEG<-paste(ad_sfm$SITE,ad_sfm$SEGMENT,sep ="_")
 j_sfm$SITE_SEG<-paste(j_sfm$SITE,j_sfm$SEGMENT,sep ="_")

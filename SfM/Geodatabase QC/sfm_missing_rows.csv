@@ -1,0 +1,4 @@
+"","FID","ANALYST","OBS_YEAR","MISSION_ID","SITE","TRANSECT","SEGMENT","SEGLENGTH","SEGWIDTH","NO_COLONY","SPCODE","EX_BOUND","JUVENILE","FRAGMENT","REMNANT","OLDDEAD","MORPH_CODE","RDCAUSE1","RD_1","RDCAUSE2","RD_2","RDCAUSE3","RD_3","CON_1","EXTENT_1","SEV_1","CON_2","EXTENT_2","SEV_2","CON_3","EXTENT_3","SEV_3","Shape_Leng","site_seg"
+"1","2654","MA",2019,"SE1902","NA-   NA","",NA,NA,NA,"","","","","","","","","",NA,"",NA,"",NA,"",NA,NA,"",NA,NA,"",NA,NA,NA,"NA-   NA NA"
+"2","","",2019,"SE1902","NA-   NA","",NA,NA,NA,"","","","","","","","","",NA,"",NA,"",NA,"",NA,NA,"",NA,NA,"",NA,NA,NA,"NA-   NA NA"
+"3","MA""","2019",2019,"SE1902","A-   NA","0","1",1,0,"PLOB","0","-1","0","0","0","MD"," ","0",NA,"0",NA,"0",NA,"0",0,NA,"0",0,NA,"0",0,0.009386161,NA,"A-   NA 1"

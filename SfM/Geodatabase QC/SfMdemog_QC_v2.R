@@ -59,6 +59,8 @@ sfm.raw$site_seg<-paste(sfm.raw$SITE,sfm.raw$SEGMENT)
 #Remove incomplete sites
 sfm.raw <-sfm.raw %>% filter(!SITE %in% c("HAW-04224","MOL-02266"))
 
+#Fix annotator name
+sfm.raw$ANALYST<-ifelse(sfm.raw$ANALYST=="rs","RS",as.character(sfm.raw$ANALYST));head(sfm.raw)
 
 
 # Check to see if any sites are missing (should have 106 sites)
@@ -450,6 +452,9 @@ write.csv(output,"HARAMP2019_sfm_output.csv")
 
 
 # Export QC'd data ----------------------------------------------------------------------------
+
+#Make sure that the "juvenile" column is correct
+sfm$JUVENILE<-ifelse(sfm$SEGAREA=="1",-1,0)
 
 #Separate by adults and juveniles
 ad<-subset(sfm,JUVENILE!="-1"|NO_COLONY==-1 & SEGLENGTH==2.5)
