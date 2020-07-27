@@ -20,30 +20,30 @@ meta<-read.csv("C:/Users/Courtney.S.Couch/Documents/GitHub/Benthic-Scripts/SfM/M
 meta<-meta[,c("ISLAND","SITE","Mosaic_Issues","Segments_Annotated","Rugosity")]
 head(meta)
 
-#Missing segments from geodatabase FOR ADULTS
-seg_tally<-ddply(ad_sfm,.(ISLAND,SITE),
-                 summarize,
-                 Segments_inGD=length(unique(SEGMENT)))
-
-tmp.seg<-full_join(meta,seg_tally)
-View(tmp.seg)
-
-miss.seg<-dplyr::filter(tmp.seg, Segments_Annotated !=Segments_inGD);miss.seg #identify sites that have missing segments
-miss.site<-dplyr::filter(tmp.seg, is.na(Segments_inGD));miss.site #identify sites that have missing segments
-
-
-#Missing segments from geodatabase FOR JUV
-seg_tally<-ddply(j_sfm,.(ISLAND,SITE),
-                 summarize,
-                 Segments_inGD=length(unique(SEGMENT)))
-
-
-tmp.seg<-full_join(meta,seg_tally)
-View(tmp.seg)
-
-miss.seg<-dplyr::filter(tmp.seg, Segments_Annotated !=Segments_inGD);miss.seg #identify sites that have missing segments
-miss.site<-dplyr::filter(tmp.seg, is.na(Segments_inGD));miss.site #identify sites that have missing segments
-
+# #Missing segments from geodatabase FOR ADULTS
+# seg_tally<-ddply(ad_sfm,.(ISLAND,SITE),
+#                  summarize,
+#                  Segments_inGD=length(unique(SEGMENT)))
+# 
+# tmp.seg<-full_join(meta,seg_tally)
+# View(tmp.seg)
+# 
+# miss.seg<-dplyr::filter(tmp.seg, Segments_Annotated !=Segments_inGD);miss.seg #identify sites that have missing segments
+# miss.site<-dplyr::filter(tmp.seg, is.na(Segments_inGD));miss.site #identify sites that have missing segments
+# 
+# 
+# #Missing segments from geodatabase FOR JUV
+# seg_tally<-ddply(j_sfm,.(ISLAND,SITE),
+#                  summarize,
+#                  Segments_inGD=length(unique(SEGMENT)))
+# 
+# 
+# tmp.seg<-full_join(meta,seg_tally)
+# View(tmp.seg)
+# 
+# miss.seg<-dplyr::filter(tmp.seg, Segments_Annotated !=Segments_inGD);miss.seg #identify sites that have missing segments
+# miss.site<-dplyr::filter(tmp.seg, is.na(Segments_inGD));miss.site #identify sites that have missing segments
+# 
 
 ad_sfm$TRANSECTAREA<-Transectarea(ad_sfm)
 j_sfm$TRANSECTAREA<-Transectarea(j_sfm)
@@ -56,11 +56,44 @@ summary(ad_sfm$TRANSECTAREA)
 # View(subset(j_sfm,SITE=="LAN-01813"))
 
 #Check if any site-segments have been dropped 
-t1<-ddply(ad_sfm,.(SITE,SEGMENT),summarize,n=length(unique(ANALYST)));nrow(t1[t1$n>1,])
-t1<-ddply(j_sfm,.(SITE,SEGMENT),summarize,n=length(unique(ANALYST)));nrow(t1[t1$n>1,]) 
-
 ad_sfm$SITE_SEG<-paste(ad_sfm$SITE,ad_sfm$SEGMENT,sep ="_")
 j_sfm$SITE_SEG<-paste(j_sfm$SITE,j_sfm$SEGMENT,sep ="_")
+length(unique(ad_sfm$SITE_SEG));length(unique(ad_sfm$SITE)) #should be 389 ss and 104 sites
+length(unique(j_sfm$SITE_SEG));length(unique(j_sfm$SITE)) #should be 312 ss and 104 sites
+
+
+#Need to identify 1 analyst per segment
+#Because we had different people go back and make some corrections on the belts,we may have more than 1 person on a segment.
+#But the annoations are not evenly distributed across the 2 annoators (e.g. annoator 1 may have annoated 15 colonies and #2 only did 2)
+#This won't work for the mixed models, so I've identified the person with the max number of annoatations and labeled them as the annoator of the full segment
+#It's not perfect, but the best we can do right now.
+
+#Adults
+tmp<-ddply(ad_sfm,.(METHOD,SITE_SEG,ANALYST),summarize,n=length(COLONYID)) #identify # of colonies surveyed for each method, ss and annotoator
+tmp2<-ddply(tmp,.(METHOD,SITE_SEG),summarize,n=max(n)) #identify the max number of colonies/seg and merge back with tmp to identify primary annoator
+atmp<-left_join(tmp2,tmp)
+head(tmp,10);head(atmp,10)
+colnames(atmp)[colnames(atmp)=="ANALYST"]<-"N.ANALYST" #Change column name
+atmp<-subset(atmp,select=-n)
+
+#Juveniles
+tmp<-ddply(j_sfm,.(METHOD,SITE_SEG,ANALYST),summarize,n=length(COLONYID)) #identify # of colonies surveyed for each method, ss and annotoator
+tmp2<-ddply(tmp,.(METHOD,SITE_SEG),summarize,n=max(n)) #identify the max number of colonies/seg and merge back with tmp to identify primary annoator
+jtmp<-left_join(tmp2,tmp)
+head(tmp,10);head(jtmp,10)
+colnames(jtmp)[colnames(jtmp)=="ANALYST"]<-"N.ANALYST" #Change column name
+jtmp<-subset(jtmp,select=-n)
+
+#Merge back to original dataframe and change column names
+ad_sfmN<-left_join(ad_sfm,atmp)
+length(unique(ad_sfmN$SITE));length(unique(ad_sfmN$SITE_SEG))# double check that numbers match Site should be 104 and 389
+ad_sfmN<-subset(ad_sfmN,select=-ANALYST);colnames(ad_sfmN)[colnames(ad_sfmN)=="N.ANALYST"]<-"ANALYST" #Change back to ANALYST
+View(ad_sfmN)
+
+j_sfmN<-left_join(j_sfm,jtmp)
+length(unique(j_sfmN$SITE));length(unique(j_sfmN$SITE_SEG))# double check that numbers match Site should be 104 and 312
+j_sfmN<-subset(j_sfmN,select=-ANALYST);colnames(j_sfmN)[colnames(j_sfmN)=="N.ANALYST"]<-"ANALYST" #Change back to ANALYST
+View(j_sfmN)
 
 
 # PREP VISUAL DIVER DATA ---------------------------------------------
@@ -135,16 +168,20 @@ jwd$SEGAREA<-jwd$SEGLENGTH*jwd$SEGWIDTH
 
 awd<-dplyr::select(awd,-c(bANALYSIS_SCHEME,ANALYSIS_YEAR,EXCLUDE_FLAG,REGION_NAME,NO_SURVEY_YN,DATE_,ISLANDCODE))
 jwd<-dplyr::select(jwd,-c(bANALYSIS_SCHEME,ANALYSIS_YEAR,EXCLUDE_FLAG,REGION_NAME,NO_SURVEY_YN,DATE_,ISLANDCODE))
-awd<-dplyr::filter(awd, SITE_SEG %in% c(ad_sfm$SITE_SEG));head(awd) 
-jwd<-dplyr::filter(jwd, SITE_SEG %in% c(j_sfm$SITE_SEG));head(jwd) 
-
-#Remove segments that were annoated in SfM, but not surveyd by divers
-ad_sfm_sub<-dplyr::filter(ad_sfm, SITE_SEG %in% c(awd$SITE_SEG));nrow(ad_sfm);nrow(ad_sfm_sub)
-j_sfm_sub<-dplyr::filter(j_sfm, SITE_SEG %in% c(awd$SITE_SEG));nrow(j_sfm);nrow(j_sfm_sub) 
-
+awd<-dplyr::filter(awd, SITE_SEG %in% c(ad_sfmN$SITE_SEG));head(awd) 
+jwd<-dplyr::filter(jwd, SITE_SEG %in% c(j_sfmN$SITE_SEG));head(jwd) 
 
 length(unique(awd$SITE))
 length(unique(jwd$SITE))
+
+
+#Remove segments that were annoated in SfM, but not surveyd by divers
+ad_sfm_sub<-dplyr::filter(ad_sfmN, SITE_SEG %in% c(awd$SITE_SEG));nrow(ad_sfm);nrow(ad_sfm_sub)
+j_sfm_sub<-dplyr::filter(j_sfmN, SITE_SEG %in% c(awd$SITE_SEG));nrow(j_sfm);nrow(j_sfm_sub) 
+
+
+length(unique(ad_sfm_sub$SITE));length(unique(ad_sfm_sub$SITE_SEG))
+length(unique(j_sfm_sub$SITE));length(unique(j_sfm_sub$SITE_SEG))
 
 awd$METHOD<-"Diver";awd$METHOD<-as.factor(awd$METHOD)
 jwd$METHOD<-"Diver";jwd$METHOD<-as.factor(jwd$METHOD)
@@ -160,6 +197,8 @@ sapply(ad_sfm,class)
 
 awd.all<-rbind(ad_sfm_sub,awd)
 jwd.all<-rbind(j_sfm_sub,jwd)
+
+
 
 #Create a look up table of all of the colony attributes- you will need this for the functions below
 SURVEY_COL<-c("METHOD","SITEVISITID", "OBS_YEAR", "REGION", "ISLAND","SEC_NAME", "SITE", "REEF_ZONE",

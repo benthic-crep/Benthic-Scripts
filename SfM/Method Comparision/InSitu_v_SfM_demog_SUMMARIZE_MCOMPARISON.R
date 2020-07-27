@@ -60,12 +60,13 @@ summary(ad_sfm$TRANSECTAREA)
 # View(subset(j_sfm,SITE=="LAN-01813"))
 
 #Check if any site-segments have been dropped 
+ad_sfm$SITE_SEG<-paste(ad_sfm$SITE,ad_sfm$SEGMENT,sep ="_")
+j_sfm$SITE_SEG<-paste(j_sfm$SITE,j_sfm$SEGMENT,sep ="_")
 length(unique(ad_sfm$SITE_SEG));length(unique(ad_sfm$SITE)) #should be 389 ss and 104 sites
 length(unique(j_sfm$SITE_SEG));length(unique(j_sfm$SITE)) #should be 312 ss and 104 sites
 
 
-ad_sfm$SITE_SEG<-paste(ad_sfm$SITE,ad_sfm$SEGMENT,sep ="_")
-j_sfm$SITE_SEG<-paste(j_sfm$SITE,j_sfm$SEGMENT,sep ="_")
+
 
 
 #Create a look up table of all of the colony attributes- you will need this for the functions below
