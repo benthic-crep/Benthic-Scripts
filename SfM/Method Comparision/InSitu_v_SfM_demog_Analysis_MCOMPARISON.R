@@ -30,30 +30,62 @@ setwd("C:/Users/Courtney.S.Couch/Documents/GitHub/Benthic-Scripts/SfM/Method Com
 
 #Read in files
 seg<-read.csv("C:/Users/Courtney.S.Couch/Documents/GitHub/Benthic-Scripts/SfM/Method Comparision/HARAMP19_GENUS_SEGMENT.csv")
+site<-read.csv("C:/Users/Courtney.S.Couch/Documents/GitHub/Benthic-Scripts/SfM/Method Comparision/HARAMP19_GENUS_SITE.csv")
 
-#site<-read.csv("C:/Users/Courtney.S.Couch/Documents/GitHub/Benthic-Scripts/SfM/Method Comparision/HARAMP19_SfMGENUS_SITE.csv")
 
-
-#Select columns to keep in segment data
-seg<-dplyr::select(seg, c(METHOD,SITE,SITEVISITID,SEGMENT,GENUS_CODE,ANALYST,SEGAREA_ad,SEGAREA_j,AdColCount,AdColDen,JuvColDen,Ave.size,Ave.od,Ave.rd,
-                                    BLE_prev,AcuteDZ_prev,ChronicDZ_prev,ISLAND,SEC_NAME,DEPTH_BIN,LATITUDE,LONGITUDE,HABITAT_CODE,
-                                    MIN_DEPTH_M,MAX_DEPTH_M))
-
-# #Select columns to keep in site data
-# site<-dplyr::select(site, c(METHOD,SITE,SITEVISITID,GENUS_CODE,TRANSECTAREA_ad,TRANSECTAREA_j,AdColCount,AdColDen,JuvColDen,Ave.size,Ave.od,Ave.rd,
-#                                     BLE_prev,AcuteDZ_prev,ChronicDZ_prev,ISLAND,SEC_NAME,DEPTH_BIN,LATITUDE,LONGITUDE,
+# #Select columns to keep in segment data
+# seg<-dplyr::select(seg, c(METHOD,SITE,SITEVISITID,SEGMENT,GENUS_CODE,ANALYST,SEGAREA_ad,SEGAREA_j,AdColCount,AdColDen,JuvColDen,Ave.size,Ave.od,Ave.rd,
+#                                     BLE_prev,AcuteDZ_prev,ChronicDZ_prev,ISLAND,SEC_NAME,DEPTH_BIN,LATITUDE,LONGITUDE,HABITAT_CODE,
 #                                     MIN_DEPTH_M,MAX_DEPTH_M))
+# 
+# seg<-subset(seg,SITE!="HAW-04285"&SEGMENT!="5") #sckewed by 1 very very large colony
+# sfm_seg<-subset(seg,METHOD=="SfM")
+# diver_seg<-subset(seg,METHOD=="Diver")
+# 
+# 
+# #Set up in wide format
+# colnames(sfm_seg)[9:17] <- paste("SfM_", colnames(sfm_seg[,c(9:17)]), sep = "");sfm_seg<-dplyr::select(sfm_seg,-c(METHOD,ANALYST,HABITAT_CODE))
+#                                                                                                                      
+# colnames(diver_seg)[9:17] <- paste("Diver_", colnames(diver_seg[,c(9:17)]), sep = "");diver_seg<-dplyr::select(diver_seg,-c(METHOD,ANALYST,ISLAND,HABITAT_CODE,SEC_NAME,DEPTH_BIN,LATITUDE,LONGITUDE,MIN_DEPTH_M,MAX_DEPTH_M))
+# 
+# seg.wide<-merge(sfm_seg,diver_seg,by=c("SITE","SITEVISITID","SEGMENT","GENUS_CODE","SEGAREA_ad","SEGAREA_j"),all=T)
+# 
+# #################IMPORTANT- CHECK FOR MERGING ERRORS
+# View(subset(seg.wide,GENUS_CODE=="SSSS")) #Make sure columns merge properly
+# 
+# #Merge together and remove segs that aren't merging properly
+# seg.wide<-merge(sfm_seg,diver_seg,by=c("SITE","SITEVISITID","SEGMENT","GENUS_CODE","SEGAREA_ad","SEGAREA_j"))
+# View(seg.wide) ##NOTE- LAN-01819 seg 10 SfM is duplicated for some reason-hopefully this will be fixed with final data
+# 
+# # #Change NAs for abunanance and density metrics to 0. Don't change NAs in the partial mortality columns to 0
+# seg.wide$Diver_JuvColDen[is.na(seg.wide$Diver_JuvColDen)]<-0
+# seg.wide$Diver_AdColDen[is.na(seg.wide$Diver_AdColDen)]<-0
+# seg.wide$SfM_JuvColDen[is.na(seg.wide$SfM_JuvColDen)]<-0
+# seg.wide$SfM_AdColDen[is.na(seg.wide$SfM_AdColDen)]<-0
+# 
+# head(seg.wide)
+# 
+# head(subset(seg.wide,GENUS_CODE=="SSSS"))
 
-seg<-subset(seg,SITE!="HAW-04285"&SEGMENT!="5") #sckewed by 1 very very large colony
-sfm_seg<-subset(seg,METHOD=="SfM")
-diver_seg<-subset(seg,METHOD=="Diver")
+
+# Prep Site-level data ----------------------------------------------------
+
+#Select columns to keep in SITE data
+site<-dplyr::select(site, c(METHOD,SITEVISITID,GENUS_CODE,TRANSECTAREA_ad,TRANSECTAREA_j,AdColCount,AdColDen,JuvColDen,Ave.size,Ave.od,Ave.rd,
+                          BLE_prev,AcuteDZ_prev,ChronicDZ_prev,ISLAND,SEC_NAME,DEPTH_BIN,LATITUDE,LONGITUDE,HABITAT_CODE,
+                          MIN_DEPTH_M,MAX_DEPTH_M))
 
 
+#site<-subset(site,SITE!="HAW-04285") #sckewed by 1 very very large colony
+sfm_site<-subset(site,METHOD=="SfM")
+diver_site<-subset(site,METHOD=="Diver")
+
+##############################START HERE#####################
 
 
 #Set up in wide format
-colnames(sfm_seg)[9:17] <- paste("SfM_", colnames(sfm_seg[,c(9:17)]), sep = "");sfm_seg<-dplyr::select(sfm_seg,-c(METHOD,ANALYST,HABITAT_CODE))
-                                                                                                                     
+colnames(sfm_seg)[9:17] <- paste("SfM_", colnames(sfm_seg[,c(9:17)]), sep = "");sfm_seg<-dplyr::select(sfm_seg,-c(METHOD,HABITAT_CODE))
+
 colnames(diver_seg)[9:17] <- paste("Diver_", colnames(diver_seg[,c(9:17)]), sep = "");diver_seg<-dplyr::select(diver_seg,-c(METHOD,ANALYST,ISLAND,HABITAT_CODE,SEC_NAME,DEPTH_BIN,LATITUDE,LONGITUDE,MIN_DEPTH_M,MAX_DEPTH_M))
 
 seg.wide<-merge(sfm_seg,diver_seg,by=c("SITE","SITEVISITID","SEGMENT","GENUS_CODE","SEGAREA_ad","SEGAREA_j"),all=T)
@@ -74,6 +106,8 @@ seg.wide$SfM_AdColDen[is.na(seg.wide$SfM_AdColDen)]<-0
 head(seg.wide)
 
 head(subset(seg.wide,GENUS_CODE=="SSSS"))
+
+
 
 
 # Plotting Regressions and Bland-Altman by Taxon --------------------------
