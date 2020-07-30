@@ -17,6 +17,9 @@ library(sjPlot)
 library(pander)
 library(tidyr)
 library(AICcmodavg)
+library(MuMIn)
+library(knitr)
+
 
 
 source("T:/Benthic/Data/SfM/ScriptFiles/SfMvDiver Plotting Functions.R") 
@@ -41,7 +44,7 @@ seg<-dplyr::select(seg, c(METHOD,SITE,SITEVISITID,SEGMENT,GENUS_CODE,ANALYST,SEG
 #                                     BLE_prev,AcuteDZ_prev,ChronicDZ_prev,ISLAND,SEC_NAME,DEPTH_BIN,LATITUDE,LONGITUDE,
 #                                     MIN_DEPTH_M,MAX_DEPTH_M))
 
-seg<-subset(seg,SITE!="HAW-04285"&SEGMENT!="5") #Something doesn't look right with dive data. 
+seg<-subset(seg,SITE!="HAW-04285"&SEGMENT!="5") #sckewed by 1 very very large colony
 sfm_seg<-subset(seg,METHOD=="SfM")
 diver_seg<-subset(seg,METHOD=="Diver")
 
@@ -177,23 +180,28 @@ glmerDensity<-function(d,grouping_field="GENUS_CODE",metric_field="AdColDen"){
   mod2<-glmer(METRIC~METHOD + ANALYST+ (1|SEC_NAME/SITE)+ offset(SEGAREA_ad),family=poisson,data=s)
   mod3<-glmer(METRIC~ANALYST+ (1|SEC_NAME/SITE)+ offset(SEGAREA_ad),family=poisson,data=s)
   mod4<-glmer(METRIC~METHOD*MAX_DEPTH_M + (1|SEC_NAME/SITE)+ offset(SEGAREA_ad),family=poisson,data=s)
-  mod5<-glmer(METRIC~METHOD*HABITAT_CODE + (1|SEC_NAME/SITE)+ offset(SEGAREA_ad),family=poisson,data=s)
+  mod5<-glmer(METRIC~METHOD*HAB_R1 + (1|SEC_NAME/SITE)+ offset(SEGAREA_ad),family=poisson,data=s)
   
   }
 
 
 s<-subset(seg,GENUS_CODE=="SSSS")
-nullmod<-glmer(AdColCount~1 + (1|SEC_NAME/SITE)+ offset(SEGAREA_ad),family=poisson,data=s)
-mod1<-glmer(AdColCount~METHOD + (1|SEC_NAME/SITE)+ offset(SEGAREA_ad),family=poisson,data=s)
-mod2<-glmer(AdColCount~METHOD*ANALYST+ (1|SEC_NAME/SITE)+ offset(SEGAREA_ad),family=poisson,data=s)
-mod3<-glmer(AdColCount~ANALYST+ (1|SEC_NAME/SITE)+ offset(SEGAREA_ad),family=poisson,data=s)
+nullmod<-glmer(AdColCount~1 + (1|SEC_NAME/SITE),family=poisson,data=s)
+mod1<-glmer(AdColCount~METHOD + (1|SEC_NAME/SITE),family=poisson,data=s)
+mod2<-glmer(AdColCount~METHOD*ANALYST+ (1|SEC_NAME/SITE),family=poisson,data=s,control=glmerControl(optimizer="bobyqa",optCtrl=list(maxfun=200000)))
+mod3<-glmer(AdColCount~METHOD*MAX_DEPTH_M + (1|SEC_NAME/SITE),family=poisson,data=s)
+mod4<-glmer(AdColCount~METHOD*HAB_R1 + (1|SEC_NAME/SITE),family=poisson,data=s)
 
-mod4<-glmer(AdColCount~METHOD*MAX_DEPTH_M + (1|SEC_NAME/SITE)+ offset(SEGAREA_ad),family=poisson,data=s)
-mod5<-glmer(AdColCount~METHOD*HABITAT_CODE + (1|SEC_NAME/SITE)+ offset(SEGAREA_ad),family=poisson,data=s)
-mod6<-glmer(AdColCount~METHOD*RugosityBin + (1|SEC_NAME/SITE)+ offset(SEGAREA_ad),family=poisson,data=s)
 
-m
-pander(anova(mod1,nullmod,test="chisq"))
+
+#s<-s %>% drop_na(SEGAREA_j)
+nullmod<-glmer(JuvColDen~1 + (1|SEC_NAME/SITE),family=poisson,data=s)
+mod1<-glmer(JuvColDen~METHOD + (1|SEC_NAME/SITE),family=poisson,data=s)
+mod2<-glmer(JuvColDen~METHOD+ANALYST+ (1|SEC_NAME/SITE),family=poisson,data=s,control=glmerControl(optimizer="bobyqa",optCtrl=list(maxfun=200000)))
+mod3<-glmer(JuvColDen~METHOD*MAX_DEPTH_M + (1|SEC_NAME/SITE),family=poisson,data=s,control=glmerControl(optimizer="bobyqa",optCtrl=list(maxfun=200000)))
+#mod4<-glmer(JuvColDen~METHOD*HAB_R1 + (1|SEC_NAME/SITE),family=poisson,data=s,control=glmerControl(optimizer="Nelder_Mead",optCtrl=list(maxfun=200000)))
+#Can't use Habitat for juveniles- model convergence that can't be addressed
+#Also having issues with model sigularity -need to simplify random effects (drop SEC_NAME)
 
 
 anova(mod1,nullmod,test="chisq")
@@ -205,23 +213,150 @@ anova(mod1,mod4,test="chisq")
 tab_model(mod2)
 
 #Model Selection
-Cand.set <- list( )
-Cand.set[[1]]<-glmer(AdColCount~1 + (1|SEC_NAME/SITE)+ offset(SEGAREA_ad),family=poisson,data=s)
-Cand.set[[2]]<-glmer(AdColCount~METHOD + (1|SEC_NAME/SITE)+ offset(SEGAREA_ad),family=poisson,data=s)
-Cand.set[[3]]<-glmer(AdColCount~METHOD*ANALYST+ (1|SEC_NAME/SITE)+ offset(SEGAREA_ad),family=poisson,data=s)
-Cand.set[[4]]<-glmer(AdColCount~METHOD*MAX_DEPTH_M + (1|SEC_NAME/SITE)+ offset(SEGAREA_ad),family=poisson,data=s)
-Cand.set[[5]]<-glmer(AdColCount~METHOD*HABITAT_CODE + (1|SEC_NAME/SITE)+ offset(SEGAREA_ad),family=poisson,data=s)
 
-Modnames <- paste("mod", 1:length(Cand.set), sep = " ")
+glmerDensity<-function(d,grouping_field="GENUS_CODE",genus_field="SSSS",metric_field="AdColCount"){
+  d$GROUP<-d[,grouping_field]
+  d$METRIC<-d[,metric_field]
+  s<-subset(d,GROUP==genus_field)
+  
+Cand.set <- list( )
+Cand.set[[1]]<-glmer(METRIC~1 + (1|ISLAND/SITE),family=poisson,data=s)
+Cand.set[[2]]<-glmer(METRIC~METHOD + (1|ISLAND/SITE),family=poisson,data=s)
+Cand.set[[3]]<-glmer(METRIC~METHOD+ANALYST+ (1|ISLAND/SITE),family=poisson,data=s,control=glmerControl(optimizer="bobyqa",optCtrl=list(maxfun=200000)))
+Cand.set[[4]]<-glmer(METRIC~METHOD*MAX_DEPTH_M + (1|ISLAND/SITE),family=poisson,data=s,control=glmerControl(optimizer="bobyqa",optCtrl=list(maxfun=200000)))
+Cand.set[[5]]<-glmer(METRIC~METHOD*HAB_R1 + (1|ISLAND/SITE),family=poisson,data=s,control=glmerControl(optimizer="Nelder_Mead",optCtrl=list(maxfun=200000)))
+
+Modnames <- c("Null","Method","Method + Analyst","Method + Depth","Method + Habitat")
 ##generate AICc table
 aictab(cand.set = Cand.set, modnames = Modnames, sort = TRUE)
 ##round to 4 digits after decimal point and give log-likelihood
 print(aictab(cand.set = Cand.set, modnames = Modnames, sort = TRUE),
-      digits = 4, LL = TRUE)
+      digits = 3, LL = TRUE)
 
-library(MuMIn)
+a<-r.squaredGLMM(Cand.set[[1]])
+b<-r.squaredGLMM(Cand.set[[2]])
+c<-r.squaredGLMM(Cand.set[[3]])
+d<-r.squaredGLMM(Cand.set[[4]])
+e<-r.squaredGLMM(Cand.set[[5]])
 
-r.squaredGLMM(mod2)
-r.squaredGLMM(mod3)
-r.squaredGLMM(mod4)
-r.squaredGLMM(mod5)
+print(a);print(b);print(c);print(d);print(e)
+
+}
+
+#Adults
+glmerDensity(seg,"GENUS_CODE","SSSS","AdColCount")
+glmerDensity(seg,"GENUS_CODE","POSP","AdColCount")
+glmerDensity(seg,"GENUS_CODE","MOSP","AdColCount")
+glmerDensity(seg,"GENUS_CODE","POCS","AdColCount")
+
+glmerDensity(seg,"GENUS_CODE","SSSS","JuvColDen")
+glmerDensity(seg,"GENUS_CODE","POSP","JuvColDen")
+glmerDensity(seg,"GENUS_CODE","MOSP","JuvColDen")
+glmerDensity(seg,"GENUS_CODE","POCS","JuvColDen")
+
+#Ave Size- not perfect transformation, but will work
+s<-subset(seg,GENUS_CODE=="SSSS")
+hist(log(s$Ave.od))
+s$logAve.size<-log(s$Ave.size)
+mod<-lmer(logAve.size~METHOD + (1|SEC_NAME/SITE),data=s)
+plot(mod)
+qqnorm(resid(mod)) #plot normal quantile- quantile plot.  Should be close to a straight line
+
+#Old dead- not perfect transformation, but will work
+s<-subset(seg,GENUS_CODE=="SSSS")
+hist(sqrt(s$Ave.od))
+s$sqAve.od<-sqrt(s$Ave.od)
+mod<-lmer(sqAve.od~METHOD + (1|SEC_NAME/SITE),data=s)
+plot(mod)
+qqnorm(resid(mod)) #plot normal quantile- quantile plot.  Should be close to a straight line
+
+#Can't transform recent dead
+hist(log(s$Ave.rd+1))
+s$logAve.rd<-log(s$Ave.rd+1)
+mod<-lmer(logAve.rd~METHOD + (1|SEC_NAME/SITE),data=s)
+plot(mod)
+qqnorm(resid(mod)) #plot normal quantile- quantile plot.  Should be close to a straight line
+
+#Transform variables
+s<-subset(seg,GENUS_CODE=="SSSS")
+s$logAve.size<-log(s$Ave.size)
+s$sqrtAve.od<-sqrt(s$Ave.od)
+
+
+lmerMetric<-function(d,grouping_field="GENUS_CODE",genus_field="SSSS",metric_field="AdColCount"){
+  d$GROUP<-d[,grouping_field]
+  d$METRIC<-d[,metric_field]
+  s<-subset(d,GROUP==genus_field)
+  
+  Cand.set <- list( )
+  Cand.set[[1]]<-lmer(METRIC~1 + (1|SEC_NAME/SITE),data=s,REML=F)
+  Cand.set[[2]]<-lmer(METRIC~METHOD + (1|SEC_NAME/SITE),data=s,REML=F)
+  Cand.set[[3]]<-lmer(METRIC~METHOD+ANALYST+ (1|SEC_NAME/SITE),data=s,REML=F,control=lmerControl(optimizer="bobyqa",optCtrl=list(maxfun=200000)))
+  Cand.set[[4]]<-lmer(METRIC~METHOD*MAX_DEPTH_M + (1|SEC_NAME/SITE),REML=F,data=s,control=lmerControl(optimizer="bobyqa",optCtrl=list(maxfun=200000)))
+  Cand.set[[5]]<-lmer(METRIC~METHOD*HAB_R1 + (1|SEC_NAME/SITE),data=s,REML=F,control=lmerControl(optimizer="Nelder_Mead",optCtrl=list(maxfun=200000)))
+  
+  Modnames <- c("Null","Method","Method + Analyst","Method + Depth","Method + Habitat")
+  ##generate AICc table
+  aictab(cand.set = Cand.set, modnames = Modnames, sort = TRUE)
+  ##round to 4 digits after decimal point and give log-likelihood
+  print(aictab(cand.set = Cand.set, modnames = Modnames, sort = TRUE),
+        digits = 3, LL = TRUE)
+  
+  a<-r.squaredGLMM(Cand.set[[1]])
+  b<-r.squaredGLMM(Cand.set[[2]])
+  c<-r.squaredGLMM(Cand.set[[3]])
+  d<-r.squaredGLMM(Cand.set[[4]])
+  e<-r.squaredGLMM(Cand.set[[5]])
+  
+  print(a);print(b);print(c);print(d);print(e)
+  
+}
+
+lmerMetric(s,"GENUS_CODE","SSSS","logAve.size")
+lmerMetric(s,"GENUS_CODE","SSSS","sqrtAve.od")
+
+mod<-lmer(logAve.size~METHOD*HAB_R1 + (1|SEC_NAME/SITE),data=s,REML=F,control=lmerControl(optimizer="Nelder_Mead",optCtrl=list(maxfun=200000)))
+summary(mod)
+
+#Prevalence Data
+#Calculate # of cases/type- need this for the the binomial GLMMs 
+s<-subset(seg,GENUS_CODE=="SSSS")
+s$AcuteDZ<-(s$AcuteDZ_prev/100)*s$AdColCount
+s$ChronicDZ<-(s$ChronicDZ_prev/100)*s$AdColCount
+s$BLE<-(s$BLE_prev/100)*s$AdColCount
+head(s)
+
+glmerPrev<-function(d,grouping_field="GENUS_CODE",genus_field="SSSS",metric_field="AcuteDZ"){
+  d$GROUP<-d[,grouping_field]
+  d$METRIC<-d[,metric_field]
+  s<-subset(d,GROUP==genus_field)
+  
+  Cand.set <- list( )
+  Cand.set[[1]]<-glmer(cbind(METRIC~1 + (1|ISLAND/SITE),family=binomial,data=s)
+  Cand.set[[2]]<-glmer(METRIC~METHOD + (1|ISLAND/SITE),family=binomial,data=s)
+  Cand.set[[3]]<-glmer(METRIC~METHOD+ANALYST+ (1|ISLAND/SITE),family=binomial,data=s,control=glmerControl(optimizer="bobyqa",optCtrl=list(maxfun=200000)))
+  Cand.set[[4]]<-glmer(METRIC~METHOD*MAX_DEPTH_M + (1|ISLAND/SITE),family=binomial,data=s,control=glmerControl(optimizer="bobyqa",optCtrl=list(maxfun=200000)))
+  Cand.set[[5]]<-glmer(METRIC~METHOD*HAB_R1 + (1|ISLAND/SITE),family=binomial,data=s,control=glmerControl(optimizer="Nelder_Mead",optCtrl=list(maxfun=200000)))
+  
+  Modnames <- c("Null","Method","Method + Analyst","Method + Depth","Method + Habitat")
+  ##generate AICc table
+  aictab(cand.set = Cand.set, modnames = Modnames, sort = TRUE)
+  ##round to 4 digits after decimal point and give log-likelihood
+  print(aictab(cand.set = Cand.set, modnames = Modnames, sort = TRUE),
+        digits = 3, LL = TRUE)
+  
+  a<-r.squaredGLMM(Cand.set[[1]])
+  b<-r.squaredGLMM(Cand.set[[2]])
+  c<-r.squaredGLMM(Cand.set[[3]])
+  d<-r.squaredGLMM(Cand.set[[4]])
+  e<-r.squaredGLMM(Cand.set[[5]])
+  
+  print(a);print(b);print(c);print(d);print(e)
+  
+}
+
+#Adults
+glmerDensity(seg,"GENUS_CODE","SSSS","AdColCount")
+glmerDensity(seg,"GENUS_CODE","POSP","AdColCount")
+glmerDensity(seg,"GENUS_CODE","MOSP","AdColCount")
+glmerDensity(seg,"GENUS_CODE","POCS","AdColCount")
