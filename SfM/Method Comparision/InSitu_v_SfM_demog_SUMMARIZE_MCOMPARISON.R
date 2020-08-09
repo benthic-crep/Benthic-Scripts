@@ -49,16 +49,6 @@ table(meta$Mosaic_Issues)
 # miss.site<-dplyr::filter(tmp.seg, is.na(Segments_inGD));miss.site #identify sites that have missing segments
 
 
-ad_sfm$TRANSECTAREA<-Transectarea(ad_sfm)
-j_sfm$TRANSECTAREA<-Transectarea(j_sfm)
-
-#Double check transect areas
-summary(j_sfm$TRANSECTAREA)
-summary(ad_sfm$TRANSECTAREA)
-
-# head(subset(j_sfm,TRANSECTAREA==4.5)) #look at site LAN-01813
-# View(subset(j_sfm,SITE=="LAN-01813"))
-
 #Check if any site-segments have been dropped 
 ad_sfm$SITE_SEG<-paste(ad_sfm$SITE,ad_sfm$SEGMENT,sep ="_")
 j_sfm$SITE_SEG<-paste(j_sfm$SITE,j_sfm$SEGMENT,sep ="_")
@@ -143,12 +133,12 @@ jwd$SITE_SEG<-paste(jwd$SITE,jwd$SEGMENT,sep="_")
 awd$SEGAREA<-awd$SEGLENGTH*awd$SEGWIDTH
 jwd$SEGAREA<-jwd$SEGLENGTH*jwd$SEGWIDTH
 
-awd<-dplyr::select(awd,-c(bANALYSIS_SCHEME,ANALYSIS_YEAR,EXCLUDE_FLAG,REGION_NAME,NO_SURVEY_YN,DATE_,ISLANDCODE))
-jwd<-dplyr::select(jwd,-c(bANALYSIS_SCHEME,ANALYSIS_YEAR,EXCLUDE_FLAG,REGION_NAME,NO_SURVEY_YN,DATE_,ISLANDCODE))
+awd<-dplyr::select(awd,-c(TRANSECTAREA,bANALYSIS_SCHEME,ANALYSIS_YEAR,EXCLUDE_FLAG,REGION_NAME,NO_SURVEY_YN,DATE_,ISLANDCODE))
+jwd<-dplyr::select(jwd,-c(TRANSECTAREA,bANALYSIS_SCHEME,ANALYSIS_YEAR,EXCLUDE_FLAG,REGION_NAME,NO_SURVEY_YN,DATE_,ISLANDCODE))
 awd<-dplyr::filter(awd, SITE_SEG %in% c(ad_sfm$SITE_SEG));head(awd) 
 jwd<-dplyr::filter(jwd, SITE_SEG %in% c(j_sfm$SITE_SEG));head(jwd) 
 
-#Drop segments that have <2.5 segarea for adults
+#Drop segments that have <2.5 segarea for adults and <1 for juveniles
 awd<-dplyr::filter(awd, SEGAREA==2.5);View(awd) 
 jwd<-dplyr::filter(jwd, SEGAREA==1);View(jwd) 
 
@@ -178,6 +168,13 @@ sapply(ad_sfm,class)
 
 awd.all<-rbind(ad_sfm_sub,awd)
 jwd.all<-rbind(j_sfm_sub,jwd)
+
+awd.all$TRANSECTAREA<-TransectareaMETHOD(awd.all)
+jwd.all$TRANSECTAREA<-TransectareaMETHOD(jwd.all)
+
+#Double check transect areas
+summary(jwd.all$TRANSECTAREA)
+summary(awd.all$TRANSECTAREA)
 
 #Remove juvenile colonies <0.7cm
 tmp<-jwd.all %>% mutate_at(.vars = c("GENUS_CODE", "SPCODE","TAXONCODE"), 

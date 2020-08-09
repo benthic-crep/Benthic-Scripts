@@ -120,6 +120,23 @@ Transectarea<-function(data){
   return(data$TRANSECTAREA)
 }
 
+##Calcuate segment and transect area and add column for transect area for SFM method v diver
+TransectareaMETHOD<-function(data){
+  data$SEGAREA<-data$SEGLENGTH*data$SEGWIDTH # Calculate segment area
+  
+  #Calculate total transect area then merge back to a dataframe
+  s.df<-ddply(data, .(METHOD,MISSIONID,REGION,ISLAND,OBS_YEAR,SITE,TRANSECT,SEGMENT,SITEVISITID),
+              summarise,
+              SEGAREA=median(SEGAREA))
+  tr.df<-ddply(s.df, .(METHOD,MISSIONID,REGION,ISLAND,OBS_YEAR,SITE,TRANSECT,SITEVISITID),
+               summarise,
+               TRANSECTAREA=sum(SEGAREA))
+  
+  data<-left_join(data,tr.df, by=c("METHOD","MISSIONID","REGION","ISLAND","OBS_YEAR","SITE","SITEVISITID","TRANSECT"))
+  
+  
+  return(data$TRANSECTAREA)
+}
 
 ##Calcuate transect area and add column for transect area for methods a and b
 Transectarea_old<-function(data,s.df){
