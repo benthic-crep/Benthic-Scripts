@@ -582,11 +582,33 @@ boxplot(E2~s$SEC_NAME, ylab = "residuals")
 # check for independence. There should be no pattern
 plot(E2~s$METHOD, ylab = 'residuals', xlab = "METHOD")
 
+s.wide<-subset(site.wide,GENUS_CODE=="SSSS")
+Plot1to1_new<-function(d,response_variable,predictor_variable){
+  #sub<-d[d$taxon,]
+  d$X<-d[,response_variable]
+  d$Y<-d[,predictor_variable]
+  mx_val<-max(d$Y, d$X, na.rm = TRUE)
+  
+  corr<-cor.test(d$X, d$Y, method="pearson")
+  rmse<-rmse(d$Y, d$X,na.rm=TRUE)
+  r_text<-paste("RMSE = ", round(rmse,digits = 2),"\n r = ", round((corr$estimate),2), sep="")
+  
+  p1<-ggplot(d, aes(x=X, y=Y)) + 
+    geom_point(size=1) + 	geom_abline(slope=1, intercept=0) +
+    geom_smooth(method="lm", color="red", linetype="dashed", se=F) +
+    geom_text(aes((mx_val/5), (mx_val * 0.9), label=r_text), nudge_y=-0.1, nudge_x=0.1,size=4, color="red") +
+    theme_bw()+
+    scale_x_continuous(limits=c(0,mx_val)) +
+    scale_y_continuous(limits=c(0,mx_val)) +
+    xlab(response_variable) +  ylab(predictor_variable)     
+  return(p1)
+} # 
 
-p1<-Plot1to1(d,response_variable,predictor_variable)
 
+p1<-Plot1to1_new(s.wide,"Diver_AdColDen","SfM_AdColDen")
+p1
 
-p1<-ggplot(subset(site,GENUS_CODE=="SSSS"), aes(x=METHOD, y=AdColDen, fill=METHOD)) + 
+p2<-ggplot(subset(site,GENUS_CODE=="SSSS"), aes(x=METHOD, y=AdColDen, fill=METHOD)) + 
   geom_boxplot() +
   geom_label(label="NS", x=1.5,y=28,label.size = 0.35,color = "black", fill="white")+
   theme_bw() +
@@ -597,17 +619,17 @@ p1<-ggplot(subset(site,GENUS_CODE=="SSSS"), aes(x=METHOD, y=AdColDen, fill=METHO
     ,panel.grid.minor = element_blank()
     ,axis.ticks.x = element_blank() # no x axis ticks
     ,axis.title.x = element_text( vjust = -.0001) # adjust x axis to lower the same amount as the genus labels
-    ,legend.position="bottom"
-    ,legend.title = element_blank())+
+    ,legend.position="bottom")+
   labs(x="Method",y="Mean Adult Density/m2")
 
-p1
+p2
 
 
-p2<-ggplot(subset(site,GENUS_CODE=="SSSS"), aes(x=HAB_R1, y=AdColDen, fill=METHOD)) + 
+p3<-ggplot(subset(site,GENUS_CODE=="SSSS"), aes(x=HAB_R1, y=AdColDen, fill=METHOD)) + 
   geom_boxplot() +
   # guides(fill=FALSE) 
   theme_bw() +
+  geom_label(label="NS between methods and habitats", x=4,y=28,label.size = 0.35,color = "black", fill="white")+
   theme(
     axis.text.x = element_text(angle = 90)
     ,plot.background = element_blank()
@@ -615,11 +637,10 @@ p2<-ggplot(subset(site,GENUS_CODE=="SSSS"), aes(x=HAB_R1, y=AdColDen, fill=METHO
     ,panel.grid.minor = element_blank()
     ,axis.ticks.x = element_blank() # no x axis ticks
     ,axis.title.x = element_text( vjust = -.0001) # adjust x axis to lower the same amount as the genus labels
-    ,legend.position="bottom"
-    ,legend.title = element_blank())+
+    ,legend.position="none")+
   labs(x="Habitat Type",y="Mean Adult Density/m2")
 
-p2
+p3
 
 #https://aosmith.rbind.io/2018/11/16/plot-fitted-lines/
 library(nlme)
@@ -656,6 +677,11 @@ p4<-ggplot(s, aes(x = MAX_DEPTH_M, y = AdColDen, color = METHOD) ) +
     ,legend.position="none")+
   labs(x="Max Depth (m)",y="Adult Density/m2")
 p4
+
+AdColDenS<-grid.arrange(p1,p2,p3,p4,nrow=1,ncol=4)
+
+ggsave(plot<-AdColDenS,file="T:/Benthic/Data/SfM/Method Comparision/Figures/AdColDenSSSS_stats.pdf",width=10,height=5)
+
 
 #Ave Size- not perfect transformation, but will work
 s<-subset(site,GENUS_CODE=="SSSS")
