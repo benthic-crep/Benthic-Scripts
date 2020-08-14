@@ -398,49 +398,49 @@ head(site.wide)
 
 head(subset(site.wide,GENUS_CODE=="SSSS"))
 
-
-# Plotting Regressions and Bland-Altman by Taxon --------------------------
-#PlotAll(dataframe, variable 1, variable 2, y-axis name 1, y-axis name 2, x-axis name 1, x-axis name 2)
-
-outpath<- "T:/Benthic/Data/SfM/Method Comparision/Figures/Site/Adult Density"
-if(!dir.exists(outpath)){dir.create(outpath)}
-p1<-PlotAll(site.wide,"Diver_AdColDen","SfM_AdColDen","SfM Adult Density","Difference SfM Analyst and Diver", "Diver Adult Density","Mean Adult Density")
-p1
-
-outpath<-"T:/Benthic/Data/SfM/Method Comparision/Figures/Site/Juvenile Density"
-if(!dir.exists(outpath)){dir.create(outpath)}
-p4<-PlotAll(site.wide,"Diver_JuvColDen","SfM_JuvColDen","SfM Juvenile Density","Difference SfM Analyst and Diver", "Diver Juvenile Density","Mean Juvenile Density")
-p4
-
-outpath<-"T:/Benthic/Data/SfM/Method Comparision/Figures/Site/Colony Size"
-if(!dir.exists(outpath)){dir.create(outpath)}
-p7<-PlotAll(site.wide,"Diver_Ave.size","SfM_Ave.size","SfM Colony Length","Difference SfM Analyst and Diver", "Diver Colony Length","Mean Colony Length")
-p7
-
-outpath<-"T:/Benthic/Data/SfM/Method Comparision/Figures/Site/Old Dead"
-if(!dir.exists(outpath)){dir.create(outpath)}
-p10<-PlotAll(site.wide,"Diver_Ave.od","SfM_Ave.od","SfM Average Old Dead Pct","Difference SfM Analyst and Diver", "Diver Average Old Dead Pct","Average Old Dead Pct")
-p10
-
-outpath<-"T:/Benthic/Data/SfM/Method Comparision/Figures/Site/Recent Dead"
-if(!dir.exists(outpath)){dir.create(outpath)}
-p13<-PlotAll(site.wide,"Diver_Ave.rd","SfM_Ave.rd","SfM Average Recent Dead Pct","Difference SfM Analyst and Diver", "Diver Average Recent Dead Pct","Average Recent Dead Pct")
-p13
-
-outpath<-"T:/Benthic/Data/SfM/Method Comparision/Figures/Site/Bleaching"
-if(!dir.exists(outpath)){dir.create(outpath)}
-p16<-PlotAll(site.wide,"Diver_BLE_prev","SfM_BLE_prev","SfM Bleaching Prevalence","Difference SfM Analyst and Diver", "Diver Bleaching Prevalence","Mean Bleaching Prevalence")
-p16
-
-outpath<-"T:/Benthic/Data/SfM/Method Comparision/Figures/Site/ChronicDZ"
-if(!dir.exists(outpath)){dir.create(outpath)}
-p19<-PlotAll(site.wide,"Diver_ChronicDZ_prev","SfM_ChronicDZ_prev","SfM Chronic Disease Prevalence","Difference SfM Analyst and Diver", "Diver Chronic Disease Prevalence","Mean Chronic Disease Prevalence")
-p19
-
-outpath<-"T:/Benthic/Data/SfM/Method Comparision/Figures/Site/AcuteDZ"
-if(!dir.exists(outpath)){dir.create(outpath)}
-p22<-PlotAll(site.wide,"Diver_AcuteDZ_prev","SfM_AcuteDZ_prev","SfM General Disease Prevalence","Difference SfM Analyst and Diver", "Diver General Disease Prevalence","Mean General Disease Prevalence")
-p22
+# 
+# # Plotting Regressions and Bland-Altman by Taxon --------------------------
+# #PlotAll(dataframe, variable 1, variable 2, y-axis name 1, y-axis name 2, x-axis name 1, x-axis name 2)
+# 
+# outpath<- "T:/Benthic/Data/SfM/Method Comparision/Figures/Site/Adult Density"
+# if(!dir.exists(outpath)){dir.create(outpath)}
+# p1<-PlotAll(site.wide,"Diver_AdColDen","SfM_AdColDen","SfM Adult Density","Difference SfM Analyst and Diver", "Diver Adult Density","Mean Adult Density")
+# p1
+# 
+# outpath<-"T:/Benthic/Data/SfM/Method Comparision/Figures/Site/Juvenile Density"
+# if(!dir.exists(outpath)){dir.create(outpath)}
+# p4<-PlotAll(site.wide,"Diver_JuvColDen","SfM_JuvColDen","SfM Juvenile Density","Difference SfM Analyst and Diver", "Diver Juvenile Density","Mean Juvenile Density")
+# p4
+# 
+# outpath<-"T:/Benthic/Data/SfM/Method Comparision/Figures/Site/Colony Size"
+# if(!dir.exists(outpath)){dir.create(outpath)}
+# p7<-PlotAll(site.wide,"Diver_Ave.size","SfM_Ave.size","SfM Colony Length","Difference SfM Analyst and Diver", "Diver Colony Length","Mean Colony Length")
+# p7
+# 
+# outpath<-"T:/Benthic/Data/SfM/Method Comparision/Figures/Site/Old Dead"
+# if(!dir.exists(outpath)){dir.create(outpath)}
+# p10<-PlotAll(site.wide,"Diver_Ave.od","SfM_Ave.od","SfM Average Old Dead Pct","Difference SfM Analyst and Diver", "Diver Average Old Dead Pct","Average Old Dead Pct")
+# p10
+# 
+# outpath<-"T:/Benthic/Data/SfM/Method Comparision/Figures/Site/Recent Dead"
+# if(!dir.exists(outpath)){dir.create(outpath)}
+# p13<-PlotAll(site.wide,"Diver_Ave.rd","SfM_Ave.rd","SfM Average Recent Dead Pct","Difference SfM Analyst and Diver", "Diver Average Recent Dead Pct","Average Recent Dead Pct")
+# p13
+# 
+# outpath<-"T:/Benthic/Data/SfM/Method Comparision/Figures/Site/Bleaching"
+# if(!dir.exists(outpath)){dir.create(outpath)}
+# p16<-PlotAll(site.wide,"Diver_BLE_prev","SfM_BLE_prev","SfM Bleaching Prevalence","Difference SfM Analyst and Diver", "Diver Bleaching Prevalence","Mean Bleaching Prevalence")
+# p16
+# 
+# outpath<-"T:/Benthic/Data/SfM/Method Comparision/Figures/Site/ChronicDZ"
+# if(!dir.exists(outpath)){dir.create(outpath)}
+# p19<-PlotAll(site.wide,"Diver_ChronicDZ_prev","SfM_ChronicDZ_prev","SfM Chronic Disease Prevalence","Difference SfM Analyst and Diver", "Diver Chronic Disease Prevalence","Mean Chronic Disease Prevalence")
+# p19
+# 
+# outpath<-"T:/Benthic/Data/SfM/Method Comparision/Figures/Site/AcuteDZ"
+# if(!dir.exists(outpath)){dir.create(outpath)}
+# p22<-PlotAll(site.wide,"Diver_AcuteDZ_prev","SfM_AcuteDZ_prev","SfM General Disease Prevalence","Difference SfM Analyst and Diver", "Diver General Disease Prevalence","Mean General Disease Prevalence")
+# p22
 
 
 #Mixed Models
@@ -448,14 +448,14 @@ table(site$HABITAT_CODE)
 
 #Simplify Habitat codes
 site<-site %>% mutate(HAB_R1=recode(HABITAT_CODE, 
-                                    `AGR`="Carbonate Reef",
-                                    `APR`="Carbonate Reef",
+                                    `AGR`="Aggregate Reef",
+                                    `APR`="Patch Reef",
                                     `PAV`="Pavement",
-                                    `PPR`="Pavement",
+                                    `PPR`="Patch Reef",
                                     `RRB`="Rubble",
                                     `ROB`="Rock & Boulder",
-                                    `SCR`="Reef with Sand",
-                                    `PSC`="Reef with Sand"))
+                                    `SCR`="Patch Reef",
+                                    `PSC`="Patch Reef"))
 
 
 #bar plots of juv desnity by sector by year
@@ -557,6 +557,7 @@ hist(log(s$AdColDen))
 s$sqAdColDen<-sqrt(s$AdColDen)
 m<-lmer(sqAdColDen~METHOD + (1|SEC_NAME),data=s)
 
+DPlots<-function(m,s){
 par(mfrow=c(2,2)) # make the subplots
 qqnorm(resid(m))
 E2<-resid(m, type = "response") # extract normalized residuals
@@ -567,81 +568,31 @@ abline(h = 0, lty = 2) # add a flat line at zerp
 boxplot(E2~s$SEC_NAME, ylab = "residuals")
 # check for independence. There should be no pattern
 plot(E2~s$METHOD, ylab = 'residuals', xlab = "METHOD")
+}
+
+DPlots(m,s)
+
+mod1<-lmer(sqAdColDen~1 + (1|SEC_NAME),data=s)
+mod2<-lmer(sqAdColDen~METHOD + (1|SEC_NAME),data=s)
+mod3<-lmer(sqAdColDen~MAX_DEPTH_M + (1|SEC_NAME),data=s)
+mod4<-lmer(sqAdColDen~HAB_R1 + (1|SEC_NAME),data=s)
+mod5<-lmer(sqAdColDen~METHOD*MAX_DEPTH_M + (1|SEC_NAME),data=s)
+mod6<-lmer(sqAdColDen~METHOD*HAB_R1 + (1|SEC_NAME),data=s)
+#mod7<-lmer(sqAdColDen~METHOD*HAB_R1*MAX_DEPTH_M + (1|SEC_NAME),data=s)
+
+anova(mod6,mod5,test="Chisq")
+anova(mod6,mod4,test="Chisq")
+anova(mod4,mod3,test="Chisq")
+anova(mod4,mod2,test="Chisq")
+anova(mod2,mod1,test="Chisq")
+
 
 #Nope
 m<-glmmTMB(AdColCount~METHOD + (1|SEC_NAME),ziformula=~1,
            family=poisson,data=s)
-par(mfrow=c(2,2)) # make the subplots
-qqnorm(resid(m))
-E2<-resid(m, type = "response") # extract normalized residuals
-F2<-fitted(m) # extract the fitted data
-plot(F2, E2, xlab = "fitted values", ylab = "residuals") # plot the relationship
-abline(h = 0, lty = 2) # add a flat line at zerp
-# test for homogeneity of variances
-boxplot(E2~s$SEC_NAME, ylab = "residuals")
-# check for independence. There should be no pattern
-plot(E2~s$METHOD, ylab = 'residuals', xlab = "METHOD")
+DPlots(m,s)
 
-s.wide<-subset(site.wide,GENUS_CODE=="SSSS")
-Plot1to1_new<-function(d,response_variable,predictor_variable){
-  #sub<-d[d$taxon,]
-  d$X<-d[,response_variable]
-  d$Y<-d[,predictor_variable]
-  mx_val<-max(d$Y, d$X, na.rm = TRUE)
-  
-  corr<-cor.test(d$X, d$Y, method="pearson")
-  rmse<-rmse(d$Y, d$X,na.rm=TRUE)
-  r_text<-paste("RMSE = ", round(rmse,digits = 2),"\n r = ", round((corr$estimate),2), sep="")
-  
-  p1<-ggplot(d, aes(x=X, y=Y)) + 
-    geom_point(size=1) + 	geom_abline(slope=1, intercept=0) +
-    geom_smooth(method="lm", color="red", linetype="dashed", se=F) +
-    geom_text(aes((mx_val/5), (mx_val * 0.9), label=r_text), nudge_y=-0.1, nudge_x=0.1,size=4, color="red") +
-    theme_bw()+
-    scale_x_continuous(limits=c(0,mx_val)) +
-    scale_y_continuous(limits=c(0,mx_val)) +
-    xlab(response_variable) +  ylab(predictor_variable)     
-  return(p1)
-} # 
-
-
-p1<-Plot1to1_new(s.wide,"Diver_AdColDen","SfM_AdColDen")
-p1
-
-p2<-ggplot(subset(site,GENUS_CODE=="SSSS"), aes(x=METHOD, y=AdColDen, fill=METHOD)) + 
-  geom_boxplot() +
-  geom_label(label="NS", x=1.5,y=28,label.size = 0.35,color = "black", fill="white")+
-  theme_bw() +
-  theme(
-    axis.text.x = element_text(angle = 0)
-    ,plot.background = element_blank()
-    ,panel.grid.major = element_blank()
-    ,panel.grid.minor = element_blank()
-    ,axis.ticks.x = element_blank() # no x axis ticks
-    ,axis.title.x = element_text( vjust = -.0001) # adjust x axis to lower the same amount as the genus labels
-    ,legend.position="bottom")+
-  labs(x="Method",y="Mean Adult Density/m2")
-
-p2
-
-
-p3<-ggplot(subset(site,GENUS_CODE=="SSSS"), aes(x=HAB_R1, y=AdColDen, fill=METHOD)) + 
-  geom_boxplot() +
-  # guides(fill=FALSE) 
-  theme_bw() +
-  geom_label(label="NS between methods and habitats", x=4,y=28,label.size = 0.35,color = "black", fill="white")+
-  theme(
-    axis.text.x = element_text(angle = 90)
-    ,plot.background = element_blank()
-    ,panel.grid.major = element_blank()
-    ,panel.grid.minor = element_blank()
-    ,axis.ticks.x = element_blank() # no x axis ticks
-    ,axis.title.x = element_text( vjust = -.0001) # adjust x axis to lower the same amount as the genus labels
-    ,legend.position="none")+
-  labs(x="Habitat Type",y="Mean Adult Density/m2")
-
-p3
-
+#Extract predicted values for Adult density
 #https://aosmith.rbind.io/2018/11/16/plot-fitted-lines/
 library(nlme)
 mod<-lme(sqAdColDen~METHOD*MAX_DEPTH_M, random = ~1|SEC_NAME,data=s)
@@ -661,11 +612,38 @@ newdat.lme$lower<-newdat.lme$lower^2 #back transform predicted values
 newdat.lme$upper<-newdat.lme$upper^2 #back transform predicted values
 
 
-p4<-ggplot(s, aes(x = MAX_DEPTH_M, y = AdColDen, color = METHOD) ) +
-  geom_point(aes(colour = factor(METHOD))) +
-  geom_line(data = newdat.lme, aes(y = AdColDen), size = 1)+
-  geom_ribbon(data = newdat.lme, aes(y = NULL, ymin = lower, ymax = upper, 
-                                     color = NULL, fill = METHOD),alpha = .15)+
+s.wide<-subset(site.wide,GENUS_CODE=="SSSS")
+Plot1to1_new<-function(d,response_variable,predictor_variable,r_name,p_name){
+  #sub<-d[d$taxon,]
+  d$Y<-d[,response_variable]
+  d$X<-d[,predictor_variable]
+  mx_val<-max(d$Y, d$X, na.rm = TRUE)
+  
+  corr<-cor.test(d$X, d$Y, method="pearson")
+  rmse<-rmse(d$Y, d$X,na.rm=TRUE)
+  r_text<-paste("RMSE = ", round(rmse,digits = 2),"\n r = ", round((corr$estimate),2), sep="")
+  
+  p1<-ggplot(d, aes(x=X, y=Y)) + 
+    geom_point(size=1) + 	geom_abline(slope=1, intercept=0) +
+    geom_smooth(method="lm", color="red", linetype="dashed", se=F) +
+    geom_label(aes((mx_val/5), (mx_val * 0.9), label=r_text), nudge_y=-0.1, nudge_x=1,label.size=0.35, color="black", fill="white") +
+    theme_bw()+
+    theme(panel.grid.major = element_blank()
+          ,panel.grid.minor = element_blank())+
+    scale_x_continuous(limits=c(0,mx_val)) +
+    scale_y_continuous(limits=c(0,mx_val)) +
+    ylab(r_name) +  xlab(p_name)     
+  return(p1)
+} # 
+
+PlotMethod<-function(d,grouping_field,metric_field,genus_field,metric_name,x,y,siglabel){
+  d$GROUP<-d[,grouping_field]
+  d$METRIC<-d[,metric_field]
+  s<-subset(d,GROUP==genus_field)
+  
+p<-ggplot(s, aes(x=METHOD, y=METRIC, fill=METHOD)) + 
+  geom_boxplot() +
+  geom_label(label=siglabel, x=x,y=y,label.size = 0.35,color = "black", fill="white")+
   theme_bw() +
   theme(
     axis.text.x = element_text(angle = 0)
@@ -673,31 +651,251 @@ p4<-ggplot(s, aes(x = MAX_DEPTH_M, y = AdColDen, color = METHOD) ) +
     ,panel.grid.major = element_blank()
     ,panel.grid.minor = element_blank()
     ,axis.ticks.x = element_blank() # no x axis ticks
-    ,axis.title.x = element_text( vjust = -.0001) # adjust x axis to lower the same amount as the genus labels
-    ,legend.position="none")+
-  labs(x="Max Depth (m)",y="Adult Density/m2")
-p4
+    ,axis.title.x = element_text( vjust = -.0001)
+    ,legend.position="none")+ # adjust x axis to lower the same amount as the genus labels
+  labs(x="Method",y=metric_name)
+return(p)
+}
+
+PlotHabitat<-function(d,grouping_field,metric_field,genus_field,metric_name,x,y,siglabel){
+  d$GROUP<-d[,grouping_field]
+  d$METRIC<-d[,metric_field]
+  s<-subset(d,GROUP==genus_field)
+  
+  p<-ggplot(s, aes(x=HAB_R1, y=METRIC, fill=METHOD)) + 
+    geom_boxplot() +
+    theme_bw() +
+    geom_label(label=siglabel, x=x,y=y,label.size = 0.35,color = "black", fill="white")+
+    theme(
+      axis.text.x = element_text(angle = 90)
+      ,plot.background = element_blank()
+      ,panel.grid.major = element_blank()
+      ,panel.grid.minor = element_blank()
+      ,axis.ticks.x = element_blank() # no x axis ticks
+      ,axis.title.x = element_text( vjust = -.0001) # adjust x axis to lower the same amount as the genus labels
+      ,legend.position="none")+
+    labs(x="Habitat Type",y=metric_name)
+  return(p)
+}
+
+PlotDepth<-function(d,grouping_field,metric_field,metric_field2,genus_field,metric_name,x,y,siglabel){
+  d$GROUP<-d[,grouping_field]
+  d$METRIC<-d[,metric_field]
+  newdat.lme$METRIC2<-newdat.lme[,metric_field2]
+  
+  s<-subset(d,GROUP==genus_field)
+  
+  p<-ggplot(s, aes(x = MAX_DEPTH_M, y = METRIC, color = METHOD) ) +
+    geom_point(aes(colour = factor(METHOD))) +
+    geom_line(data = newdat.lme, aes(y = METRIC2), size = 1)+
+    geom_ribbon(data = newdat.lme, aes(y = NULL, ymin = lower, ymax = upper, 
+                                       color = NULL, fill = METHOD),alpha = .15)+
+    geom_label(label=siglabel, x=x,y=y,label.size = 0.35,color = "black", fill="white")+
+    theme_bw() +
+    theme(
+      axis.text.x = element_text(angle = 0)
+      ,plot.background = element_blank()
+      ,panel.grid.major = element_blank()
+      ,panel.grid.minor = element_blank()
+      ,axis.ticks.x = element_blank() # no x axis ticks
+      ,axis.title.x = element_text( vjust = -.0001) # adjust x axis to lower the same amount as the genus labels
+      ,legend.position="none")+
+    labs(x="Max Depth (m)",y=metric_name)
+  return(p)
+}
+
+
+p1<-Plot1to1_new(s.wide,"SfM_AdColDen","Diver_AdColDen","SfM Adult Density","Diver Adult Density")
+p2<-PlotMethod(site,"GENUS_CODE","AdColDen","SSSS","Adult Density",1.5,29,"NS")
+p3<-PlotHabitat(site,"GENUS_CODE","AdColDen","SSSS","Adult Density",3.5,29,"Method x Habitat NS")
+p4<-PlotDepth(site,"GENUS_CODE","AdColDen","AdColDen","SSSS","Adult Density",18,29,"Method x Depth NS")
 
 AdColDenS<-grid.arrange(p1,p2,p3,p4,nrow=1,ncol=4)
 
-ggsave(plot<-AdColDenS,file="T:/Benthic/Data/SfM/Method Comparision/Figures/AdColDenSSSS_stats.pdf",width=10,height=5)
+ggsave(plot<-AdColDenS,file="T:/Benthic/Data/SfM/Method Comparision/Figures/AdColDenSSSS_stats.png",width=10,height=5)
+
+#Juvenile Colony Density- sqrt transform
+#also tried gamma and neg binomial- sqrt transform is best
+s<-subset(site,GENUS_CODE=="SSSS")
+hist(sqrt(s$JuvColDen))
+s$sqJuvColDen<-sqrt(s$JuvColDen)
+m<-lmer(sqJuvColDen~METHOD + (1|SEC_NAME),data=s)
+
+DPlots(m,s)
+
+mod1<-lmer(sqJuvColDen~1 + (1|SEC_NAME),data=s)
+mod2<-lmer(sqJuvColDen~METHOD + (1|SEC_NAME),data=s)
+mod3<-lmer(sqJuvColDen~MAX_DEPTH_M + (1|SEC_NAME),data=s)
+mod4<-lmer(sqJuvColDen~HAB_R1 + (1|SEC_NAME),data=s)
+mod5<-lmer(sqJuvColDen~METHOD*MAX_DEPTH_M + (1|SEC_NAME),data=s)
+mod6<-lmer(sqJuvColDen~METHOD*HAB_R1 + (1|SEC_NAME),data=s)
+#mod7<-lmer(sqAdColDen~METHOD*HAB_R1*MAX_DEPTH_M + (1|SEC_NAME),data=s)
+
+anova(mod6,mod5,test="Chisq")
+anova(mod5,mod4,test="Chisq")
+anova(mod5,mod3,test="Chisq")
+anova(mod5,mod2,test="Chisq")
+anova(mod2,mod1,test="Chisq")
+
+
+#Extract predicted values for Adult density
+#https://aosmith.rbind.io/2018/11/16/plot-fitted-lines/
+library(nlme)
+mod<-lme(sqJuvColDen~METHOD*MAX_DEPTH_M, random = ~1|SEC_NAME,data=s)
+
+newdat.lme = data.frame(METHOD = s$METHOD,
+                        MAX_DEPTH_M = rep(seq(0,30,by=0.29),2),
+                        SEC_NAME = s$SEC_NAME)
+head(newdat.lme)
+newdat.lme$predlme <- predict(mod, newdata = newdat.lme, level=0)
+newdat.lme$JuvColDen<-newdat.lme$predlme^2 #back transform predicted values
+
+des = model.matrix(formula(mod)[-2], newdat.lme)
+predvar = diag( des %*% vcov(mod) %*% t(des) )
+newdat.lme$lower = with(newdat.lme, predlme - 2*sqrt(predvar) )
+newdat.lme$upper = with(newdat.lme, predlme + 2*sqrt(predvar) )
+newdat.lme$lower<-newdat.lme$lower^2 #back transform predicted values
+newdat.lme$upper<-newdat.lme$upper^2 #back transform predicted values
+
+p1<-Plot1to1_new(s.wide,"SfM_JuvColDen","Diver_JuvColDen","SfM Juvenile Density","Diver Juvenile Density")
+p2<-PlotMethod(site,"GENUS_CODE","JuvColDen","SSSS","Juvenile Density",1.5,60,"NS")
+p3<-PlotHabitat(site,"GENUS_CODE","JuvColDen","SSSS","Juvenile Density",3.5,60,"Method x Habitat NS")
+p4<-PlotDepth(site,"GENUS_CODE","JuvColDen","JuvColDen","SSSS","Juvenile Density",18,60,"Significant Method x Depth")
+
+JuvColDenS<-grid.arrange(p1,p2,p3,p4,nrow=1,ncol=4)
+
+ggsave(plot<-JuvColDenS,file="T:/Benthic/Data/SfM/Method Comparision/Figures/JuvColDenSSSS_stats.png",width=10,height=5)
+
+
 
 
 #Ave Size- not perfect transformation, but will work
 s<-subset(site,GENUS_CODE=="SSSS")
-hist(log(s$Ave.od))
+hist(log(s$Ave.size))
 s$logAve.size<-log(s$Ave.size)
-mod<-lmer(logAve.size~METHOD + (1|ISLAND/SEC_NAME),data=s)
-plot(mod)
-qqnorm(resid(mod)) #plot normal quantile- quantile plot.  Should be close to a straight line
+m<-lmer(logAve.size~METHOD + (1|SEC_NAME),data=s)
+
+DPlots(m,s)
+
+mod1<-lmer(logAve.size~1 + (1|SEC_NAME),data=s)
+mod2<-lmer(logAve.size~METHOD + (1|SEC_NAME),data=s)
+mod3<-lmer(logAve.size~MAX_DEPTH_M + (1|SEC_NAME),data=s)
+mod4<-lmer(logAve.size~HAB_R1 + (1|SEC_NAME),data=s)
+mod5<-lmer(logAve.size~METHOD*MAX_DEPTH_M + (1|SEC_NAME),data=s)
+mod6<-lmer(logAve.size~METHOD*HAB_R1 + (1|SEC_NAME),data=s)
+#mod7<-lmer(sqAdColDen~METHOD*HAB_R1*MAX_DEPTH_M + (1|SEC_NAME),data=s)
+
+anova(mod6,mod5,test="Chisq")
+anova(mod6,mod4,test="Chisq")
+anova(mod5,mod4,test="Chisq")
+anova(mod4,mod3,test="Chisq")
+anova(mod4,mod2,test="Chisq")
+
+
+
+#Extract predicted values for Adult density
+#https://aosmith.rbind.io/2018/11/16/plot-fitted-lines/
+library(nlme)
+mod<-lme(logAve.size~METHOD*MAX_DEPTH_M, random = ~1|SEC_NAME,data=s,na.action=na.omit)
+
+newdat.lme = data.frame(METHOD = s$METHOD,
+                        MAX_DEPTH_M = rep(seq(0,30,by=0.29),2),
+                        SEC_NAME = s$SEC_NAME)
+head(newdat.lme)
+newdat.lme$predlme <- predict(mod, newdata = newdat.lme, level=0)
+newdat.lme$Ave.size<-exp(newdat.lme$predlme) #back transform predicted values
+
+des = model.matrix(formula(mod)[-2], newdat.lme)
+predvar = diag( des %*% vcov(mod) %*% t(des) )
+newdat.lme$lower = with(newdat.lme, predlme - 2*sqrt(predvar) )
+newdat.lme$upper = with(newdat.lme, predlme + 2*sqrt(predvar) )
+newdat.lme$lower<-exp(newdat.lme$lower) #back transform predicted values
+newdat.lme$upper<-exp(newdat.lme$upper) #back transform predicted values
+
+p1<-Plot1to1_new(s.wide,"SfM_Ave.size","Diver_Ave.size","SfM Average Max Diameter (cm)","Diver Average Max Diameter (cm)")
+p2<-PlotMethod(site,"GENUS_CODE","Ave.size","SSSS","Average Max Diameter (cm)",1.5,35,"NS")
+p3<-PlotHabitat(site,"GENUS_CODE","Ave.size","SSSS","Average Max Diameter (cm)",3.5,35,"Method x Habitat NS")
+p4<-PlotDepth(site,"GENUS_CODE","Ave.size","Ave.size","SSSS","Average Max Diameter (cm)",18,35,"Method x Depth NS")
+
+Ave.sizeS<-grid.arrange(p1,p2,p3,p4,nrow=1,ncol=4)
+
+ggsave(plot<-Ave.sizeS,file="T:/Benthic/Data/SfM/Method Comparision/Figures/Ave.sizeSSSS_stats.png",width=10,height=5)
+
+
+
+
 
 #Old dead- not perfect transformation, but will work
 s<-subset(site,GENUS_CODE=="SSSS")
 hist(sqrt(s$Ave.od))
 s$sqAve.od<-sqrt(s$Ave.od)
-mod<-lmer(sqAve.od~METHOD + (1|ISLAND/SEC_NAME),data=s)
-plot(mod)
-qqnorm(resid(mod)) #plot normal quantile- quantile plot.  Should be close to a straight line
+mod<-lmer(sqAve.od~METHOD + (1|SEC_NAME),data=s)
+DPlots(m,s)
+
+mod1<-lmer(sqAve.od~1 + (1|SEC_NAME),data=s)
+mod2<-lmer(sqAve.od~METHOD + (1|SEC_NAME),data=s)
+mod3<-lmer(sqAve.od~MAX_DEPTH_M + (1|SEC_NAME),data=s)
+mod4<-lmer(sqAve.od~HAB_R1 + (1|SEC_NAME),data=s)
+mod5<-lmer(sqAve.od~METHOD*MAX_DEPTH_M + (1|SEC_NAME),data=s)
+mod6<-lmer(sqAve.od~METHOD*HAB_R1 + (1|SEC_NAME),data=s)
+#mod7<-lmer(sqAdColDen~METHOD*HAB_R1*MAX_DEPTH_M + (1|SEC_NAME),data=s)
+
+anova(mod6,mod5,test="Chisq")
+anova(mod6,mod4,test="Chisq")
+anova(mod6,mod2,test="Chisq")
+anova(mod5,mod4,test="Chisq")
+anova(mod5,mod3,test="Chisq")
+anova(mod5,mod2,test="Chisq")
+
+#Rather than setting up complicated contrasts to test for dif between methods within habitats
+#Run separate models for each habitat then run multiple test corrections
+a<-summary(glht(lmer(sqAve.od~METHOD + (1|SEC_NAME),data=subset(s,HAB_R1=="Aggregate Reef")),linfct=mcp(METHOD="Tukey")))
+b<-summary(glht(lmer(sqAve.od~METHOD + (1|SEC_NAME),data=subset(s,HAB_R1=="Pavement")),linfct=mcp(METHOD="Tukey")))
+c<-summary(glht(lmer(sqAve.od~METHOD + (1|SEC_NAME),data=subset(s,HAB_R1=="Patch Reef")),linfct=mcp(METHOD="Tukey")))
+d<-summary(glht(lmer(sqAve.od~METHOD + (1|SEC_NAME),data=subset(s,HAB_R1=="Rock & Boulder")),linfct=mcp(METHOD="Tukey")))
+e<-summary(glht(lmer(sqAve.od~METHOD + (1|SEC_NAME),data=subset(s,HAB_R1=="Rubble")),linfct=mcp(METHOD="Tukey")))
+
+#Extract values and adjust for multiple tests- 
+pval<-c(a$test$pvalues,b$test$pvalues,c$test$pvalues,d$test$pvalues,e$test$pvalues)
+p.adjust(pval,"BH")
+
+#Extract predicted values for Adult density
+#https://aosmith.rbind.io/2018/11/16/plot-fitted-lines/
+library(nlme)
+mod<-lme(sqAve.od~METHOD*MAX_DEPTH_M, random = ~1|SEC_NAME,data=s,na.action=na.omit)
+
+newdat.lme = data.frame(METHOD = s$METHOD,
+                        MAX_DEPTH_M = rep(seq(0,30,by=0.29),2),
+                        SEC_NAME = s$SEC_NAME)
+head(newdat.lme)
+newdat.lme$predlme <- predict(mod, newdata = newdat.lme, level=0)
+newdat.lme$Ave.od<-newdat.lme$predlme^2 #back transform predicted values
+
+des = model.matrix(formula(mod)[-2], newdat.lme)
+predvar = diag( des %*% vcov(mod) %*% t(des) )
+newdat.lme$lower = with(newdat.lme, predlme - 2*sqrt(predvar) )
+newdat.lme$upper = with(newdat.lme, predlme + 2*sqrt(predvar) )
+newdat.lme$lower<-newdat.lme$lower^2 #back transform predicted values
+newdat.lme$upper<-newdat.lme$upper^2 #back transform predicted values
+
+p1<-Plot1to1_new(s.wide,"SfM_Ave.od","Diver_Ave.od","SfM Average % Old Dead","Diver % Old Dead")
+p2<-PlotMethod(site,"GENUS_CODE","Ave.od","SSSS","Average % Old Dead",1.5,45,"NS")
+p3<-PlotHabitat(site,"GENUS_CODE","Ave.od","SSSS","Average % Old Dead",3.5,45,"Method x Habitat NS")
+p4<-PlotDepth(site,"GENUS_CODE","Ave.od","Ave.od","SSSS","Average % Old Dead",18,45,"Significant Method x Depth")
+
+Ave.odS<-grid.arrange(p1,p2,p3,p4,nrow=1,ncol=4)
+
+ggsave(plot<-Ave.odS,file="T:/Benthic/Data/SfM/Method Comparision/Figures/Ave.odSSSS_stats.png",width=10,height=5)
+
+
+
+
+
+
+
+
+
+
 
 #Can't transform recent dead
 hist(log(s$Ave.rd+1))
