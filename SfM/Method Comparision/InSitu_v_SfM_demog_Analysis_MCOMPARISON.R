@@ -888,105 +888,271 @@ Ave.odS<-grid.arrange(p1,p2,p3,p4,nrow=1,ncol=4)
 ggsave(plot<-Ave.odS,file="T:/Benthic/Data/SfM/Method Comparision/Figures/Ave.odSSSS_stats.png",width=10,height=5)
 
 
-
-
-
-
-
-
-
-
-
 #Can't transform recent dead
-hist(log(s$Ave.rd+1))
+
+hist(sqrt(s$Ave.rd))
 s$logAve.rd<-log(s$Ave.rd+1)
-mod<-lmer(logAve.rd~METHOD + (1|ISLAND/SEC_NAME),data=s)
+mod<-lmer(logAve.rd~METHOD + (1|SEC_NAME),data=s)
 plot(mod)
 qqnorm(resid(mod)) #plot normal quantile- quantile plot.  Should be close to a straight line
 
-#Transform variables
-s<-subset(site,GENUS_CODE=="SSSS")
-s$logAve.size<-log(s$Ave.size)
-s$sqrtAve.od<-sqrt(s$Ave.od)
 
-library(bbmle)
-bbmle::AICctab()
+#Remove sites that have 0s for both sfM and diver
+s.wide<-subset(site.wide,GENUS_CODE=="SSSS")
+s<-subset(site,GENUS_CODE=="SSSS");length(unique(s$SITE))
+tmp <- s.wide[ which(s.wide$SfM_Ave.rd + s.wide$Diver_Ave.rd>0) , ]
+sitelist<-unique(tmp$SITE)
+s<-dplyr::filter(s, SITE %in% sitelist);length(unique(s$SITE))
 
-glmerMetric<-function(d,grouping_field="GENUS_CODE",genus_field="SSSS",metric_field="AdColDen"){
-  d$GROUP<-d[,grouping_field]
-  d$METRIC<-d[,metric_field]
-  s<-subset(d,GROUP==genus_field)
+hist(log(s$Ave.rd+1))
+hist(sqrt(s$Ave.rd))
+m<-lmer(sqrt(s$Ave.rd)~METHOD + (1|SEC_NAME),data=s)
+
+par(mfrow=c(2,2)) # make the subplots
+  qqnorm(resid(m))
+  E2<-resid(m, type = "response") # extract normalized residuals
+  F2<-fitted(m) # extract the fitted data
+  plot(F2, E2, xlab = "fitted values", ylab = "residuals") # plot the relationship
+  abline(h = 0, lty = 2) # add a flat line at zerp
   
-  m1<-glmer((METRIC+1)~1 + (1|SEC_NAME),family = Gamma(link = log),data=s,control=glmerControl(optimizer="bobyqa",optCtrl=list(maxfun=200000)))
-  m2<-glmer((METRIC+1)~METHOD + (1|SEC_NAME),family=Gamma(link = log),data=s,control=glmerControl(optimizer="bobyqa",optCtrl=list(maxfun=200000)))
-  m3<-glmer((METRIC+1)~METHOD*MAX_DEPTH_M + (1|SEC_NAME),family=Gamma(link = log),data=s,control=glmerControl(optimizer="bobyqa",optCtrl=list(maxfun=200000)))
-  m4<-glmer((METRIC+1)~METHOD*HAB_R1 + (1|SEC_NAME),family=Gamma(link = log),data=s,control=glmerControl(optimizer="Nelder_Mead",optCtrl=list(maxfun=200000)))
+#Can't transform recent dead with sqrt, log or power transformation even after removing sites that have 0 rd in both sfm and diver
+wilcox.test(Ave.rd ~ METHOD, data=s) 
   
-  Modnames <- c("Null","Method","Method x Depth","Method x Habitat")
-  ##generate AICc table
-  AICctab(m1,m2,m3,m4, mnames = Modnames, base=TRUE, weights=TRUE, logLik=TRUE)
-  print(AICctab(m1,m2,m3,m4, mnames = Modnames, base=TRUE, weights=TRUE, logLik=TRUE))
-  a<-r.squaredGLMM(m1)
-  b<-r.squaredGLMM(m2)
-  d<-r.squaredGLMM(m3)
-  e<-r.squaredGLMM(m4)
-  
-  print(a);print(b);print(d);print(e)
-  
-}
-glmerMetric(s,"GENUS_CODE","SSSS","AdColDen")
-lmerMetric(s,"GENUS_CODE","SSSS","logAve.size")
-lmerMetric(s,"GENUS_CODE","SSSS","sqrtAve.od")
+p1<-Plot1to1_new(s.wide,"SfM_Ave.rd","Diver_Ave.rd","SfM Average % Recent Dead","Diver % Recent Dead")
+p2<-PlotMethod(site,"GENUS_CODE","Ave.rd","SSSS","Average % Recent Dead",1.5,4,"NS")
+
+Ave.rdS<-grid.arrange(p1,p2,nrow=1,ncol=2)
+
+ggsave(plot<-Ave.rdS,file="T:/Benthic/Data/SfM/Method Comparision/Figures/Ave.rdSSSS_stats.png",width=5,height=5)
+
+#Identify % of sites that had 0 rd for one method but not the other
+a<-(s.wide[ which(s.wide$SfM_Ave.rd ==0 & s.wide$Diver_Ave.rd>0) , ])
+nrow(a)/104
+b<-(s.wide[ which(s.wide$SfM_Ave.rd >0 & s.wide$Diver_Ave.rd==0) , ])
+nrow(b)/104
 
 
-
-#Prevalence Data
-#Calculate # of cases/type- need this for the the binomial GLMMs 
+#Acute disease prevalence
 s<-subset(site,GENUS_CODE=="SSSS")
 s$AcuteDZ<-(s$AcuteDZ_prev/100)*s$AdColCount
-s$ChronicDZ<-(s$ChronicDZ_prev/100)*s$AdColCount
-s$BLE<-(s$BLE_prev/100)*s$AdColCount
+s$test<-as.integer(as.character(s$AcuteDZ))
 head(s)
 
-glmerPrev<-function(d,grouping_field="GENUS_CODE",genus_field="SSSS",metric_field="AcuteDZ"){
-  d$GROUP<-d[,grouping_field]
-  d$METRIC<-d[,metric_field]
-  s<-subset(d,GROUP==genus_field)
-  
-  Cand.set <- list( )
-  Cand.set[[1]]<-glmer(METRIC~1 + (1|ISLAND/SEC_NAME),family=binomial,data=s)
-                       Cand.set[[2]]<-glmer(METRIC~METHOD + (1|ISLAND/SEC_NAME),family=binomial,data=s)
-                       Cand.set[[4]]<-glmer(METRIC~METHOD*MAX_DEPTH_M + (1|ISLAND/SEC_NAME),family=binomial,data=s,control=glmerControl(optimizer="bobyqa",optCtrl=list(maxfun=200000)))
-                       Cand.set[[5]]<-glmer(METRIC~METHOD*HAB_R1 + (1|ISLAND/SEC_NAME),family=binomial,data=s,control=glmerControl(optimizer="Nelder_Mead",optCtrl=list(maxfun=200000)))
-                       
-                       Modnames <- c("Null","Method","Method + Depth","Method + Habitat")
-                       ##generate AICc table
-                       aictab(cand.set = Cand.set, modnames = Modnames, sort = TRUE)
-                       ##round to 4 digits after decimal point and give log-likelihood
-                       print(aictab(cand.set = Cand.set, modnames = Modnames, sort = TRUE),
-                             digits = 3, LL = TRUE)
-                       
-                       a<-r.squaredGLMM(Cand.set[[1]])
-                       b<-r.squaredGLMM(Cand.set[[2]])
-                       c<-r.squaredGLMM(Cand.set[[3]])
-                       d<-r.squaredGLMM(Cand.set[[4]])
-                       e<-r.squaredGLMM(Cand.set[[5]])
-                       
-                       print(a);print(b);print(c);print(d);print(e)
-                       
+s.wide<-subset(site.wide,GENUS_CODE=="SSSS")
+s<-subset(site,GENUS_CODE=="SSSS");length(unique(s$SITE))
+s$AcuteDZ<-(s$AcuteDZ_prev/100)*s$AdColCount
+s$test<-as.integer(as.character(s$AcuteDZ))
+head(s)
+
+tmp <- s.wide[ which(s.wide$SfM_AcuteDZ_prev + s.wide$Diver_AcuteDZ_prev>0) , ]
+sitelist<-unique(tmp$SITE)
+s<-dplyr::filter(s, SITE %in% sitelist);length(unique(s$SITE))
+
+m<-glmer(AcuteDZ/AdColCount~METHOD + (1|SEC_NAME),family = "binomial",data=s,na.action = na.omit)
+par(mfrow=c(2,2)) # make the subplots
+qqnorm(resid(m))
+E2<-resid(m, type = "response") # extract normalized residuals
+F2<-fitted(m) # extract the fitted data
+plot(F2, E2, xlab = "fitted values", ylab = "residuals") # plot the relationship
+abline(h = 0, lty = 2) # add a flat line at zerp
+
+hist(sqrt(s$AcuteDZ_prev))
+s$sqAcuteDZ_prev<-sqrt(s$AcuteDZ_prev)
+m<-lmer(sqAcuteDZ_prev~METHOD + (1|SEC_NAME),data=s)
+
+#Can't transform recent dead with bionomial distrubtion, sqrt, log or power transformation even after removing sites that have 0 rd in both sfm and diver
+s<-subset(site,GENUS_CODE=="SSSS")
+wilcox.test(AcuteDZ_prev ~ METHOD, data=s) 
+
+p1<-Plot1to1_new(s.wide,"SfM_AcuteDZ_prev","Diver_AcuteDZ_prev","SfM Acute Disease Prevalence (%)","Diver Acute Disease Prevalence (%)")
+p2<-PlotMethod(site,"GENUS_CODE","AcuteDZ_prev","SSSS","Acute Disease Prevalence (%)",1.5,15,"NS")
+
+acutedzS<-grid.arrange(p1,p2,nrow=1,ncol=2)
+
+ggsave(plot<-acutedzS,file="T:/Benthic/Data/SfM/Method Comparision/Figures/AcuteDZSSSS_stats.png",width=5,height=5)
+
+#Identify % of sites that had 0 rd for one method but not the other
+a<-(s.wide[ which(s.wide$SfM_AcuteDZ_prev ==0 & s.wide$Diver_AcuteDZ_prev>0) , ])
+nrow(a)/104
+b<-(s.wide[ which(s.wide$SfM_AcuteDZ_prev >0 & s.wide$Diver_AcuteDZ_prev==0) , ])
+nrow(b)/104
+
+
+#Bleaching prevalence
+s<-subset(site,GENUS_CODE=="SSSS")
+s$BLE<-(s$BLE_prev/100)*s$AdColCount
+s$test<-as.integer(as.character(s$BLE))
+head(s)
+
+s.wide<-subset(site.wide,GENUS_CODE=="SSSS")
+s<-subset(site,GENUS_CODE=="SSSS");length(unique(s$SITE))
+s$BLE<-(s$BLE_prev/100)*s$AdColCount
+s$test<-as.integer(as.character(s$BLE))
+head(s)
+
+tmp <- s.wide[ which(s.wide$SfM_BLE_prev + s.wide$Diver_BLE_prev>0) , ]
+sitelist<-unique(tmp$SITE)
+s<-dplyr::filter(s, SITE %in% sitelist);length(unique(s$SITE))
+
+m<-glmer(BLE/AdColCount~METHOD + (1|SEC_NAME),family = "binomial",data=s,na.action = na.omit)
+par(mfrow=c(2,2)) # make the subplots
+qqnorm(resid(m))
+E2<-resid(m, type = "response") # extract normalized residuals
+F2<-fitted(m) # extract the fitted data
+plot(F2, E2, xlab = "fitted values", ylab = "residuals") # plot the relationship
+abline(h = 0, lty = 2) # add a flat line at zerp
+
+hist(log(s$BLE_prev+1))
+s$logBLE_prev<-log(s$BLE_prev+1)
+m<-lmer(logBLE_prev~METHOD + (1|SEC_NAME),data=s)
+
+
+#Can't transform recent dead with bionomial distrubtion, sqrt, log or power transformation even after removing sites that have 0 rd in both sfm and diver
+s<-subset(site,GENUS_CODE=="SSSS")
+wilcox.test(BLE_prev ~ METHOD, data=s) 
+
+p1<-Plot1to1_new(s.wide,"SfM_BLE_prev","Diver_BLE_prev","SfM Bleaching Prevalence (%)","Diver Bleaching Prevalence (%)")
+p2<-PlotMethod(site,"GENUS_CODE","BLE_prev","SSSS","Bleaching Prevalence (%)",1.5,60,"Significant")
+BLES<-grid.arrange(p1,p2,nrow=1,ncol=2)
+
+ggsave(plot<-BLES,file="T:/Benthic/Data/SfM/Method Comparision/Figures/BLEPrevSSSS_stats.png",width=5,height=5)
+
+#Identify % of sites that had 0 rd for one method but not the other
+a<-(s.wide[ which(s.wide$SfM_BLE_prev ==0 & s.wide$Diver_BLE_prev>0) , ])
+nrow(a)/104
+b<-(s.wide[ which(s.wide$SfM_BLE_prev >0 & s.wide$Diver_BLE_prev==0) , ])
+nrow(b)/104
+
+
+###
+s<-subset(site,GENUS_CODE=="POSP")
+s.wide<-subset(site.wide,GENUS_CODE=="POSP")
+
+hist(log(s$AdColDen))
+s$logAdColDen<-log(s$AdColDen+1)
+m<-lmer(logAdColDen~METHOD + (1|SEC_NAME),data=s)
+DPlots<-function(m,s){
+  par(mfrow=c(2,2)) # make the subplots
+  qqnorm(resid(m))
+  E2<-resid(m, type = "response") # extract normalized residuals
+  F2<-fitted(m) # extract the fitted data
+  plot(F2, E2, xlab = "fitted values", ylab = "residuals") # plot the relationship
+  abline(h = 0, lty = 2) # add a flat line at zerp
+  # test for homogeneity of variances
+  boxplot(E2~s$SEC_NAME, ylab = "residuals")
+  # check for independence. There should be no pattern
+  plot(E2~s$METHOD, ylab = 'residuals', xlab = "METHOD")
 }
+DPlots(m,s)
 
-#Adults
-glmerDensity(site,"GENUS_CODE","SSSS","AdColCount")
-glmerDensity(site,"GENUS_CODE","POSP","AdColCount")
-glmerDensity(site,"GENUS_CODE","MOSP","AdColCount")
-glmerDensity(site,"GENUS_CODE","POCS","AdColCount")
+mod1<-lmer(logAdColDen~1 + (1|SEC_NAME),data=s)
+mod2<-lmer(logAdColDen~METHOD + (1|SEC_NAME),data=s)
+
+anova(mod1,mod2,test="chisq")
+
+p1<-Plot1to1_new(s.wide,"SfM_AdColDen","Diver_AdColDen","SfM Adult Density","Diver Adult Density");p1<-p1+ggtitle("Porites")+theme(plot.title = element_text(face = "italic"))
+p2<-PlotMethod(site,"GENUS_CODE","AdColDen","POSP","Adult Density",1.5,24,"NS")
+POSPcolden<-grid.arrange(p1,p2,nrow=2,ncol=1)
+
+ggsave(plot<-POSPcolden,file="T:/Benthic/Data/SfM/Method Comparision/Figures/AdColDenPOSP_stats.png",width=5,height=5)
 
 
-####Analyst-level analysis
-#interaction between method and analyst for the analysts that have data for both method types
-seg_sub<-subset(seg,GENUS_CODE=="SSSS" & ANALYST %in% c("RS","MA","AH"))
-mod1<-lmer(METRIC~1 + (1|ISLAND/SEC_NAME),data=seg_sub,REML=F)
-mod2<-lmer(METRIC~METHOD*ANALYST + (1|ISLAND/SEC_NAME),data=seg_sub,REML=F)
+##
+s<-subset(site,GENUS_CODE=="MOSP")
+s.wide<-subset(site.wide,GENUS_CODE=="MOSP")
+# tmp <- s.wide[ which(s.wide$SfM_AdColDen + s.wide$Diver_AdColDen>0) , ]
+# sitelist<-unique(tmp$SITE)
+# s<-dplyr::filter(s, SITE %in% sitelist);length(unique(s$SITE))
+
+library("TeachingDemos")
+library(MASS)
+colden<-s$AdColDen + 1
+boxcox(colden~s$METHOD)
+boxcox(colden~s$METHOD, lambda=seq(-1,1))
+
+dp<-bct(colden,-0.6)
+
+
+hist(log(s$AdColDen))
+s$logAdColDen<-log(s$AdColDen+1)
+m<-lmer(logAdColDen~METHOD + (1|SEC_NAME),data=s)
+m<-lmer(dp~METHOD + (1|SEC_NAME),data=s)
+
+DPlots<-function(m,s){
+  par(mfrow=c(2,2)) # make the subplots
+  qqnorm(resid(m))
+  E2<-resid(m, type = "response") # extract normalized residuals
+  F2<-fitted(m) # extract the fitted data
+  plot(F2, E2, xlab = "fitted values", ylab = "residuals") # plot the relationship
+  abline(h = 0, lty = 2) # add a flat line at zerp
+  # test for homogeneity of variances
+  boxplot(E2~s$SEC_NAME, ylab = "residuals")
+  # check for independence. There should be no pattern
+  plot(E2~s$METHOD, ylab = 'residuals', xlab = "METHOD")
+}
+DPlots(m,s)
+shapiro.test(dp)
+
+wilcox.test(AdColDen ~ METHOD, data=s) 
+
+
+p1<-Plot1to1_new(s.wide,"SfM_AdColDen","Diver_AdColDen","SfM Adult Density","Diver Adult Density");p1<-p1+ggtitle("Montipora")+theme(plot.title = element_text(face = "italic"))
+p2<-PlotMethod(site,"GENUS_CODE","AdColDen","MOSP","Adult Density",1.5,22,"NS")
+MOSPcolden<-grid.arrange(p1,p2,nrow=2,ncol=1)
+
+ggsave(plot<-MOSPcolden,file="T:/Benthic/Data/SfM/Method Comparision/Figures/AdColDenMOSP_stats.png",width=5,height=5)
+
+
+##
+s<-subset(site,GENUS_CODE=="POCS")
+s.wide<-subset(site.wide,GENUS_CODE=="POCS")
+# tmp <- s.wide[ which(s.wide$SfM_AdColDen + s.wide$Diver_AdColDen>0) , ]
+# sitelist<-unique(tmp$SITE)
+# s<-dplyr::filter(s, SITE %in% sitelist);length(unique(s$SITE))
+
+library("TeachingDemos")
+library(MASS)
+colden<-s$AdColDen + 1
+boxcox(colden~s$METHOD)
+boxcox(colden~s$METHOD, lambda=seq(-1,1))
+
+dp<-bct(colden,-0.6)
+
+
+hist(sqrt(s$AdColDen))
+s$sqAdColDen<-sqrt(s$AdColDen)
+m<-lmer(sqAdColDen~METHOD + (1|SEC_NAME),data=s)
+m<-lmer(dp~METHOD + (1|SEC_NAME),data=s)
+
+DPlots<-function(m,s){
+  par(mfrow=c(2,2)) # make the subplots
+  qqnorm(resid(m))
+  E2<-resid(m, type = "response") # extract normalized residuals
+  F2<-fitted(m) # extract the fitted data
+  plot(F2, E2, xlab = "fitted values", ylab = "residuals") # plot the relationship
+  abline(h = 0, lty = 2) # add a flat line at zerp
+  # test for homogeneity of variances
+  boxplot(E2~s$SEC_NAME, ylab = "residuals")
+  # check for independence. There should be no pattern
+  plot(E2~s$METHOD, ylab = 'residuals', xlab = "METHOD")
+}
+DPlots(m,s)
+
+wilcox.test(AdColDen ~ METHOD, data=s) 
+
+
+p1<-Plot1to1_new(s.wide,"SfM_AdColDen","Diver_AdColDen","SfM Adult Density","Diver Adult Density");p1<-p1+ggtitle("Pocillopora")+theme(plot.title = element_text(face = "italic"))
+p2<-PlotMethod(site,"GENUS_CODE","AdColDen","POCS","Adult Density",1.5,3.6,"NS")
+POCScolden<-grid.arrange(p1,p2,nrow=2,ncol=1)
+
+ggsave(plot<-POCScolden,file="T:/Benthic/Data/SfM/Method Comparision/Figures/AdColDenPOCS_stats.png",width=5,height=5)
+
+
+allplots<-grid.arrange(POSPcolden,MOSPcolden,POCScolden,nrow=1,ncol=3)
+ggsave(plot<-allplots,file="T:/Benthic/Data/SfM/Method Comparision/Figures/AdColDenDomtaxa_stats.png",width=10,height=8)
+
+
+
+
 
 
