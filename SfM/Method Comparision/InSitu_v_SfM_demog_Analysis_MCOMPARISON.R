@@ -35,40 +35,39 @@ site<-read.csv("C:/Users/Courtney.S.Couch/Documents/GitHub/Benthic-Scripts/SfM/M
 
 
 # #Select columns to keep in segment data
-# seg<-dplyr::select(seg, c(METHOD,SITE,SITEVISITID,SEGMENT,GENUS_CODE,ANALYST,SEGAREA_ad,SEGAREA_j,AdColCount,AdColDen,JuvColDen,Ave.size,Ave.od,Ave.rd,
-#                                     BLE_prev,AcuteDZ_prev,ChronicDZ_prev,ISLAND,SEC_NAME,DEPTH_BIN,LATITUDE,LONGITUDE,HABITAT_CODE,
-#                                     MIN_DEPTH_M,MAX_DEPTH_M))
-# 
-# seg<-subset(seg,SITE!="HAW-04285"&SEGMENT!="5") #sckewed by 1 very very large colony
-# sfm_seg<-subset(seg,METHOD=="SfM")
-# diver_seg<-subset(seg,METHOD=="Diver")
+seg<-dplyr::select(seg, c(METHOD,SITE,SITEVISITID,SEGMENT,GENUS_CODE,ANALYST,SEGAREA_ad,SEGAREA_j,AdColCount,AdColDen,JuvColDen,Ave.size,Ave.od,Ave.rd,
+                                    BLE_prev,AcuteDZ_prev,ChronicDZ_prev,ISLAND,SEC_NAME,DEPTH_BIN,LATITUDE,LONGITUDE,HABITAT_CODE,
+                                    MIN_DEPTH_M,MAX_DEPTH_M))
 
-#Set up in wide format
-# colnames(sfm_seg)[9:17] <- paste("SfM_", colnames(sfm_seg[,c(9:17)]), sep = "");sfm_seg<-dplyr::select(sfm_seg,-c(METHOD,HABITAT_CODE))
-# 
-# colnames(diver_seg)[9:17] <- paste("Diver_", colnames(diver_seg[,c(9:17)]), sep = "");diver_seg<-dplyr::select(diver_seg,-c(METHOD,ANALYST,ISLAND,HABITAT_CODE,SEC_NAME,DEPTH_BIN,LATITUDE,LONGITUDE,MIN_DEPTH_M,MAX_DEPTH_M))
-# 
-# seg.wide<-merge(sfm_seg,diver_seg,by=c("SITE","SITEVISITID","SEGMENT","GENUS_CODE","SEGAREA_ad","SEGAREA_j"),all=T)
+seg<-subset(seg,SITE!="HAW-04285"&SEGMENT!="5") #sckewed by 1 very very large colony
+sfm_seg<-subset(seg,METHOD=="SfM")
+diver_seg<-subset(seg,METHOD=="Diver")
+
+# #Set up in wide format
+colnames(sfm_seg)[9:17] <- paste("SfM_", colnames(sfm_seg[,c(9:17)]), sep = "");sfm_seg<-dplyr::select(sfm_seg,-c(METHOD,HABITAT_CODE))
+
+colnames(diver_seg)[9:17] <- paste("Diver_", colnames(diver_seg[,c(9:17)]), sep = "");diver_seg<-dplyr::select(diver_seg,-c(METHOD,ANALYST,ISLAND,HABITAT_CODE,SEC_NAME,DEPTH_BIN,LATITUDE,LONGITUDE,MIN_DEPTH_M,MAX_DEPTH_M))
+
+seg.wide<-merge(sfm_seg,diver_seg,by=c("SITE","SITEVISITID","SEGMENT","GENUS_CODE","SEGAREA_ad","SEGAREA_j"),all=T)
 
 # #################IMPORTANT- CHECK FOR MERGING ERRORS
-# View(subset(seg.wide,GENUS_CODE=="SSSS")) #Make sure columns merge properly
-# 
-# #Merge together and remove segs that aren't merging properly
-# seg.wide<-merge(sfm_seg,diver_seg,by=c("SITE","SITEVISITID","SEGMENT","GENUS_CODE","SEGAREA_ad","SEGAREA_j"))
-# View(seg.wide) ##NOTE- LAN-01819 seg 10 SfM is duplicated for some reason-hopefully this will be fixed with final data
-# 
-# # #Change NAs for abunanance and density metrics to 0. Don't change NAs in the partial mortality columns to 0
-# seg.wide$Diver_JuvColDen[is.na(seg.wide$Diver_JuvColDen)]<-0
-# seg.wide$Diver_AdColDen[is.na(seg.wide$Diver_AdColDen)]<-0
-# seg.wide$SfM_JuvColDen[is.na(seg.wide$SfM_JuvColDen)]<-0
-# seg.wide$SfM_AdColDen[is.na(seg.wide$SfM_AdColDen)]<-0
-# 
-# head(seg.wide)
-# 
+View(subset(seg.wide,GENUS_CODE=="SSSS")) #Make sure columns merge properly
+
+#Merge together and remove segs that aren't merging properly
+seg.wide<-merge(sfm_seg,diver_seg,by=c("SITE","SITEVISITID","SEGMENT","GENUS_CODE","SEGAREA_ad","SEGAREA_j"))
+View(seg.wide) ##NOTE- LAN-01819 seg 10 SfM is duplicated for some reason-hopefully this will be fixed with final data
+
+# #Change NAs for abunanance and density metrics to 0. Don't change NAs in the partial mortality columns to 0
+seg.wide$Diver_JuvColDen[is.na(seg.wide$Diver_JuvColDen)]<-0
+seg.wide$Diver_AdColDen[is.na(seg.wide$Diver_AdColDen)]<-0
+seg.wide$SfM_JuvColDen[is.na(seg.wide$SfM_JuvColDen)]<-0
+seg.wide$SfM_AdColDen[is.na(seg.wide$SfM_AdColDen)]<-0
+
+head(seg.wide)
+#
 # head(subset(seg.wide,GENUS_CODE=="SSSS"))
-# 
-# 
-# 
+
+
 # 
 # # Plotting Regressions and Bland-Altman by Taxon --------------------------
 # #PlotAll(dataframe, variable 1, variable 2, y-axis name 1, y-axis name 2, x-axis name 1, x-axis name 2)
@@ -164,196 +163,204 @@ site<-read.csv("C:/Users/Courtney.S.Couch/Documents/GitHub/Benthic-Scripts/SfM/M
 # p2
 # 
 # 
-# glmerDensity<-function(d,grouping_field="GENUS_CODE",metric_field="AdColDen"){
-#   d$GROUP<-d[,grouping_field]
-#   d$METRIC<-d[,metric_field]
-#   
-#   s<-subset(d,GROUP=="SSSS")
-#   nullmod<-glmer(METRIC~1 + (1|SEC_NAME/SITE)+ offset(SEGAREA_ad),family=poisson,data=s)
-#   mod1<-glmer(METRIC~METHOD + (1|SEC_NAME/SITE)+ offset(SEGAREA_ad),family=poisson,data=s)
-#   mod2<-glmer(METRIC~METHOD + ANALYST+ (1|SEC_NAME/SITE)+ offset(SEGAREA_ad),family=poisson,data=s)
-#   mod3<-glmer(METRIC~ANALYST+ (1|SEC_NAME/SITE)+ offset(SEGAREA_ad),family=poisson,data=s)
-#   mod4<-glmer(METRIC~METHOD*MAX_DEPTH_M + (1|SEC_NAME/SITE)+ offset(SEGAREA_ad),family=poisson,data=s)
-#   mod5<-glmer(METRIC~METHOD*HAB_R1 + (1|SEC_NAME/SITE)+ offset(SEGAREA_ad),family=poisson,data=s)
-#   
-#   }
+# #Segment Analysis with just RS, AH and MA
+# head(seg)
+# new.seg<-subset(seg,ANALYST %in% c("RS","MA"))
+# new.seg$A_Sec<-paste(new.seg$ANALYST,new.seg$SEC_NAME,sep="_")
 # 
+# table(new.seg$METHOD,new.seg$SEC_NAME,new.seg$ANALYST)
 # 
-# s<-subset(seg,GENUS_CODE=="SSSS")
-# nullmod<-glmer(AdColCount~1 + (1|SEC_NAME/SITE),family=poisson,data=s)
-# mod1<-glmer(AdColCount~METHOD + (1|SEC_NAME/SITE),family=poisson,data=s)
-# mod2<-glmer(AdColCount~METHOD*ANALYST+ (1|SEC_NAME/SITE),family=poisson,data=s,control=glmerControl(optimizer="bobyqa",optCtrl=list(maxfun=200000)))
-# mod3<-glmer(AdColCount~METHOD*MAX_DEPTH_M + (1|SEC_NAME/SITE),family=poisson,data=s)
-# mod4<-glmer(AdColCount~METHOD*HAB_R1 + (1|SEC_NAME/SITE),family=poisson,data=s)
+# SURVEY_SEC<-c("METHOD","ANALYST","SEC_NAME")
+# survey_sec<-unique(new.seg[,SURVEY_SEC])
 # 
+# #Identify which sectors were surveyed by a RS and MA using both methods
+# rs<-subset(survey_sec,ANALYST=="RS")
+# tmp<-dcast(rs, SEC_NAME ~ METHOD, value.var="SEC_NAME")
+# rs.sec<-subset(tmp,Diver==SfM)
+# ma<-subset(survey_sec,ANALYST=="MA")
+# tmp<-dcast(ma, SEC_NAME ~ METHOD, value.var="SEC_NAME")
+# ma.sec<-subset(tmp,Diver==SfM)
+# ma.sec$A_Sec<-paste("MA",ma.sec$SEC_NAME,sep="_")
+# rs.sec$A_Sec<-paste("RS",rs.sec$SEC_NAME,sep="_")
+# sub.sec<-rbind(ma.sec,rs.sec)
+# sub.seg<-subset(new.seg,A_Sec %in% c(sub.sec$A_Sec))
+# table(sub.seg$METHOD,sub.seg$SEC_NAME,sub.seg$ANALYST)
 # 
+# #Convert analyst names to numbers
+# sub.seg<-sub.seg %>% mutate(ANALYST=recode(ANALYST, 
+#                                     `MA`="1",
+#                                     `RS`="2"))
 # 
-# #s<-s %>% drop_na(SEGAREA_j)
-# nullmod<-glmer(JuvColDen~1 + (1|SEC_NAME/SITE),family=poisson,data=s)
-# mod1<-glmer(JuvColDen~METHOD + (1|SEC_NAME/SITE),family=poisson,data=s)
-# mod2<-glmer(JuvColDen~METHOD+ANALYST+ (1|SEC_NAME/SITE),family=poisson,data=s,control=glmerControl(optimizer="bobyqa",optCtrl=list(maxfun=200000)))
-# mod3<-glmer(JuvColDen~METHOD*MAX_DEPTH_M + (1|SEC_NAME/SITE),family=poisson,data=s,control=glmerControl(optimizer="bobyqa",optCtrl=list(maxfun=200000)))
-# #mod4<-glmer(JuvColDen~METHOD*HAB_R1 + (1|SEC_NAME/SITE),family=poisson,data=s,control=glmerControl(optimizer="Nelder_Mead",optCtrl=list(maxfun=200000)))
-# #Can't use Habitat for juveniles- model convergence that can't be addressed
-# #Also having issues with model sigularity -need to simplify random effects (drop SEC_NAME)
+# #Adult Colony Density- sqrt transform
+# s<-subset(sub.seg,GENUS_CODE=="SSSS")
+# hist(sqrt(s$AdColDen))
+# s$sqAdColDen<-sqrt(s$AdColDen)
+# m<-lmer(sqAdColDen~METHOD*ANALYST + (1|SEC_NAME),data=s)
 # 
+# DPlots<-function(m,s){
+#   par(mfrow=c(2,2)) # make the subplots
+#   qqnorm(resid(m))
+#   E2<-resid(m, type = "response") # extract normalized residuals
+#   F2<-fitted(m) # extract the fitted data
+#   plot(F2, E2, xlab = "fitted values", ylab = "residuals") # plot the relationship
+#   abline(h = 0, lty = 2) # add a flat line at zerp
+#   # test for homogeneity of variances
+#   boxplot(E2~s$SEC_NAME, ylab = "residuals")
+#   # check for independence. There should be no pattern
+#   plot(E2~s$METHOD, ylab = 'residuals', xlab = "METHOD")
+# }
 # 
-# anova(mod1,nullmod,test="chisq")
-# anova(mod2,mod1,test="chisq")
-# anova(mod2,mod3,test="chisq")
-# anova(mod1,mod4,test="chisq")
+# DPlots(m,s)
 # 
+# mod1<-lmer(sqAdColDen~1 + (1|SEC_NAME),data=s)
+# mod2<-lmer(sqAdColDen~METHOD + (1|SEC_NAME),data=s)
+# mod3<-lmer(sqAdColDen~METHOD*ANALYST + (1|SEC_NAME),data=s)
+# #mod7<-lmer(sqAdColDen~METHOD*HAB_R1*MAX_DEPTH_M + (1|SEC_NAME),data=s)
 # 
-# tab_model(mod2)
+# anova(mod3,mod2,test="Chisq")
 # 
-# #Model Selection
-# 
-# glmerDensity<-function(d,grouping_field="GENUS_CODE",genus_field="SSSS",metric_field="AdColCount"){
+# PlotANALYST<-function(d,grouping_field,metric_field,genus_field,metric_name,x,y,siglabel){
 #   d$GROUP<-d[,grouping_field]
 #   d$METRIC<-d[,metric_field]
 #   s<-subset(d,GROUP==genus_field)
 #   
-# Cand.set <- list( )
-# Cand.set[[1]]<-glmer(METRIC~1 + (1|ISLAND/SITE),family=poisson,data=s)
-# Cand.set[[2]]<-glmer(METRIC~METHOD + (1|ISLAND/SITE),family=poisson,data=s)
-# Cand.set[[3]]<-glmer(METRIC~METHOD+ANALYST+ (1|ISLAND/SITE),family=poisson,data=s,control=glmerControl(optimizer="bobyqa",optCtrl=list(maxfun=200000)))
-# Cand.set[[4]]<-glmer(METRIC~METHOD*MAX_DEPTH_M + (1|ISLAND/SITE),family=poisson,data=s,control=glmerControl(optimizer="bobyqa",optCtrl=list(maxfun=200000)))
-# Cand.set[[5]]<-glmer(METRIC~METHOD*HAB_R1 + (1|ISLAND/SITE),family=poisson,data=s,control=glmerControl(optimizer="Nelder_Mead",optCtrl=list(maxfun=200000)))
-# 
-# Modnames <- c("Null","Method","Method + Analyst","Method + Depth","Method + Habitat")
-# ##generate AICc table
-# aictab(cand.set = Cand.set, modnames = Modnames, sort = TRUE)
-# ##round to 4 digits after decimal point and give log-likelihood
-# print(aictab(cand.set = Cand.set, modnames = Modnames, sort = TRUE),
-#       digits = 3, LL = TRUE)
-# 
-# a<-r.squaredGLMM(Cand.set[[1]])
-# b<-r.squaredGLMM(Cand.set[[2]])
-# c<-r.squaredGLMM(Cand.set[[3]])
-# d<-r.squaredGLMM(Cand.set[[4]])
-# e<-r.squaredGLMM(Cand.set[[5]])
-# 
-# print(a);print(b);print(c);print(d);print(e)
-# 
+#   p<-ggplot(s, aes(x=ANALYST, y=METRIC, fill=METHOD)) + 
+#     geom_boxplot() +
+#     theme_bw() +
+#     geom_label(label=siglabel, x=x,y=y,label.size = 0.35,color = "black", fill="white")+
+#     theme(
+#       axis.text.x = element_text(angle = 0)
+#       ,plot.background = element_blank()
+#       ,panel.grid.major = element_blank()
+#       ,panel.grid.minor = element_blank()
+#       ,axis.ticks.x = element_blank() # no x axis ticks
+#       ,axis.title.x = element_text( vjust = -.0001) # adjust x axis to lower the same amount as the genus labels
+#       ,legend.position="none")+
+#     labs(x="Analyst",y=metric_name)
+#   return(p)
 # }
 # 
-# #Adults
-# glmerDensity(seg,"GENUS_CODE","SSSS","AdColCount")
-# glmerDensity(seg,"GENUS_CODE","POSP","AdColCount")
-# glmerDensity(seg,"GENUS_CODE","MOSP","AdColCount")
-# glmerDensity(seg,"GENUS_CODE","POCS","AdColCount")
+# p1<-PlotANALYST(sub.seg,"GENUS_CODE","AdColDen","SSSS","Adult Density",1.5,28,"NS")
+# p1
 # 
-# glmerDensity(seg,"GENUS_CODE","SSSS","JuvColDen")
-# glmerDensity(seg,"GENUS_CODE","POSP","JuvColDen")
-# glmerDensity(seg,"GENUS_CODE","MOSP","JuvColDen")
-# glmerDensity(seg,"GENUS_CODE","POCS","JuvColDen")
 # 
-# #Ave Size- not perfect transformation, but will work
-# s<-subset(seg,GENUS_CODE=="SSSS")
-# hist(log(s$Ave.od))
-# s$logAve.size<-log(s$Ave.size)
-# mod<-lmer(logAve.size~METHOD + (1|SEC_NAME/SITE),data=s)
-# plot(mod)
-# qqnorm(resid(mod)) #plot normal quantile- quantile plot.  Should be close to a straight line
+# #Juvenile
+# s<-subset(sub.seg,GENUS_CODE=="SSSS")
+# hist(sqrt(s$JuvColDen))
+# s$sqJuvColDen<-sqrt(s$JuvColDen)
+# m<-lmer(sqJuvColDen~METHOD*ANALYST + (1|SEC_NAME),data=s)
+# DPlots(m,s)
 # 
-# #Old dead- not perfect transformation, but will work
-# s<-subset(seg,GENUS_CODE=="SSSS")
-# hist(sqrt(s$Ave.od))
+# mod1<-lmer(sqJuvColDen~1 + (1|SEC_NAME),data=s)
+# mod2<-lmer(sqJuvColDen~METHOD + (1|SEC_NAME),data=s)
+# mod3<-lmer(sqJuvColDen~METHOD*ANALYST + (1|SEC_NAME),data=s)
+# #mod7<-lmer(sqJuvColDen~METHOD*HAB_R1*MAX_DEPTH_M + (1|SEC_NAME),data=s)
+# 
+# anova(mod3,mod2,test="Chisq")
+# 
+# p2<-PlotANALYST(sub.seg,"GENUS_CODE","JuvColDen","SSSS","Juvenile Density",1.5,36,"NS")
+# #p1<-p1+geom_label(label="Significant", x=1,y=36,label.size = 0.35,color = "black", fill="#00BFC4")
+# p2
+# 
+# #Ave. size
+# s<-subset(sub.seg,GENUS_CODE=="SSSS")
+# hist(sqrt(s$Ave.size))
+# s$sqAve.size<-sqrt(s$Ave.size)
+# m<-lmer(sqAve.size~METHOD*ANALYST + (1|SEC_NAME),data=s)
+# DPlots(m,s)
+# 
+# mod1<-lmer(sqAve.size~1 + (1|SEC_NAME),data=s)
+# mod2<-lmer(sqAve.size~METHOD + (1|SEC_NAME),data=s)
+# mod3<-lmer(sqAve.size~METHOD*ANALYST + (1|SEC_NAME),data=s)
+# #mod7<-lmer(sqAve.size~METHOD*HAB_R1*MAX_DEPTH_M + (1|SEC_NAME),data=s)
+# 
+# anova(mod3,mod2,test="Chisq")
+# 
+# p3<-PlotANALYST(sub.seg,"GENUS_CODE","Ave.size","SSSS","Average Max Diameter",1.5,36,"NS")
+# #p1<-p1+geom_label(label="Significant", x=1,y=36,label.size = 0.35,color = "black", fill="#00BFC4")
+# p3
+# 
+# #Ave. od- can't transform
+# s<-subset(sub.seg,GENUS_CODE=="SSSS")
+# hist(sqrt(s$Ave.od+1))
 # s$sqAve.od<-sqrt(s$Ave.od)
-# mod<-lmer(sqAve.od~METHOD + (1|SEC_NAME/SITE),data=s)
-# plot(mod)
-# qqnorm(resid(mod)) #plot normal quantile- quantile plot.  Should be close to a straight line
+# m<-lmer(sqAve.od~METHOD*ANALYST + (1|SEC_NAME),data=s)
+# DPlots(m,s)
 # 
-# #Can't transform recent dead
-# hist(log(s$Ave.rd+1))
-# s$logAve.rd<-log(s$Ave.rd+1)
-# mod<-lmer(logAve.rd~METHOD + (1|SEC_NAME/SITE),data=s)
-# plot(mod)
-# qqnorm(resid(mod)) #plot normal quantile- quantile plot.  Should be close to a straight line
-# 
-# #Transform variables
-# s<-subset(seg,GENUS_CODE=="SSSS")
-# s$logAve.size<-log(s$Ave.size)
-# s$sqrtAve.od<-sqrt(s$Ave.od)
+# wilcox.test(Ave.od ~ METHOD, data=subset(s,ANALYST=="1")) 
+# wilcox.test(Ave.od ~ METHOD, data=subset(s,ANALYST=="2")) 
 # 
 # 
-# lmerMetric<-function(d,grouping_field="GENUS_CODE",genus_field="SSSS",metric_field="AdColCount"){
-#   d$GROUP<-d[,grouping_field]
-#   d$METRIC<-d[,metric_field]
-#   s<-subset(d,GROUP==genus_field)
-#   
-#   Cand.set <- list( )
-#   Cand.set[[1]]<-lmer(METRIC~1 + (1|SEC_NAME/SITE),data=s,REML=F)
-#   Cand.set[[2]]<-lmer(METRIC~METHOD + (1|SEC_NAME/SITE),data=s,REML=F)
-#   Cand.set[[3]]<-lmer(METRIC~METHOD+ANALYST+ (1|SEC_NAME/SITE),data=s,REML=F,control=lmerControl(optimizer="bobyqa",optCtrl=list(maxfun=200000)))
-#   Cand.set[[4]]<-lmer(METRIC~METHOD*MAX_DEPTH_M + (1|SEC_NAME/SITE),REML=F,data=s,control=lmerControl(optimizer="bobyqa",optCtrl=list(maxfun=200000)))
-#   Cand.set[[5]]<-lmer(METRIC~METHOD*HAB_R1 + (1|SEC_NAME/SITE),data=s,REML=F,control=lmerControl(optimizer="Nelder_Mead",optCtrl=list(maxfun=200000)))
-#   
-#   Modnames <- c("Null","Method","Method + Analyst","Method + Depth","Method + Habitat")
-#   ##generate AICc table
-#   aictab(cand.set = Cand.set, modnames = Modnames, sort = TRUE)
-#   ##round to 4 digits after decimal point and give log-likelihood
-#   print(aictab(cand.set = Cand.set, modnames = Modnames, sort = TRUE),
-#         digits = 3, LL = TRUE)
-#   
-#   a<-r.squaredGLMM(Cand.set[[1]])
-#   b<-r.squaredGLMM(Cand.set[[2]])
-#   c<-r.squaredGLMM(Cand.set[[3]])
-#   d<-r.squaredGLMM(Cand.set[[4]])
-#   e<-r.squaredGLMM(Cand.set[[5]])
-#   
-#   print(a);print(b);print(c);print(d);print(e)
-#   
-# }
 # 
-# lmerMetric(s,"GENUS_CODE","SSSS","logAve.size")
-# lmerMetric(s,"GENUS_CODE","SSSS","sqrtAve.od")
+# p4<-PlotANALYST(sub.seg,"GENUS_CODE","Ave.od","SSSS","Average % Old Dead",1,36,"NS")
+# #p1<-p1+geom_label(label="Significant", x=1,y=36,label.size = 0.35,color = "black", fill="#00BFC4")
+# p4
 # 
-# mod<-lmer(logAve.size~METHOD*HAB_R1 + (1|SEC_NAME/SITE),data=s,REML=F,control=lmerControl(optimizer="Nelder_Mead",optCtrl=list(maxfun=200000)))
-# summary(mod)
 # 
-# #Prevalence Data
-# #Calculate # of cases/type- need this for the the binomial GLMMs 
-# s<-subset(seg,GENUS_CODE=="SSSS")
-# s$AcuteDZ<-(s$AcuteDZ_prev/100)*s$AdColCount
-# s$ChronicDZ<-(s$ChronicDZ_prev/100)*s$AdColCount
-# s$BLE<-(s$BLE_prev/100)*s$AdColCount
-# head(s)
+# #Ave. rd
+# s<-subset(sub.seg,GENUS_CODE=="SSSS")
+# hist(sqrt(s$Ave.rd))
+# s$sqAve.rd<-sqrt(s$Ave.rd)
+# m<-lmer(sqAve.rd~METHOD*ANALYST + (1|SEC_NAME),data=s)
+# DPlots(m,s)
 # 
-# glmerPrev<-function(d,grouping_field="GENUS_CODE",genus_field="SSSS",metric_field="AcuteDZ"){
-#   d$GROUP<-d[,grouping_field]
-#   d$METRIC<-d[,metric_field]
-#   s<-subset(d,GROUP==genus_field)
-#   
-#   Cand.set <- list( )
-#   Cand.set[[1]]<-glmer(cbind(METRIC~1 + (1|ISLAND/SITE),family=binomial,data=s)
-#   Cand.set[[2]]<-glmer(METRIC~METHOD + (1|ISLAND/SITE),family=binomial,data=s)
-#   Cand.set[[3]]<-glmer(METRIC~METHOD+ANALYST+ (1|ISLAND/SITE),family=binomial,data=s,control=glmerControl(optimizer="bobyqa",optCtrl=list(maxfun=200000)))
-#   Cand.set[[4]]<-glmer(METRIC~METHOD*MAX_DEPTH_M + (1|ISLAND/SITE),family=binomial,data=s,control=glmerControl(optimizer="bobyqa",optCtrl=list(maxfun=200000)))
-#   Cand.set[[5]]<-glmer(METRIC~METHOD*HAB_R1 + (1|ISLAND/SITE),family=binomial,data=s,control=glmerControl(optimizer="Nelder_Mead",optCtrl=list(maxfun=200000)))
-#   
-#   Modnames <- c("Null","Method","Method + Analyst","Method + Depth","Method + Habitat")
-#   ##generate AICc table
-#   aictab(cand.set = Cand.set, modnames = Modnames, sort = TRUE)
-#   ##round to 4 digits after decimal point and give log-likelihood
-#   print(aictab(cand.set = Cand.set, modnames = Modnames, sort = TRUE),
-#         digits = 3, LL = TRUE)
-#   
-#   a<-r.squaredGLMM(Cand.set[[1]])
-#   b<-r.squaredGLMM(Cand.set[[2]])
-#   c<-r.squaredGLMM(Cand.set[[3]])
-#   d<-r.squaredGLMM(Cand.set[[4]])
-#   e<-r.squaredGLMM(Cand.set[[5]])
-#   
-#   print(a);print(b);print(c);print(d);print(e)
-#   
-# }
+# wilcox.test(Ave.rd ~ METHOD, data=subset(s,ANALYST=="1")) 
+# wilcox.test(Ave.rd ~ METHOD, data=subset(s,ANALYST=="2")) 
 # 
-# #Adults
-# glmerDensity(seg,"GENUS_CODE","SSSS","AdColCount")
-# glmerDensity(seg,"GENUS_CODE","POSP","AdColCount")
-# glmerDensity(seg,"GENUS_CODE","MOSP","AdColCount")
-# glmerDensity(seg,"GENUS_CODE","POCS","AdColCount")
+# 
+# p5<-PlotANALYST(sub.seg,"GENUS_CODE","Ave.rd","SSSS","Average % Recent Dead",1,10,"Significant")
+# p5<-p5+geom_label(label="Significant", x=1,y=10,label.size = 0.35,color = "black", fill="#00BFC4")
+# p5
+# 
+# #Acute disease
+# s<-subset(sub.seg,GENUS_CODE=="SSSS")
+# hist(sqrt(s$AcuteDZ_prev))
+# s$sqAcuteDZ_prev<-sqrt(s$AcuteDZ_prev)
+# m<-lmer(sqAcuteDZ_prev~METHOD*ANALYST + (1|SEC_NAME),data=s)
+# DPlots(m,s)
+# 
+# wilcox.test(AcuteDZ_prev ~ METHOD, data=subset(s,ANALYST=="1")) 
+# wilcox.test(AcuteDZ_prev ~ METHOD, data=subset(s,ANALYST=="2")) 
+# 
+# 
+# p6<-PlotANALYST(sub.seg,"GENUS_CODE","AcuteDZ_prev","SSSS","Acute Disease Prevalence (%)",1,20,"Significant")
+# p6<-p6+geom_label(label="Significant", x=1,y=20,label.size = 0.35,color = "black", fill="#00BFC4")
+# p6
+# 
+# #Chronic disease
+# s<-subset(sub.seg,GENUS_CODE=="SSSS")
+# hist(sqrt(s$ChronicDZ_prev))
+# s$sqChronicDZ_prev<-sqrt(s$ChronicDZ_prev)
+# m<-lmer(sqChronicDZ_prev~METHOD*ANALYST + (1|SEC_NAME),data=s)
+# DPlots(m,s)
+# 
+# wilcox.test(ChronicDZ_prev ~ METHOD, data=subset(s,ANALYST=="1")) 
+# wilcox.test(ChronicDZ_prev ~ METHOD, data=subset(s,ANALYST=="2")) 
+# 
+# p7<-PlotANALYST(sub.seg,"GENUS_CODE","ChronicDZ_prev","SSSS","Chronic Disease Prevalence (%)",1.5,20,"NS")
+# p7
+# 
+# #Bleaching
+# s<-subset(sub.seg,GENUS_CODE=="SSSS")
+# hist(sqrt(s$BLE_prev))
+# s$sqBLE_prev<-sqrt(s$BLE_prev)
+# m<-lmer(sqBLE_prev~METHOD*ANALYST + (1|SEC_NAME),data=s)
+# DPlots(m,s)
+# 
+# wilcox.test(BLE_prev ~ METHOD, data=subset(s,ANALYST=="1")) 
+# wilcox.test(BLE_prev ~ METHOD, data=subset(s,ANALYST=="2")) 
+# 
+# 
+# p8<-PlotANALYST(sub.seg,"GENUS_CODE","BLE_prev","SSSS","Bleaching Prevalence (%)",1,45,"Significant")
+# p8<-p8+geom_label(label="Significant", x=1,y=45,label.size = 0.35,color = "black", fill="#00BFC4")
+# p8<-p8+geom_label(label="Significant", x=2,y=45,label.size = 0.35,color = "black", fill="#00BFC4")
+# p8
+# 
+# 
+# allplots<-grid.arrange(p1,p2,p3,p4,p5,p6,p7,p8,nrow=2,ncol=4)
+# 
+# ggsave(plot<-allplots,file="T:/Benthic/Data/SfM/Method Comparision/Figures/Analystplots_stats.png",width=10,height=5)
+# 
 
 
 #Site level analysis
@@ -494,68 +501,72 @@ p2
 
 #https://stats.stackexchange.com/questions/375911/strange-qqplot-for-poisson-gam
 
-glmerDensity<-function(d,grouping_field="GENUS_CODE",metric_field="AdColDen"){
-  d$GROUP<-d[,grouping_field]
-  d$METRIC<-d[,metric_field]
-  
-  s<-subset(d,GROUP=="SSSS")
-  nullmod<-glmer(METRIC~1 + (1|SEC_NAME)+ offset(siteAREA_ad),family=poisson,data=s)
-  mod1<-glmer(METRIC~METHOD + (1|SEC_NAME)+ offset(siteAREA_ad),family=poisson,data=s)
-  mod4<-glmer(METRIC~METHOD*MAX_DEPTH_M + (1|SEC_NAME)+ offset(siteAREA_ad),family=poisson,data=s)
-  mod5<-glmer(METRIC~METHOD*HAB_R1 + (1|SEC_NAME)+ offset(siteAREA_ad),family=poisson,data=s)
-  
-}
-
-
-tab_model(mod2)
-
-#Model Selection
-
-glmerDensity<-function(d,grouping_field="GENUS_CODE",genus_field="SSSS",metric_field="AdColCount"){
-  d$GROUP<-d[,grouping_field]
-  d$METRIC<-d[,metric_field]
-  s<-subset(d,GROUP==genus_field)
-  
-  Cand.set <- list( )
-  Cand.set[[1]]<-glmer(METRIC~1 + (1|ISLAND/SEC_NAME),family=poisson,data=s)
-  Cand.set[[2]]<-glmer(METRIC~METHOD + (1|ISLAND/SEC_NAME),family=poisson,data=s)
-  Cand.set[[4]]<-glmer(METRIC~METHOD*MAX_DEPTH_M + (1|ISLAND/SEC_NAME),family=poisson,data=s,control=glmerControl(optimizer="bobyqa",optCtrl=list(maxfun=200000)))
-  Cand.set[[5]]<-glmer(METRIC~METHOD*HAB_R1 + (1|ISLAND/SEC_NAME),family=poisson,data=s,control=glmerControl(optimizer="Nelder_Mead",optCtrl=list(maxfun=200000)))
-  
-  Modnames <- c("Null","Method","Method + Depth","Method + Habitat")
-  ##generate AICc table
-  aictab(cand.set = Cand.set, modnames = Modnames, sort = TRUE)
-  ##round to 4 digits after decimal point and give log-likelihood
-  print(aictab(cand.set = Cand.set, modnames = Modnames, sort = TRUE),
-        digits = 3, LL = TRUE)
-  
-  a<-r.squaredGLMM(Cand.set[[1]])
-  b<-r.squaredGLMM(Cand.set[[2]])
-  c<-r.squaredGLMM(Cand.set[[3]])
-  d<-r.squaredGLMM(Cand.set[[4]])
-  e<-r.squaredGLMM(Cand.set[[5]])
-  
-  print(a);print(b);print(c);print(d);print(e)
-  
-}
-
-#Adults
-glmerDensity(site,"GENUS_CODE","SSSS","AdColCount")
-glmerDensity(site,"GENUS_CODE","POSP","AdColCount")
-glmerDensity(site,"GENUS_CODE","MOSP","AdColCount")
-glmerDensity(site,"GENUS_CODE","POCS","AdColCount")
-
-glmerDensity(site,"GENUS_CODE","SSSS","JuvColDen")
-glmerDensity(site,"GENUS_CODE","POSP","JuvColDen")
-glmerDensity(site,"GENUS_CODE","MOSP","JuvColDen")
-glmerDensity(site,"GENUS_CODE","POCS","JuvColDen")
+# glmerDensity<-function(d,grouping_field="GENUS_CODE",metric_field="AdColDen"){
+#   d$GROUP<-d[,grouping_field]
+#   d$METRIC<-d[,metric_field]
+#   
+#   s<-subset(d,GROUP=="SSSS")
+#   nullmod<-glmer(METRIC~1 + (1|SEC_NAME)+ offset(siteAREA_ad),family=poisson,data=s)
+#   mod1<-glmer(METRIC~METHOD + (1|SEC_NAME)+ offset(siteAREA_ad),family=poisson,data=s)
+#   mod4<-glmer(METRIC~METHOD*MAX_DEPTH_M + (1|SEC_NAME)+ offset(siteAREA_ad),family=poisson,data=s)
+#   mod5<-glmer(METRIC~METHOD*HAB_R1 + (1|SEC_NAME)+ offset(siteAREA_ad),family=poisson,data=s)
+#   
+# }
+# 
+# 
+# tab_model(mod2)
+# 
+# #Model Selection
+# 
+# glmerDensity<-function(d,grouping_field="GENUS_CODE",genus_field="SSSS",metric_field="AdColCount"){
+#   d$GROUP<-d[,grouping_field]
+#   d$METRIC<-d[,metric_field]
+#   s<-subset(d,GROUP==genus_field)
+#   
+#   Cand.set <- list( )
+#   Cand.set[[1]]<-glmer(METRIC~1 + (1|ISLAND/SEC_NAME),family=poisson,data=s)
+#   Cand.set[[2]]<-glmer(METRIC~METHOD + (1|ISLAND/SEC_NAME),family=poisson,data=s)
+#   Cand.set[[4]]<-glmer(METRIC~METHOD*MAX_DEPTH_M + (1|ISLAND/SEC_NAME),family=poisson,data=s,control=glmerControl(optimizer="bobyqa",optCtrl=list(maxfun=200000)))
+#   Cand.set[[5]]<-glmer(METRIC~METHOD*HAB_R1 + (1|ISLAND/SEC_NAME),family=poisson,data=s,control=glmerControl(optimizer="Nelder_Mead",optCtrl=list(maxfun=200000)))
+#   
+#   Modnames <- c("Null","Method","Method + Depth","Method + Habitat")
+#   ##generate AICc table
+#   aictab(cand.set = Cand.set, modnames = Modnames, sort = TRUE)
+#   ##round to 4 digits after decimal point and give log-likelihood
+#   print(aictab(cand.set = Cand.set, modnames = Modnames, sort = TRUE),
+#         digits = 3, LL = TRUE)
+#   
+#   a<-r.squaredGLMM(Cand.set[[1]])
+#   b<-r.squaredGLMM(Cand.set[[2]])
+#   c<-r.squaredGLMM(Cand.set[[3]])
+#   d<-r.squaredGLMM(Cand.set[[4]])
+#   e<-r.squaredGLMM(Cand.set[[5]])
+#   
+#   print(a);print(b);print(c);print(d);print(e)
+#   
+# }
+# 
+# #Adults
+# glmerDensity(site,"GENUS_CODE","SSSS","AdColCount")
+# glmerDensity(site,"GENUS_CODE","POSP","AdColCount")
+# glmerDensity(site,"GENUS_CODE","MOSP","AdColCount")
+# glmerDensity(site,"GENUS_CODE","POCS","AdColCount")
+# 
+# glmerDensity(site,"GENUS_CODE","SSSS","JuvColDen")
+# glmerDensity(site,"GENUS_CODE","POSP","JuvColDen")
+# glmerDensity(site,"GENUS_CODE","MOSP","JuvColDen")
+# glmerDensity(site,"GENUS_CODE","POCS","JuvColDen")
 
 #Adult Colony Density- sqrt transform
 #also tried gamma and neg binomial- sqrt transform is best
 s<-subset(site,GENUS_CODE=="SSSS")
 hist(log(s$AdColDen))
+
 s$sqAdColDen<-sqrt(s$AdColDen)
+
 m<-lmer(sqAdColDen~METHOD + (1|SEC_NAME),data=s)
+m<-lm(length~model,data=s)
+
 
 DPlots<-function(m,s){
 par(mfrow=c(2,2)) # make the subplots
@@ -578,7 +589,16 @@ mod3<-lmer(sqAdColDen~MAX_DEPTH_M + (1|SEC_NAME),data=s)
 mod4<-lmer(sqAdColDen~HAB_R1 + (1|SEC_NAME),data=s)
 mod5<-lmer(sqAdColDen~METHOD*MAX_DEPTH_M + (1|SEC_NAME),data=s)
 mod6<-lmer(sqAdColDen~METHOD*HAB_R1 + (1|SEC_NAME),data=s)
+mod7<-lmer(sqAdColDen~HAB_R1*MAX_DEPTH_M + (1|SEC_NAME),data=s)
+mod8<-lmer(sqAdColDen~METHOD*MAX_DEPTH_M*HAB_R1+ (1|SEC_NAME),data=s)
+mod9<-lmer(sqAdColDen~METHOD*HAB_R1 + METHOD*MAX_DEPTH_M + (1|SEC_NAME),data=s)
+mod10<-lmer(sqAdColDen~METHOD*HAB_R1 + METHOD*MAX_DEPTH_M + METHOD*MAX_DEPTH_M*HAB_R1+ (1|SEC_NAME),data=s)
+
 #mod7<-lmer(sqAdColDen~METHOD*HAB_R1*MAX_DEPTH_M + (1|SEC_NAME),data=s)
+anova(mod10,mod8,test="Chisq")
+anova(mod9,mod8,test="Chisq")
+anova(mod7,mod6,test="Chisq")
+anova(mod7,mod5,test="Chisq")
 
 anova(mod6,mod5,test="Chisq")
 anova(mod6,mod4,test="Chisq")
@@ -706,13 +726,13 @@ PlotDepth<-function(d,grouping_field,metric_field,metric_field2,genus_field,metr
 
 
 p1<-Plot1to1_new(s.wide,"SfM_AdColDen","Diver_AdColDen","SfM Adult Density","Diver Adult Density")
-p2<-PlotMethod(site,"GENUS_CODE","AdColDen","SSSS","Adult Density",1.5,29,"NS")
-p3<-PlotHabitat(site,"GENUS_CODE","AdColDen","SSSS","Adult Density",3.5,29,"Method x Habitat NS")
-p4<-PlotDepth(site,"GENUS_CODE","AdColDen","AdColDen","SSSS","Adult Density",18,29,"Method x Depth NS")
+p2<-PlotMethod(site,"GENUS_CODE","AdColDen","SSSS","Adult Density",1.5,28,"NS")
+p3<-PlotHabitat(site,"GENUS_CODE","AdColDen","SSSS","Adult Density",3,28,"Method x Habitat NS")
+p4<-PlotDepth(site,"GENUS_CODE","AdColDen","AdColDen","SSSS","Adult Density",15,28,"Method x Depth NS")
 
-AdColDenS<-grid.arrange(p1,p2,p3,p4,nrow=1,ncol=4)
+AdColDenS<-grid.arrange(p1,p2,p3,p4,nrow=2,ncol=2)
 
-ggsave(plot<-AdColDenS,file="T:/Benthic/Data/SfM/Method Comparision/Figures/AdColDenSSSS_stats.png",width=10,height=5)
+ggsave(plot<-AdColDenS,file="T:/Benthic/Data/SfM/Method Comparision/Figures/AdColDenSSSS_stats.png",width=8,height=6)
 
 #Juvenile Colony Density- sqrt transform
 #also tried gamma and neg binomial- sqrt transform is best
@@ -738,6 +758,9 @@ anova(mod5,mod2,test="Chisq")
 anova(mod2,mod1,test="Chisq")
 
 
+a<-r.squaredGLMM(mod5)
+
+
 #Extract predicted values for Adult density
 #https://aosmith.rbind.io/2018/11/16/plot-fitted-lines/
 library(nlme)
@@ -759,12 +782,13 @@ newdat.lme$upper<-newdat.lme$upper^2 #back transform predicted values
 
 p1<-Plot1to1_new(s.wide,"SfM_JuvColDen","Diver_JuvColDen","SfM Juvenile Density","Diver Juvenile Density")
 p2<-PlotMethod(site,"GENUS_CODE","JuvColDen","SSSS","Juvenile Density",1.5,60,"NS")
-p3<-PlotHabitat(site,"GENUS_CODE","JuvColDen","SSSS","Juvenile Density",3.5,60,"Method x Habitat NS")
-p4<-PlotDepth(site,"GENUS_CODE","JuvColDen","JuvColDen","SSSS","Juvenile Density",18,60,"Significant Method x Depth")
+p3<-PlotHabitat(site,"GENUS_CODE","JuvColDen","SSSS","Juvenile Density",3,60,"Method x Habitat NS")
+p4<-PlotDepth(site,"GENUS_CODE","JuvColDen","JuvColDen","SSSS","Juvenile Density",15,60,"Significant Method x Depth")
+p4<-p4+geom_label(label="Significant Method x Depth", x=15,y=60,label.size = 0.35,color = "black", fill="#00BFC4")
 
-JuvColDenS<-grid.arrange(p1,p2,p3,p4,nrow=1,ncol=4)
+JuvColDenS<-grid.arrange(p1,p2,p3,p4,nrow=2,ncol=2)
 
-ggsave(plot<-JuvColDenS,file="T:/Benthic/Data/SfM/Method Comparision/Figures/JuvColDenSSSS_stats.png",width=10,height=5)
+ggsave(plot<-JuvColDenS,file="T:/Benthic/Data/SfM/Method Comparision/Figures/JuvColDenSSSS_stats.png",width=8,height=6)
 
 
 
@@ -813,16 +837,13 @@ newdat.lme$lower<-exp(newdat.lme$lower) #back transform predicted values
 newdat.lme$upper<-exp(newdat.lme$upper) #back transform predicted values
 
 p1<-Plot1to1_new(s.wide,"SfM_Ave.size","Diver_Ave.size","SfM Average Max Diameter (cm)","Diver Average Max Diameter (cm)")
-p2<-PlotMethod(site,"GENUS_CODE","Ave.size","SSSS","Average Max Diameter (cm)",1.5,35,"NS")
-p3<-PlotHabitat(site,"GENUS_CODE","Ave.size","SSSS","Average Max Diameter (cm)",3.5,35,"Method x Habitat NS")
-p4<-PlotDepth(site,"GENUS_CODE","Ave.size","Ave.size","SSSS","Average Max Diameter (cm)",18,35,"Method x Depth NS")
+p2<-PlotMethod(site,"GENUS_CODE","Ave.size","SSSS","Average Max Diameter (cm)",1.5,34,"NS")
+p3<-PlotHabitat(site,"GENUS_CODE","Ave.size","SSSS","Average Max Diameter (cm)",3,34,"Method x Habitat NS")
+p4<-PlotDepth(site,"GENUS_CODE","Ave.size","Ave.size","SSSS","Average Max Diameter (cm)",15,34,"Method x Depth NS")
 
-Ave.sizeS<-grid.arrange(p1,p2,p3,p4,nrow=1,ncol=4)
+Ave.sizeS<-grid.arrange(p1,p2,p3,p4,nrow=2,ncol=2)
 
-ggsave(plot<-Ave.sizeS,file="T:/Benthic/Data/SfM/Method Comparision/Figures/Ave.sizeSSSS_stats.png",width=10,height=5)
-
-
-
+ggsave(plot<-Ave.sizeS,file="T:/Benthic/Data/SfM/Method Comparision/Figures/Ave.sizeSSSS_stats.png",width=8,height=6)
 
 
 #Old dead- not perfect transformation, but will work
@@ -846,6 +867,9 @@ anova(mod6,mod2,test="Chisq")
 anova(mod5,mod4,test="Chisq")
 anova(mod5,mod3,test="Chisq")
 anova(mod5,mod2,test="Chisq")
+
+r.squaredGLMM(mod5)
+
 
 #Rather than setting up complicated contrasts to test for dif between methods within habitats
 #Run separate models for each habitat then run multiple test corrections
@@ -879,13 +903,14 @@ newdat.lme$lower<-newdat.lme$lower^2 #back transform predicted values
 newdat.lme$upper<-newdat.lme$upper^2 #back transform predicted values
 
 p1<-Plot1to1_new(s.wide,"SfM_Ave.od","Diver_Ave.od","SfM Average % Old Dead","Diver % Old Dead")
-p2<-PlotMethod(site,"GENUS_CODE","Ave.od","SSSS","Average % Old Dead",1.5,45,"NS")
-p3<-PlotHabitat(site,"GENUS_CODE","Ave.od","SSSS","Average % Old Dead",3.5,45,"Method x Habitat NS")
-p4<-PlotDepth(site,"GENUS_CODE","Ave.od","Ave.od","SSSS","Average % Old Dead",18,45,"Significant Method x Depth")
+p2<-PlotMethod(site,"GENUS_CODE","Ave.od","SSSS","Average % Old Dead",1.5,49,"NS")
+p3<-PlotHabitat(site,"GENUS_CODE","Ave.od","SSSS","Average % Old Dead",3,49,"Method x Habitat NS")
+p4<-PlotDepth(site,"GENUS_CODE","Ave.od","Ave.od","SSSS","Average % Old Dead",15,49,"Significant Method x Depth")
+p4<-p4+geom_label(label="Significant Method x Depth", x=15,y=49,label.size = 0.35,color = "black", fill="#00BFC4")
 
-Ave.odS<-grid.arrange(p1,p2,p3,p4,nrow=1,ncol=4)
+Ave.odS<-grid.arrange(p1,p2,p3,p4,nrow=2,ncol=2)
 
-ggsave(plot<-Ave.odS,file="T:/Benthic/Data/SfM/Method Comparision/Figures/Ave.odSSSS_stats.png",width=10,height=5)
+ggsave(plot<-Ave.odS,file="T:/Benthic/Data/SfM/Method Comparision/Figures/Ave.odSSSS_stats.png",width=8,height=6)
 
 
 #Can't transform recent dead
@@ -919,11 +944,11 @@ par(mfrow=c(2,2)) # make the subplots
 wilcox.test(Ave.rd ~ METHOD, data=s) 
   
 p1<-Plot1to1_new(s.wide,"SfM_Ave.rd","Diver_Ave.rd","SfM Average % Recent Dead","Diver % Recent Dead")
-p2<-PlotMethod(site,"GENUS_CODE","Ave.rd","SSSS","Average % Recent Dead",1.5,4,"NS")
+p2<-PlotMethod(site,"GENUS_CODE","Ave.rd","SSSS","Average % Recent Dead",1.5,3.5,"NS")
 
 Ave.rdS<-grid.arrange(p1,p2,nrow=1,ncol=2)
 
-ggsave(plot<-Ave.rdS,file="T:/Benthic/Data/SfM/Method Comparision/Figures/Ave.rdSSSS_stats.png",width=5,height=5)
+ggsave(plot<-Ave.rdS,file="T:/Benthic/Data/SfM/Method Comparision/Figures/Ave.rdSSSS_stats.png",width=8,height=6)
 
 #Identify % of sites that had 0 rd for one method but not the other
 a<-(s.wide[ which(s.wide$SfM_Ave.rd ==0 & s.wide$Diver_Ave.rd>0) , ])
@@ -964,18 +989,64 @@ m<-lmer(sqAcuteDZ_prev~METHOD + (1|SEC_NAME),data=s)
 s<-subset(site,GENUS_CODE=="SSSS")
 wilcox.test(AcuteDZ_prev ~ METHOD, data=s) 
 
-p1<-Plot1to1_new(s.wide,"SfM_AcuteDZ_prev","Diver_AcuteDZ_prev","SfM Acute Disease Prevalence (%)","Diver Acute Disease Prevalence (%)")
-p2<-PlotMethod(site,"GENUS_CODE","AcuteDZ_prev","SSSS","Acute Disease Prevalence (%)",1.5,15,"NS")
+p1<-Plot1to1_new(s.wide,"SfM_AcuteDZ_prev","Diver_AcuteDZ_prev","SfM Acute Disease Prevalence (%)","Diver Acute Disease Prevalence (%)");p1<-p1+ggtitle("Acute Disease")
+p2<-PlotMethod(site,"GENUS_CODE","AcuteDZ_prev","SSSS","Acute Disease Prevalence (%)",1.5,14,"NS")
 
-acutedzS<-grid.arrange(p1,p2,nrow=1,ncol=2)
+acutedzS<-grid.arrange(p1,p2,nrow=2,ncol=1)
 
-ggsave(plot<-acutedzS,file="T:/Benthic/Data/SfM/Method Comparision/Figures/AcuteDZSSSS_stats.png",width=5,height=5)
+ggsave(plot<-acutedzS,file="T:/Benthic/Data/SfM/Method Comparision/Figures/AcuteDZSSSS_stats.png",width=8,height=6)
 
 #Identify % of sites that had 0 rd for one method but not the other
 a<-(s.wide[ which(s.wide$SfM_AcuteDZ_prev ==0 & s.wide$Diver_AcuteDZ_prev>0) , ])
 nrow(a)/104
 b<-(s.wide[ which(s.wide$SfM_AcuteDZ_prev >0 & s.wide$Diver_AcuteDZ_prev==0) , ])
 nrow(b)/104
+
+#Chronic disease prevalence
+s<-subset(site,GENUS_CODE=="SSSS")
+s$ChronicDZ<-(s$ChronicDZ_prev/100)*s$AdColCount
+s$test<-as.integer(as.character(s$ChronicDZ))
+head(s)
+
+s.wide<-subset(site.wide,GENUS_CODE=="SSSS")
+s<-subset(site,GENUS_CODE=="SSSS");length(unique(s$SITE))
+s$ChronicDZ<-(s$ChronicDZ_prev/100)*s$AdColCount
+s$test<-as.integer(as.character(s$ChronicDZ))
+head(s)
+
+tmp <- s.wide[ which(s.wide$SfM_ChronicDZ_prev + s.wide$Diver_ChronicDZ_prev>0) , ]
+sitelist<-unique(tmp$SITE)
+s<-dplyr::filter(s, SITE %in% sitelist);length(unique(s$SITE))
+
+m<-glmer(ChronicDZ/AdColCount~METHOD + (1|SEC_NAME),family = "binomial",data=s,na.action = na.omit)
+par(mfrow=c(2,2)) # make the subplots
+qqnorm(resid(m))
+E2<-resid(m, type = "response") # extract normalized residuals
+F2<-fitted(m) # extract the fitted data
+plot(F2, E2, xlab = "fitted values", ylab = "residuals") # plot the relationship
+abline(h = 0, lty = 2) # add a flat line at zerp
+
+hist(sqrt(s$ChronicDZ_prev))
+s$sqChronicDZ_prev<-sqrt(s$ChronicDZ_prev)
+m<-lmer(sqChronicDZ_prev~METHOD + (1|SEC_NAME),data=s)
+
+#Can't transform recent dead with bionomial distrubtion, sqrt, log or power transformation even after removing sites that have 0 rd in both sfm and diver
+s<-subset(site,GENUS_CODE=="SSSS")
+wilcox.test(ChronicDZ_prev ~ METHOD, data=s) 
+
+p1<-Plot1to1_new(s.wide,"SfM_ChronicDZ_prev","Diver_ChronicDZ_prev","SfM Chronic Disease Prevalence (%)","Diver Chronic Disease Prevalence (%)");p1<-p1+ggtitle("Chronic Disease")
+p2<-PlotMethod(site,"GENUS_CODE","ChronicDZ_prev","SSSS","Chronic Disease Prevalence (%)",1.5,9.5,"NS")
+
+ChronicdzS<-grid.arrange(p1,p2,nrow=2,ncol=1)
+
+ggsave(plot<-ChronicdzS,file="T:/Benthic/Data/SfM/Method Comparision/Figures/ChronicDZSSSS_stats.png",width=5,height=5)
+
+#Identify % of sites that had 0 rd for one method but not the other
+a<-(s.wide[ which(s.wide$SfM_ChronicDZ_prev ==0 & s.wide$Diver_ChronicDZ_prev>0) , ])
+nrow(a)/104
+b<-(s.wide[ which(s.wide$SfM_ChronicDZ_prev >0 & s.wide$Diver_ChronicDZ_prev==0) , ])
+nrow(b)/104
+
 
 
 #Bleaching prevalence
@@ -1011,11 +1082,19 @@ m<-lmer(logBLE_prev~METHOD + (1|SEC_NAME),data=s)
 s<-subset(site,GENUS_CODE=="SSSS")
 wilcox.test(BLE_prev ~ METHOD, data=s) 
 
-p1<-Plot1to1_new(s.wide,"SfM_BLE_prev","Diver_BLE_prev","SfM Bleaching Prevalence (%)","Diver Bleaching Prevalence (%)")
-p2<-PlotMethod(site,"GENUS_CODE","BLE_prev","SSSS","Bleaching Prevalence (%)",1.5,60,"Significant")
-BLES<-grid.arrange(p1,p2,nrow=1,ncol=2)
+p1<-Plot1to1_new(s.wide,"SfM_BLE_prev","Diver_BLE_prev","SfM Bleaching Prevalence (%)","Diver Bleaching Prevalence (%)");p1<-p1+ggtitle("Bleaching")
+p2<-PlotMethod(site,"GENUS_CODE","BLE_prev","SSSS","Bleaching Prevalence (%)",1.5,65,"Significant")
+p2<-p2+geom_label(label="Significant", x=1.5,y=65,label.size = 0.35,color = "black", fill="#00BFC4")
+
+BLES<-grid.arrange(p1,p2,nrow=2,ncol=1)
 
 ggsave(plot<-BLES,file="T:/Benthic/Data/SfM/Method Comparision/Figures/BLEPrevSSSS_stats.png",width=5,height=5)
+
+allplots<-grid.arrange(acutedzS,ChronicdzS,BLES,nrow=1,ncol=3)
+ggsave(plot<-allplots,file="T:/Benthic/Data/SfM/Method Comparision/Figures/ConditionsALL_stats.png",width=10,height=8)
+
+
+
 
 #Identify % of sites that had 0 rd for one method but not the other
 a<-(s.wide[ which(s.wide$SfM_BLE_prev ==0 & s.wide$Diver_BLE_prev>0) , ])
@@ -1024,7 +1103,7 @@ b<-(s.wide[ which(s.wide$SfM_BLE_prev >0 & s.wide$Diver_BLE_prev==0) , ])
 nrow(b)/104
 
 
-###
+###Adult density for dominant taxa
 s<-subset(site,GENUS_CODE=="POSP")
 s.wide<-subset(site.wide,GENUS_CODE=="POSP")
 
@@ -1078,18 +1157,6 @@ s$logAdColDen<-log(s$AdColDen+1)
 m<-lmer(logAdColDen~METHOD + (1|SEC_NAME),data=s)
 m<-lmer(dp~METHOD + (1|SEC_NAME),data=s)
 
-DPlots<-function(m,s){
-  par(mfrow=c(2,2)) # make the subplots
-  qqnorm(resid(m))
-  E2<-resid(m, type = "response") # extract normalized residuals
-  F2<-fitted(m) # extract the fitted data
-  plot(F2, E2, xlab = "fitted values", ylab = "residuals") # plot the relationship
-  abline(h = 0, lty = 2) # add a flat line at zerp
-  # test for homogeneity of variances
-  boxplot(E2~s$SEC_NAME, ylab = "residuals")
-  # check for independence. There should be no pattern
-  plot(E2~s$METHOD, ylab = 'residuals', xlab = "METHOD")
-}
 DPlots(m,s)
 shapiro.test(dp)
 
@@ -1097,7 +1164,7 @@ wilcox.test(AdColDen ~ METHOD, data=s)
 
 
 p1<-Plot1to1_new(s.wide,"SfM_AdColDen","Diver_AdColDen","SfM Adult Density","Diver Adult Density");p1<-p1+ggtitle("Montipora")+theme(plot.title = element_text(face = "italic"))
-p2<-PlotMethod(site,"GENUS_CODE","AdColDen","MOSP","Adult Density",1.5,22,"NS")
+p2<-PlotMethod(site,"GENUS_CODE","AdColDen","MOSP","Adult Density",1.5,17,"NS")
 MOSPcolden<-grid.arrange(p1,p2,nrow=2,ncol=1)
 
 ggsave(plot<-MOSPcolden,file="T:/Benthic/Data/SfM/Method Comparision/Figures/AdColDenMOSP_stats.png",width=5,height=5)
@@ -1142,7 +1209,7 @@ wilcox.test(AdColDen ~ METHOD, data=s)
 
 
 p1<-Plot1to1_new(s.wide,"SfM_AdColDen","Diver_AdColDen","SfM Adult Density","Diver Adult Density");p1<-p1+ggtitle("Pocillopora")+theme(plot.title = element_text(face = "italic"))
-p2<-PlotMethod(site,"GENUS_CODE","AdColDen","POCS","Adult Density",1.5,3.6,"NS")
+p2<-PlotMethod(site,"GENUS_CODE","AdColDen","POCS","Adult Density",1.5,10,"NS")
 POCScolden<-grid.arrange(p1,p2,nrow=2,ncol=1)
 
 ggsave(plot<-POCScolden,file="T:/Benthic/Data/SfM/Method Comparision/Figures/AdColDenPOCS_stats.png",width=5,height=5)
@@ -1151,6 +1218,112 @@ ggsave(plot<-POCScolden,file="T:/Benthic/Data/SfM/Method Comparision/Figures/AdC
 allplots<-grid.arrange(POSPcolden,MOSPcolden,POCScolden,nrow=1,ncol=3)
 ggsave(plot<-allplots,file="T:/Benthic/Data/SfM/Method Comparision/Figures/AdColDenDomtaxa_stats.png",width=10,height=8)
 
+
+
+###Juvenile density for dominant taxa
+s<-subset(site,GENUS_CODE=="POSP")
+s.wide<-subset(site.wide,GENUS_CODE=="POSP")
+
+hist(log(s$JuvColDen))
+s$logJuvColDen<-log(s$JuvColDen+1)
+m<-lmer(logJuvColDen~METHOD + (1|SEC_NAME),data=s)
+DPlots<-function(m,s){
+  par(mfrow=c(2,2)) # make the subplots
+  qqnorm(resid(m))
+  E2<-resid(m, type = "response") # extract normalized residuals
+  F2<-fitted(m) # extract the fitted data
+  plot(F2, E2, xlab = "fitted values", ylab = "residuals") # plot the relationship
+  abline(h = 0, lty = 2) # add a flat line at zerp
+  # test for homogeneity of variances
+  boxplot(E2~s$SEC_NAME, ylab = "residuals")
+  # check for independence. There should be no pattern
+  plot(E2~s$METHOD, ylab = 'residuals', xlab = "METHOD")
+}
+DPlots(m,s)
+
+mod1<-lmer(logJuvColDen~1 + (1|SEC_NAME),data=s)
+mod2<-lmer(logJuvColDen~METHOD + (1|SEC_NAME),data=s)
+
+anova(mod1,mod2,test="chisq")
+
+p1<-Plot1to1_new(s.wide,"SfM_JuvColDen","Diver_JuvColDen","SfM Juvenile Density","Diver Juvenile Density");p1<-p1+ggtitle("Porites")+theme(plot.title = element_text(face = "italic"))
+p2<-PlotMethod(site,"GENUS_CODE","JuvColDen","POSP","Juvenile Density",1.5,30,"Significant")
+p2<-p2+geom_label(label="Significant", x=1.5,y=30,label.size = 0.35,color = "black", fill="#00BFC4")
+
+POSPcolden<-grid.arrange(p1,p2,nrow=2,ncol=1)
+
+ggsave(plot<-POSPcolden,file="T:/Benthic/Data/SfM/Method Comparision/Figures/JuvColDenPOSP_stats.png",width=5,height=5)
+
+
+##
+s<-subset(site,GENUS_CODE=="MOSP")
+s.wide<-subset(site.wide,GENUS_CODE=="MOSP")
+tmp <- s.wide[ which(s.wide$SfM_JuvColDen + s.wide$Diver_JuvColDen>0) , ]
+sitelist<-unique(tmp$SITE)
+s<-dplyr::filter(s, SITE %in% sitelist);length(unique(s$SITE))
+
+library("TeachingDemos")
+library(MASS)
+colden<-s$JuvColDen + 1
+boxcox(colden~s$METHOD)
+boxcox(colden~s$METHOD, lambda=seq(-1,1))
+
+dp<-bct(colden,-0.6)
+
+
+hist(log(s$JuvColDen))
+s$logJuvColDen<-log(s$JuvColDen+1)
+m<-lmer(logJuvColDen~METHOD + (1|SEC_NAME),data=s)
+#m<-lmer(dp~METHOD + (1|SEC_NAME),data=s)
+
+DPlots(m,s)
+shapiro.test(dp)
+
+wilcox.test(JuvColDen ~ METHOD, data=s) 
+
+
+p1<-Plot1to1_new(s.wide,"SfM_JuvColDen","Diver_JuvColDen","SfM Juvenile Density","Diver Juvenile Density");p1<-p1+ggtitle("Montipora")+theme(plot.title = element_text(face = "italic"))
+p2<-PlotMethod(site,"GENUS_CODE","JuvColDen","MOSP","Juvenile Density",1.5,22,"NS")
+MOSPcolden<-grid.arrange(p1,p2,nrow=2,ncol=1)
+
+ggsave(plot<-MOSPcolden,file="T:/Benthic/Data/SfM/Method Comparision/Figures/JuvColDenMOSP_stats.png",width=5,height=5)
+
+
+##
+s<-subset(site,GENUS_CODE=="POCS")
+s.wide<-subset(site.wide,GENUS_CODE=="POCS")
+# tmp <- s.wide[ which(s.wide$SfM_JuvColDen + s.wide$Diver_JuvColDen>0) , ]
+# sitelist<-unique(tmp$SITE)
+# s<-dplyr::filter(s, SITE %in% sitelist);length(unique(s$SITE))
+
+library("TeachingDemos")
+library(MASS)
+colden<-s$JuvColDen + 1
+boxcox(colden~s$METHOD)
+boxcox(colden~s$METHOD, lambda=seq(-1,1))
+
+dp<-bct(colden,-0.6)
+
+
+hist(sqrt(s$JuvColDen))
+s$sqJuvColDen<-sqrt(s$JuvColDen)
+m<-lmer(sqJuvColDen~METHOD + (1|SEC_NAME),data=s)
+m<-lmer(dp~METHOD + (1|SEC_NAME),data=s)
+
+DPlots(m,s)
+
+wilcox.test(JuvColDen ~ METHOD, data=s) 
+
+
+p1<-Plot1to1_new(s.wide,"SfM_JuvColDen","Diver_JuvColDen","SfM Juvenile Density","Diver Juvenile Density");p1<-p1+ggtitle("Pocillopora")+theme(plot.title = element_text(face = "italic"))
+p2<-PlotMethod(site,"GENUS_CODE","JuvColDen","POCS","Juvenile Density",1.5,13,"NS")
+POCScolden<-grid.arrange(p1,p2,nrow=2,ncol=1)
+
+ggsave(plot<-POCScolden,file="T:/Benthic/Data/SfM/Method Comparision/Figures/JuvColDenPOCS_stats.png",width=5,height=5)
+
+
+allplots<-grid.arrange(POSPcolden,MOSPcolden,POCScolden,nrow=1,ncol=3)
+ggsave(plot<-allplots,file="T:/Benthic/Data/SfM/Method Comparision/Figures/JuvColDenDomtaxa_stats.png",width=10,height=8)
 
 
 
