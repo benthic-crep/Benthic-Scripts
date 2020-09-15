@@ -12,6 +12,7 @@ library(hydroGOF)
 library(tidyverse)
 library(ggpmisc)
 library(lme4)
+library(nlme)
 library(ggplot2)
 library(sjPlot)
 library(pander)
@@ -583,34 +584,28 @@ plot(E2~s$METHOD, ylab = 'residuals', xlab = "METHOD")
 
 DPlots(m,s)
 
-mod1<-lmer(sqAdColDen~1 + (1|SEC_NAME),data=s)
-mod2<-lmer(sqAdColDen~METHOD + (1|SEC_NAME),data=s)
-mod3<-lmer(sqAdColDen~MAX_DEPTH_M + (1|SEC_NAME),data=s)
-mod4<-lmer(sqAdColDen~HAB_R1 + (1|SEC_NAME),data=s)
-mod5<-lmer(sqAdColDen~METHOD*MAX_DEPTH_M + (1|SEC_NAME),data=s)
-mod6<-lmer(sqAdColDen~METHOD*HAB_R1 + (1|SEC_NAME),data=s)
-mod7<-lmer(sqAdColDen~HAB_R1*MAX_DEPTH_M + (1|SEC_NAME),data=s)
-mod8<-lmer(sqAdColDen~METHOD*MAX_DEPTH_M*HAB_R1+ (1|SEC_NAME),data=s)
-mod9<-lmer(sqAdColDen~METHOD*HAB_R1 + METHOD*MAX_DEPTH_M + (1|SEC_NAME),data=s)
-mod10<-lmer(sqAdColDen~METHOD*HAB_R1 + METHOD*MAX_DEPTH_M + METHOD*MAX_DEPTH_M*HAB_R1+ (1|SEC_NAME),data=s)
 
-#mod7<-lmer(sqAdColDen~METHOD*HAB_R1*MAX_DEPTH_M + (1|SEC_NAME),data=s)
-anova(mod10,mod8,test="Chisq")
-anova(mod9,mod8,test="Chisq")
-anova(mod7,mod6,test="Chisq")
-anova(mod7,mod5,test="Chisq")
+full.form <- formula(sqAdColDen ~ METHOD*MAX_DEPTH_M*HAB_R1, data=s)
 
-anova(mod6,mod5,test="Chisq")
-anova(mod6,mod4,test="Chisq")
-anova(mod4,mod3,test="Chisq")
-anova(mod4,mod2,test="Chisq")
-anova(mod2,mod1,test="Chisq")
+#fit lme using "ML"= maximum likelihood - so can use step fxn
+full.lme <-lme(full.form, data=s, random=~1|SEC_NAME, method="ML") #use if needed
+
+#drop 3-way interaction term
+FULL.MOD <- update(full.lme, .~. -METHOD:MAX_DEPTH_M:HAB_R1) 
+FULL.MOD <- update(FULL.MOD, .~. -MAX_DEPTH_M:HAB_R1) 
+anova(FULL.MOD) #from output, drop the 2-way interaction term with the larger p-value first
+
+RED.MOD1 <- update(FULL.MOD, .~. -METHOD:HAB_R1) #drop 2-way interaction term
+anova(FULL.MOD, RED.MOD1) #LRT --> move forward w/ whichever model keeps/removes term
+
+RED.MOD2 <- update(RED.MOD1, .~. -METHOD:MAX_DEPTH_M) #drop 2-way interaction term
+anova(RED.MOD1, RED.MOD2) #LRT --> move forward w/ whichever model keeps/removes term
+
+RED.MOD3 <- update(RED.MOD2, .~. -METHOD) #drop 2-way interaction term
+anova(RED.MOD2, RED.MOD3) #LRT --> move forward w/ whichever model keeps/removes term
 
 
-#Nope
-m<-glmmTMB(AdColCount~METHOD + (1|SEC_NAME),ziformula=~1,
-           family=poisson,data=s)
-DPlots(m,s)
+
 
 #Extract predicted values for Adult density
 #https://aosmith.rbind.io/2018/11/16/plot-fitted-lines/
@@ -734,6 +729,22 @@ AdColDenS<-grid.arrange(p1,p2,p3,p4,nrow=2,ncol=2)
 
 ggsave(plot<-AdColDenS,file="T:/Benthic/Data/SfM/Method Comparision/Figures/AdColDenSSSS_stats.png",width=8,height=6)
 
+# #Rather than setting up complicated contrasts to test for dif between methods within habitats
+# #Run separate models for each habitat then run multiple test corrections
+# a<-summary(glht(lmer(sqAdColDen~METHOD + (1|SEC_NAME),data=subset(s,HAB_R1=="Aggregate Reef")),linfct=mcp(METHOD="Tukey")))
+# b<-summary(glht(lmer(sqAdColDen~METHOD + (1|SEC_NAME),data=subset(s,HAB_R1=="Pavement")),linfct=mcp(METHOD="Tukey")))
+# c<-summary(glht(lmer(sqAdColDen~METHOD + (1|SEC_NAME),data=subset(s,HAB_R1=="Patch Reef")),linfct=mcp(METHOD="Tukey")))
+# d<-summary(glht(lmer(sqAdColDen~METHOD + (1|SEC_NAME),data=subset(s,HAB_R1=="Rock & Boulder")),linfct=mcp(METHOD="Tukey")))
+# e<-summary(glht(lmer(sqAdColDen~METHOD + (1|SEC_NAME),data=subset(s,HAB_R1=="Rubble")),linfct=mcp(METHOD="Tukey")))
+# 
+# #Extract values and adjust for multiple tests- 
+# pval<-c(a$test$pvalues,b$test$pvalues,c$test$pvalues,d$test$pvalues,e$test$pvalues)
+# p.adjust(pval,"BH")
+
+# 
+# lsmeans(mod6,~ MH) 
+# tmp <-emmeans(mod6, pairwise ~ METHOD | HAB_R1)
+
 #Juvenile Colony Density- sqrt transform
 #also tried gamma and neg binomial- sqrt transform is best
 s<-subset(site,GENUS_CODE=="SSSS")
@@ -743,22 +754,22 @@ m<-lmer(sqJuvColDen~METHOD + (1|SEC_NAME),data=s)
 
 DPlots(m,s)
 
-mod1<-lmer(sqJuvColDen~1 + (1|SEC_NAME),data=s)
-mod2<-lmer(sqJuvColDen~METHOD + (1|SEC_NAME),data=s)
-mod3<-lmer(sqJuvColDen~MAX_DEPTH_M + (1|SEC_NAME),data=s)
-mod4<-lmer(sqJuvColDen~HAB_R1 + (1|SEC_NAME),data=s)
-mod5<-lmer(sqJuvColDen~METHOD*MAX_DEPTH_M + (1|SEC_NAME),data=s)
-mod6<-lmer(sqJuvColDen~METHOD*HAB_R1 + (1|SEC_NAME),data=s)
-#mod7<-lmer(sqAdColDen~METHOD*HAB_R1*MAX_DEPTH_M + (1|SEC_NAME),data=s)
 
-anova(mod6,mod5,test="Chisq")
-anova(mod5,mod4,test="Chisq")
-anova(mod5,mod3,test="Chisq")
-anova(mod5,mod2,test="Chisq")
-anova(mod2,mod1,test="Chisq")
+full.form <- formula(sqJuvColDen ~ METHOD*MAX_DEPTH_M*HAB_R1, data=s)
 
+#fit lme using "ML"= maximum likelihood - so can use step fxn
+full.lme <-lme(full.form, data=s, random=~1|SEC_NAME, method="ML") #use if needed
 
-a<-r.squaredGLMM(mod5)
+#drop 3-way interaction term & depth x habitat (not interested in these hypotheses)
+FULL.MOD <- update(full.lme, .~. -METHOD:MAX_DEPTH_M:HAB_R1) 
+FULL.MOD <- update(FULL.MOD, .~. -MAX_DEPTH_M:HAB_R1) 
+anova(FULL.MOD) #from output, drop the 2-way interaction term with the larger p-value first
+
+RED.MOD1 <- update(FULL.MOD, .~. -METHOD:HAB_R1) #drop 2-way interaction term
+anova(FULL.MOD, RED.MOD1) #LRT --> move forward w/ whichever model keeps/removes term
+
+RED.MOD2 <- update(RED.MOD1, .~. -METHOD:MAX_DEPTH_M) #drop 2-way interaction term
+anova(RED.MOD1, RED.MOD2) #LRT --> move forward w/ whichever model keeps/removes term
 
 
 #Extract predicted values for Adult density
@@ -783,8 +794,7 @@ newdat.lme$upper<-newdat.lme$upper^2 #back transform predicted values
 p1<-Plot1to1_new(s.wide,"SfM_JuvColDen","Diver_JuvColDen","SfM Juvenile Density","Diver Juvenile Density")
 p2<-PlotMethod(site,"GENUS_CODE","JuvColDen","SSSS","Juvenile Density",1.5,60,"NS")
 p3<-PlotHabitat(site,"GENUS_CODE","JuvColDen","SSSS","Juvenile Density",3,60,"Method x Habitat NS")
-p4<-PlotDepth(site,"GENUS_CODE","JuvColDen","JuvColDen","SSSS","Juvenile Density",15,60,"Significant Method x Depth")
-p4<-p4+geom_label(label="Significant Method x Depth", x=15,y=60,label.size = 0.35,color = "black", fill="#00BFC4")
+p4<-PlotDepth(site,"GENUS_CODE","JuvColDen","JuvColDen","SSSS","Juvenile Density",15,60,"Method x Depth NS")
 
 JuvColDenS<-grid.arrange(p1,p2,p3,p4,nrow=2,ncol=2)
 
@@ -801,19 +811,24 @@ m<-lmer(logAve.size~METHOD + (1|SEC_NAME),data=s)
 
 DPlots(m,s)
 
-mod1<-lmer(logAve.size~1 + (1|SEC_NAME),data=s)
-mod2<-lmer(logAve.size~METHOD + (1|SEC_NAME),data=s)
-mod3<-lmer(logAve.size~MAX_DEPTH_M + (1|SEC_NAME),data=s)
-mod4<-lmer(logAve.size~HAB_R1 + (1|SEC_NAME),data=s)
-mod5<-lmer(logAve.size~METHOD*MAX_DEPTH_M + (1|SEC_NAME),data=s)
-mod6<-lmer(logAve.size~METHOD*HAB_R1 + (1|SEC_NAME),data=s)
-#mod7<-lmer(sqAdColDen~METHOD*HAB_R1*MAX_DEPTH_M + (1|SEC_NAME),data=s)
+full.form <- formula(logAve.size ~ METHOD*MAX_DEPTH_M*HAB_R1, data=s)
 
-anova(mod6,mod5,test="Chisq")
-anova(mod6,mod4,test="Chisq")
-anova(mod5,mod4,test="Chisq")
-anova(mod4,mod3,test="Chisq")
-anova(mod4,mod2,test="Chisq")
+#fit lme using "ML"= maximum likelihood - so can use step fxn
+full.lme <-lme(full.form, data=s, random=~1|SEC_NAME, method="ML",na.action = na.omit) #use if needed
+
+#drop 3-way interaction term & depth x habitat (not interested in these hypotheses)
+FULL.MOD <- update(full.lme, .~. -METHOD:MAX_DEPTH_M:HAB_R1) 
+FULL.MOD <- update(FULL.MOD, .~. -MAX_DEPTH_M:HAB_R1) 
+anova(FULL.MOD) #from output, drop the 2-way interaction term with the larger p-value first
+
+RED.MOD1 <- update(FULL.MOD, .~. -METHOD:HAB_R1) #drop 2-way interaction term
+anova(FULL.MOD, RED.MOD1) #LRT --> move forward w/ whichever model keeps/removes term
+
+RED.MOD2 <- update(RED.MOD1, .~. -METHOD:MAX_DEPTH_M) #drop 2-way interaction term
+anova(RED.MOD1, RED.MOD2) #LRT --> move forward w/ whichever model keeps/removes term
+
+RED.MOD3 <- update(RED.MOD2, .~. -METHOD) #drop 2-way interaction term
+anova(RED.MOD2, RED.MOD3) #LRT --> move forward w/ whichever model keeps/removes term
 
 
 
@@ -853,35 +868,26 @@ s$sqAve.od<-sqrt(s$Ave.od)
 mod<-lmer(sqAve.od~METHOD + (1|SEC_NAME),data=s)
 DPlots(m,s)
 
-mod1<-lmer(sqAve.od~1 + (1|SEC_NAME),data=s)
-mod2<-lmer(sqAve.od~METHOD + (1|SEC_NAME),data=s)
-mod3<-lmer(sqAve.od~MAX_DEPTH_M + (1|SEC_NAME),data=s)
-mod4<-lmer(sqAve.od~HAB_R1 + (1|SEC_NAME),data=s)
-mod5<-lmer(sqAve.od~METHOD*MAX_DEPTH_M + (1|SEC_NAME),data=s)
-mod6<-lmer(sqAve.od~METHOD*HAB_R1 + (1|SEC_NAME),data=s)
-#mod7<-lmer(sqAdColDen~METHOD*HAB_R1*MAX_DEPTH_M + (1|SEC_NAME),data=s)
+full.form <- formula(sqAve.od ~ METHOD*MAX_DEPTH_M*HAB_R1, data=s)
 
-anova(mod6,mod5,test="Chisq")
-anova(mod6,mod4,test="Chisq")
-anova(mod6,mod2,test="Chisq")
-anova(mod5,mod4,test="Chisq")
-anova(mod5,mod3,test="Chisq")
-anova(mod5,mod2,test="Chisq")
+#fit lme using "ML"= maximum likelihood - so can use step fxn
+full.lme <-lme(full.form, data=s, random=~1|SEC_NAME, method="ML",na.action = na.omit) #use if needed
 
-r.squaredGLMM(mod5)
+#drop 3-way interaction term & depth x habitat (not interested in these hypotheses)
+FULL.MOD <- update(full.lme, .~. -METHOD:MAX_DEPTH_M:HAB_R1) 
+FULL.MOD <- update(FULL.MOD, .~. -MAX_DEPTH_M:HAB_R1) 
+anova(FULL.MOD) #from output, drop the 2-way interaction term with the larger p-value first
+
+RED.MOD1 <- update(FULL.MOD, .~. -METHOD:MAX_DEPTH_M) #drop 2-way interaction term
+anova(FULL.MOD, RED.MOD1) #LRT --> move forward w/ whichever model keeps/removes term
+
+RED.MOD2 <- update(RED.MOD1, .~. -METHOD:HAB_R1) #drop 2-way interaction term
+anova(RED.MOD1, RED.MOD2) #LRT --> move forward w/ whichever model keeps/removes term
+
+RED.MOD3 <- update(RED.MOD2, .~. -METHOD) #drop 2-way interaction term
+anova(RED.MOD2, RED.MOD3) #LRT --> move forward w/ whichever model keeps/removes term
 
 
-#Rather than setting up complicated contrasts to test for dif between methods within habitats
-#Run separate models for each habitat then run multiple test corrections
-a<-summary(glht(lmer(sqAve.od~METHOD + (1|SEC_NAME),data=subset(s,HAB_R1=="Aggregate Reef")),linfct=mcp(METHOD="Tukey")))
-b<-summary(glht(lmer(sqAve.od~METHOD + (1|SEC_NAME),data=subset(s,HAB_R1=="Pavement")),linfct=mcp(METHOD="Tukey")))
-c<-summary(glht(lmer(sqAve.od~METHOD + (1|SEC_NAME),data=subset(s,HAB_R1=="Patch Reef")),linfct=mcp(METHOD="Tukey")))
-d<-summary(glht(lmer(sqAve.od~METHOD + (1|SEC_NAME),data=subset(s,HAB_R1=="Rock & Boulder")),linfct=mcp(METHOD="Tukey")))
-e<-summary(glht(lmer(sqAve.od~METHOD + (1|SEC_NAME),data=subset(s,HAB_R1=="Rubble")),linfct=mcp(METHOD="Tukey")))
-
-#Extract values and adjust for multiple tests- 
-pval<-c(a$test$pvalues,b$test$pvalues,c$test$pvalues,d$test$pvalues,e$test$pvalues)
-p.adjust(pval,"BH")
 
 #Extract predicted values for Adult density
 #https://aosmith.rbind.io/2018/11/16/plot-fitted-lines/
@@ -903,11 +909,12 @@ newdat.lme$lower<-newdat.lme$lower^2 #back transform predicted values
 newdat.lme$upper<-newdat.lme$upper^2 #back transform predicted values
 
 p1<-Plot1to1_new(s.wide,"SfM_Ave.od","Diver_Ave.od","SfM Average % Old Dead","Diver % Old Dead")
-p2<-PlotMethod(site,"GENUS_CODE","Ave.od","SSSS","Average % Old Dead",1.5,49,"NS")
+p2<-PlotMethod(site,"GENUS_CODE","Ave.od","SSSS","Average % Old Dead",1.5,49,"Method Significant")
+p2<-p2+geom_label(label="Method Significant", x=1.5,y=49,label.size = 0.35,color = "black", fill="#00BFC4")
 p3<-PlotHabitat(site,"GENUS_CODE","Ave.od","SSSS","Average % Old Dead",3,49,"Method x Habitat NS")
-p4<-PlotDepth(site,"GENUS_CODE","Ave.od","Ave.od","SSSS","Average % Old Dead",15,49,"Significant Method x Depth")
-p4<-p4+geom_label(label="Significant Method x Depth", x=15,y=49,label.size = 0.35,color = "black", fill="#00BFC4")
+p4<-PlotDepth(site,"GENUS_CODE","Ave.od","Ave.od","SSSS","Average % Old Dead",15,49,"Method x Depth NS")
 
+Ave.odS<-grid.arrange(p1,p2,p3,p4,nrow=4,ncol=1)
 Ave.odS<-grid.arrange(p1,p2,p3,p4,nrow=2,ncol=2)
 
 ggsave(plot<-Ave.odS,file="T:/Benthic/Data/SfM/Method Comparision/Figures/Ave.odSSSS_stats.png",width=8,height=6)
@@ -929,26 +936,53 @@ tmp <- s.wide[ which(s.wide$SfM_Ave.rd + s.wide$Diver_Ave.rd>0) , ]
 sitelist<-unique(tmp$SITE)
 s<-dplyr::filter(s, SITE %in% sitelist);length(unique(s$SITE))
 
-hist(log(s$Ave.rd+1))
-hist(sqrt(s$Ave.rd))
-m<-lmer(sqrt(s$Ave.rd)~METHOD + (1|SEC_NAME),data=s)
-
-par(mfrow=c(2,2)) # make the subplots
-  qqnorm(resid(m))
-  E2<-resid(m, type = "response") # extract normalized residuals
-  F2<-fitted(m) # extract the fitted data
-  plot(F2, E2, xlab = "fitted values", ylab = "residuals") # plot the relationship
-  abline(h = 0, lty = 2) # add a flat line at zerp
+s<-subset(site,GENUS_CODE=="SSSS");length(unique(s$SITE))
   
 #Can't transform recent dead with sqrt, log or power transformation even after removing sites that have 0 rd in both sfm and diver
 wilcox.test(Ave.rd ~ METHOD, data=s) 
+wilcox.test(Ave.rd ~ METHOD, data=subset(s,HAB_R1=="Aggregate Reef")) 
+wilcox.test(Ave.rd ~ METHOD, data=subset(s,HAB_R1=="Patch Reef")) 
+wilcox.test(Ave.rd ~ METHOD, data=subset(s,HAB_R1=="Pavement")) 
+wilcox.test(Ave.rd ~ METHOD, data=subset(s,HAB_R1=="Rock & Boulder")) 
+wilcox.test(Ave.rd ~ METHOD, data=subset(s,HAB_R1=="Rubble")) 
+
+t<-subset(s,METHOD=="Diver")
+corr <- cor.test(x=t$MAX_DEPTH_M, y=t$Ave.rd, method = 'spearman')
+corr
+
+PlotDepth_NP<-function(d,grouping_field,metric_field,genus_field,metric_name){
+  d$GROUP<-d[,grouping_field]
+  d$METRIC<-d[,metric_field]
+  s<-subset(d,GROUP==genus_field)
+  
+  p1<-ggplot(s, aes(x=MAX_DEPTH_M, y=METRIC,fill = METHOD,color=METHOD)) + 
+    geom_smooth(method="lm")+
+    geom_point(size=1) +
+    theme_bw()+
+    theme(axis.text.x = element_text(angle = 0)
+          ,plot.background = element_blank()
+          ,panel.grid.major = element_blank()
+          ,panel.grid.minor = element_blank()
+          ,axis.ticks.x = element_blank() # no x axis ticks
+          ,axis.title.x = element_text( vjust = -.0001) # adjust x axis to lower the same amount as the genus labels
+          ,legend.position="none")+
+    labs(x="Max Depth (m)",y=metric_name)     
+  return(p1)
+}
+
   
 p1<-Plot1to1_new(s.wide,"SfM_Ave.rd","Diver_Ave.rd","SfM Average % Recent Dead","Diver % Recent Dead")
 p2<-PlotMethod(site,"GENUS_CODE","Ave.rd","SSSS","Average % Recent Dead",1.5,3.5,"NS")
+p3<-PlotHabitat(site,"GENUS_CODE","Ave.rd","SSSS","Average % Recent Dead",3,34,"Method x Habitat NS")
+p4<-PlotDepth_NP(site,"GENUS_CODE","Ave.rd","SSSS","Average % Recent Dead")
 
-Ave.rdS<-grid.arrange(p1,p2,nrow=1,ncol=2)
+Ave.rdS<-grid.arrange(p1,p2,p3,p4,nrow=4,ncol=1)
 
 ggsave(plot<-Ave.rdS,file="T:/Benthic/Data/SfM/Method Comparision/Figures/Ave.rdSSSS_stats.png",width=8,height=6)
+
+allplots<-grid.arrange(Ave.odS,Ave.rdS,nrow=1,ncol=3)
+ggsave(plot<-allplots,file="T:/Benthic/Data/SfM/Method Comparision/Figures/PartialMortality_stats.png",width=8,height=10)
+
 
 #Identify % of sites that had 0 rd for one method but not the other
 a<-(s.wide[ which(s.wide$SfM_Ave.rd ==0 & s.wide$Diver_Ave.rd>0) , ])
@@ -969,32 +1003,43 @@ s$AcuteDZ<-(s$AcuteDZ_prev/100)*s$AdColCount
 s$test<-as.integer(as.character(s$AcuteDZ))
 head(s)
 
+#try removing sites that had 0 for both methods- transformation doesn't work
 tmp <- s.wide[ which(s.wide$SfM_AcuteDZ_prev + s.wide$Diver_AcuteDZ_prev>0) , ]
 sitelist<-unique(tmp$SITE)
 s<-dplyr::filter(s, SITE %in% sitelist);length(unique(s$SITE))
 
-m<-glmer(AcuteDZ/AdColCount~METHOD + (1|SEC_NAME),family = "binomial",data=s,na.action = na.omit)
-par(mfrow=c(2,2)) # make the subplots
-qqnorm(resid(m))
-E2<-resid(m, type = "response") # extract normalized residuals
-F2<-fitted(m) # extract the fitted data
-plot(F2, E2, xlab = "fitted values", ylab = "residuals") # plot the relationship
-abline(h = 0, lty = 2) # add a flat line at zerp
-
-hist(sqrt(s$AcuteDZ_prev))
-s$sqAcuteDZ_prev<-sqrt(s$AcuteDZ_prev)
-m<-lmer(sqAcuteDZ_prev~METHOD + (1|SEC_NAME),data=s)
+#try removing sites where you had 0 for either method - only 30 sites remain can't run analyses
+tmp <- s.wide[ which(s.wide$SfM_AcuteDZ_prev>0 & s.wide$Diver_AcuteDZ_prev>0) , ]
 
 #Can't transform recent dead with bionomial distrubtion, sqrt, log or power transformation even after removing sites that have 0 rd in both sfm and diver
 s<-subset(site,GENUS_CODE=="SSSS")
 wilcox.test(AcuteDZ_prev ~ METHOD, data=s) 
+wilcox.test(AcuteDZ_prev ~ METHOD, data=subset(s,HAB_R1=="Aggregate Reef")) 
+wilcox.test(AcuteDZ_prev ~ METHOD, data=subset(s,HAB_R1=="Patch Reef")) 
+wilcox.test(AcuteDZ_prev ~ METHOD, data=subset(s,HAB_R1=="Pavement")) 
+wilcox.test(AcuteDZ_prev ~ METHOD, data=subset(s,HAB_R1=="Rock & Boulder")) 
+wilcox.test(AcuteDZ_prev ~ METHOD, data=subset(s,HAB_R1=="Rubble")) 
 
-p1<-Plot1to1_new(s.wide,"SfM_AcuteDZ_prev","Diver_AcuteDZ_prev","SfM Acute Disease Prevalence (%)","Diver Acute Disease Prevalence (%)");p1<-p1+ggtitle("Acute Disease")
-p2<-PlotMethod(site,"GENUS_CODE","AcuteDZ_prev","SSSS","Acute Disease Prevalence (%)",1.5,14,"NS")
+pval<-c(0.155,
+        0.0681,
+        0.7014,
+        0.8823,
+        0.173)
+p.adjust(pval,"BH")
 
-acutedzS<-grid.arrange(p1,p2,nrow=2,ncol=1)
 
-ggsave(plot<-acutedzS,file="T:/Benthic/Data/SfM/Method Comparision/Figures/AcuteDZSSSS_stats.png",width=8,height=6)
+t<-subset(s,METHOD=="Diver")
+corr <- cor.test(x=t$MAX_DEPTH_M, y=t$AcuteDZ_prev, method = 'spearman')
+corr
+
+p1<-Plot1to1_new(s.wide,"SfM_AcuteDZ_prev","Diver_AcuteDZ_prev","SfM Prevalence (%)","Diver Prevalence (%)");p1<-p1+ggtitle("Acute Disease")
+p2<-PlotMethod(site,"GENUS_CODE","AcuteDZ_prev","SSSS","Prevalence (%)",1.5,14,"NS")
+p3<-PlotHabitat(site,"GENUS_CODE","AcuteDZ_prev","SSSS","Prevalence (%)",3,34,"Method x Habitat NS")
+p4<-PlotDepth_NP(site,"GENUS_CODE","AcuteDZ_prev","SSSS","Prevalence (%)")
+
+acutedzS<-grid.arrange(p1,p2,p3,p4,nrow=4,ncol=1)
+
+#ggsave(plot<-acutedzS,file="T:/Benthic/Data/SfM/Method Comparision/Figures/AcuteDZSSSS_stats.png",width=8,height=6)
 
 #Identify % of sites that had 0 rd for one method but not the other
 a<-(s.wide[ which(s.wide$SfM_AcuteDZ_prev ==0 & s.wide$Diver_AcuteDZ_prev>0) , ])
@@ -1018,35 +1063,41 @@ tmp <- s.wide[ which(s.wide$SfM_ChronicDZ_prev + s.wide$Diver_ChronicDZ_prev>0) 
 sitelist<-unique(tmp$SITE)
 s<-dplyr::filter(s, SITE %in% sitelist);length(unique(s$SITE))
 
-m<-glmer(ChronicDZ/AdColCount~METHOD + (1|SEC_NAME),family = "binomial",data=s,na.action = na.omit)
-par(mfrow=c(2,2)) # make the subplots
-qqnorm(resid(m))
-E2<-resid(m, type = "response") # extract normalized residuals
-F2<-fitted(m) # extract the fitted data
-plot(F2, E2, xlab = "fitted values", ylab = "residuals") # plot the relationship
-abline(h = 0, lty = 2) # add a flat line at zerp
-
-hist(sqrt(s$ChronicDZ_prev))
-s$sqChronicDZ_prev<-sqrt(s$ChronicDZ_prev)
-m<-lmer(sqChronicDZ_prev~METHOD + (1|SEC_NAME),data=s)
-
 #Can't transform recent dead with bionomial distrubtion, sqrt, log or power transformation even after removing sites that have 0 rd in both sfm and diver
 s<-subset(site,GENUS_CODE=="SSSS")
 wilcox.test(ChronicDZ_prev ~ METHOD, data=s) 
+wilcox.test(ChronicDZ_prev ~ METHOD, data=subset(s,HAB_R1=="Aggregate Reef")) 
+wilcox.test(ChronicDZ_prev ~ METHOD, data=subset(s,HAB_R1=="Patch Reef")) 
+wilcox.test(ChronicDZ_prev ~ METHOD, data=subset(s,HAB_R1=="Pavement")) 
+wilcox.test(ChronicDZ_prev ~ METHOD, data=subset(s,HAB_R1=="Rock & Boulder")) 
+wilcox.test(ChronicDZ_prev ~ METHOD, data=subset(s,HAB_R1=="Rubble")) 
 
-p1<-Plot1to1_new(s.wide,"SfM_ChronicDZ_prev","Diver_ChronicDZ_prev","SfM Chronic Disease Prevalence (%)","Diver Chronic Disease Prevalence (%)");p1<-p1+ggtitle("Chronic Disease")
-p2<-PlotMethod(site,"GENUS_CODE","ChronicDZ_prev","SSSS","Chronic Disease Prevalence (%)",1.5,9.5,"NS")
+pval<-c(0.292,
+        0.462,
+        0.5963,
+        0.2551,
+        0.7221)
+p.adjust(pval,"BH")
 
-ChronicdzS<-grid.arrange(p1,p2,nrow=2,ncol=1)
+t<-subset(s,METHOD=="SfM")
+corr <- cor.test(x=t$MAX_DEPTH_M, y=t$ChronicDZ_prev, method = 'spearman')
+corr
 
-ggsave(plot<-ChronicdzS,file="T:/Benthic/Data/SfM/Method Comparision/Figures/ChronicDZSSSS_stats.png",width=5,height=5)
+
+p1<-Plot1to1_new(s.wide,"SfM_ChronicDZ_prev","Diver_ChronicDZ_prev","SfM Prevalence (%)","Diver Prevalence (%)");p1<-p1+ggtitle("Chronic Disease")
+p2<-PlotMethod(site,"GENUS_CODE","ChronicDZ_prev","SSSS","Prevalence (%)",1.5,9.5,"NS")
+p3<-PlotHabitat(site,"GENUS_CODE","ChronicDZ_prev","SSSS","Prevalence (%)",3,34,"Method x Habitat NS")
+p4<-PlotDepth_NP(site,"GENUS_CODE","ChronicDZ_prev","SSSS","Prevalence (%)")
+
+ChronicdzS<-grid.arrange(p1,p2,p3,p4,nrow=4,ncol=1)
+
+#ggsave(plot<-ChronicdzS,file="T:/Benthic/Data/SfM/Method Comparision/Figures/ChronicDZSSSS_stats.png",width=8,height=6)
 
 #Identify % of sites that had 0 rd for one method but not the other
 a<-(s.wide[ which(s.wide$SfM_ChronicDZ_prev ==0 & s.wide$Diver_ChronicDZ_prev>0) , ])
 nrow(a)/104
 b<-(s.wide[ which(s.wide$SfM_ChronicDZ_prev >0 & s.wide$Diver_ChronicDZ_prev==0) , ])
 nrow(b)/104
-
 
 
 #Bleaching prevalence
@@ -1065,33 +1116,40 @@ tmp <- s.wide[ which(s.wide$SfM_BLE_prev + s.wide$Diver_BLE_prev>0) , ]
 sitelist<-unique(tmp$SITE)
 s<-dplyr::filter(s, SITE %in% sitelist);length(unique(s$SITE))
 
-m<-glmer(BLE/AdColCount~METHOD + (1|SEC_NAME),family = "binomial",data=s,na.action = na.omit)
-par(mfrow=c(2,2)) # make the subplots
-qqnorm(resid(m))
-E2<-resid(m, type = "response") # extract normalized residuals
-F2<-fitted(m) # extract the fitted data
-plot(F2, E2, xlab = "fitted values", ylab = "residuals") # plot the relationship
-abline(h = 0, lty = 2) # add a flat line at zerp
-
-hist(log(s$BLE_prev+1))
-s$logBLE_prev<-log(s$BLE_prev+1)
-m<-lmer(logBLE_prev~METHOD + (1|SEC_NAME),data=s)
-
-
 #Can't transform recent dead with bionomial distrubtion, sqrt, log or power transformation even after removing sites that have 0 rd in both sfm and diver
 s<-subset(site,GENUS_CODE=="SSSS")
 wilcox.test(BLE_prev ~ METHOD, data=s) 
+wilcox.test(BLE_prev ~ METHOD, data=subset(s,HAB_R1=="Aggregate Reef")) 
+wilcox.test(BLE_prev ~ METHOD, data=subset(s,HAB_R1=="Patch Reef")) 
+wilcox.test(BLE_prev ~ METHOD, data=subset(s,HAB_R1=="Pavement")) 
+wilcox.test(BLE_prev ~ METHOD, data=subset(s,HAB_R1=="Rock & Boulder")) 
+wilcox.test(BLE_prev ~ METHOD, data=subset(s,HAB_R1=="Rubble")) 
 
-p1<-Plot1to1_new(s.wide,"SfM_BLE_prev","Diver_BLE_prev","SfM Bleaching Prevalence (%)","Diver Bleaching Prevalence (%)");p1<-p1+ggtitle("Bleaching")
-p2<-PlotMethod(site,"GENUS_CODE","BLE_prev","SSSS","Bleaching Prevalence (%)",1.5,65,"Significant")
+
+pval<-c(0.002771,
+        0.6781,
+        0.1804,
+        0.06162,
+        0.413)
+p.adjust(pval,"BH")
+
+t<-subset(s,METHOD=="Diver")
+corr <- cor.test(x=t$MAX_DEPTH_M, y=t$BLE_prev, method = 'spearman')
+corr
+
+p1<-Plot1to1_new(s.wide,"SfM_BLE_prev","Diver_BLE_prev","SfM Prevalence (%)","Diver Prevalence (%)");p1<-p1+ggtitle("Bleaching")
+p2<-PlotMethod(site,"GENUS_CODE","BLE_prev","SSSS"," Prevalence (%)",1.5,65,"Significant")
 p2<-p2+geom_label(label="Significant", x=1.5,y=65,label.size = 0.35,color = "black", fill="#00BFC4")
+p3<-PlotHabitat(site,"GENUS_CODE","BLE_prev","SSSS","Prevalence (%)",1,60,"*")
+p3<-p3+geom_label(label="*", x=1,y=60,label.size = 0.35,color = "black", fill="#00BFC4")
+p4<-PlotDepth_NP(site,"GENUS_CODE","BLE_prev","SSSS","Prevalence (%)")
 
-BLES<-grid.arrange(p1,p2,nrow=2,ncol=1)
+BLES<-grid.arrange(p1,p2,p3,p4,nrow=4,ncol=1)
 
-ggsave(plot<-BLES,file="T:/Benthic/Data/SfM/Method Comparision/Figures/BLEPrevSSSS_stats.png",width=5,height=5)
+#ggsave(plot<-BLES,file="T:/Benthic/Data/SfM/Method Comparision/Figures/BLEPrevSSSS_stats.png",width=8,height=6)
 
 allplots<-grid.arrange(acutedzS,ChronicdzS,BLES,nrow=1,ncol=3)
-ggsave(plot<-allplots,file="T:/Benthic/Data/SfM/Method Comparision/Figures/ConditionsALL_stats.png",width=10,height=8)
+ggsave(plot<-allplots,file="T:/Benthic/Data/SfM/Method Comparision/Figures/ConditionsALL_stats.png",width=8,height=10)
 
 
 
