@@ -14,6 +14,7 @@ setwd("C:/Users/Courtney.S.Couch/Documents/Courtney's Files/R Files/ESD/Juvenile
 jwd<-read.csv("C:/Users/Courtney.S.Couch/Documents/Courtney's Files/R Files/ESD/Data/REA Coral Demography & Cover/Analysis Ready Raw data/CoralBelt_F_raw_CLEANED.csv")
 
 
+
 ## LOAD data
 # site.data.gen2<-read.csv("T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Site/BenthicREA_sitedata_GENUS.csv")
 
@@ -34,6 +35,8 @@ survey_site<-unique(jwd[,SURVEY_SITE])#new_Aggregate_InputTable(awd, SURVEY_INFO
 #TEMPORARY WORK AROUND-ASK MICHAEL TO FIX
 survey_site$REEF_ZONE<-ifelse(survey_site$SITE=="HAW-04285","Forereef",as.character(survey_site$REEF_ZONE))
 
+#Remove 2 sites that weren't surveyed for juveniles
+jwd<-jwd[!(jwd$SITE %in% c("OFU-01012","PAG-00596")),]
 
 #Look at the size class data to determine the min colony size cut off for analysis
 #Subset 2019 Hawaii data

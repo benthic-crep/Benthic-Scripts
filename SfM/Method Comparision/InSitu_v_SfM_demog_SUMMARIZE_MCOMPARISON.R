@@ -231,9 +231,6 @@ condden.gen<-Calc_CONDden_Transect(data=awd.all,grouping_field ="GENUS_CODE")# D
 ble.gen<-subset(condden.gen,select = c(METHOD,SITEVISITID,SITE,TRANSECT,GENUS_CODE,BLE));colnames(ble.gen)[colnames(ble.gen)=="BLE"]<-"BLE" #subset just bleached colonies
 chronicdz.gen<-subset(condden.gen,select = c(METHOD,SITEVISITID,SITE,TRANSECT,GENUS_CODE,CHRO));colnames(chronicdz.gen)[colnames(chronicdz.gen)=="CHRO"]<-"ChronicDZ"
 
-#Calc_Richness_Transect
-#rich.gen<-Calc_Richness_Transect(awd.all,"GENUS_CODE")
-
 
 #Join density and partial moratlity data together.You will need to replace the DUMMY field with the one you want
 data.gen <- join_all(list(acd.gen,jcd.gen,cl.gen,od.gen,rd.gen,acutedz.gen,chronicdz.gen,ble.gen), 
@@ -261,8 +258,49 @@ data.gen$Juvpres.abs<-ifelse(data.gen$JuvColDen>0,1,0)
 if(length(unique(data.gen$TRANSECT))>1) {cat("WARNING:MORE THAN 1 TRANSECT/SITE IN DF")} #Check that adult data weren't dropped  
 site.data.gen2<-dplyr::select(data.gen,-(TRANSECT))
 
-#Merge site data with metadata
 
+#Calc_Diversity_Transect - for taxoncode includes both genus and species
+acd.div<-Calc_Diversity_Transect(awd.all,"TAXONCODE");colnames(acd.div)[4:7] <- paste("Adult", colnames(acd.div[,c(4:7)]), sep = "_")
+jcd.div<-Calc_Diversity_Transect(jwd.all,"TAXONCODE");colnames(jcd.div)[4:7] <- paste("Juv", colnames(jcd.div[,c(4:7)]), sep = "_")
+all.div<-left_join(acd.div,jcd.div);View(all.div) #Combine adult and juvenile diversity dfs
+
+#Calc_Diversity_Transect- at just species level
+taxa<-read.csv("T:/Benthic/Data/Lookup Tables/2013-20_Taxa_MASTER.csv")
+taxa$TAXONCODE<-taxa$SPCODE
+h19tax<-subset(taxa,OBS_YEAR=="2019")
+
+#Merge data with taxa list to identify taxon group
+awd.all$OBS_YEAR<-as.factor(awd.all$OBS_YEAR)
+tmpA<-merge(awd.all,h19tax, by= c("REGION","OBS_YEAR","TAXONCODE"))
+
+jwd.all$OBS_YEAR<-as.factor(jwd.all$OBS_YEAR)
+tmpJ<-merge(jwd.all,h19tax, by= c("REGION","OBS_YEAR","TAXONCODE"))
+
+acd.divS<-Calc_Diversity_Transect(subset(tmpA,TAXAGROUP=="SPECIES"),"TAXONCODE");colnames(acd.divS)[4:7] <- paste("Adult", colnames(acd.divS[,c(4:7)]), sep = "_")
+jcd.divS<-Calc_Diversity_Transect(subset(tmpJ,TAXAGROUP=="SPECIES"),"TAXONCODE");colnames(jcd.divS)[4:7] <- paste("Juv", colnames(jcd.divS[,c(4:7)]), sep = "_")
+all.divS<-left_join(acd.divS,jcd.divS);View(all.divS) #Combine adult and juvenile diversity dfs
+
+
+# Calculate the Ratio of genus to species for adults and juvs at the site level
+spgen<-ddply(tmpA,.(METHOD,SITEVISITID,SITE,TAXAGROUP),summarize,
+             n=length(TAXAGROUP))
+
+spgenW_Adult<-dcast(spgen, formula=METHOD+ SITE + SITEVISITID ~ TAXAGROUP, value.var="n",fill=0)
+spgenW_Adult$GENSPratio_Adult<-spgenW_Adult$GENUS/spgenW_Adult$SPECIES
+spgenW_Adult$logGENSPratio_Adult<-log(spgenW_Adult$GENSPratio_Adult)
+spgenW_Adult<-subset(spgenW_Adult, select= -c(GENUS,SPECIES))
+
+#Juvs
+spgen<-ddply(tmpJ,.(METHOD,SITEVISITID,SITE,TAXAGROUP),summarize,
+             n=length(TAXAGROUP))
+
+spgenW_Juv<-dcast(spgen, formula=METHOD+ SITE + SITEVISITID ~ TAXAGROUP, value.var="n",fill=0)
+spgenW_Juv$GENSPratio_Juv<-spgenW_Juv$GENUS/spgenW_Juv$SPECIES
+spgenW_Juv$logGENSPratio_Juv<-log(spgenW_Juv$GENSPratio_Juv)
+spgenW_Juv<-subset(spgenW_Juv, select= -c(GENUS,SPECIES))
+
+
+#Merge site data with metadata
 # Merge Site level data with sectors file and export site data ------------
 sectors<-read.csv("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/data/Sectors-Strata-Areas.csv", stringsAsFactors=FALSE)
 
@@ -275,99 +313,126 @@ nrow(meta)
 
 #Merge site level data and meta data
 site.data.gen2<-left_join(site.data.gen2,meta);head(site.data.gen2)
+all.diversity<-left_join(all.div,meta);head(all.diversity)
+all.diversity<-left_join(all.diversity,spgenW_Adult)
+all.diversity<-left_join(all.diversity,spgenW_Juv)
+is.na(all.diversity) <- sapply(all.diversity, is.infinite) #Change infinite values to NAs
+
+all.diversityS<-left_join(all.divS,meta);head(all.diversityS)
+all.diversityS<-left_join(all.diversityS,spgenW_Adult)
+all.diversityS<-left_join(all.diversityS,spgenW_Juv)
+is.na(all.diversityS) <- sapply(all.diversityS, is.infinite) #Change infinite values to NAs
 
 
-# #Set ANALYSIS_SCHEMA to STRATA and DOMAIN_SCHEMA to whatever the highest level you want estimates for (e.g. sector, island, region)
-# site.data.gen2$DB_RZ<-paste(site.data.gen2$DEPTH_BIN,site.data.gen2$REEF_ZONE,sep="_")
-# site.data.gen2$STRATANAME<-paste(site.data.gen2$SEC_NAME,site.data.gen2$DB_RZ,sep="_")
-# site.data.gen2$ANALYSIS_SCHEMA<-site.data.gen2$STRATANAME
-# site.data.gen2$DOMAIN_SCHEMA<-site.data.gen2$SEC_NAME
-# site.data.gen2$ANALYSIS_YEAR<-site.data.gen2$OBS_YEAR
-# 
-# 
-# # Calculate STATA-level Estimates for SFM --------------------------------
-# 
-# #Create a vector of columns to subset for strata estimates
-# # c.keep<-c("REGION","DOMAIN_SCHEMA","ANALYSIS_YEAR","ANALYSIS_SCHEMA","REEF_ZONE","DB_RZ","GENUS_CODE",
-# #           "n_h","N_h","D._h","SE_D._h","avp","SEprop","Y._h","SE_Y._h","CV_Y._h")
-# c.keep2<-c("REGION","DOMAIN_SCHEMA","ANALYSIS_YEAR","ANALYSIS_SCHEMA","REEF_ZONE","DB_RZ","GENUS_CODE",
-#            "n_h","N_h","D._h","SE_D._h")
-# # c.keep3<-c("REGION","DOMAIN_SCHEMA","ANALYSIS_YEAR","ANALYSIS_SCHEMA","REEF_ZONE","DB_RZ","GENUS_CODE",
-# #            "n_h","N_h","D._h","SE_D._h","avp","SEprop","Y._h","SE_Y._h","CV_Y._h")
-# c.keep4<-c("REGION","DOMAIN_SCHEMA","ANALYSIS_YEAR","ANALYSIS_SCHEMA","REEF_ZONE","DB_RZ","GENUS_CODE",
-#            "n_h","N_h","prev","SEprev")
-# 
+#Set ANALYSIS_SCHEMA to STRATA and DOMAIN_SCHEMA to whatever the highest level you want estimates for (e.g. sector, island, region)
+site.data.gen2$DB_RZ<-paste(site.data.gen2$DEPTH_BIN,site.data.gen2$REEF_ZONE,sep="_")
+site.data.gen2$STRATANAME<-paste(site.data.gen2$SEC_NAME,site.data.gen2$DB_RZ,sep="_")
+site.data.gen2$ANALYSIS_SCHEMA<-site.data.gen2$STRATANAME
+site.data.gen2$DOMAIN_SCHEMA<-site.data.gen2$SEC_NAME
+site.data.gen2$ANALYSIS_YEAR<-site.data.gen2$OBS_YEAR
+
+
+# Calculate STATA-level Estimates for SFM --------------------------------
+
+#Create a vector of columns to subset for strata estimates
+# c.keep<-c("METHOD","REGION","DOMAIN_SCHEMA","ANALYSIS_YEAR","ANALYSIS_SCHEMA","REEF_ZONE","DB_RZ","GENUS_CODE",
+#           "n_h","N_h","D._h","SE_D._h","avp","SEprop","Y._h","SE_Y._h","CV_Y._h")
+c.keep2<-c("METHOD","REGION","DOMAIN_SCHEMA","ANALYSIS_YEAR","ANALYSIS_SCHEMA","REEF_ZONE","DB_RZ","GENUS_CODE",
+           "n_h","N_h","D._h","SE_D._h")
+# c.keep3<-c("METHOD","REGION","DOMAIN_SCHEMA","ANALYSIS_YEAR","ANALYSIS_SCHEMA","REEF_ZONE","DB_RZ","GENUS_CODE",
+#            "n_h","N_h","D._h","SE_D._h","avp","SEprop","Y._h","SE_Y._h","CV_Y._h")
+c.keep4<-c("METHOD","REGION","DOMAIN_SCHEMA","ANALYSIS_YEAR","ANALYSIS_SCHEMA","REEF_ZONE","DB_RZ","GENUS_CODE",
+           "n_h","N_h","prev","SEprev")
+
 # 
 # acdG_st<-Calc_Strata(site.data.gen2,"GENUS_CODE","AdColDen","Adpres.abs");acdG_st=acdG_st[,c.keep2]
-# colnames(acdG_st)<-c("REGION","Sector","ANALYSIS_YEAR","Stratum","REEF_ZONE","DB_RZ","GENUS_CODE","n","Ntot","AdColDen","SE_AdColDen")
+# colnames(acdG_st)<-c("METHOD","REGION","Sector","ANALYSIS_YEAR","Stratum","REEF_ZONE","DB_RZ","GENUS_CODE","n","Ntot","AdColDen","SE_AdColDen")
 # 
 # jcdG_st<-Calc_Strata(site.data.gen2,"GENUS_CODE","JuvColDen","Juvpres.abs");jcdG_st=jcdG_st[,c.keep2]
-# colnames(jcdG_st)<-c("REGION","Sector","ANALYSIS_YEAR","Stratum","REEF_ZONE","DB_RZ","GENUS_CODE","n","Ntot","JuvColDen","SE_JuvColDen")
+# colnames(jcdG_st)<-c("METHOD","REGION","Sector","ANALYSIS_YEAR","Stratum","REEF_ZONE","DB_RZ","GENUS_CODE","n","Ntot","JuvColDen","SE_JuvColDen")
 # 
 # odG_st<-Calc_Strata(site.data.gen2,"GENUS_CODE","Ave.od");odG_st=odG_st[,c.keep2]
-# colnames(odG_st)<-c("REGION","Sector","ANALYSIS_YEAR","Stratum","REEF_ZONE","DB_RZ","GENUS_CODE","n","Ntot","Ave.od","SE_Ave.od")
+# colnames(odG_st)<-c("METHOD","REGION","Sector","ANALYSIS_YEAR","Stratum","REEF_ZONE","DB_RZ","GENUS_CODE","n","Ntot","Ave.od","SE_Ave.od")
 # 
-# rdG_st<-Calc_Strata(site.data.gen2,"GENUS_CODE","Ave.rd");rdG_st=rdG_st[,c.keep2]
-# colnames(rdG_st)<-c("REGION","Sector","ANALYSIS_YEAR","Stratum","REEF_ZONE","DB_RZ","GENUS_CODE","n","Ntot","Ave.rd","SE_Ave.rd")
+rdG_st<-Calc_Strata(site.data.gen2,"GENUS_CODE","Ave.rd");rdG_st=rdG_st[,c.keep2]
+colnames(rdG_st)<-c("METHOD","REGION","Sector","ANALYSIS_YEAR","Stratum","REEF_ZONE","DB_RZ","GENUS_CODE","n","Ntot","Ave.rd","SE_Ave.rd")
 # 
 # clG_st<-Calc_Strata(site.data.gen2,"GENUS_CODE","Ave.size");clG_st=clG_st[,c.keep2]
-# colnames(clG_st)<-c("REGION","Sector","ANALYSIS_YEAR","Stratum","REEF_ZONE","DB_RZ","GENUS_CODE","n","Ntot","Ave.size","SE_Ave.size")
+# colnames(clG_st)<-c("METHOD","REGION","Sector","ANALYSIS_YEAR","Stratum","REEF_ZONE","DB_RZ","GENUS_CODE","n","Ntot","Ave.size","SE_Ave.size")
 # 
-# BLEG_st<-Calc_Strata_Prevalence(site.data.gen2,"GENUS_CODE","BLE");BLEG_st=BLEG_st[,c.keep4]
-# colnames(BLEG_st)<-c("REGION","Sector","ANALYSIS_YEAR","Stratum","REEF_ZONE","DB_RZ","GENUS_CODE","n","Ntot","BLE","SE_BLE")
+BLEG_st<-Calc_Strata_Prevalence(site.data.gen2,"GENUS_CODE","BLE");BLEG_st=BLEG_st[,c.keep4]
+colnames(BLEG_st)<-c("METHOD","REGION","Sector","ANALYSIS_YEAR","Stratum","REEF_ZONE","DB_RZ","GENUS_CODE","n","Ntot","BLE","SE_BLE")
+
+AcuteDZG_st<-Calc_Strata_Prevalence(site.data.gen2,"GENUS_CODE","AcuteDZ");AcuteDZG_st=AcuteDZG_st[,c.keep4]
+colnames(AcuteDZG_st)<-c("METHOD","REGION","Sector","ANALYSIS_YEAR","Stratum","REEF_ZONE","DB_RZ","GENUS_CODE","n","Ntot","AcuteDZ_Prev","SE_AcuteDZ_Prev")
+
+ChronicDZG_st<-Calc_Strata_Prevalence(site.data.gen2,"GENUS_CODE","ChronicDZ");ChronicDZG_st=ChronicDZG_st[,c.keep4]
+colnames(ChronicDZG_st)<-c("METHOD","REGION","Sector","ANALYSIS_YEAR","Stratum","REEF_ZONE","DB_RZ","GENUS_CODE","n","Ntot","ChronicDZ_Prev","SE_ChronicDZ_Prev")
 # 
-# AcuteDZG_st<-Calc_Strata_Prevalence(site.data.gen2,"GENUS_CODE","AcuteDZ");AcuteDZG_st=AcuteDZG_st[,c.keep4]
-# colnames(AcuteDZG_st)<-c("REGION","Sector","ANALYSIS_YEAR","Stratum","REEF_ZONE","DB_RZ","GENUS_CODE","n","Ntot","AcuteDZ_Prev","SE_AcuteDZ_Prev")
 # 
-# ChronicDZG_st<-Calc_Strata_Prevalence(site.data.gen2,"GENUS_CODE","ChronicDZ");ChronicDZG_st=ChronicDZG_st[,c.keep4]
-# colnames(ChronicDZG_st)<-c("REGION","Sector","ANALYSIS_YEAR","Stratum","REEF_ZONE","DB_RZ","GENUS_CODE","n","Ntot","ChronicDZ_Prev","SE_ChronicDZ_Prev")
-# 
-# 
-# #Double Check that revised pooling is adding up NH (total sites) correctly
-# View(acdG_st)
-# View(sectors)
+#Double Check that revised pooling is adding up NH (total sites) correctly
+View(acdG_st)
+View(sectors)
 # 
 # 
 # # Calculate SECTOR-level Estimates for SFM --------------------------------
 # acdG_sec<-Calc_Domain(site.data.gen2,"GENUS_CODE","AdColDen","Adpres.abs")
-# acdG_sec<-acdG_sec[,c("REGION","ISLAND","ANALYSIS_YEAR","DOMAIN_SCHEMA","GENUS_CODE","n","Ntot","Mean_AdColDen","SE_AdColDen")]
+# acdG_sec<-acdG_sec[,c("METHOD","REGION","ISLAND","ANALYSIS_YEAR","DOMAIN_SCHEMA","GENUS_CODE","n","Ntot","Mean_AdColDen","SE_AdColDen")]
 # jcdG_sec<-Calc_Domain(site.data.gen2,"GENUS_CODE","JuvColDen","Juvpres.abs")
-# jcdG_sec<-jcdG_sec[,c("REGION","ISLAND","ANALYSIS_YEAR","DOMAIN_SCHEMA","GENUS_CODE","n","Ntot","Mean_JuvColDen","SE_JuvColDen")]
+# jcdG_sec<-jcdG_sec[,c("METHOD","REGION","ISLAND","ANALYSIS_YEAR","DOMAIN_SCHEMA","GENUS_CODE","n","Ntot","Mean_JuvColDen","SE_JuvColDen")]
 # odG_sec<-Calc_Domain(site.data.gen2,"GENUS_CODE","Ave.od")
-# odG_sec<-odG_sec[,c("REGION","ISLAND","ANALYSIS_YEAR","DOMAIN_SCHEMA","GENUS_CODE","n","Ntot","Mean_Ave.od","SE_Ave.od")]
-# rdG_sec<-Calc_Domain(site.data.gen2,"GENUS_CODE","Ave.rd")
-# rdG_sec<-rdG_sec[,c("REGION","ISLAND","ANALYSIS_YEAR","DOMAIN_SCHEMA","GENUS_CODE","n","Ntot","Mean_Ave.rd","SE_Ave.rd")]
+# odG_sec<-odG_sec[,c("METHOD","REGION","ISLAND","ANALYSIS_YEAR","DOMAIN_SCHEMA","GENUS_CODE","n","Ntot","Mean_Ave.od","SE_Ave.od")]
+rdG_sec<-Calc_Domain(site.data.gen2,"GENUS_CODE","Ave.rd")
+rdG_sec<-rdG_sec[,c("METHOD","REGION","ISLAND","ANALYSIS_YEAR","DOMAIN_SCHEMA","GENUS_CODE","n","Ntot","Mean_Ave.rd","SE_Ave.rd")]
 # clG_sec<-Calc_Domain(site.data.gen2,"GENUS_CODE","Ave.size")
-# clG_sec<-clG_sec[,c("REGION","ISLAND","ANALYSIS_YEAR","DOMAIN_SCHEMA","GENUS_CODE","n","Ntot","Mean_Ave.size","SE_Ave.size")]
-# bleG_sec<-Calc_Domain_Prevalence(site.data.gen2,"GENUS_CODE","BLE")
-# bleG_sec<-bleG_sec[,c("REGION","ISLAND","ANALYSIS_YEAR","DOMAIN_SCHEMA","GENUS_CODE","n","Ntot","Mean_BLE_Prev","SE_BLE_Prev")]
-# AcuteDZG_sec<-Calc_Domain_Prevalence(site.data.gen2,"GENUS_CODE","AcuteDZ")
-# AcuteDZG_sec<-AcuteDZG_sec[,c("REGION","ISLAND","ANALYSIS_YEAR","DOMAIN_SCHEMA","GENUS_CODE","n","Ntot","Mean_AcuteDZ_Prev","SE_AcuteDZ_Prev")]
-# ChronicDZG_sec<-Calc_Domain_Prevalence(site.data.gen2,"GENUS_CODE","ChronicDZ")
-# ChronicDZG_sec<-ChronicDZG_sec[,c("REGION","ISLAND","ANALYSIS_YEAR","DOMAIN_SCHEMA","GENUS_CODE","n","Ntot","Mean_ChronicDZ_Prev","SE_ChronicDZ_Prev")]
+# clG_sec<-clG_sec[,c("METHOD","REGION","ISLAND","ANALYSIS_YEAR","DOMAIN_SCHEMA","GENUS_CODE","n","Ntot","Mean_Ave.size","SE_Ave.size")]
+bleG_sec<-Calc_Domain_Prevalence(site.data.gen2,"GENUS_CODE","BLE")
+bleG_sec<-bleG_sec[,c("METHOD","REGION","ISLAND","ANALYSIS_YEAR","DOMAIN_SCHEMA","GENUS_CODE","n","Ntot","Mean_BLE_Prev","SE_BLE_Prev")]
+AcuteDZG_sec<-Calc_Domain_Prevalence(site.data.gen2,"GENUS_CODE","AcuteDZ")
+AcuteDZG_sec<-AcuteDZG_sec[,c("METHOD","REGION","ISLAND","ANALYSIS_YEAR","DOMAIN_SCHEMA","GENUS_CODE","n","Ntot","Mean_AcuteDZ_Prev","SE_AcuteDZ_Prev")]
+ChronicDZG_sec<-Calc_Domain_Prevalence(site.data.gen2,"GENUS_CODE","ChronicDZ")
+ChronicDZG_sec<-ChronicDZG_sec[,c("METHOD","REGION","ISLAND","ANALYSIS_YEAR","DOMAIN_SCHEMA","GENUS_CODE","n","Ntot","Mean_ChronicDZ_Prev","SE_ChronicDZ_Prev")]
 # 
 # 
 # MyMerge <- function(x, y){
-#   df <- merge(x, y, by= c("REGION","Sector","ANALYSIS_YEAR","Stratum","REEF_ZONE","DB_RZ","GENUS_CODE","n","Ntot"), all.x= TRUE, all.y= TRUE)
+#   df <- merge(x, y, by= c("METHOD","REGION","Sector","ANALYSIS_YEAR","Stratum","REEF_ZONE","DB_RZ","GENUS_CODE","n","Ntot"), all.x= TRUE, all.y= TRUE)
 #   return(df)
 # }
-# sfm.strat<-Reduce(MyMerge, list(acdG_st,jcdG_st,odG_st,rdG_st,clG_st,BLEG_st,AcuteDZG_st,ChronicDZG_st))
+# strat<-Reduce(MyMerge, list(acdG_st,jcdG_st,odG_st,rdG_st,clG_st,BLEG_st,AcuteDZG_st,ChronicDZG_st))
 # 
 # 
 # MyMerge <- function(x, y){
-#   df <- merge(x, y, by= c("REGION","ANALYSIS_YEAR","ISLAND","DOMAIN_SCHEMA","GENUS_CODE","n","Ntot"), all.x= TRUE, all.y= TRUE)
+#   df <- merge(x, y, by= c("METHOD","REGION","ANALYSIS_YEAR","ISLAND","DOMAIN_SCHEMA","GENUS_CODE","n","Ntot"), all.x= TRUE, all.y= TRUE)
 #   return(df)
 # }
-# sfm.sector<-Reduce(MyMerge, list(acdG_sec,jcdG_sec,odG_sec,rdG_sec,clG_sec,bleG_sec,AcuteDZG_sec,ChronicDZG_sec))
+# sector<-Reduce(MyMerge, list(acdG_sec,jcdG_sec,odG_sec,rdG_sec,clG_sec,bleG_sec,AcuteDZG_sec,ChronicDZG_sec))
 # colnames(sfm.sector)[colnames(sfm.sector)=="DOMAIN_SCHEMA"]<-"Sector"
 # 
-# site.data.gen2$METHOD<-"SfM"
-# sfm.strat$METHOD<-"SfM"
-# sfm.sector$METHOD<-"SfM"
-# 
+
+#
+
+
+MyMerge <- function(x, y){
+  df <- merge(x, y, by= c("METHOD","REGION","Sector","ANALYSIS_YEAR","Stratum","REEF_ZONE","DB_RZ","GENUS_CODE","n","Ntot"), all.x= TRUE, all.y= TRUE)
+  return(df)
+}
+strat<-Reduce(MyMerge, list(rdG_st,BLEG_st,AcuteDZG_st,ChronicDZG_st))
+
+
+MyMerge <- function(x, y){
+  df <- merge(x, y, by= c("METHOD","REGION","ANALYSIS_YEAR","ISLAND","DOMAIN_SCHEMA","GENUS_CODE","n","Ntot"), all.x= TRUE, all.y= TRUE)
+  return(df)
+}
+sector<-Reduce(MyMerge, list(rdG_sec,bleG_sec,AcuteDZG_sec,ChronicDZG_sec))
+colnames(sector)[colnames(sfm.sector)=="DOMAIN_SCHEMA"]<-"Sector"
+
+
 
 # #Save file for method comparsion
 write.csv(site.data.gen2,file="C:/Users/Courtney.S.Couch/Documents/GitHub/Benthic-Scripts/SfM/Method Comparision/HARAMP19_GENUS_SITE.csv",row.names = F)
-# write.csv(sfm.strat,file="C:/Users/Courtney.S.Couch/Documents/GitHub/Benthic-Scripts/SfM/Method Comparision/HARAMP19_SfMGENUS_STRATA.csv",row.names = F)
-# write.csv(sfm.sector,file="C:/Users/Courtney.S.Couch/Documents/GitHub/Benthic-Scripts/SfM/Method Comparision/HARAMP19_SfMGENUS_SECTOR.csv",row.names = F)
+write.csv(all.diversity,file="C:/Users/Courtney.S.Couch/Documents/GitHub/Benthic-Scripts/SfM/Method Comparision/HARAMP19_DIVERSITY_SITE.csv",row.names = F)
+write.csv(all.diversityS,file="C:/Users/Courtney.S.Couch/Documents/GitHub/Benthic-Scripts/SfM/Method Comparision/HARAMP19_DIVERSITY_SPECIES_SITE.csv",row.names = F)
+
+write.csv(strat,file="C:/Users/Courtney.S.Couch/Documents/GitHub/Benthic-Scripts/SfM/Method Comparision/HARAMP19_SfMGENUS_STRATA.csv",row.names = F)
+write.csv(sector,file="C:/Users/Courtney.S.Couch/Documents/GitHub/Benthic-Scripts/SfM/Method Comparision/HARAMP19_SfMGENUS_SECTOR.csv",row.names = F)
 

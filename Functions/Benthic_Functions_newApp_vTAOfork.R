@@ -6,6 +6,7 @@ library(plyr)
 library(dplyr)
 library(gdata)
 library(tidyr)
+library(vegan)
 library(plotrix)
 library(scales)  # for pretty_breaks() function
 library(splitstackshape)
@@ -805,6 +806,27 @@ Calc_CONDden_Transect<-function(data,survey_colony_f=survey_colony, grouping_fie
 }
 
 
+#This function calculates a variety of hard coral diversity metrics at the transect scale 
+Calc_Diversity_Transect<-function(data,grouping_field="TAXONCODE"){
+  
+  data$GROUP<-data[,grouping_field] #assign a grouping field for taxa){
+  
+  # #Subset 1st 3 segments on transect 1. Remove transect 2 so that we can have a uniform plot size for calculating richness
+  # data<-subset(data,TRANSECT==1&SEGMENT!=7)``
+  
+  tmp<-dcast(data, formula=METHOD+SITEVISITID + SITE +TRANSECT~ TAXONCODE,length,fill=0)
+  div<-ddply(tmp,.(METHOD,SITEVISITID,SITE),function(x) {
+    data.frame(Shannon=diversity(x[-c(1:4)], index="shannon"),
+               Simpson=diversity(x[-c(1:4)], index="simpson"),
+               Hills=exp(diversity(x[-c(1:4)], index="shannon")),
+               Richness=sum(x[-c(1:4)]>0))
+  })
+  
+  return(div)
+}
+
+
+
 #Richness pooled at the strata level- no SE at strata 
 #total island counts of genera
 #strata richness then weight by island or region
@@ -945,9 +967,9 @@ Calc_Strata=function(site_data,grouping_field,metric_field,pres.abs_field="Adpre
   site_data$PRES.ABS<-site_data[,pres.abs_field]
   
   #For a Given ANALYSIS_SCHEMA, we need to pool N_h, and generate w_h
-  strat.temp<-ddply(subset(site_data,GROUP=="SSSS"),.(REGION,ISLAND,ANALYSIS_YEAR,DOMAIN_SCHEMA,ANALYSIS_SCHEMA,NH),summarize,temp=sum(NH,na.rm=TRUE)) #calculate # of possible sites in a given stratum
-  Strata_NH<-ddply(strat.temp,.(REGION,ISLAND,ANALYSIS_YEAR,DOMAIN_SCHEMA,ANALYSIS_SCHEMA),summarize,N_h.as=sum(NH,na.rm=TRUE)) #calculate # of possible sites in a given stratum
-  Dom_NH<-ddply(Strata_NH,.(REGION,ISLAND,ANALYSIS_YEAR,DOMAIN_SCHEMA),summarize,Dom_N_h=sum(N_h.as,na.rm=TRUE))#calculate # of possible sites in a given domain, use this to calculate weighting factor
+  strat.temp<-ddply(subset(site_data,GROUP=="SSSS"),.(METHOD,REGION,ISLAND,ANALYSIS_YEAR,DOMAIN_SCHEMA,ANALYSIS_SCHEMA,NH),summarize,temp=sum(NH,na.rm=TRUE)) #calculate # of possible sites in a given stratum
+  Strata_NH<-ddply(strat.temp,.(METHOD,REGION,ISLAND,ANALYSIS_YEAR,DOMAIN_SCHEMA,ANALYSIS_SCHEMA),summarize,N_h.as=sum(NH,na.rm=TRUE)) #calculate # of possible sites in a given stratum
+  Dom_NH<-ddply(Strata_NH,.(METHOD,REGION,ISLAND,ANALYSIS_YEAR,DOMAIN_SCHEMA),summarize,Dom_N_h=sum(N_h.as,na.rm=TRUE))#calculate # of possible sites in a given domain, use this to calculate weighting factor
   Strata_NH<-left_join(Strata_NH,Dom_NH) #add Dom_N_h into Strata_NH df
   Strata_NH$w_h.as<-Strata_NH$N_h.as/Strata_NH$Dom_N_h # add schema weighting factor to schema dataframe
   
@@ -955,7 +977,7 @@ Calc_Strata=function(site_data,grouping_field,metric_field,pres.abs_field="Adpre
   site_data<-left_join(site_data,Strata_NH)
   
   #Calculate summary metrics at the stratum level (rolled up from site level)
-  Strata_roll=ddply(site_data,.(REGION,ISLAND,ANALYSIS_YEAR,DOMAIN_SCHEMA,ANALYSIS_SCHEMA,REEF_ZONE,DB_RZ,GROUP,Dom_N_h),summarize,
+  Strata_roll=ddply(site_data,.(METHOD,REGION,ISLAND,ANALYSIS_YEAR,DOMAIN_SCHEMA,ANALYSIS_SCHEMA,REEF_ZONE,DB_RZ,GROUP,Dom_N_h),summarize,
                     n_h=length(SITE),# No. of Sites surveyed in a Strata
                     N_h=median(N_h.as,na.rm=T),# Strata Area (as N 50x50 grids) - median allows you to pick 1 value
                     w_h=median(w_h.as,na.rm=T),# weigting factor for a given stratum- median allows you to pick 1 value
@@ -975,7 +997,7 @@ Calc_Strata=function(site_data,grouping_field,metric_field,pres.abs_field="Adpre
                     SEprop=sqrt(var_prop))
   
   Strata_roll$M_hi=250 #define total possible transects in a site
-  Strata_roll=Strata_roll[,c("REGION","ISLAND","ANALYSIS_YEAR","DOMAIN_SCHEMA","ANALYSIS_SCHEMA","REEF_ZONE","DB_RZ","GROUP",
+  Strata_roll=Strata_roll[,c("METHOD","REGION","ISLAND","ANALYSIS_YEAR","DOMAIN_SCHEMA","ANALYSIS_SCHEMA","REEF_ZONE","DB_RZ","GROUP",
                              "M_hi","n_h","N_h","w_h",
                              "D._h","S1_h","varD._h","SE_D._h","CV_D._h",
                              "Y._h","varY._h","SE_Y._h","CV_Y._h","avp","var_prop","SEprop")]
@@ -1064,11 +1086,11 @@ Calc_Domain=function(site_data,grouping_field="S_ORDER",metric_field,pres.abs_fi
   #Build in flexibility to look at genus or taxon level
   Strata_data$GROUP<-Strata_data[,grouping_field]
 
-  DomainStr_NH=ddply(subset(Strata_data,GROUP=="SSSS"),.(REGION,ANALYSIS_YEAR,DOMAIN_SCHEMA),summarize,DomainSumN_h=sum(N_h,na.rm=TRUE)) #total possible sites in a domain
+  DomainStr_NH=ddply(subset(Strata_data,GROUP=="SSSS"),.(METHOD,REGION,ANALYSIS_YEAR,DOMAIN_SCHEMA),summarize,DomainSumN_h=sum(N_h,na.rm=TRUE)) #total possible sites in a domain
   Strata_data<-left_join(Strata_data, DomainStr_NH)# add previous to strata data
   Strata_data$w_h=Strata_data$N_h/Strata_data$DomainSumN_h
   
-  Domain_roll=ddply(Strata_data,.(REGION,ANALYSIS_YEAR,ISLAND,DOMAIN_SCHEMA,GROUP),summarize,
+  Domain_roll=ddply(Strata_data,.(METHOD,REGION,ANALYSIS_YEAR,ISLAND,DOMAIN_SCHEMA,GROUP),summarize,
                     D._st=sum(w_h*D._h,na.rm=TRUE), #Domain weighted estimate (sum of Weighted strata density)
                     varD._st=sum(w_h^2*varD._h,na.rm=TRUE), #Domain weighted variance estimate
                     Y._st=sum(Y._h,na.rm=TRUE), #Domain total abundance (sum of extrapolated strata abundance)
@@ -1217,9 +1239,9 @@ Calc_Strata_Prevalence=function(site_data,grouping_field,metric_field){
   site_data$METRIC<-as.numeric(site_data$METRIC)
   
   #For a Given ANALYSIS_SCHEMA, we need to pool N_h, and generate w_h
-  strat.temp<-ddply(subset(site_data,GROUP=="SSSS"),.(REGION,ISLAND,ANALYSIS_YEAR,DOMAIN_SCHEMA,ANALYSIS_SCHEMA,NH),summarize,temp=sum(NH,na.rm=TRUE)) #calculate # of possible sites in a given stratum
-  Strata_NH<-ddply(strat.temp,.(REGION,ISLAND,ANALYSIS_YEAR,DOMAIN_SCHEMA,ANALYSIS_SCHEMA),summarize,N_h.as=sum(NH,na.rm=TRUE)) #calculate # of possible sites in a given stratum
-  Dom_NH<-ddply(Strata_NH,.(REGION,ISLAND,ANALYSIS_YEAR,DOMAIN_SCHEMA),summarize,Dom_N_h=sum(N_h.as,na.rm=TRUE))#calculate # of possible sites in a given domain, use this to calculate weighting factor
+  strat.temp<-ddply(subset(site_data,GROUP=="SSSS"),.(METHOD,REGION,ISLAND,ANALYSIS_YEAR,DOMAIN_SCHEMA,ANALYSIS_SCHEMA,NH),summarize,temp=sum(NH,na.rm=TRUE)) #calculate # of possible sites in a given stratum
+  Strata_NH<-ddply(strat.temp,.(METHOD,REGION,ISLAND,ANALYSIS_YEAR,DOMAIN_SCHEMA,ANALYSIS_SCHEMA),summarize,N_h.as=sum(NH,na.rm=TRUE)) #calculate # of possible sites in a given stratum
+  Dom_NH<-ddply(Strata_NH,.(METHOD,REGION,ISLAND,ANALYSIS_YEAR,DOMAIN_SCHEMA),summarize,Dom_N_h=sum(N_h.as,na.rm=TRUE))#calculate # of possible sites in a given domain, use this to calculate weighting factor
   Strata_NH<-left_join(Strata_NH,Dom_NH) #add Dom_N_h into Strata_NH df
   Strata_NH$w_h.as<-Strata_NH$N_h.as/Strata_NH$Dom_N_h # add schema weighting factor to schema dataframe
   
@@ -1227,7 +1249,7 @@ Calc_Strata_Prevalence=function(site_data,grouping_field,metric_field){
   site_data<-left_join(site_data,Strata_NH)
 
   #Calculate summary metrics at the stratum level (rolled up from site level)
-  Strata_roll=ddply(site_data,.(REGION,ISLAND,ANALYSIS_YEAR,DOMAIN_SCHEMA,ANALYSIS_SCHEMA,REEF_ZONE,DB_RZ,GROUP),summarize,
+  Strata_roll=ddply(site_data,.(METHOD,REGION,ISLAND,ANALYSIS_YEAR,DOMAIN_SCHEMA,ANALYSIS_SCHEMA,REEF_ZONE,DB_RZ,GROUP),summarize,
                     n_h=length(SITE),# No. of Sites surveyed in a Strata
                     N_h=median(N_h.as,na.rm=T),# Strata Area (as N 50x50 grids) - median allows you to pick 1 value
                     w_h=median(w_h.as,na.rm=T),# weigting factor for a given stratum- median allows you to pick 1 value
@@ -1246,7 +1268,7 @@ Calc_Strata_Prevalence=function(site_data,grouping_field,metric_field){
                     CVprev=(SEprev/prev)*100) #CV of prevalence
   
   Strata_roll$M_hi=250 #define total possible transects in a site
-  Strata_roll=Strata_roll[,c("REGION","ISLAND","ANALYSIS_YEAR","DOMAIN_SCHEMA","ANALYSIS_SCHEMA","GROUP","REEF_ZONE","DB_RZ",
+  Strata_roll=Strata_roll[,c("METHOD","REGION","ISLAND","ANALYSIS_YEAR","DOMAIN_SCHEMA","ANALYSIS_SCHEMA","GROUP","REEF_ZONE","DB_RZ",
                              "M_hi","n_h","N_h","w_h","C_h","acd_h","varC_h","C_abun_h","varC_abun_h","acd_h","acd_abun_h",
                              "prev","SEprev")]
   
@@ -1270,11 +1292,11 @@ Calc_Domain_Prevalence=function(site_data,grouping_field="S_ORDER",metric_field)
   #Build in flexibility to look at genus or taxon level
   Strata_data$GROUP<-Strata_data[,grouping_field]
   
-  DomainStr_NH=ddply(subset(Strata_data,GROUP=="SSSS"),.(REGION,ANALYSIS_YEAR,DOMAIN_SCHEMA),summarize,DomainSumN_h=sum(N_h,na.rm=TRUE)) #total possible sites in a domain
+  DomainStr_NH=ddply(subset(Strata_data,GROUP=="SSSS"),.(METHOD,REGION,ANALYSIS_YEAR,DOMAIN_SCHEMA),summarize,DomainSumN_h=sum(N_h,na.rm=TRUE)) #total possible sites in a domain
   Strata_data<-left_join(Strata_data, DomainStr_NH)# add previous to strata data
   Strata_data$w_h=Strata_data$N_h/Strata_data$DomainSumN_h
   
-  Domain_roll=ddply(Strata_data,.(REGION,ISLAND,ANALYSIS_YEAR,DOMAIN_SCHEMA,GROUP),summarize,
+  Domain_roll=ddply(Strata_data,.(METHOD,REGION,ISLAND,ANALYSIS_YEAR,DOMAIN_SCHEMA,GROUP),summarize,
                     C_st=sum(w_h*C_h,na.rm=TRUE), #Domain weighted estimate (sum of Weighted strata density)
                     varC_st=sum(w_h^2*varC_h,na.rm=TRUE), #Domain weighted variance estimate
                     C_abun_st=sum(C_abun_h,na.rm=TRUE), #Domain total abundance of colonies with a given condition (sum of extrapolated strata abundance)
@@ -1291,7 +1313,7 @@ Calc_Domain_Prevalence=function(site_data,grouping_field="S_ORDER",metric_field)
                     SEprev=(SE_varC_abun_st/acd_abun_st)*100,#SE of condition at domain level 
                     CVprev=SEprev/prev) #CV of prevalence
   
-  Domain_roll=Domain_roll[,c("REGION","ISLAND","ANALYSIS_YEAR","DOMAIN_SCHEMA","GROUP",
+  Domain_roll=Domain_roll[,c("METHOD","REGION","ISLAND","ANALYSIS_YEAR","DOMAIN_SCHEMA","GROUP",
                              "n","Ntot","prev","SEprev")]
   
   colnames(Domain_roll)[which(colnames(Domain_roll) == 'GROUP')] <- grouping_field #change group to whatever your grouping field is.
