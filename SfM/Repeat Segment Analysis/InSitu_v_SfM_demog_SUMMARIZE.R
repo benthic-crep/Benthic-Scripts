@@ -4,15 +4,15 @@
 rm(list=ls())
 
 #LOAD LIBRARY FUNCTIONS ... 
-# source("C:/Users/Courtney.S.Couch/Documents/GitHub/Benthic-Scripts/Functions/Benthic_Functions_newApp_vTAOfork.R")
-# source("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/lib/core_functions.R")
-# source("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/lib/GIS_functions.R")
-source("C:/Users/Corinne.Amir/Documents/GitHub/Benthic-Scripts/Functions/Benthic_Functions_newApp_vTAOfork.R")
-source("C:/Users/Corinne.Amir/Documents/GitHub/fish-paste/lib/core_functions.R")
-source("C:/Users/Corinne.Amir/Documents/GitHub/fish-paste/lib/GIS_functions.R")
+source("C:/Users/Courtney.S.Couch/Documents/GitHub/Benthic-Scripts/Functions/Benthic_Functions_newApp_vTAOfork.R")
+source("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/lib/core_functions.R")
+source("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/lib/GIS_functions.R")
+# source("C:/Users/Corinne.Amir/Documents/GitHub/Benthic-Scripts/Functions/Benthic_Functions_newApp_vTAOfork.R")
+# source("C:/Users/Corinne.Amir/Documents/GitHub/fish-paste/lib/core_functions.R")
+# source("C:/Users/Corinne.Amir/Documents/GitHub/fish-paste/lib/GIS_functions.R")
 
 ## LOAD benthic data
-load("T:/Benthic/Data/REA Coral Demography & Cover/Raw from Oracle/ALL_REA_ADULTCORAL_RAW_2013-2019.rdata") #from oracle
+# load("T:/Benthic/Data/REA Coral Demography & Cover/Raw from Oracle/ALL_REA_ADULTCORAL_RAW_2013-2020.rdata") #from oracle
 
 #Read in files
 ad_diver<-read.csv("T:/Benthic/Data/SfM/Analysis Ready/HARAMP19_DIVERAdult_CLEANED.csv")
@@ -285,8 +285,8 @@ condden.gen<-Calc_CONDden_Seg_DIVER(data=awd,grouping_field ="GENUS_CODE")# Dens
 ble.gen<-subset(condden.gen,select = c(METHOD,SITEVISITID,SITE,TRANSECT,SEGMENT,GENUS_CODE,BLE));colnames(ble.gen)[colnames(ble.gen)=="BLE"]<-"BLE_den" #subset just bleached colonies
 chronicdz.gen<-subset(condden.gen,select = c(METHOD,SITEVISITID,SITE,TRANSECT,SEGMENT,GENUS_CODE,CHRO));colnames(chronicdz.gen)[colnames(chronicdz.gen)=="CHRO"]<-"CHRO_den" #subset just chronic diseased colonies
 
-#Calc_Richness_Transect
-#rich.gen<-Calc_Richness_Transect(awd,"GENUS_CODE")
+#Calc_Diversity_Seg_DIVER
+div.data<-Calc_Diversity_Seg_DIVER(awd,"TAXONCODE")
 
 
 #Join density and partial moratlity data together.You will need to replace the DUMMY field with the one you want
@@ -311,7 +311,8 @@ View(data.gen)
 #Concatenate method, Site,Transect and segment
 data.gen$MethodRep<-paste(data.gen$METHOD,data.gen$TRANSECT,sep="_")
 data.gen$SS<-paste(data.gen$SITE,data.gen$SEGMENT,sep="_")
-
+div.data$MethodRep<-paste(div.data$METHOD,div.data$TRANSECT,sep="_")
+div.data$SS<-paste(div.data$SITE,div.data$SEGMENT,sep="_")
 
 #Check that each site-segment remaining has 2 divers and 2 annotators
 t1<-ddply(data.gen,.(SITE,SEGMENT),summarize,n=length(unique(MethodRep)));nrow(t1[t1$n==4,]) 
@@ -322,14 +323,26 @@ t1<-t1%>%filter(t1$DIVER_1!=0);dim(t1)
 t1<-t1%>%filter(t1$SfM_1!=0);dim(t1) 
 t1<-t1%>%filter(t1$SfM_2!=0);dim(t1) 
 
+t1<-ddply(div.data,.(SITE,SEGMENT),summarize,n=length(unique(MethodRep)));nrow(t1[t1$n==4,]) 
+
+t1<-as.data.frame.matrix(table(div.data$SS,div.data$MethodRep));dim(t1)
+t1<-t1%>%filter(t1$DIVER_2!=0);dim(t1)
+t1<-t1%>%filter(t1$DIVER_1!=0);dim(t1)
+t1<-t1%>%filter(t1$SfM_1!=0);dim(t1) 
+t1<-t1%>%filter(t1$SfM_2!=0);dim(t1) 
+
 
 #Make final dataframe to save
 data.gen2<-left_join(data.gen,survey_segment)
 if(nrow(data.gen)!=nrow(data.gen2)) {cat("WARNING: Dfs didn't merge properly")}
 
+div.data2<-left_join(div.data,survey_segment)
+if(nrow(div.data)!=nrow(div.data2)) {cat("WARNING: Dfs didn't merge properly")}
+
 #Save file for larger comparative analysis
 write.csv(data.gen2,file="T:/Benthic/Data/SfM/Summarized Data/HARAMP_repeats_GENUS_Summarized Data.csv",row.names = F)
 write.csv(data.gen2,file="T:/Benthic/Data/SfM/Summarized Data/HARAMP_repeats_GENUS_ANALYST_Summarized Data.csv",row.names = F)
+write.csv(div.data2,file="T:/Benthic/Data/SfM/Summarized Data/HARAMP_repeats_DIVERSITY_Summarized Data.csv",row.names = F)
 
 #Save file for segment calibration
 write.csv(data.gen2,file="T:/Benthic/Data/SfM/Summarized Data/HARAMP_repeats_GENUS_Summarized Data-CALIBRATION.csv",row.names = F)

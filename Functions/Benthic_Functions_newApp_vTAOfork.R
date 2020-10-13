@@ -593,6 +593,26 @@ Calc_CONDden_Seg_DIVER<-function(data,survey_colony_f=survey_colony, grouping_fi
   return(out)
 }
 
+#This function calculates a variety of hard coral diversity metrics at the segment scale 
+Calc_Diversity_Seg_DIVER<-function(data,grouping_field="TAXONCODE"){
+  
+  data$GROUP<-data[,grouping_field] #assign a grouping field for taxa){
+  
+  # #Subset 1st 3 segments on transect 1. Remove transect 2 so that we can have a uniform plot size for calculating richness
+  # data<-subset(data,TRANSECT==1&SEGMENT!=7)``
+  
+  tmp<-dcast(data, formula=METHOD+SITEVISITID + SITE +TRANSECT+SEGMENT+ANALYST~ GROUP,length,fill=0)
+  tmp<-subset(tmp,select=-c(AAAA))
+  div<-ddply(tmp,.(METHOD,SITEVISITID,SITE,TRANSECT,SEGMENT,ANALYST),function(x) {
+    data.frame(Shannon=diversity(x[-c(1:6)], index="shannon"),
+               Simpson=diversity(x[-c(1:6)], index="simpson"),
+               Hills=exp(diversity(x[-c(1:6)], index="shannon")),
+               Richness=sum(x[-c(1:6)]>0))
+  })
+  
+  return(div)
+}
+
 
 
 ## TRANSECT LEVEL SUMMARY FUNCTIONS #######
@@ -814,7 +834,8 @@ Calc_Diversity_Transect<-function(data,grouping_field="TAXONCODE"){
   # #Subset 1st 3 segments on transect 1. Remove transect 2 so that we can have a uniform plot size for calculating richness
   # data<-subset(data,TRANSECT==1&SEGMENT!=7)``
   
-  tmp<-dcast(data, formula=METHOD+SITEVISITID + SITE +TRANSECT~ TAXONCODE,length,fill=0)
+  tmp<-dcast(data, formula=METHOD+SITEVISITID + SITE +TRANSECT~ GROUP,length,fill=0)
+  tmp<-subset(tmp,select=-c(AAAA))
   div<-ddply(tmp,.(METHOD,SITEVISITID,SITE),function(x) {
     data.frame(Shannon=diversity(x[-c(1:4)], index="shannon"),
                Simpson=diversity(x[-c(1:4)], index="simpson"),
@@ -825,32 +846,6 @@ Calc_Diversity_Transect<-function(data,grouping_field="TAXONCODE"){
   return(div)
 }
 
-
-
-#Richness pooled at the strata level- no SE at strata 
-#total island counts of genera
-#strata richness then weight by island or region
-
-#This function calculates hard coral richness at the transect scale by
-Calc_Richness_Transect<-function(data,grouping_field="GENUS_CODE"){
-  
-  data$GROUP<-data[,grouping_field] #assign a grouping field for taxa){
-  
-  #Subset 1st 3 segments on transect 1. Remove transect 2 so that we can have a uniform plot size for calculating richness
-  data<-subset(data,TRANSECT==1&SEGMENT!=7)
-  
-  #Calculate # of colonies for each variable. You need to have S_ORDER and Fragment here so you can incorporate zeros properly later in the code
-  a<-ddply(data, .(SITE,SITEVISITID,S_ORDER),
-           summarise,
-          Richness=length(unique(GROUP))) #change to count
-  
-  a$Richness<-ifelse(a$S_ORDER!="Scleractinia",0,a$Richness)
-  b<-ddply(a, .(SITE,SITEVISITID),
-           summarise,
-           Richness=sum(Richness)) #change to count
-  
-  return(b)
-}
 
 
 #Revising Benthic REA (demography) Sector and Strata pooling

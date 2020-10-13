@@ -1490,21 +1490,21 @@ newdat.lme = data.frame(METHOD = s$METHOD,
                         SEC_NAME = s$SEC_NAME)
 head(newdat.lme)
 newdat.lme$predlme <- predict(mod, newdata = newdat.lme, level=0)
-newdat.lme$Adult_Richness<-newdat.lme$predlme^2 #back transform predicted values
+newdat.lme$Adult_Richness<-newdat.lme$predlme #back transform predicted values
 
 des = model.matrix(formula(mod)[-2], newdat.lme)
 predvar = diag( des %*% vcov(mod) %*% t(des) )
 newdat.lme$lower = with(newdat.lme, predlme - 2*sqrt(predvar) )
 newdat.lme$upper = with(newdat.lme, predlme + 2*sqrt(predvar) )
-newdat.lme$lower<-newdat.lme$lower^2 #back transform predicted values
-newdat.lme$upper<-newdat.lme$upper^2 #back transform predicted values
+
 
 
 p1<-Plot1to1_new(div.wide,"SfM_Adult_Richness","Diver_Adult_Richness","SfM Adult Species Richness","Diver Adult Species Richness",1.5,10)+labs(tag = "A")
 p2<-PlotMethod_Diversity(div,"Adult_Richness","Adult Species Richness",1.5, 20,"NS")+labs(tag = "B")
-p3<-PlotHabitat_diversity(div,"Adult_Richness","Adult Species Richness",1.5, 20,"NS")+labs(tag = "A")
+p3<-PlotHabitat_Diversity(div,"Adult_Richness","Adult Species Richness",1.5, 20,"NS")+labs(tag = "A")
 p3<-p3+theme(axis.title.x=element_blank(),axis.text.x=element_blank()) #Remove axis labels for the manuscript
 p4<-PlotDepth_Diversity(div,"Adult_Richness","Adult_Richness","Adult Species Richness",1.5, 20,"NS")+labs(tag = "B")
+p4<-p4+theme(axis.title.x=element_blank(),axis.text.x=element_blank()) #Remove axis labels for the manuscript
 
 AdultDiv_Rich_1n2<-grid.arrange(p1,p2,nrow=1,ncol=2)
 AdultDiv_Rich_3n4<-grid.arrange(p3,p4,nrow=1,ncol=2)
@@ -1540,21 +1540,18 @@ newdat.lme = data.frame(METHOD = s$METHOD,
                         SEC_NAME = s$SEC_NAME)
 head(newdat.lme)
 newdat.lme$predlme <- predict(mod, newdata = newdat.lme, level=0)
-newdat.lme$Adult_Shannon<-newdat.lme$predlme^2 #back transform predicted values
+newdat.lme$Adult_Shannon<-newdat.lme$predlme #back transform predicted values
 
 des = model.matrix(formula(mod)[-2], newdat.lme)
 predvar = diag( des %*% vcov(mod) %*% t(des) )
 newdat.lme$lower = with(newdat.lme, predlme - 2*sqrt(predvar) )
 newdat.lme$upper = with(newdat.lme, predlme + 2*sqrt(predvar) )
-newdat.lme$lower<-newdat.lme$lower^2 #back transform predicted values
-newdat.lme$upper<-newdat.lme$upper^2 #back transform predicted values
 
 
-p1<-Plot1to1_new(div.wide,"SfM_Adult_Shannon","Diver_Adult_Shannon","SfM Adult Shannon Diversity","Diver Adult Shannon Diversity",1.5,10)+labs(tag = "A")
-p2<-PlotMethod_Diversity(div,"Adult_Shannon","Adult Shannon Diversity",1.5, 20,"NS")+labs(tag = "B")
-p3<-PlotHabitat_diversity(div,"Adult_Shannon","Adult Shannon Diversity",1.5, 20,"NS")+labs(tag = "A")
-p3<-p3+theme(axis.title.x=element_blank(),axis.text.x=element_blank()) #Remove axis labels for the manuscript
-p4<-PlotDepth_Diversity(div,"Adult_Shannon","Adult_Shannon","Adult Shannon Diversity",1.5, 20,"NS")+labs(tag = "B")
+p1<-Plot1to1_new(div.wide,"SfM_Adult_Shannon","Diver_Adult_Shannon","SfM Adult Shannon Diversity","Diver Adult Shannon Diversity",0.3,1.6)+labs(tag = "C")
+p2<-PlotMethod_Diversity(div,"Adult_Shannon","Adult Shannon Diversity",1.5, 20,"NS")+labs(tag = "D")
+p3<-PlotHabitat_Diversity(div,"Adult_Shannon","Adult Shannon Diversity",1.5, 20,"NS")+labs(tag = "C")
+p4<-PlotDepth_Diversity(div,"Adult_Shannon","Adult_Shannon","Adult Shannon Diversity",1.5, 20,"NS")+labs(tag = "D")
 
 AdultDiv_Div_1n2<-grid.arrange(p1,p2,nrow=1,ncol=2)
 AdultDiv_Div_3n4<-grid.arrange(p3,p4,nrow=1,ncol=2)
@@ -1584,12 +1581,15 @@ p4<-ggplot(div.wide, aes(x=Diver_logGENSPratio_Adult, y=SfM_logGENSPratio_Adult)
 # Plots for report --------------------------------------------------------
 manuscriptplots_col<-grid.arrange(AdColDen_1n2,JuvColDen_1n2,Ave.size_1n2,Ave.od_1n2,
                               BLE_1n2,nrow=5,ncol=1)
-manuscriptplots_div<-grid.arrange(AdultDiv_Rich,AdultDiv_Div,nrow=2,ncol=1)
+manuscriptplots_div<-grid.arrange(AdultDiv_Rich_1n2,AdultDiv_Div_1n2,nrow=2,ncol=1)
 
 manuscriptplots_col_SEM<-grid.arrange(AdColDen_3n4,JuvColDen_3n4,Ave.size_3n4,Ave.od_3n4,
                                   BLE_3n4,nrow=5,ncol=1)
 
+manuscriptplots_div_SEM<-grid.arrange(AdultDiv_Rich_3n4,AdultDiv_Div_3n4,nrow=2,ncol=1)
+
 ggsave(plot<-manuscriptplots_col,file="T:/Benthic/Data/SfM/Method Comparision/Figures/ManuscriptPlots_colonymetrics.png",width=8,height=10)
 ggsave(plot<-manuscriptplots_div,file="T:/Benthic/Data/SfM/Method Comparision/Figures/ManuscriptPlots_diversitymetrics.png",width=8,height=6)
 ggsave(plot<-manuscriptplots_col_SEM,file="T:/Benthic/Data/SfM/Method Comparision/Figures/ManuscriptPlots_colonymetricsSEM.png",width=8,height=10)
+ggsave(plot<-manuscriptplots_div_SEM,file="T:/Benthic/Data/SfM/Method Comparision/Figures/ManuscriptPlots_diversitymetricsSEM.png",width=8,height=6)
 
