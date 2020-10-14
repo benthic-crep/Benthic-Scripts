@@ -252,6 +252,7 @@ ajwd<-subset(ajwd,SS%in%seglist$SS)
 dim(ajwd)
 length(unique(ajwd$SS))
 table(ajwd$SS,ajwd$METHOD)
+length(unique(awd$SS))
 
 
 
@@ -259,7 +260,6 @@ table(ajwd$SS,ajwd$METHOD)
 # GENERATE SUMMARY METRICS at the Segment-leveL BY GENUS--------------------------------------------------
 #REMOVE COLONIES THAT COULD'T BE FULLY ANNOTATED IN SFM
 awd<-subset(awd,EX_BOUND==0)
-
 
 #Calc_ColDen_Transect
 acd.gen<-Calc_ColDen_Seg_DIVER(data = awd,grouping_field = "GENUS_CODE");colnames(acd.gen)[colnames(acd.gen)=="ColCount"]<-"AdColCount";colnames(acd.gen)[colnames(acd.gen)=="ColDen"]<-"AdColDen";colnames(acd.gen)[colnames(acd.gen)=="SEGAREA"]<-"SEGAREA_ad"# calculate density at genus level as well as total
