@@ -20,21 +20,23 @@ jwd<-read.csv("T:/Benthic/Data/REA Coral Demography & Cover/Analysis Ready Raw d
 # jwd<-read.csv("C:/Users/Courtney.S.Couch/Documents/Courtney's Files/R Files/ESD/Data/REA Coral Demography & Cover/Analysis Ready Raw data/CoralBelt_Juveniles_raw_CLEANED.csv")
 
 
-#Final Tweaks before calculating Site-level data-------------------------------------------------
-#Colony fragments and scleractinans are subseted in the functions 
-#Add a column for adult fragments so we can remove them from the dataset later (-1 indicates fragment)
-# awd<-CreateFragment(awd)
+#Final Tweaks before calculating site-level data-------------------------------------------------
+#Colony fragments will be removed when you generate the site level data 
+#We have denoted fragments differently over the course of our dataset. This code makes sure Fragment is 0 or -1 (-1 indicates it's a fragment)
+
 awd$Fragment<-ifelse(awd$OBS_YEAR <2018 & awd$COLONYLENGTH <5 & awd$S_ORDER=="Scleractinia",-1,awd$Fragment)
 head(subset(awd,Fragment==-1& OBS_YEAR<2018)) #double check that pre 2018 fragments create
 awd$Fragment[is.na(awd$Fragment)] <- 0
 jwd$Fragment <- 0 # you need to add this column so that you can use the site level functions correctly
+awd$METHOD<-"DIVER"
+jwd$METHOD<-"DIVER"
 
 #Simplify Bleaching Severity categories: in 2019 the team decided to simplify the bleaching severity from 1-5 to 1-3 to improve consistency in severity values
 #This code converts the severity data collected prior to 2019 to a 1-3 scale
-awd$DATE_ <- as.Date(awd$DATE_, format = "%Y-%m-%d")
-jwd$DATE_ <- as.Date(jwd$DATE_, format = "%Y-%m-%d")
+awd$DATE_ <- as.Date(awd$DATE_, format = "%m/%d/%Y")
+jwd$DATE_ <- as.Date(jwd$DATE_, format = "%m/%d/%Y")
 
-
+#We simplified bleaching severity ranking from 1-5 to 1-3 on 7/11/2019. We decided to drop severity 1 because there is too much inconsistency between divers
 awd_pre <- awd %>% filter(DATE_ < as.Date('2019-07-11'))
 awd_post<-awd %>% filter(DATE_ >= as.Date('2019-07-11'))
 
@@ -57,27 +59,23 @@ head(awd_pre)
 
 #Combine dataframes before and after 2019 & check that rows weren't dropped
 awd.<-rbind(awd_pre,awd_post);write.csv(awd.,"test.csv")
-#Do we want to remove these there are a lot of them.
-#awd.$CONDITION_1<-ifelse(awd.$CONDITION_1 %in% c("BLE","BLP") & is.na(SEVERITY_1),"NDZ",as.character(awd.$CONDITION_1))
 nrow(awd)
 nrow(awd.);head(awd.)
 awd<-awd.; rm("awd.") #remove temporary dataframe if all good. 
 
 
-
-
 #Create a look a table of all of the colony attributes- you will need this the functions below
-SURVEY_COL<-c("DATE_","SITEVISITID", "OBS_YEAR", "REGION", "REGION_NAME", "ISLAND","ISLANDCODE","SEC_NAME", "SITE", "REEF_ZONE",
+SURVEY_COL<-c("METHOD","DATE_","SITEVISITID", "OBS_YEAR", "REGION", "REGION_NAME", "ISLAND","ISLANDCODE","SEC_NAME", "SITE", "REEF_ZONE",
                "DEPTH_BIN", "LATITUDE", "LONGITUDE","MIN_DEPTH_M","MAX_DEPTH_M","TRANSECT","SEGMENT","COLONYID","GENUS_CODE","TAXONCODE","SPCODE","COLONYLENGTH")
-survey_colony<-unique(awd[,SURVEY_COL])#new_Aggregate_InputTable(awd, SURVEY_INFO)#TAO 2019/10/07
+survey_colony<-unique(awd[,SURVEY_COL])
 
-SURVEY_SITE<-c("MISSIONID","DATE_","SITEVISITID", "ANALYSIS_YEAR","OBS_YEAR", "REGION", "REGION_NAME", "ISLAND","ISLANDCODE","SEC_NAME", "SITE", "REEF_ZONE",
+SURVEY_SITE<-c("METHOD","MISSIONID","DATE_","SITEVISITID", "ANALYSIS_YEAR","OBS_YEAR", "REGION", "REGION_NAME", "ISLAND","ISLANDCODE","SEC_NAME", "SITE", "REEF_ZONE",
                "DEPTH_BIN", "LATITUDE", "LONGITUDE","MIN_DEPTH_M","MAX_DEPTH_M","HABITAT_CODE")
-survey_siteAd<-unique(awd[,SURVEY_SITE])#new_Aggregate_InputTable(awd, SURVEY_INFO)#TAO 2019/10/07
+survey_siteAd<-unique(awd[,SURVEY_SITE])
 
-SURVEY_SITE<-c("MISSIONID","DATE_","SITEVISITID", "ANALYSIS_YEAR","OBS_YEAR", "REGION", "REGION_NAME", "ISLAND","ISLANDCODE","SEC_NAME", "SITE", "REEF_ZONE",
+SURVEY_SITE<-c("METHOD","MISSIONID","DATE_","SITEVISITID", "ANALYSIS_YEAR","OBS_YEAR", "REGION", "REGION_NAME", "ISLAND","ISLANDCODE","SEC_NAME", "SITE", "REEF_ZONE",
                "DEPTH_BIN", "LATITUDE", "LONGITUDE","MIN_DEPTH_M","MAX_DEPTH_M")
-survey_siteJ<-unique(jwd[,SURVEY_SITE])#new_Aggregate_InputTable(awd, SURVEY_INFO)#TAO 2019/10/07
+survey_siteJ<-unique(jwd[,SURVEY_SITE])
 
 write.csv(survey_siteAd,"surveysite.csv")
 
@@ -86,6 +84,12 @@ survey_site<-left_join(survey_siteJ,survey_siteAd);nrow(survey_site)
 
 #TEMPORARY WORK AROUND-ASK MICHAEL TO FIX
 survey_site$REEF_ZONE<-ifelse(survey_site$SITE=="HAW-04285","Forereef",as.character(survey_site$REEF_ZONE))
+
+#Remove HARAMP 2019 Transect 2- these were repeat surveys conducted for the SfM method comparison study
+awd$TR_YEAR<-paste(awd$TRANSECT,awd$OBS_YEAR,sep="_")
+jwd$TR_YEAR<-paste(jwd$TRANSECT,jwd$OBS_YEAR,sep="_")
+awd<-subset(awd,TR_YEAR!="2_2019")
+jwd<-subset(jwd,TR_YEAR!="2_2019")
 
 
 # GENERATE SUMMARY METRICS at the transect-leveL BY GENUS--------------------------------------------------
@@ -108,11 +112,18 @@ ble.gen<-subset(condden.gen,select = c(SITEVISITID,SITE,TRANSECT,GENUS_CODE,BLE)
 chronicdz.gen<-subset(condden.gen,select = c(SITEVISITID,SITE,TRANSECT,GENUS_CODE,CHRO));colnames(chronicdz.gen)[colnames(chronicdz.gen)=="CHRO"]<-"CHRO_den" #subset just chronic diseased colonies
 
 #Calc_Richness_Transect
-rich.gen<-Calc_Richness_Transect(awd,"GENUS_CODE")
+#rich.gen<-Calc_Richness_Transect(awd,"GENUS_CODE")
 
 #ADD CODE TO CHANGE TRANSECT NUMBERS FOR JUVENILES
 jcd.gen$TRANSECT[jcd.gen$TRANSECT==3]<-1
 jcd.gen$TRANSECT[jcd.gen$TRANSECT==4]<-2
+
+#Remove METHOD from dataframes before merging
+acd.gen<-subset(acd.gen,select=-c(METHOD))
+jcd.gen<-subset(jcd.gen,select=-c(METHOD))
+cl.gen<-subset(cl.gen,select=-c(METHOD))
+od.gen<-subset(od.gen,select=-c(METHOD))
+rd.gen<-subset(rd.gen,select=-c(METHOD))
 
 
 #Merge density and partial moratlity data together.You will need to replace the DUMMY field with the one you want
@@ -121,11 +132,16 @@ MyMerge <- function(x, y){
   return(df)
 }
 data.gen<-Reduce(MyMerge, list(acd.gen,jcd.gen,cl.gen,od.gen,rd.gen,acutedz.gen,chronicdz.gen,ble.gen));
+
+#Add METHOD back in
+data.gen$METHOD<-"DIVER"
+
 head(data.gen)
 
-#Change NAs for abunanance and density metrics to 0. Don't change NAs in the partial mortality columns to 0
-data.gen$JuvColCount[is.na(data.gen$JuvColCount)]<-0;data.gen$JuvColDen[is.na(data.gen$JuvColDen)]<-0
-data.gen$AdColCount[is.na(data.gen$AdColCount)]<-0;data.gen$AdColDen[is.na(data.gen$AdColDen)]<-0
+#NOTE: Prior to 10/15/20- we included the following code to change NAs for abunanance and density metrics to 0. 
+#This is incorrect- the CalcColDen functions are already including the 0s for taxa where surveys were conducted, but no colonies of a given taxon were found. 
+# data.gen$JuvColCount[is.na(data.gen$JuvColCount)]<-0;data.gen$JuvColDen[is.na(data.gen$JuvColDen)]<-0
+# data.gen$AdColCount[is.na(data.gen$AdColCount)]<-0;data.gen$AdColDen[is.na(data.gen$AdColDen)]<-0
 
 #Calculate transect level prevalence for acute dz, chronic dz and bleaching
 data.gen$DZGN_prev<-(data.gen$DZGN_den*data.gen$TRANSECTAREA_ad)/data.gen$AdColCount*100
@@ -149,6 +165,7 @@ site.data.gen<-ddply(data.gen, .(SITE,SITEVISITID,GENUS_CODE), #calc total colon
 #Duplicate dataframe because the ddply step above takes a while to create. Allows you to tweak code below without having to rerun the ddply step above
 site.data.gen2<-site.data.gen
 
+head(site.data.gen2)
 
 # GENERATE SUMMARY METRICS at the transect-leveL BY SPCODE (finest resolution)--------------------------------------------------
 #Calc_ColDen_Transect
@@ -169,12 +186,17 @@ condden.sp<-Calc_CONDden_Transect(awd,survey_colony,"SPCODE")# Density of condit
 ble.sp<-subset(condden.sp,select = c(SITEVISITID,SITE,TRANSECT,SPCODE,BLE));colnames(ble.sp)[colnames(ble.sp)=="BLE"]<-"BLE_den" #subset just bleached colonies
 chronicdz.sp<-subset(condden.sp,select = c(SITEVISITID,SITE,TRANSECT,SPCODE,CHRO));colnames(chronicdz.sp)[colnames(chronicdz.sp)=="CHRO"]<-"CHRO_den" #subset just chronic diseased colonies
 
-#Calc_Richness_Transect
-rich.sp<-Calc_Richness_Transect(awd,"SPCODE")
 
 #ADD CODE TO CHANGE TRANSECT NUMBERS FOR JUVENILES
 jcd.sp$TRANSECT[jcd.sp$TRANSECT==3]<-1
 jcd.sp$TRANSECT[jcd.sp$TRANSECT==4]<-2
+
+#Remove METHOD from dataframes before merging
+acd.sp<-subset(acd.sp,select=-c(METHOD))
+jcd.sp<-subset(jcd.sp,select=-c(METHOD))
+cl.sp<-subset(cl.sp,select=-c(METHOD))
+od.sp<-subset(od.sp,select=-c(METHOD))
+rd.sp<-subset(rd.sp,select=-c(METHOD))
 
 
 #Merge density and partial moratlity data together.You will need to replace the DUMMY field with the one you want
@@ -185,9 +207,12 @@ MyMerge <- function(x, y){
 data.sp<-Reduce(MyMerge, list(acd.sp,jcd.sp,cl.sp,od.sp,rd.sp,acutedz.sp,chronicdz.sp,ble.sp));
 head(data.sp)
 
-#Change NAs for abunanance and density metrics to 0. Don't change NAs in the partial mortality columns to 0
-data.sp$JuvColCount[is.na(data.sp$JuvColCount)]<-0;data.sp$JuvColDen[is.na(data.sp$JuvColDen)]<-0
-data.sp$AdColCount[is.na(data.sp$AdColCount)]<-0;data.sp$AdColDen[is.na(data.sp$AdColDen)]<-0
+data.sp$METHOD<-"DIVER"
+
+#NOTE: Prior to 10/15/20- we included the following code to change NAs for abunanance and density metrics to 0. 
+#This is incorrect- the CalcColDen functions are already including the 0s for taxa where surveys were conducted, but no colonies of a given taxon were found. 
+# data.sp$JuvColCount[is.na(data.sp$JuvColCount)]<-0;data.sp$JuvColDen[is.na(data.sp$JuvColDen)]<-0
+# data.sp$AdColCount[is.na(data.sp$AdColCount)]<-0;data.sp$AdColDen[is.na(data.sp$AdColDen)]<-0
 
 #Calculate transect level prevalence for acute dz, chronic dz and bleaching
 data.sp$DZGN_prev<-(data.sp$DZGN_den*data.sp$TRANSECTAREA_ad)/data.sp$AdColCount*100
@@ -232,13 +257,17 @@ condden.tax<-Calc_CONDden_Transect(awd,survey_colony,"TAXONCODE")# Density of co
 ble.tax<-subset(condden.tax,select = c(SITEVISITID,SITE,TRANSECT,TAXONCODE,BLE));colnames(ble.tax)[colnames(ble.tax)=="BLE"]<-"BLE_den" #subset just bleached colonies
 chronicdz.tax<-subset(condden.tax,select = c(SITEVISITID,SITE,TRANSECT,TAXONCODE,CHRO));colnames(chronicdz.tax)[colnames(chronicdz.tax)=="CHRO"]<-"CHRO_den" #subset just chronic diseased colonies
 
-#Calc_Richness_Transect
-rich.tax<-Calc_Richness_Transect(awd,"TAXONCODE")
 
 #ADD CODE TO CHANGE TRANSECT NUMBERS FOR JUVENILES
 jcd.tax$TRANSECT[jcd.tax$TRANSECT==3]<-1
 jcd.tax$TRANSECT[jcd.tax$TRANSECT==4]<-2
 
+#Remove METHOD from dataframes before merging
+acd.tax<-subset(acd.tax,select=-c(METHOD))
+jcd.tax<-subset(jcd.tax,select=-c(METHOD))
+cl.tax<-subset(cl.tax,select=-c(METHOD))
+od.tax<-subset(od.tax,select=-c(METHOD))
+rd.tax<-subset(rd.tax,select=-c(METHOD))
 
 #Merge density and partial moratlity data together.You will need to replace the DUMMY field with the one you want
 MyMerge <- function(x, y){
@@ -248,9 +277,11 @@ MyMerge <- function(x, y){
 data.tax<-Reduce(MyMerge, list(acd.tax,jcd.tax,cl.tax,od.tax,rd.tax,acutedz.tax,chronicdz.tax,ble.tax));
 head(data.tax)
 
+data.tax$METHOD<-"DIVER"
+
 #Change NAs for abunanance and density metrics to 0. Don't change NAs in the partial mortality columns to 0
-data.tax$JuvColCount[is.na(data.tax$JuvColCount)]<-0;data.tax$JuvColDen[is.na(data.tax$JuvColDen)]<-0
-data.tax$AdColCount[is.na(data.tax$AdColCount)]<-0;data.tax$AdColDen[is.na(data.tax$AdColDen)]<-0
+# data.tax$JuvColCount[is.na(data.tax$JuvColCount)]<-0;data.tax$JuvColDen[is.na(data.tax$JuvColDen)]<-0
+# data.tax$AdColCount[is.na(data.tax$AdColCount)]<-0;data.tax$AdColDen[is.na(data.tax$AdColDen)]<-0
 
 #Calculate transect level prevalence for acute dz, chronic dz and bleaching
 data.tax$DZGN_prev<-(data.tax$DZGN_den*data.tax$TRANSECTAREA_ad)/data.tax$AdColCount*100
@@ -288,12 +319,9 @@ nrow(meta)
 
 #Merge site level data and meta data
 site.data.gen2<-left_join(site.data.gen2,meta)
-rich.data.gen<-left_join(rich.gen,meta,meta)
 site.data.sp2<-left_join(site.data.sp2,meta)
-rich.data.sp<-left_join(rich.sp,meta,meta)
 site.data.tax2<-left_join(site.data.tax2,meta)
 
-rich.data.tax<-left_join(rich.tax,meta)
 
 #Add adult and juvenile pres/ab columns
 site.data.gen2$Adpres.abs<-ifelse(site.data.gen2$AdColDen>0,1,0)
@@ -303,14 +331,9 @@ site.data.sp2$Juvpres.abs<-ifelse(site.data.sp2$JuvColDen>0,1,0)
 site.data.tax2$Adpres.abs<-ifelse(site.data.tax2$AdColDen>0,1,0)
 site.data.tax2$Juvpres.abs<-ifelse(site.data.tax2$JuvColDen>0,1,0)
 
-
+#Save Site-level data
 write.csv(site.data.gen2,file="T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Site/BenthicREA_sitedata_GENUS.csv",row.names = F)
-# write.csv(site.data.gen2,file="C:/Users/Courtney.S.Couch/Documents/Courtney's Files/R Files/ESD/Data/REA Coral Demography & Cover/Summary Data/Site/BenthicREA_sitedata_GENUS.csv",row.names = F)
-
 write.csv(site.data.sp2,file="T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Site/BenthicREA_sitedata_SPCODE.csv",row.names = F)
-# write.csv(site.data.sp2,file="C:/Users/Courtney.S.Couch/Documents/Courtney's Files/R Files/ESD/Data/REA Coral Demography & Cover/Summary Data/Site/BenthicREA_sitedata_SPCODE.csv",row.names = F)
-
 write.csv(site.data.tax2,file="T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Site/BenthicREA_sitedata_TAXONCODE.csv",row.names = F)
-# write.csv(site.data.tax2,file="C:/Users/Courtney.S.Couch/Documents/Courtney's Files/R Files/ESD/Data/REA Coral Demography & Cover/Summary Data/Site/BenthicREA_sitedata_TAXONCODE.csv",row.names = F)
 
 

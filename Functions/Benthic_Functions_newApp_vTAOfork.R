@@ -21,7 +21,8 @@ library(RColorBrewer)
 library(stringr)
 
 # GENERAL FUNCTIONS -------------------------------------------------------
-#convert segment numbers from 1,3,5,7 to 0,5,10,15 to reduce confusion
+#We have changed the way we number our segments over the course of NCRMP monitoring. 
+#Historically segments 0,5,10 and 15 were converted to 1,3,5,7 when migrated to oracle, We found this confusing and are converting them back to 0-15
 ConvertSegNumber<-function(data){
   data$SEGMENT<-as.factor(data$SEGMENT)
   data<-data %>% mutate(SEGMENT.new=recode(SEGMENT, 
@@ -33,7 +34,7 @@ ConvertSegNumber<-function(data){
   return(data$SEGMENT.new)
 }
 
-# #Create General Recent Dead Cause code based on specific cause code
+#Create General Recent Dead Cause code based on specific cause code(you will need to do this for the SfM data)
 CreateGenRDCode<-function(data,rdcode_field,gencode_name,lookup){
   data$CODE<-data[,rdcode_field] #assign a grouping field for taxa
   data$CODE<-as.factor(data$CODE)
@@ -52,7 +53,6 @@ CreateGenusCode<-function(data,taxamaster){
 
 #Convert SPCODE in raw colony data to taxoncode.We use taxoncode because some taxa can not be reliably identified 
 #to species-level across observers and need to be rolled up to genus. -generates a look up table
-#NOT WORKING PROPERLY- ADDS NA FOR TAXONNAME AFTER MERGING. 
 Convert_to_Taxoncode<-function(data,taxamaster){
   a<-ddply(data,.(REGION,OBS_YEAR,S_ORDER,GENUS_CODE,SPCODE), #create a list of Genera and Species by region and year
            summarise,
@@ -66,6 +66,7 @@ Convert_to_Taxoncode<-function(data,taxamaster){
   return(out$TAXONCODE)
 }
 
+#Generate taxa lists
 scl_genus_list<-function(data){
   data<-subset(data,S_ORDER=="Scleractinia")
   a<-ddply(data,.(GENUS_CODE,GENUS), #create a list of Genera and Species by region and year
@@ -139,7 +140,7 @@ TransectareaMETHOD<-function(data){
   return(data$TRANSECTAREA)
 }
 
-##Calcuate transect area and add column for transect area for methods a and b
+##Calcuate transect area and add column for transect area for pre 2012 methods a and b
 Transectarea_old<-function(data,s.df){
   data$tmp<-data$TRANWIDTH*data$TRANLENGTH # Calculate segment area
   
@@ -153,7 +154,8 @@ Transectarea_old<-function(data,s.df){
   return(data)
 }
 
-#Simplify Bleaching Severity categories: in 2019 the team decided to simplify the bleaching severity from 1-5 to 1-3 to improve consistency in severity values
+#Simplify Bleaching Severity categories: 
+#in 2019 the team decided to simplify the bleaching severity from 1-5 to 1-3 to improve consistency in severity values
 Convert_Severity<-function(data,severity_field,severity_new){
   data$SEV<-data[,severity_field]
   data<-data %>% mutate(sev_new=recode(SEV, 
@@ -167,7 +169,6 @@ Convert_Severity<-function(data,severity_field,severity_new){
   data<-subset(data,select=-c(SEV))
   return(data)
 }
-
 
 
 
@@ -209,7 +210,7 @@ Calc_SurveyArea_By_Seg<-function(data) {
   return(tr.df)
 }
 
-#updated 2/4/20
+#updated 2/4/20 - these segment functions are older and do not include analyst 
 ## This function calculates colony density at the segment scale by first calculating the total survey area (using Calc_SurveyArea_By_Seg) then calculating colony density
 Calc_ColDen_Seg<-function(data, grouping_field="GENUS_CODE"){
   
@@ -401,8 +402,7 @@ Calc_CONDden_Seg<-function(data,survey_colony_f=survey_colony, grouping_field="S
   return(out)
 }
 
-#SEGMENT DIVER-LEVEL COMPARISON
-#updated 2/4/20
+#### SEGMENT-LEVEL SUMMARY FUNCTIONS with ANALYST included####
 ## This function calculates colony density at the segment scale by first calculating the total survey area (using Calc_SurveyArea_By_Seg) then calculating colony density
 Calc_ColDen_Seg_DIVER<-function(data, grouping_field="GENUS_CODE"){
   
@@ -475,7 +475,6 @@ Calc_ColMetric_Seg_DIVER<-function(data, grouping_field="GENUS_CODE", pool_field
   return(rd_long)
 }
 
-#Updated 2/4/20
 Calc_RDden_Seg_DIVER<-function(data, survey_colony_f=survey_colony, grouping_field="S_ORDER"){
   scl<-subset(data,Fragment==0 &S_ORDER=="Scleractinia")
   
@@ -532,7 +531,6 @@ Calc_RDden_Seg_DIVER<-function(data, survey_colony_f=survey_colony, grouping_fie
   return(out)
 }
 
-#Updated 2/4/20
 Calc_CONDden_Seg_DIVER<-function(data,survey_colony_f=survey_colony, grouping_field="S_ORDER"){
   scl<-subset(data,Fragment==0 &S_ORDER=="Scleractinia")
   
@@ -616,8 +614,8 @@ Calc_Diversity_Seg_DIVER<-function(data,grouping_field="TAXONCODE"){
 
 
 ## TRANSECT LEVEL SUMMARY FUNCTIONS #######
-
 #Modified 5/28/20- added METHOD
+
 #This function calculates colony density at the transect scale by first calculating the total survey area (using Calc_SurveyArea_By_Transect) then calcuating colony density
 Calc_ColDen_Transect<-function(data, grouping_field="GENUS_CODE"){
   #require(tidyr)
@@ -670,8 +668,6 @@ Calc_ColDen_Transect<-function(data, grouping_field="GENUS_CODE"){
     return(out)
 }
 
-#Modified 5/28/20- added METHOD
-#Change percent to proportion
 ##This function calculates mean colony legnth, % recent dead, % old dead, condition severity or condition extent to the transect level
 Calc_ColMetric_Transect<-function(data, grouping_field="S_ORDER",pool_fields=c("COLONYLENGTH","RDEXTENT1", "RDEXTENT2","RDEXTENT3","OLDDEAD","SEVERITY1","EXTENT1","SEVERITY2","EXTENT2","SEVERITY3","EXTENT3")){
   
@@ -700,7 +696,7 @@ Calc_ColMetric_Transect<-function(data, grouping_field="S_ORDER",pool_fields=c("
 
 
 
-#Modified 5/28/20- added METHOD
+#Calculate density of recent dead causes
 Calc_RDden_Transect<-function(data, survey_colony_f=survey_colony, grouping_field="S_ORDER"){
 
   data$GROUP<-data[,grouping_field]
@@ -765,7 +761,7 @@ Calc_RDden_Transect<-function(data, survey_colony_f=survey_colony, grouping_fiel
 
 
 
-#Modified 5/28/20- added METHOD
+#Calculate density of recent dead causes
 Calc_CONDden_Transect<-function(data,survey_colony_f=survey_colony, grouping_field="S_ORDER"){
   
   data$GROUP<-data[,grouping_field]
@@ -849,10 +845,13 @@ Calc_Diversity_Transect<-function(data,grouping_field="TAXONCODE"){
 
 
 #Revising Benthic REA (demography) Sector and Strata pooling
+#We don't always have adequate sampling for each sector- this function pools together certain sectors during certain years.
+#The pooling scheme is generated from a series of discussions with the team following the surveys.
+
 PoolSecStrat=function(site_data){
   
-  ############CORRECT THIS IN THE FUTURE TO MAKE IT MORE STREAMLINE!!!!!!!!!!!!!!!!
-  
+#We've had numerous conversations about whether we want to use a separate flat file with a variety of pooling schemes that we merge with the site level data
+#For now we've chosen to keep it written out like this. 
   #Create STRATANAME by idenityfing which ANALAYSIS SCHEME you want to use then concatinating with depth and reef zone that will be used to pool data
   site_data$BEN_SEC<-site_data$SEC_NAME
   
@@ -866,7 +865,7 @@ PoolSecStrat=function(site_data){
   site_data$BEN_SEC<-ifelse(site_data$OBS_YEAR=="2015"&site_data$BEN_SEC %in% c("TUT_NE_OPEN","TUT_AUNUU_A"),"TUT_NE",as.character(site_data$BEN_SEC))
   site_data$BEN_SEC<-ifelse(site_data$OBS_YEAR=="2015"&site_data$BEN_SEC %in% c("TUT_SW_OPEN","TUT_FAGALUA"),"TUT_SW",as.character(site_data$BEN_SEC))
   
-  #Changing sector pooling PRIA
+  #Changing sector pooling PRIA - remove PRIA backreef for 2019
   site_data <- site_data[!(site_data$OBS_YEAR == "2018" & site_data$ISLAND=="Kingman" & site_data$REEF_ZONE=="Backreef"),] 
   
   
@@ -886,15 +885,17 @@ PoolSecStrat=function(site_data){
   
   
   #Specific Changes to depth bin and reef zone
-  site_data <- site_data[!(site_data$ISLAND=="Johnston" & site_data$REEF_ZONE=="Lagoon"),] 
-  site_data$REEF_ZONE<-ifelse(site_data$REEF_ZONE %in% c("Protected Slope","Forereef"),"Forereef",as.character(site_data$REEF_ZONE))
-  site_data$DEPTH_BIN<-ifelse(site_data$ISLAND =="Kingman" & site_data$REEF_ZONE=="Lagoon","ALL",as.character(site_data$DEPTH_BIN))
-  site_data$DEPTH_BIN<-ifelse(site_data$OBS_YEAR=="2015" & site_data$ISLAND =="Rose" & site_data$REEF_ZONE=="Backreef","ALL",as.character(site_data$DEPTH_BIN))
+  site_data <- site_data[!(site_data$ISLAND=="Johnston" & site_data$REEF_ZONE=="Lagoon"),] #remove Johnston lagoon
+  site_data$REEF_ZONE<-ifelse(site_data$REEF_ZONE %in% c("Protected Slope","Forereef"),"Forereef",as.character(site_data$REEF_ZONE)) #combine PRS and forereef similar to what fish team does
+  site_data$DEPTH_BIN<-ifelse(site_data$ISLAND =="Kingman" & site_data$REEF_ZONE=="Lagoon","ALL",as.character(site_data$DEPTH_BIN))# combine all Kingman lagoon strata
+  site_data$DEPTH_BIN<-ifelse(site_data$OBS_YEAR=="2015" & site_data$ISLAND =="Rose" & site_data$REEF_ZONE=="Backreef","ALL",as.character(site_data$DEPTH_BIN))#combine all Rose backreef strata
   
   #Create Strataname
   site_data$DB_RZ<-paste(substring(site_data$REEF_ZONE,1,1), substring(site_data$DEPTH_BIN,1,1), sep="")
   site_data$STRATANAME=paste0(site_data$BEN_SEC,"_",site_data$DB_RZ)
   
+  
+  # Dione used to combine depth strata that don't have at least 2 sites/stratum. We no longer agree with this approach especially when you are temporal trends
   #Changing STRATA pooling structure for SAMOA
   # site_data$STRATANAME<-ifelse(site_data$OBS_YEAR=="2015"&site_data$STRATANAME %in% c("TUT_AUNUU_B_FM","TUT_AUNUU_B_FS"),"TUT_AUNUU_B_FMS",as.character(site_data$STRATANAME))
   # site_data$STRATANAME<-ifelse(site_data$OBS_YEAR=="2015"&site_data$BEN_SEC=="ROS_SANCTUARY"&site_data$DB_RZ %in% c("FM","FD"), "ROS_FMD",as.character(site_data$STRATANAME))
@@ -904,7 +905,7 @@ PoolSecStrat=function(site_data){
   # #Changing STRATA pooling structure for PRIA
   # site_data$STRATANAME<-ifelse(site_data$BEN_SEC=="Johnston"&site_data$DB_RZ %in% c("BM","BD"), "Johnston_BMD",as.character(site_data$STRATANAME))
   # site_data$STRATANAME<-ifelse(site_data$BEN_SEC=="Johnston"&site_data$DB_RZ %in% c("FM","FS"), "Johnston_FMS",as.character(site_data$STRATANAME))
-  site_data$STRATANAME<-ifelse(site_data$BEN_SEC=="Johnston"&site_data$REEF_ZONE =="Lagoon", "Johnston_LA",as.character(site_data$STRATANAME))
+  #site_data$STRATANAME<-ifelse(site_data$BEN_SEC=="Johnston"&site_data$REEF_ZONE =="Lagoon", "Johnston_LA",as.character(site_data$STRATANAME))
   
   # #Changing STRATA pooling structure for Guam and CNMI
   # site_data$STRATANAME<-ifelse(site_data$OBS_YEAR=="2014"&site_data$STRATANAME %in% c("Aguijan_FD","Aguijan_FM"),"Aguijan_FMD",as.character(site_data$STRATANAME))
@@ -1149,7 +1150,7 @@ Calc_Domain=function(site_data,grouping_field="S_ORDER",metric_field,pres.abs_fi
 # }
 # 
 
-###POOLING FUNCTIONS FOR COVER and Richness DATA----
+###POOLING FUNCTIONS FOR COVER and Richness DATA- these are older functions----
 #need to eventually modify this code to summarize tier 2 and 3 data
 Calc_Strata_Cover_Rich=function(site_data,metric_field=c("CORAL","CCA","MA","TURF","Richness"),M_hi=250){
   
@@ -1323,7 +1324,7 @@ Calc_Domain_Prevalence=function(site_data,grouping_field="S_ORDER",metric_field)
 
 
 ####
-#BSR-UNWEIGHTED FUNCTIONS####
+#Benthic Summary report-UNWEIGHTED FUNCTIONS####
 ####
 
 

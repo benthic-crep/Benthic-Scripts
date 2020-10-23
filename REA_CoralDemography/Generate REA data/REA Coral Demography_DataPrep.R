@@ -37,7 +37,7 @@ table(x$REGION, x$OBS_YEAR) #review years and regions in dataframe
 #Create vector of column names to include then exclude unwanted columns from dataframe
 DATA_COLS<-c("MISSIONID","REGION","REGION_NAME","ISLAND","ISLANDCODE","SITE","LATITUDE",	"LONGITUDE","REEF_ZONE","DEPTH_BIN","OBS_YEAR",
              "DATE_","NO_SURVEY_YN","EXCLUDE_FLAG","SITEVISITID","HABITAT_CODE","DIVER","TRANSECTNUM","SEGMENT","SEGWIDTH","SEGLENGTH","FRAGMENT_YN",
-             "COLONYID","TAXONCODE","COLONYLENGTH","OLDDEAD",
+             "COLONYID","TAXONCODE","MORPH_CODE","MORPHOLOGY","COLONYLENGTH","OLDDEAD",
              "RECENTDEAD_1","RECENT_GENERAL_CAUSE_CODE_1","RECENT_SPECIFIC_CAUSE_CODE_1",
              "RECENTDEAD_2",	"RECENT_GENERAL_CAUSE_CODE_2","RECENT_SPECIFIC_CAUSE_CODE_2",	
              "RECENT_GENERAL_CAUSE_CODE_3","RECENT_SPECIFIC_CAUSE_CODE_3","RECENTDEAD_3","COND",
@@ -85,9 +85,13 @@ SIOYerrors<-unique(c(OYerror,SIerror))
 if(length(SIOYerrors)>0){print(paste0("Warning: Raw Data disagree with Survey Master for sitevisitids: ",x$SITEVISITID[SIOYerrors]))}
 
 #merge 'em NOTE: left-join will spit out a Warning message that you are joining on factors that have different levels. Basically you have more sites in survey master than x. This is correct and can be ignored here.
-x<-left_join(x, survey_master[,c("OBS_YEAR","SITEVISITID","SITE","SEC_NAME","ANALYSIS_YEAR","bANALYSIS_SCHEME","MIN_DEPTH_M","MAX_DEPTH_M")])  
+x<-left_join(x, survey_master[,c("OBS_YEAR","SITEVISITID","SITE","SEC_NAME","ANALYSIS_YEAR","bANALYSIS_SCHEME","new_MIN_DEPTH_M","new_MAX_DEPTH_M")])  
 
 if(DEBUG){write.csv(x,"test.csv")}
+
+colnames(x)[colnames(x)=="new_MIN_DEPTH_M"]<-"MIN_DEPTH_M" #Change column name
+colnames(x)[colnames(x)=="new_MAX_DEPTH_M"]<-"MAX_DEPTH_M" #Change column name
+
 
 #Ensure that all rows in X have properly assigned SEC_NAME...
 ####CHECK THAT all SEC_NAME are present in the survey_master file
@@ -267,7 +271,7 @@ table(x$REGION, x$OBS_YEAR) #review years and regions in dataframe
 #Create vector of column names to include then exclude unwanted columns from dataframe
 DATA_COLS<-c("MISSIONID","REGION","REGION_NAME","ISLAND","ISLANDCODE","SITE","LATITUDE",	"LONGITUDE","REEF_ZONE","DEPTH_BIN","OBS_YEAR",
              "DATE_","NO_SURVEY_YN","EXCLUDE_FLAG","SITEVISITID","HABITAT_CODE","DIVER","TRANSECTNUM","SEGMENT","SEGWIDTH","SEGLENGTH",
-             "COLONYID","TAXONCODE","COLONYLENGTH","GENUS_CODE","S_ORDER","TAXONNAME")
+             "COLONYID","TAXONCODE","MORPH_CODE","MORPHOLOGY","COLONYLENGTH","GENUS_CODE","S_ORDER","TAXONNAME")
 
 
 #remove extraneous columns
@@ -293,10 +297,13 @@ survey_master<-read.csv("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/d
 #x<-merge(x, survey_master[,c("SITE", "SEC_NAME", "ANALYSIS_SEC", "ANALYSIS_YEAR", "ANALYSIS_SCHEME")], by="SITE", all.x=TRUE) #Fish team's original code, we may want to create analysis scheme later in the 
 length(unique(x$SITEVISITID)) #double check that sites weren't dropped
 
-x<-left_join(x, survey_master[,c("OBS_YEAR","SITEVISITID","SITE","SEC_NAME","ANALYSIS_YEAR","bANALYSIS_SCHEME","MAX_DEPTH_M", "MIN_DEPTH_M")])  
-length(unique(x$SITEVISITID)) #double check that sites weren't dropped
+#merge 'em NOTE: left-join will spit out a Warning message that you are joining on factors that have different levels. Basically you have more sites in survey master than x. This is correct and can be ignored here.
+x<-left_join(x, survey_master[,c("OBS_YEAR","SITEVISITID","SITE","SEC_NAME","ANALYSIS_YEAR","bANALYSIS_SCHEME","new_MIN_DEPTH_M","new_MAX_DEPTH_M")])  
 
-if (DEBUG) {write.csv(x,"test.csv")}
+if(DEBUG){write.csv(x,"test.csv")}
+
+colnames(x)[colnames(x)=="new_MIN_DEPTH_M"]<-"MIN_DEPTH_M" #Change column name
+colnames(x)[colnames(x)=="new_MAX_DEPTH_M"]<-"MAX_DEPTH_M" #Change column name
 
 #CHECK THAT all SEC_NAME are present in the survey_master file
 test<-x[is.na(x$SEC_NAME), c("MISSIONID","REGION", "SITE","OBS_YEAR"),]
