@@ -6,17 +6,16 @@
 
 rm=ls() #removes all objects from the current workspace
 
-setwd("T:/Benthic/Data/SfM/QC")
+setwd("T:/Benthic/Data/SfM/Calibration QC")
 
 #Upload necessary functions (not opening on my computer)
-# source("C:/Users/Courtney.S.Couch/Documents/GitHub/Benthic-Scripts/Functions/Benthic_Functions_newApp_vTAOfork.R")
-# source("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/lib/core_functions.R")
-source("C:/Users/Corinne.Amir/Documents/GitHub/Benthic-Scripts/Functions/Benthic_Functions_newApp_vTAOfork.R")
-source("C:/Users/Corinne.Amir/Documents/GitHub/Benthic-Scripts/Functions/core_functions.R")
+source("C:/Users/Courtney.S.Couch/Documents/GitHub/Benthic-Scripts/Functions/Benthic_Functions_newApp_vTAOfork.R")
+source("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/lib/core_functions.R")
+# source("C:/Users/Corinne.Amir/Documents/GitHub/Benthic-Scripts/Functions/Benthic_Functions_newApp_vTAOfork.R")
+# source("C:/Users/Corinne.Amir/Documents/GitHub/Benthic-Scripts/Functions/core_functions.R")
 
 ##read benthic data downloaded from Mission app and subset to the leg you need to QC
-sfm.raw <- read.csv("HARAMP2019_demographic_repeats_jan172020.csv") #for comparison (used for most recent figures - 1/30)
-sfm.raw <- read.csv("HARAMP2019_demographic_repeats_jan132020.csv") #for comparison (previously used)
+sfm.raw <- read.csv("HARAMP2019_calibration_jan302020.csv") 
 
 head(sfm.raw);nrow(sfm.raw)
 
@@ -206,7 +205,7 @@ output[3,]<-c("All segments within each site have been annotated","Some sites ha
 
 
 #4. Check how many anotators exist for each segment within a site 
-analyst.per.seg<-sfm %>% filter(ANALYST=="RS" | ANALYST=="MW" | ANALYST=="MA") #for comparison plots NOT calibration plots
+analyst.per.seg<-sfm %>% filter(ANALYST=="RS" | ANALYST=="MW" | ANALYST=="MA") 
 analyst.per.seg <- ddply(sfm,.(SITE, SEGMENT), summarize, num.analyst = n_distinct(ANALYST))
 analyst.multiple <- filter(analyst.per.seg, num.analyst>1)
 analyst.multiple.names <- left_join(analyst.multiple, sfm[,1:6]) 
@@ -219,7 +218,6 @@ write.csv(analyst.multiple.names, "Duplicate_analyst_eval.csv")
 
 output[4,]<-c("All segments have been annotated by one individuals","Multiple segments with > 1 annotator -- ok") #change depending on output from previous line of code
 
-#Jan17=44 site-segs with at least 2 annotators
 
 
 
@@ -357,17 +355,6 @@ ad<-subset(ad,select=-c(Adult_Juvenile,totaldead))
 j<-subset(sfm,Adult_Juvenile=="J"&SEGLENGTH!=2.5) # includes segments where NO_COLONY = -1
 j<-subset(j,select=c(FID,ANALYST,OBS_YEAR,SITE,SEGMENT,SEGLENGTH,SEGWIDTH,NO_COLONY_,SPCODE,FRAGMENT_Y,MORPH_CODE,EX_BOUND,SHAPE_Leng,SEGAREA))
 
-analyst.per.seg.j<-j %>% filter(ANALYST=="RS" | ANALYST=="MW" | ANALYST=="MA") #for comparison plots NOT calibration plots
-analyst.per.seg.j <- ddply(j,.(SITE, SEGMENT), summarize, num.analyst = n_distinct(ANALYST))
-analyst.multiple.j <- filter(analyst.per.seg.j, num.analyst>1) 
-
-analyst.per.seg.ad<-ad %>% filter(ANALYST=="RS" | ANALYST=="MW" | ANALYST=="MA") #for comparison plots NOT calibration plots
-analyst.per.seg.ad$ANALYST<-droplevels(analyst.per.seg.ad$ANALYST)
-analyst.per.seg.ad <- ddply(analyst.per.seg.ad,.(SITE, SEGMENT), summarize, num.analyst = n_distinct(ANALYST))
-analyst.multiple.ad <- filter(analyst.per.seg.ad, num.analyst>1) 
-
-
-
 
 #Make sure that you have all the segments that are reported as annotated in the tracking datasheet
 seglist<-read.csv("INSERT FILE PATH TO SEGMENT LIST PULLED FROM THE TRACKING SHEET") #We haven't been recording this information yet. 
@@ -377,7 +364,7 @@ adseglist<-merge(ad,seglist,by=c(SITE,n),all=T)
 
 #Export QC'd data
 #Data ends up in "T:/Benthic/Data/SfM/QC" NOT within Benthic-Scripts Github folder
-setwd('T:/Benthic/Data/SfM/QC/')
+setwd('T:/Benthic/Data/SfM/Calibration QC')
 write.csv(ad,"HARAMP2019_QCdsfm_ADULT.csv",row.names = F)
 write.csv(j,"HARAMP2019_QCdsfm_JUV.csv",row.names = F)
 
