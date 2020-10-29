@@ -1,5 +1,6 @@
 #This script reads in the diver and SfM-generated demographic data that has been QC'd and cleaned up
-#Then generates site-level summarized that for methods comparision
+#Then generates site-level or segment-level summarized that for methods comparision
+#Script created by Courtney Couch. updated on 10/27/20
 
 rm(list=ls())
 
@@ -58,11 +59,8 @@ length(unique(j_sfm$SITE_SEG));length(unique(j_sfm$SITE)) #should be 312 ss and 
 
 # PREP VISUAL DIVER DATA ---------------------------------------------
 ## LOAD benthic data
-# awd_<-read.csv("T:/Benthic/Data/REA Coral Demography & Cover/Analysis Ready Raw data/CoralBelt_Adults_raw_CLEANED.csv")
-# jwd_<-read.csv("T:/Benthic/Data/REA Coral Demography & Cover/Analysis Ready Raw data/CoralBelt_Juveniles_raw_CLEANED.csv")
-
-awd_<-read.csv("C:/Users/Courtney.S.Couch/Documents/Courtney's Files/R Files/ESD/Data/REA Coral Demography & Cover/Analysis Ready Raw data/CoralBelt_E_raw_CLEANED.csv")
-jwd_<-read.csv("C:/Users/Courtney.S.Couch/Documents/Courtney's Files/R Files/ESD/Data/REA Coral Demography & Cover/Analysis Ready Raw data/CoralBelt_F_raw_CLEANED.csv")
+awd_<-read.csv("T:/Benthic/Data/REA Coral Demography & Cover/Analysis Ready Raw data/CoralBelt_Adults_raw_CLEANED.csv")
+jwd_<-read.csv("T:/Benthic/Data/REA Coral Demography & Cover/Analysis Ready Raw data/CoralBelt_Juveniles_raw_CLEANED.csv")
 
 awd<-subset(awd_,OBS_YEAR=="2019"&TRANSECT==1)
 jwd<-subset(jwd_,OBS_YEAR=="2019"&TRANSECT==1)
@@ -123,16 +121,20 @@ awd<-awd.; rm("awd.") #remove temporary dataframe if all good.
 #Change columns to merge with sfm data
 colnames(awd)[which(colnames(awd) == 'DIVER')] <- "ANALYST"
 colnames(jwd)[which(colnames(jwd) == 'DIVER')] <- "ANALYST"
-awd$EX_BOUND<-0;awd$EX_BOUND<-as.numeric(awd$EX_BOUND)
+awd$EX_BOUND<-0;awd$EX_BOUND<-as.numeric(awd$EX_BOUND) #add ex_bound columns to match SfM
 jwd$EX_BOUND<-0;jwd$EX_BOUND<-as.numeric(jwd$EX_BOUND)
+
+
+
+#Calculate segment area
+awd$SEGAREA<-awd$SEGLENGTH*awd$SEGWIDTH
+jwd$SEGAREA<-jwd$SEGLENGTH*jwd$SEGWIDTH
 
 #Only include sites and segments surveyed by divers during HARAMP 2019
 awd$SITE_SEG<-paste(awd$SITE,awd$SEGMENT,sep="_")
 jwd$SITE_SEG<-paste(jwd$SITE,jwd$SEGMENT,sep="_")
 
-awd$SEGAREA<-awd$SEGLENGTH*awd$SEGWIDTH
-jwd$SEGAREA<-jwd$SEGLENGTH*jwd$SEGWIDTH
-
+#remove columns that aren't needed & 
 awd<-dplyr::select(awd,-c(TRANSECTAREA,bANALYSIS_SCHEME,ANALYSIS_YEAR,EXCLUDE_FLAG,REGION_NAME,NO_SURVEY_YN,DATE_,ISLANDCODE))
 jwd<-dplyr::select(jwd,-c(TRANSECTAREA,bANALYSIS_SCHEME,ANALYSIS_YEAR,EXCLUDE_FLAG,REGION_NAME,NO_SURVEY_YN,DATE_,ISLANDCODE))
 awd<-dplyr::filter(awd, SITE_SEG %in% c(ad_sfm$SITE_SEG));head(awd) 
@@ -150,13 +152,14 @@ length(unique(jwd$SITE))
 ad_sfm_sub<-dplyr::filter(ad_sfm, SITE_SEG %in% c(awd$SITE_SEG));nrow(ad_sfm);nrow(ad_sfm_sub)
 j_sfm_sub<-dplyr::filter(j_sfm, SITE_SEG %in% c(jwd$SITE_SEG));nrow(j_sfm);nrow(j_sfm_sub);View(j_sfm_sub) 
 
-
 length(unique(ad_sfm_sub$SITE));length(unique(ad_sfm_sub$SITE_SEG))
 length(unique(j_sfm_sub$SITE));length(unique(j_sfm_sub$SITE_SEG))
 
+# Add Method column to diver data
 awd$METHOD<-"Diver";awd$METHOD<-as.factor(awd$METHOD)
 jwd$METHOD<-"Diver";jwd$METHOD<-as.factor(jwd$METHOD)
 
+#Merge diver and SfM data
 sort(colnames(awd))
 sort(colnames(ad_sfm_sub))
 
@@ -169,6 +172,7 @@ sapply(ad_sfm,class)
 awd.all<-rbind(ad_sfm_sub,awd)
 jwd.all<-rbind(j_sfm_sub,jwd)
 
+#Calculate transect area
 awd.all$TRANSECTAREA<-TransectareaMETHOD(awd.all)
 jwd.all$TRANSECTAREA<-TransectareaMETHOD(jwd.all)
 

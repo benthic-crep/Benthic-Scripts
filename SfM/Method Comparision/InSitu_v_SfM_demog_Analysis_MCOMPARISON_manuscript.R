@@ -1,5 +1,6 @@
-#This script reads in the diver and SfM-generated demographic data that has been QC'd and cleaned up
-#Then generates segment-level summarized that for methods comparision
+#This script reads in the segment and site-level data for the larger comparative analysis (104 HARAMP sites)
+#It tests for bias between methods, habitat x method and depth x method
+#Script created by Courtney Couch. updated on 10/27/20
 
 rm(list=ls())
 
@@ -46,7 +47,7 @@ Plot1to1_new<-function(d,response_variable,predictor_variable,r_name,p_name,x,y)
     geom_abline(slope=1, intercept=0) +
     #geom_jitter(width=.25,height=0,color="black",alpha=0.5)+
     geom_smooth(method="lm", color="red", linetype="dashed", se=F) +
-    geom_label(label=r_text,x=x,y=y, nudge_y=-0.1, nudge_x=1,label.size=0.35, color="black", fill="white") +
+    geom_label(label=r_text,x=x,y=y, nudge_y=-0.1, nudge_x=1,label.size=0.35, color="black", fill="cyan4") +
     theme_bw()+
     theme(panel.grid.major = element_blank()
           ,panel.grid.minor = element_blank())+
@@ -62,7 +63,7 @@ PlotMethod<-function(d,grouping_field,metric_field,genus_field,metric_name,x,y,s
   
   p<-ggplot(s, aes(x=METHOD, y=METRIC, fill=METHOD)) + 
     geom_boxplot() +
-    geom_label(label=siglabel, x=x,y=y,label.size = 0.35,color = "black", fill="white")+
+    geom_label(label=siglabel, x=x,y=y,label.size = 0.35,color = "black", fill="cyan4")+
     theme_bw() +
     theme(
       axis.text.x = element_text(angle = 0)
@@ -71,16 +72,18 @@ PlotMethod<-function(d,grouping_field,metric_field,genus_field,metric_name,x,y,s
       ,panel.grid.minor = element_blank()
       ,axis.ticks.x = element_blank() # no x axis ticks
       ,axis.title.x = element_text( vjust = -.0001)
-      ,legend.position="none")+ # adjust x axis to lower the same amount as the genus labels
-    labs(x="Method",y=metric_name)
+      ,legend.position="none")+
+      scale_fill_manual(values=c("cyan4", "darkorange1"))+
+      labs(x="Method",y=metric_name)
   return(p)
 }
+
 PlotMethod_Diversity<-function(d,metric_field,metric_name,x,y,siglabel){
   d$METRIC<-d[,metric_field]
 
   p<-ggplot(d, aes(x=METHOD, y=METRIC, fill=METHOD)) + 
     geom_boxplot() +
-    geom_label(label=siglabel, x=x,y=y,label.size = 0.35,color = "black", fill="white")+
+    geom_label(label=siglabel, x=x,y=y,label.size = 0.35,color = "black", fill="cyan4")+
     theme_bw() +
     theme(
       axis.text.x = element_text(angle = 0)
@@ -90,6 +93,7 @@ PlotMethod_Diversity<-function(d,metric_field,metric_name,x,y,siglabel){
       ,axis.ticks.x = element_blank() # no x axis ticks
       ,axis.title.x = element_text( vjust = -.0001)
       ,legend.position="none")+ # adjust x axis to lower the same amount as the genus labels
+    scale_fill_manual(values=c("cyan4", "darkorange1"))+
     labs(x="Method",y=metric_name)
   return(p)
 }
@@ -101,7 +105,7 @@ PlotHabitat<-function(d,grouping_field,metric_field,genus_field,metric_name,x,y,
   p<-ggplot(s, aes(x=HAB_R1, y=METRIC, fill=METHOD)) + 
     geom_boxplot() +
     theme_bw() +
-    geom_label(label=siglabel, x=x,y=y,label.size = 0.35,color = "black", fill="white")+
+    geom_label(label=siglabel, x=x,y=y,label.size = 0.35,color = "black", fill="cyan4")+
     theme(
       axis.text.x = element_text(angle = 90)
       ,plot.background = element_blank()
@@ -109,6 +113,7 @@ PlotHabitat<-function(d,grouping_field,metric_field,genus_field,metric_name,x,y,
       ,panel.grid.minor = element_blank()
       ,axis.title.x = element_text( vjust = -.0001) # adjust x axis to lower the same amount as the genus labels
       ,legend.position="none")+
+    scale_fill_manual(values=c("cyan4", "darkorange1"))+
     labs(x="Habitat Type",y=metric_name)
   return(p)
 }
@@ -117,7 +122,7 @@ PlotHabitat_Diversity<-function(d,metric_field,metric_name,x,y,siglabel){
   p<-ggplot(d, aes(x=HAB_R1, y=METRIC, fill=METHOD)) + 
     geom_boxplot() +
     theme_bw() +
-    geom_label(label=siglabel, x=x,y=y,label.size = 0.35,color = "black", fill="white")+
+    geom_label(label=siglabel, x=x,y=y,label.size = 0.35,color = "black", fill="cyan4")+
     theme(
       axis.text.x = element_text(angle = 90)
       ,plot.background = element_blank()
@@ -125,6 +130,7 @@ PlotHabitat_Diversity<-function(d,metric_field,metric_name,x,y,siglabel){
       ,panel.grid.minor = element_blank()
       ,axis.title.x = element_text( vjust = -.0001) # adjust x axis to lower the same amount as the genus labels
       ,legend.position="none")+
+    scale_fill_manual(values=c("cyan4", "darkorange1"))+
     labs(x="Habitat Type",y=metric_name)
   return(p)
 }
@@ -140,7 +146,7 @@ PlotDepth<-function(d,grouping_field,metric_field,metric_field2,genus_field,metr
     geom_line(data = newdat.lme, aes(y = METRIC2), size = 1)+
     geom_ribbon(data = newdat.lme, aes(y = NULL, ymin = lower, ymax = upper, 
                                        color = NULL, fill = METHOD),alpha = .15)+
-    geom_label(label=siglabel, x=x,y=y,label.size = 0.35,color = "black", fill="white")+
+    geom_label(label=siglabel, x=x,y=y,label.size = 0.35,color = "black", fill="cyan4")+
     theme_bw() +
     theme(
       axis.text.x = element_text(angle = 0)
@@ -150,6 +156,8 @@ PlotDepth<-function(d,grouping_field,metric_field,metric_field2,genus_field,metr
       ,axis.title.x = element_text( vjust = -.0001) # adjust x axis to lower the same amount as the genus labels
       ,legend.position="none")+
     scale_x_continuous(breaks=seq(0,30,5))+
+    scale_fill_manual(values=c("Diver"="cyan4", "SfM"="darkorange1"))+
+    scale_color_manual(values=c("cyan4", "darkorange1"))+
     labs(x="Max Depth (m)",y=metric_name)
   return(p)
 }
@@ -162,7 +170,7 @@ PlotDepth_Diversity<-function(d,metric_field,metric_field2,metric_name,x,y,sigla
     geom_line(data = newdat.lme, aes(y = METRIC2), size = 1)+
     geom_ribbon(data = newdat.lme, aes(y = NULL, ymin = lower, ymax = upper, 
                                        color = NULL, fill = METHOD),alpha = .15)+
-    geom_label(label=siglabel, x=x,y=y,label.size = 0.35,color = "black", fill="white")+
+    geom_label(label=siglabel, x=x,y=y,label.size = 0.35,color = "black", fill="cyan4")+
     theme_bw() +
     theme(
       axis.text.x = element_text(angle = 0)
@@ -172,6 +180,8 @@ PlotDepth_Diversity<-function(d,metric_field,metric_field2,metric_name,x,y,sigla
       ,axis.title.x = element_text( vjust = -.0001) # adjust x axis to lower the same amount as the genus labels
       ,legend.position="none")+
     scale_x_continuous(breaks=seq(0,30,5))+
+    scale_fill_manual(values=c("cyan4", "darkorange1"))+
+    scale_color_manual(values=c("cyan4", "darkorange1"))+
     labs(x="Max Depth (m)",y=metric_name)
   return(p)
 }
@@ -191,6 +201,8 @@ PlotDepth_NP<-function(d,grouping_field,metric_field,genus_field,metric_name){
           ,axis.title.x = element_text( vjust = -.0001) # adjust x axis to lower the same amount as the genus labels
           ,legend.position="none")+
     scale_x_continuous(breaks=seq(0,30,5))+
+    scale_fill_manual(values=c("cyan4", "darkorange1"))+
+    scale_color_manual(values=c("cyan4", "darkorange1"))+
     labs(x="Max Depth (m)",y=metric_name)     
   return(p1)
 }
@@ -352,7 +364,7 @@ head(seg.wide)
 #   p<-ggplot(s, aes(x=ANALYST, y=METRIC, fill=METHOD)) + 
 #     geom_boxplot() +
 #     theme_bw() +
-#     geom_label(label=siglabel, x=x,y=y,label.size = 0.35,color = "black", fill="white")+
+#     geom_label(label=siglabel, x=x,y=y,label.size = 0.35,color = "black", fill="cyan4")+
 #     theme(
 #       axis.text.x = element_text(angle = 0)
 #       ,plot.background = element_blank()
@@ -384,7 +396,7 @@ head(seg.wide)
 # anova(mod3,mod2,test="Chisq")
 # 
 # p2<-PlotANALYST(sub.seg,"GENUS_CODE","JuvColDen","SSSS","Juvenile Density",1.5,36,"NS")
-# #p1<-p1+geom_label(label="Significant", x=1,y=36,label.size = 0.35,color = "black", fill="#00BFC4")
+# #p1<-p1+geom_label(label="Significant", x=1,y=36,label.size = 0.35,color = "black", fill=""darkorange1"")
 # p2
 # 
 # #Ave. size
@@ -402,7 +414,7 @@ head(seg.wide)
 # anova(mod3,mod2,test="Chisq")
 # 
 # p3<-PlotANALYST(sub.seg,"GENUS_CODE","Ave.size","SSSS","Average Max Diameter",1.5,36,"NS")
-# #p1<-p1+geom_label(label="Significant", x=1,y=36,label.size = 0.35,color = "black", fill="#00BFC4")
+# #p1<-p1+geom_label(label="Significant", x=1,y=36,label.size = 0.35,color = "black", fill=""darkorange1"")
 # p3
 # 
 # #Ave. od- can't transform
@@ -418,7 +430,7 @@ head(seg.wide)
 # 
 # 
 # p4<-PlotANALYST(sub.seg,"GENUS_CODE","Ave.od","SSSS","Average % Old Dead",1,36,"NS")
-# #p1<-p1+geom_label(label="Significant", x=1,y=36,label.size = 0.35,color = "black", fill="#00BFC4")
+# #p1<-p1+geom_label(label="Significant", x=1,y=36,label.size = 0.35,color = "black", fill=""darkorange1"")
 # p4
 # 
 # 
@@ -434,7 +446,7 @@ head(seg.wide)
 # 
 # 
 # p5<-PlotANALYST(sub.seg,"GENUS_CODE","Ave.rd","SSSS","Average % Recent Dead",1,10,"Significant")
-# p5<-p5+geom_label(label="Significant", x=1,y=10,label.size = 0.35,color = "black", fill="#00BFC4")
+# p5<-p5+geom_label(label="Significant", x=1,y=10,label.size = 0.35,color = "black", fill=""darkorange1"")
 # p5
 # 
 # #Acute disease
@@ -449,7 +461,7 @@ head(seg.wide)
 # 
 # 
 # p6<-PlotANALYST(sub.seg,"GENUS_CODE","AcuteDZ_prev","SSSS","Acute Disease Prevalence (%)",1,20,"Significant")
-# p6<-p6+geom_label(label="Significant", x=1,y=20,label.size = 0.35,color = "black", fill="#00BFC4")
+# p6<-p6+geom_label(label="Significant", x=1,y=20,label.size = 0.35,color = "black", fill=""darkorange1"")
 # p6
 # 
 # #Chronic disease
@@ -477,14 +489,14 @@ head(seg.wide)
 # 
 # 
 # p8<-PlotANALYST(sub.seg,"GENUS_CODE","BLE_prev","SSSS","Bleaching Prevalence (%)",1,45,"Significant")
-# p8<-p8+geom_label(label="Significant", x=1,y=45,label.size = 0.35,color = "black", fill="#00BFC4")
-# p8<-p8+geom_label(label="Significant", x=2,y=45,label.size = 0.35,color = "black", fill="#00BFC4")
+# p8<-p8+geom_label(label="Significant", x=1,y=45,label.size = 0.35,color = "black", fill=""darkorange1"")
+# p8<-p8+geom_label(label="Significant", x=2,y=45,label.size = 0.35,color = "black", fill=""darkorange1"")
 # p8
 # 
 # 
 # allplots<-grid.arrange(p1,p2,p3,p4,p5,p6,p7,p8,nrow=2,ncol=4)
 # 
-# ggsave(plot<-allplots,file="T:/Benthic/Data/SfM/Method Comparision/Figures/Analystplots_stats.png",width=10,height=5)
+# ggsave(plot<-allplots,file="T:/Benthic/Data/SfM/Method Comparision/Figures/Analystplots_stats.jpeg",width=10,height=5)
 # 
 
 
@@ -626,6 +638,7 @@ p2<-ggplot(subset(site,GENUS_CODE=="SSSS"), aes(x=HAB_R1, y=AdColDen, fill=METHO
 p2
 
 #https://stats.stackexchange.com/questions/375911/strange-qqplot-for-poisson-gam
+#I didn't use this function, but left it in here in case I want to in the future. 
 
 # glmerDensity<-function(d,grouping_field="GENUS_CODE",metric_field="AdColDen"){
 #   d$GROUP<-d[,grouping_field]
@@ -691,8 +704,8 @@ p2
 s<-subset(site,GENUS_CODE=="SSSS")
 hist(log(s$AdColDen))
 
+#Sqrt transformation works best
 s$sqAdColDen<-sqrt(s$AdColDen)
-
 m<-lmer(sqAdColDen~METHOD + (1|SEC_NAME),data=s)
 m<-lm(length~model,data=s)
 
@@ -712,13 +725,13 @@ plot(E2~s$METHOD, ylab = 'residuals', xlab = "METHOD")
 
 DPlots(m,s)
 
-
+#Model selection using likelihood ratio tests
 full.form <- formula(sqAdColDen ~ METHOD*MAX_DEPTH_M*HAB_R1, data=s)
 
 #fit lme using "ML"= maximum likelihood - so can use step fxn
 full.lme <-lme(full.form, data=s, random=~1|SEC_NAME, method="ML") #use if needed
 
-#drop 3-way interaction term
+#drop 3-way interaction term - we aren't interested in it.
 FULL.MOD <- update(full.lme, .~. -METHOD:MAX_DEPTH_M:HAB_R1) 
 FULL.MOD <- update(FULL.MOD, .~. -MAX_DEPTH_M:HAB_R1) 
 anova(FULL.MOD) #from output, drop the 2-way interaction term with the larger p-value first
@@ -753,20 +766,20 @@ newdat.lme$upper = with(newdat.lme, predlme + 2*sqrt(predvar) )
 newdat.lme$lower<-newdat.lme$lower^2 #back transform predicted values
 newdat.lme$upper<-newdat.lme$upper^2 #back transform predicted values
 
-
+#convert to wide format
 s.wide<-subset(site.wide,GENUS_CODE=="SSSS")
 
 #I plotted the signficance labels outside of the axis limits for the publication
-p1<-Plot1to1_new(s.wide,"SfM_AdColDen","Diver_AdColDen","SfM Adult Density","Diver Adult Density",5,25)+labs(tag = "A")
-p2<-PlotMethod(site,"GENUS_CODE","AdColDen","SSSS","Adult Density",1.5,50,"NS")+labs(tag = "B")
-p3<-PlotHabitat(site,"GENUS_CODE","AdColDen","SSSS","Adult Density",3,50,"Method x Habitat NS")+labs(tag = "A")
+p1<-Plot1to1_new(s.wide,"SfM_AdColDen","Diver_AdColDen","SfM Adult Density","Diver Adult Density",5,25)+labs(tag = "(A)")
+p2<-PlotMethod(site,"GENUS_CODE","AdColDen","SSSS","Adult Density",1.5,50,"NS")+labs(tag = "(B)")
+p3<-PlotHabitat(site,"GENUS_CODE","AdColDen","SSSS","Adult Density",3,50,"Method x Habitat NS")+labs(tag = "(A)")
 p3<-p3+theme(axis.title.x=element_blank(),axis.text.x=element_blank()) #Remove axis labels for the manuscript
-p4<-PlotDepth(site,"GENUS_CODE","AdColDen","AdColDen","SSSS","Adult Density",15,50,"Method x Depth NS")+labs(tag = "B")
+p4<-PlotDepth(site,"GENUS_CODE","AdColDen","AdColDen","SSSS","Adult Density",15,50,"Method x Depth NS")+labs(tag = "(B)")
 p4<-p4+theme(axis.title.x=element_blank(),axis.text.x=element_blank())#Remove axis labels for the manuscript
 
 AdColDenS<-grid.arrange(p1,p2,p3,p4,nrow=2,ncol=2)
 
-ggsave(plot<-AdColDenS,file="T:/Benthic/Data/SfM/Method Comparision/Figures/AdColDenSSSS_stats.png",width=8,height=6)
+ggsave(plot<-AdColDenS,file="T:/Benthic/Data/SfM/Method Comparision/Figures/AdColDenSSSS_stats.jpeg",width=8,height=6)
 
 AdColDen_1n2<-grid.arrange(p1,p2,nrow=1,ncol=2)
 AdColDen_3n4<-grid.arrange(p3,p4,nrow=1,ncol=2)
@@ -837,16 +850,16 @@ newdat.lme$upper = with(newdat.lme, predlme + 2*sqrt(predvar) )
 newdat.lme$lower<-newdat.lme$lower^2 #back transform predicted values
 newdat.lme$upper<-newdat.lme$upper^2 #back transform predicted values
 
-p1<-Plot1to1_new(s.wide,"SfM_JuvColDen","Diver_JuvColDen","SfM Juvenile Density","Diver Juvenile Density",10,52)+labs(tag = "C")
-p2<-PlotMethod(site,"GENUS_CODE","JuvColDen","SSSS","Juvenile Density",1.5,80,"NS")+labs(tag = "D")
-p3<-PlotHabitat(site,"GENUS_CODE","JuvColDen","SSSS","Juvenile Density",3,80,"Method x Habitat NS")+labs(tag = "C")
+p1<-Plot1to1_new(s.wide,"SfM_JuvColDen","Diver_JuvColDen","SfM Juvenile Density","Diver Juvenile Density",10,52)+labs(tag = "(C)")
+p2<-PlotMethod(site,"GENUS_CODE","JuvColDen","SSSS","Juvenile Density",1.5,80,"NS")+labs(tag = "(D)")
+p3<-PlotHabitat(site,"GENUS_CODE","JuvColDen","SSSS","Juvenile Density",3,80,"Method x Habitat NS")+labs(tag = "(C)")
 p3<-p3+theme(axis.title.x=element_blank(),axis.text.x=element_blank()) #Remove axis labels for the manuscript
-p4<-PlotDepth(site,"GENUS_CODE","JuvColDen","JuvColDen","SSSS","Juvenile Density",15,80,"Method x Depth NS")+labs(tag = "D")
+p4<-PlotDepth(site,"GENUS_CODE","JuvColDen","JuvColDen","SSSS","Juvenile Density",15,80,"Method x Depth NS")+labs(tag = "(D)")
 p4<-p4+theme(axis.title.x=element_blank(),axis.text.x=element_blank()) #Remove axis labels for the manuscript
 
 JuvColDenS<-grid.arrange(p1,p2,p3,p4,nrow=2,ncol=2)
 
-ggsave(plot<-JuvColDenS,file="T:/Benthic/Data/SfM/Method Comparision/Figures/JuvColDenSSSS_stats.png",width=8,height=6)
+ggsave(plot<-JuvColDenS,file="T:/Benthic/Data/SfM/Method Comparision/Figures/JuvColDenSSSS_stats.jpeg",width=8,height=6)
 
 JuvColDen_1n2<-grid.arrange(p1,p2,nrow=1,ncol=2)
 JuvColDen_3n4<-grid.arrange(p3,p4,nrow=1,ncol=2)
@@ -903,16 +916,16 @@ newdat.lme$upper = with(newdat.lme, predlme + 2*sqrt(predvar) )
 newdat.lme$lower<-exp(newdat.lme$lower) #back transform predicted values
 newdat.lme$upper<-exp(newdat.lme$upper) #back transform predicted values
 
-p1<-Plot1to1_new(s.wide,"SfM_Ave.size","Diver_Ave.size","SfM Ave. Max Diameter (cm)","Diver Ave. Max Diameter (cm)",5,28)+labs(tag = "E")
-p2<-PlotMethod(site,"GENUS_CODE","Ave.size","SSSS","Ave. Max Diameter (cm)",1.5,50,"NS")+labs(tag = "F")
-p3<-PlotHabitat(site,"GENUS_CODE","Ave.size","SSSS","Ave. Max Diameter (cm)",3,50,"Method x Habitat NS")+labs(tag = "E")
+p1<-Plot1to1_new(s.wide,"SfM_Ave.size","Diver_Ave.size","SfM Ave. Max Diameter (cm)","Diver Ave. Max Diameter (cm)",5,28)+labs(tag = "(E)")
+p2<-PlotMethod(site,"GENUS_CODE","Ave.size","SSSS","Ave. Max Diameter (cm)",1.5,50,"NS")+labs(tag = "(F)")
+p3<-PlotHabitat(site,"GENUS_CODE","Ave.size","SSSS","Ave. Max Diameter (cm)",3,50,"Method x Habitat NS")+labs(tag = "(E)")
 p3<-p3+theme(axis.title.x=element_blank(),axis.text.x=element_blank()) #Remove axis labels for the manuscript
-p4<-PlotDepth(site,"GENUS_CODE","Ave.size","Ave.size","SSSS","Ave. Max Diameter (cm)",15,50,"Method x Depth NS")+labs(tag = "F")
+p4<-PlotDepth(site,"GENUS_CODE","Ave.size","Ave.size","SSSS","Ave. Max Diameter (cm)",15,50,"Method x Depth NS")+labs(tag = "(F)")
 p4<-p4+theme(axis.title.x=element_blank(),axis.text.x=element_blank()) #Remove axis labels for the manuscript
 
 Ave.sizeS<-grid.arrange(p1,p2,p3,p4,nrow=2,ncol=2)
 
-ggsave(plot<-Ave.sizeS,file="T:/Benthic/Data/SfM/Method Comparision/Figures/Ave.sizeSSSS_stats.png",width=8,height=6)
+ggsave(plot<-Ave.sizeS,file="T:/Benthic/Data/SfM/Method Comparision/Figures/Ave.sizeSSSS_stats.jpeg",width=8,height=6)
 
 Ave.size_1n2<-grid.arrange(p1,p2,nrow=1,ncol=2)
 Ave.size_3n4<-grid.arrange(p3,p4,nrow=1,ncol=2)
@@ -968,17 +981,17 @@ newdat.lme$upper = with(newdat.lme, predlme + 2*sqrt(predvar) )
 newdat.lme$lower<-newdat.lme$lower^2 #back transform predicted values
 newdat.lme$upper<-newdat.lme$upper^2 #back transform predicted values
 
-p1<-Plot1to1_new(s.wide,"SfM_Ave.od","Diver_Ave.od","SfM Ave. % Old Dead","Diver Ave. % Old Dead", 10, 45)+labs(tag = "G")
-p2<-PlotMethod(site,"GENUS_CODE","Ave.od","SSSS","Ave. % Old Dead",2,50,"*")+labs(tag = "H")
-p2<-p2+geom_label(label="*", x=2,y=50,label.size = 0.35,color = "black", fill="#00BFC4")
-p3<-PlotHabitat(site,"GENUS_CODE","Ave.od","SSSS","Ave. % Old Dead",3,65,"Method x Habitat NS")+labs(tag = "G")
+p1<-Plot1to1_new(s.wide,"SfM_Ave.od","Diver_Ave.od","SfM Ave. % Old Dead","Diver Ave. % Old Dead", 10, 45)+labs(tag = "(G)")
+p2<-PlotMethod(site,"GENUS_CODE","Ave.od","SSSS","Ave. % Old Dead",2,50,"*")+labs(tag = "(H)")
+p2<-p2+geom_label(label="*", x=2,y=50,label.size = 0.35,color = "black", fill=""darkorange1"")
+p3<-PlotHabitat(site,"GENUS_CODE","Ave.od","SSSS","Ave. % Old Dead",3,65,"Method x Habitat NS")+labs(tag = "(G)")
 p3<-p3+theme(axis.title.x=element_blank(),axis.text.x=element_blank()) #Remove axis labels for the manuscript
-p4<-PlotDepth(site,"GENUS_CODE","Ave.od","Ave.od","SSSS","Ave. % Old Dead",15,65,"Method x Depth NS")+labs(tag = "H")
+p4<-PlotDepth(site,"GENUS_CODE","Ave.od","Ave.od","SSSS","Ave. % Old Dead",15,65,"Method x Depth NS")+labs(tag = "(H)")
 p4<-p4+theme(axis.title.x=element_blank(),axis.text.x=element_blank()) #Remove axis labels for the manuscript
 
 Ave.odS<-grid.arrange(p1,p2,p3,p4,nrow=2,ncol=2)
 
-ggsave(plot<-Ave.odS,file="T:/Benthic/Data/SfM/Method Comparision/Figures/Ave.odSSSS_stats.png",width=8,height=6)
+ggsave(plot<-Ave.odS,file="T:/Benthic/Data/SfM/Method Comparision/Figures/Ave.odSSSS_stats.jpeg",width=8,height=6)
 
 Ave.od_1n2<-grid.arrange(p1,p2,nrow=1,ncol=2)
 Ave.od_3n4<-grid.arrange(p3,p4,nrow=1,ncol=2)
@@ -1021,10 +1034,10 @@ p4<-PlotDepth_NP(site,"GENUS_CODE","Ave.rd","SSSS","Average % Recent Dead")
 
 Ave.rdS<-grid.arrange(p1,p2,p3,p4,nrow=4,ncol=1)
 
-ggsave(plot<-Ave.rdS,file="T:/Benthic/Data/SfM/Method Comparision/Figures/Ave.rdSSSS_stats.png",width=8,height=6)
+ggsave(plot<-Ave.rdS,file="T:/Benthic/Data/SfM/Method Comparision/Figures/Ave.rdSSSS_stats.jpeg",width=8,height=6)
 
 allplots<-grid.arrange(Ave.odS,Ave.rdS,nrow=1,ncol=3)
-ggsave(plot<-allplots,file="T:/Benthic/Data/SfM/Method Comparision/Figures/PartialMortality_stats.png",width=8,height=10)
+ggsave(plot<-allplots,file="T:/Benthic/Data/SfM/Method Comparision/Figures/PartialMortality_stats.jpeg",width=8,height=10)
 
 
 #Identify % of sites that had 0 rd for one method but not the other
@@ -1065,6 +1078,7 @@ wilcox.test(AcuteDZ_prev ~ METHOD, data=subset(s,HAB_R1=="Pavement"))
 wilcox.test(AcuteDZ_prev ~ METHOD, data=subset(s,HAB_R1=="Rock & Boulder")) 
 wilcox.test(AcuteDZ_prev ~ METHOD, data=subset(s,HAB_R1=="Rubble")) 
 
+#multiple test correction
 pval<-c(0.155,
         0.0681,
         0.7014,
@@ -1084,7 +1098,7 @@ p4<-PlotDepth_NP(site,"GENUS_CODE","AcuteDZ_prev","SSSS","Prevalence (%)")
 
 acutedzS<-grid.arrange(p1,p2,p3,p4,nrow=4,ncol=1)
 
-#ggsave(plot<-acutedzS,file="T:/Benthic/Data/SfM/Method Comparision/Figures/AcuteDZSSSS_stats.png",width=8,height=6)
+#ggsave(plot<-acutedzS,file="T:/Benthic/Data/SfM/Method Comparision/Figures/AcuteDZSSSS_stats.jpeg",width=8,height=6)
 
 #Identify % of sites that had 0 rd for one method but not the other
 a<-(s.wide[ which(s.wide$SfM_AcuteDZ_prev ==0 & s.wide$Diver_AcuteDZ_prev>0) , ])
@@ -1107,6 +1121,7 @@ s$ChronicDZ<-(s$ChronicDZ_prev/100)*s$AdColCount
 s$test<-as.integer(as.character(s$ChronicDZ))
 head(s)
 
+#try removing sites that had 0 for both methods- transformation doesn't work
 tmp <- s.wide[ which(s.wide$SfM_ChronicDZ_prev + s.wide$Diver_ChronicDZ_prev>0) , ]
 sitelist<-unique(tmp$SITE)
 s<-dplyr::filter(s, SITE %in% sitelist);length(unique(s$SITE))
@@ -1120,6 +1135,7 @@ wilcox.test(ChronicDZ_prev ~ METHOD, data=subset(s,HAB_R1=="Pavement"))
 wilcox.test(ChronicDZ_prev ~ METHOD, data=subset(s,HAB_R1=="Rock & Boulder")) 
 wilcox.test(ChronicDZ_prev ~ METHOD, data=subset(s,HAB_R1=="Rubble")) 
 
+#multiple test correction
 pval<-c(0.292,
         0.462,
         0.5963,
@@ -1139,7 +1155,7 @@ p4<-PlotDepth_NP(site,"GENUS_CODE","ChronicDZ_prev","SSSS","Prevalence (%)")
 
 ChronicdzS<-grid.arrange(p1,p2,p3,p4,nrow=4,ncol=1)
 
-#ggsave(plot<-ChronicdzS,file="T:/Benthic/Data/SfM/Method Comparision/Figures/ChronicDZSSSS_stats.png",width=8,height=6)
+#ggsave(plot<-ChronicdzS,file="T:/Benthic/Data/SfM/Method Comparision/Figures/ChronicDZSSSS_stats.jpeg",width=8,height=6)
 
 #Identify % of sites that had 0 rd for one method but not the other
 a<-(s.wide[ which(s.wide$SfM_ChronicDZ_prev ==0 & s.wide$Diver_ChronicDZ_prev>0) , ])
@@ -1175,7 +1191,7 @@ wilcox.test(BLE_prev ~ METHOD, data=subset(s,HAB_R1=="Pavement"))
 wilcox.test(BLE_prev ~ METHOD, data=subset(s,HAB_R1=="Rock & Boulder")) 
 wilcox.test(BLE_prev ~ METHOD, data=subset(s,HAB_R1=="Rubble")) 
 
-
+#multiple test correction
 pval<-c(0.002771,
         0.6781,
         0.1804,
@@ -1187,23 +1203,23 @@ t<-subset(s,METHOD=="Diver")
 corr <- cor.test(x=t$MAX_DEPTH_M, y=t$BLE_prev, method = 'spearman')
 corr
 
-p1<-Plot1to1_new(s.wide,"SfM_BLE_prev","Diver_BLE_prev","SfM Prevalence (%)","Diver Prevalence (%)",15,62)+labs(tag = "I")
-p2<-PlotMethod(site,"GENUS_CODE","BLE_prev","SSSS"," Prevalence (%)",2,65,"*")+labs(tag = "J")
-p2<-p2+geom_label(label="*", x=2,y=65,label.size = 0.35,color = "black", fill="#00BFC4")
-p3<-PlotHabitat(site,"GENUS_CODE","BLE_prev","SSSS","Prevalence (%)",1,65,"*")+labs(tag = "I")
-p3<-p3+geom_label(label="*", x=1,y=65,label.size = 0.35,color = "black", fill="#00BFC4")
-p4<-PlotDepth_NP(site,"GENUS_CODE","BLE_prev","SSSS","Prevalence (%)")+labs(tag = "J")
+p1<-Plot1to1_new(s.wide,"SfM_BLE_prev","Diver_BLE_prev","SfM Prevalence (%)","Diver Prevalence (%)",15,62)+labs(tag = "(I)")
+p2<-PlotMethod(site,"GENUS_CODE","BLE_prev","SSSS"," Prevalence (%)",2,65,"*")+labs(tag = "(J)")
+p2<-p2+geom_label(label="*", x=2,y=65,label.size = 0.35,color = "black", fill=""darkorange1"")
+p3<-PlotHabitat(site,"GENUS_CODE","BLE_prev","SSSS","Prevalence (%)",1,65,"*")+labs(tag = "(I)")
+p3<-p3+geom_label(label="*", x=1,y=65,label.size = 0.35,color = "black", fill=""darkorange1"")
+p4<-PlotDepth_NP(site,"GENUS_CODE","BLE_prev","SSSS","Prevalence (%)")+labs(tag = "(J)")
 
 BLES<-grid.arrange(p1,p2,p3,p4,nrow=2,ncol=2)
 
-#ggsave(plot<-BLES,file="T:/Benthic/Data/SfM/Method Comparision/Figures/BLEPrevSSSS_stats.png",width=8,height=6)
+#ggsave(plot<-BLES,file="T:/Benthic/Data/SfM/Method Comparision/Figures/BLEPrevSSSS_stats.jpeg",width=8,height=6)
 
 BLE_1n2<-grid.arrange(p1,p2,nrow=1,ncol=2)
 BLE_3n4<-grid.arrange(p3,p4,nrow=1,ncol=2)
 
 
 allplots<-grid.arrange(acutedzS,ChronicdzS,BLES,nrow=1,ncol=3)
-ggsave(plot<-allplots,file="T:/Benthic/Data/SfM/Method Comparision/Figures/ConditionsALL_stats.png",width=8,height=10)
+ggsave(plot<-allplots,file="T:/Benthic/Data/SfM/Method Comparision/Figures/ConditionsALL_stats.jpeg",width=8,height=10)
 
 
 #Identify % of sites that had 0 rd for one method but not the other
@@ -1241,12 +1257,12 @@ mod2<-lmer(logAdColDen~METHOD + (1|SEC_NAME),data=s)
 
 anova(mod1,mod2,test="chisq")
 
-p1<-Plot1to1_new(s.wide,"SfM_AdColDen","Diver_AdColDen","SfM Adult Density","Diver Adult Density",5,23)+labs(tag = "A")
+p1<-Plot1to1_new(s.wide,"SfM_AdColDen","Diver_AdColDen","SfM Adult Density","Diver Adult Density",5,23)+labs(tag = "(A)")
 p1<-p1+ggtitle("Porites")+theme(plot.title = element_text(face = "italic"))
-p2<-PlotMethod(site,"GENUS_CODE","AdColDen","POSP","Adult Density",1.5,55,"NS")+labs(tag = "D")
+p2<-PlotMethod(site,"GENUS_CODE","AdColDen","POSP","Adult Density",1.5,55,"NS")+labs(tag = "(D)")
 POSPcolden<-grid.arrange(p1,p2,nrow=2,ncol=1)
 
-ggsave(plot<-POSPcolden,file="T:/Benthic/Data/SfM/Method Comparision/Figures/AdColDenPOSP_stats.png",width=5,height=5)
+ggsave(plot<-POSPcolden,file="T:/Benthic/Data/SfM/Method Comparision/Figures/AdColDenPOSP_stats.jpeg",width=5,height=5)
 
 
 ##
@@ -1276,12 +1292,12 @@ shapiro.test(dp)
 wilcox.test(AdColDen ~ METHOD, data=s) 
 
 
-p1<-Plot1to1_new(s.wide,"SfM_AdColDen","Diver_AdColDen","SfM Adult Density","Diver Adult Density",5,20)+labs(tag = "B")
+p1<-Plot1to1_new(s.wide,"SfM_AdColDen","Diver_AdColDen","SfM Adult Density","Diver Adult Density",5,20)+labs(tag = "(B)")
 p1<-p1+ggtitle("Montipora")+theme(plot.title = element_text(face = "italic"))
-p2<-PlotMethod(site,"GENUS_CODE","AdColDen","MOSP","Adult Density",1.5,40,"NS")+labs(tag = "E")
+p2<-PlotMethod(site,"GENUS_CODE","AdColDen","MOSP","Adult Density",1.5,40,"NS")+labs(tag = "(E)")
 MOSPcolden<-grid.arrange(p1,p2,nrow=2,ncol=1)
 
-ggsave(plot<-MOSPcolden,file="T:/Benthic/Data/SfM/Method Comparision/Figures/AdColDenMOSP_stats.png",width=5,height=5)
+ggsave(plot<-MOSPcolden,file="T:/Benthic/Data/SfM/Method Comparision/Figures/AdColDenMOSP_stats.jpeg",width=5,height=5)
 
 
 ##
@@ -1310,16 +1326,16 @@ DPlots(m,s)
 wilcox.test(AdColDen ~ METHOD, data=s) 
 
 
-p1<-Plot1to1_new(s.wide,"SfM_AdColDen","Diver_AdColDen","SfM Adult Density","Diver Adult Density",0.7,3.4)+labs(tag = "C")
+p1<-Plot1to1_new(s.wide,"SfM_AdColDen","Diver_AdColDen","SfM Adult Density","Diver Adult Density",0.7,3.4)+labs(tag = "(C)")
 p1<-p1+ggtitle("Pocillopora")+theme(plot.title = element_text(face = "italic"))
-p2<-PlotMethod(site,"GENUS_CODE","AdColDen","POCS","Adult Density",1.5,40,"NS")+labs(tag = "F")
+p2<-PlotMethod(site,"GENUS_CODE","AdColDen","POCS","Adult Density",1.5,40,"NS")+labs(tag = "(F)")
 POCScolden<-grid.arrange(p1,p2,nrow=2,ncol=1)
 
-ggsave(plot<-POCScolden,file="T:/Benthic/Data/SfM/Method Comparision/Figures/AdColDenPOCS_stats.png",width=5,height=5)
+ggsave(plot<-POCScolden,file="T:/Benthic/Data/SfM/Method Comparision/Figures/AdColDenPOCS_stats.jpeg",width=5,height=5)
 
 
 allplots<-grid.arrange(POSPcolden,MOSPcolden,POCScolden,nrow=1,ncol=3)
-ggsave(plot<-allplots,file="T:/Benthic/Data/SfM/Method Comparision/Figures/AdColDenDomtaxa_stats.png",width=10,height=8)
+ggsave(plot<-allplots,file="T:/Benthic/Data/SfM/Method Comparision/Figures/AdColDenDomtaxa_stats.jpeg",width=10,height=8)
 
 
 
@@ -1349,14 +1365,14 @@ mod2<-lmer(logJuvColDen~METHOD + (1|SEC_NAME),data=s)
 
 anova(mod1,mod2,test="chisq")
 
-p1<-Plot1to1_new(s.wide,"SfM_JuvColDen","Diver_JuvColDen","SfM Juvenile Density","Diver Juvenile Density",8,28)+labs(tag = "A")
+p1<-Plot1to1_new(s.wide,"SfM_JuvColDen","Diver_JuvColDen","SfM Juvenile Density","Diver Juvenile Density",8,28)+labs(tag = "(A)")
 p1<-p1+ggtitle("Porites")+theme(plot.title = element_text(face = "italic"))
-p2<-PlotMethod(site,"GENUS_CODE","JuvColDen","POSP","Juvenile Density",2,30,"*")+labs(tag = "D")
-p2<-p2+geom_label(label="*", x=2,y=30,label.size = 0.35,color = "black", fill="#00BFC4")
+p2<-PlotMethod(site,"GENUS_CODE","JuvColDen","POSP","Juvenile Density",2,30,"*")+labs(tag = "(D)")
+p2<-p2+geom_label(label="*", x=2,y=30,label.size = 0.35,color = "black", fill=""darkorange1"")
 
 POSPcolden<-grid.arrange(p1,p2,nrow=2,ncol=1)
 
-ggsave(plot<-POSPcolden,file="T:/Benthic/Data/SfM/Method Comparision/Figures/JuvColDenPOSP_stats.png",width=5,height=5)
+ggsave(plot<-POSPcolden,file="T:/Benthic/Data/SfM/Method Comparision/Figures/JuvColDenPOSP_stats.jpeg",width=5,height=5)
 
 
 ##
@@ -1386,12 +1402,12 @@ shapiro.test(dp)
 wilcox.test(JuvColDen ~ METHOD, data=s) 
 
 
-p1<-Plot1to1_new(s.wide,"SfM_JuvColDen","Diver_JuvColDen","SfM Juvenile Density","Diver Juvenile Density",5,20)+labs(tag = "B")
+p1<-Plot1to1_new(s.wide,"SfM_JuvColDen","Diver_JuvColDen","SfM Juvenile Density","Diver Juvenile Density",5,20)+labs(tag = "(B)")
 p1<-p1+ggtitle("Montipora")+theme(plot.title = element_text(face = "italic"))
-p2<-PlotMethod(site,"GENUS_CODE","JuvColDen","MOSP","Juvenile Density",1.5,40,"NS")+labs(tag = "E")
+p2<-PlotMethod(site,"GENUS_CODE","JuvColDen","MOSP","Juvenile Density",1.5,40,"NS")+labs(tag = "(E)")
 MOSPcolden<-grid.arrange(p1,p2,nrow=2,ncol=1)
 
-ggsave(plot<-MOSPcolden,file="T:/Benthic/Data/SfM/Method Comparision/Figures/JuvColDenMOSP_stats.png",width=5,height=5)
+ggsave(plot<-MOSPcolden,file="T:/Benthic/Data/SfM/Method Comparision/Figures/JuvColDenMOSP_stats.jpeg",width=5,height=5)
 
 
 ##
@@ -1420,16 +1436,16 @@ DPlots(m,s)
 wilcox.test(JuvColDen ~ METHOD, data=s) 
 
 
-p1<-Plot1to1_new(s.wide,"SfM_JuvColDen","Diver_JuvColDen","SfM Juvenile Density","Diver Juvenile Density",3.5,12)+labs(tag = "C")
+p1<-Plot1to1_new(s.wide,"SfM_JuvColDen","Diver_JuvColDen","SfM Juvenile Density","Diver Juvenile Density",3.5,12)+labs(tag = "(C)")
 p1<-p1+ggtitle("Pocillopora")+theme(plot.title = element_text(face = "italic"))
-p2<-PlotMethod(site,"GENUS_CODE","JuvColDen","POCS","Juvenile Density",2,30,"NS")+labs(tag = "F")
+p2<-PlotMethod(site,"GENUS_CODE","JuvColDen","POCS","Juvenile Density",2,30,"NS")+labs(tag = "(F)")
 POCScolden<-grid.arrange(p1,p2,nrow=2,ncol=1)
 
-ggsave(plot<-POCScolden,file="T:/Benthic/Data/SfM/Method Comparision/Figures/JuvColDenPOCS_stats.png",width=5,height=5)
+ggsave(plot<-POCScolden,file="T:/Benthic/Data/SfM/Method Comparision/Figures/JuvColDenPOCS_stats.jpeg",width=5,height=5)
 
 
 allplots<-grid.arrange(POSPcolden,MOSPcolden,POCScolden,nrow=1,ncol=3)
-ggsave(plot<-allplots,file="T:/Benthic/Data/SfM/Method Comparision/Figures/JuvColDenDomtaxa_stats.png",width=10,height=8)
+ggsave(plot<-allplots,file="T:/Benthic/Data/SfM/Method Comparision/Figures/JuvColDenDomtaxa_stats.jpeg",width=10,height=8)
 
 
 # DIVERSITY ---------------------------------------------------------------
@@ -1499,11 +1515,11 @@ newdat.lme$upper = with(newdat.lme, predlme + 2*sqrt(predvar) )
 
 
 
-p1<-Plot1to1_new(div.wide,"SfM_Adult_Richness","Diver_Adult_Richness","SfM Adult Species Richness","Diver Adult Species Richness",1.5,10)+labs(tag = "A")
-p2<-PlotMethod_Diversity(div,"Adult_Richness","Adult Species Richness",1.5, 20,"NS")+labs(tag = "B")
-p3<-PlotHabitat_Diversity(div,"Adult_Richness","Adult Species Richness",1.5, 20,"NS")+labs(tag = "A")
+p1<-Plot1to1_new(div.wide,"SfM_Adult_Richness","Diver_Adult_Richness","SfM Adult Species Richness","Diver Adult Species Richness",1.5,10)+labs(tag = "(A)")
+p2<-PlotMethod_Diversity(div,"Adult_Richness","Adult Species Richness",1.5, 20,"NS")+labs(tag = "(B)")
+p3<-PlotHabitat_Diversity(div,"Adult_Richness","Adult Species Richness",1.5, 20,"NS")+labs(tag = "(A)")
 p3<-p3+theme(axis.title.x=element_blank(),axis.text.x=element_blank()) #Remove axis labels for the manuscript
-p4<-PlotDepth_Diversity(div,"Adult_Richness","Adult_Richness","Adult Species Richness",1.5, 20,"NS")+labs(tag = "B")
+p4<-PlotDepth_Diversity(div,"Adult_Richness","Adult_Richness","Adult Species Richness",1.5, 20,"NS")+labs(tag = "(B)")
 p4<-p4+theme(axis.title.x=element_blank(),axis.text.x=element_blank()) #Remove axis labels for the manuscript
 
 AdultDiv_Rich_1n2<-grid.arrange(p1,p2,nrow=1,ncol=2)
@@ -1548,16 +1564,16 @@ newdat.lme$lower = with(newdat.lme, predlme - 2*sqrt(predvar) )
 newdat.lme$upper = with(newdat.lme, predlme + 2*sqrt(predvar) )
 
 
-p1<-Plot1to1_new(div.wide,"SfM_Adult_Shannon","Diver_Adult_Shannon","SfM Adult Shannon Diversity","Diver Adult Shannon Diversity",0.3,1.6)+labs(tag = "C")
-p2<-PlotMethod_Diversity(div,"Adult_Shannon","Adult Shannon Diversity",1.5, 20,"NS")+labs(tag = "D")
-p3<-PlotHabitat_Diversity(div,"Adult_Shannon","Adult Shannon Diversity",1.5, 20,"NS")+labs(tag = "C")
-p4<-PlotDepth_Diversity(div,"Adult_Shannon","Adult_Shannon","Adult Shannon Diversity",1.5, 20,"NS")+labs(tag = "D")
+p1<-Plot1to1_new(div.wide,"SfM_Adult_Shannon","Diver_Adult_Shannon","SfM Adult Shannon Diversity","Diver Adult Shannon Diversity",0.3,1.6)+labs(tag = "(C)")
+p2<-PlotMethod_Diversity(div,"Adult_Shannon","Adult Shannon Diversity",1.5, 20,"NS")+labs(tag = "(D)")
+p3<-PlotHabitat_Diversity(div,"Adult_Shannon","Adult Shannon Diversity",1.5, 20,"NS")+labs(tag = "(C)")
+p4<-PlotDepth_Diversity(div,"Adult_Shannon","Adult_Shannon","Adult Shannon Diversity",1.5, 20,"NS")+labs(tag = "(D)")
 
 AdultDiv_Div_1n2<-grid.arrange(p1,p2,nrow=1,ncol=2)
 AdultDiv_Div_3n4<-grid.arrange(p3,p4,nrow=1,ncol=2)
 
 # AdultDiv<-grid.arrange(p1,p2,p3,p4,nrow=2,ncol=2)
-# ggsave(plot<-AdultDiv,file="T:/Benthic/Data/SfM/Method Comparision/Figures/Adult_Diversity1to1.png",width=5,height=5)
+# ggsave(plot<-AdultDiv,file="T:/Benthic/Data/SfM/Method Comparision/Figures/Adult_Diversity1to1.jpeg",width=5,height=5)
 
 
 
@@ -1570,7 +1586,7 @@ p4<-ggplot(div.wide, aes(x=Diver_logGENSPratio_Adult, y=SfM_logGENSPratio_Adult)
   geom_abline(slope=1, intercept=0) +
   geom_jitter(width=.25,height=0,color="black",alpha=0.5)+
   geom_smooth(method="lm", color="red", linetype="dashed", se=F) +
-  geom_label(y=1,x=-1, label=r_text, nudge_y=-0.1, nudge_x=1,label.size=0.35, color="black", fill="white") +
+  geom_label(y=1,x=-1, label=r_text, nudge_y=-0.1, nudge_x=1,label.size=0.35, color="black", fill="cyan4") +
   theme_bw()+
   theme(panel.grid.major = element_blank()
         ,panel.grid.minor = element_blank())+
@@ -1588,8 +1604,8 @@ manuscriptplots_col_SEM<-grid.arrange(AdColDen_3n4,JuvColDen_3n4,Ave.size_3n4,Av
 
 manuscriptplots_div_SEM<-grid.arrange(AdultDiv_Rich_3n4,AdultDiv_Div_3n4,nrow=2,ncol=1)
 
-ggsave(plot<-manuscriptplots_col,file="T:/Benthic/Data/SfM/Method Comparision/Figures/ManuscriptPlots_colonymetrics.png",width=8,height=10)
-ggsave(plot<-manuscriptplots_div,file="T:/Benthic/Data/SfM/Method Comparision/Figures/ManuscriptPlots_diversitymetrics.png",width=8,height=6)
-ggsave(plot<-manuscriptplots_col_SEM,file="T:/Benthic/Data/SfM/Method Comparision/Figures/ManuscriptPlots_colonymetricsSEM.png",width=8,height=10)
-ggsave(plot<-manuscriptplots_div_SEM,file="T:/Benthic/Data/SfM/Method Comparision/Figures/ManuscriptPlots_diversitymetricsSEM.png",width=8,height=6)
+ggsave(plot<-manuscriptplots_col,file="T:/Benthic/Data/SfM/Method Comparision/Figures/ManuscriptPlots_colonymetrics.jpeg",width=8,height=10)
+ggsave(plot<-manuscriptplots_div,file="T:/Benthic/Data/SfM/Method Comparision/Figures/ManuscriptPlots_diversitymetrics.jpeg",width=8,height=6)
+ggsave(plot<-manuscriptplots_col_SEM,file="T:/Benthic/Data/SfM/Method Comparision/Figures/ManuscriptPlots_colonymetricsSEM.jpeg",width=8,height=10)
+ggsave(plot<-manuscriptplots_div_SEM,file="T:/Benthic/Data/SfM/Method Comparision/Figures/ManuscriptPlots_diversitymetricsSEM.jpeg",width=8,height=6)
 

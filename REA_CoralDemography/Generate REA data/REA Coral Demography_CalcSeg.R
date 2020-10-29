@@ -71,6 +71,8 @@ jwd$TRANSECT[jwd$TRANSECT==4]<-2
 awd$SEGMENT<-as.factor(awd$SEGMENT)
 jwd$SEGMENT<-as.factor(jwd$SEGMENT)
 
+awd$SS<-paste(awd$SITE,awd$TRANSECT,awd$SEGMENT,sep = "_")
+jwd$SS<-paste(jwd$SITE,jwd$TRANSECT,jwd$SEGMENT,sep = "_")
 
 #Create a look up table of all of the colony attributes- you will need this for the functions below
 SURVEY_COL<-c("METHOD","SITEVISITID", "OBS_YEAR", "REGION", "ISLAND","SEC_NAME", "SITE", "REEF_ZONE",
@@ -81,21 +83,17 @@ SURVEY_COL<-c("METHOD","SITEVISITID", "OBS_YEAR", "REGION", "ISLAND","SEC_NAME",
               "DEPTH_BIN", "LATITUDE", "LONGITUDE","MIN_DEPTH_M","MAX_DEPTH_M","TRANSECT","SEGMENT","COLONYID","GENUS_CODE","TAXONCODE","SPCODE","COLONYLENGTH")
 survey_colony_DIVER<-unique(awd[,SURVEY_COL])
 
-SURVEY_Seg<-c("METHOD","SITEVISITID", "OBS_YEAR", "REGION", "ISLAND","SEC_NAME", "SITE", "REEF_ZONE",
-              "DEPTH_BIN","HABITAT_CODE", "LATITUDE", "LONGITUDE","MIN_DEPTH_M","MAX_DEPTH_M","TRANSECT","SEGMENT")
-survey_segmentAd<-unique(awd[,SURVEY_Seg])
+SURVEY_SITE<-c("METHOD","MISSIONID","DATE_","SITEVISITID", "ANALYSIS_YEAR","OBS_YEAR", "REGION", "REGION_NAME", "ISLAND","ISLANDCODE","SEC_NAME", "SITE", "REEF_ZONE",
+               "DEPTH_BIN", "LATITUDE", "LONGITUDE","MIN_DEPTH_M","MAX_DEPTH_M","HABITAT_CODE")
+survey_siteAd<-unique(awd[,SURVEY_SITE])
 
-
-SURVEY_Seg<-c("METHOD","SITEVISITID", "OBS_YEAR", "REGION", "ISLAND","SEC_NAME", "SITE", "REEF_ZONE",
-              "DEPTH_BIN","HABITAT_CODE", "LATITUDE", "LONGITUDE","MIN_DEPTH_M","MAX_DEPTH_M","TRANSECT","SEGMENT")
-survey_segmentJ<-unique(jwd[,SURVEY_Seg])
+SURVEY_SITE<-c("METHOD","MISSIONID","DATE_","SITEVISITID", "ANALYSIS_YEAR","OBS_YEAR", "REGION", "REGION_NAME", "ISLAND","ISLANDCODE","SEC_NAME", "SITE", "REEF_ZONE",
+               "DEPTH_BIN", "LATITUDE", "LONGITUDE","MIN_DEPTH_M","MAX_DEPTH_M","HABITAT_CODE")
+survey_siteJ<-unique(jwd[,SURVEY_SITE])
 
 
 #We did juvenile only surveys in 2017 in PRIA, this will make sure the SV table has both adult and juv sites.
-survey_segment<-left_join(survey_segmentJ,survey_segmentAd);nrow(survey_segment) 
-survey_segment<-left_join(survey_segmentAd,survey_segmentJ);nrow(survey_segment) 
-survey_segment<-full_join(survey_segmentAd,survey_segmentJ);nrow(survey_segment) 
-survey_segment<-merge(survey_segmentAd,survey_segmentJ,all=T);nrow(survey_segment) 
+survey_site<-left_join(survey_siteJ,survey_siteAd);nrow(survey_site) 
 
 
 # GENERATE SUMMARY METRICS at the Segment-leveL BY GENUS--------------------------------------------------
@@ -115,23 +113,23 @@ rd.gen<-Calc_ColMetric_Seg_DIVER(data = awd,grouping_field = "GENUS_CODE",pool_f
 
 #Calc_RDden_Transect
 rdden.gen<-Calc_RDden_Seg_DIVER(data=awd,survey_colony_f=survey_colony_DIVER,grouping_field ="GENUS_CODE") # Density of recent dead colonies by condition, you will need to subset which ever condition you want. The codes ending in "S" are the general categories
-rdden.gen<-subset(rdden.gen,select = c(METHOD,SITEVISITID,SITE,TRANSECT,SEGMENT,GENUS_CODE,DZGN_G,BBD,
+rdden.gen<-subset(rdden.gen,select = c(METHOD,SITEVISITID,SITE,TRANSECT,SEGMENT,ANALYST,GENUS_CODE,DZGN_G,BBD,
                                        BFI,COTS,DAMG_G,FISH,GAST,OTHR_G,OVRG_G,PRED_G,PUS,SEDI_G,TLS,UNKN_G,WSY)) #only include RD causes we are interested in
 
 #Calc_CONDden_Transect
 condden.gen<-Calc_CONDden_Seg_DIVER(data=awd,grouping_field ="GENUS_CODE")# Density of condition colonies by condition, you will need to subset which ever condition you want
-condden.gen<-subset(condden.gen,select = c(METHOD,SITEVISITID,SITE,TRANSECT,SEGMENT,GENUS_CODE,ALG,BIN,BLE,BLP,CHRO,DAMG,DIS,FUG,PRS,PTR,SGA,TIN))
+condden.gen<-subset(condden.gen,select = c(METHOD,SITEVISITID,SITE,TRANSECT,SEGMENT,ANALYST,GENUS_CODE,ALG,BIN,BLE,BLP,CHRO,DAMG,DIS,FUG,PRS,PTR,SGA,TIN))
 
 
 
 
 #Calc_Diversity_Seg_DIVER
-div.data<-Calc_Diversity_Seg_DIVER(awd,"TAXONCODE")
+#div.data<-Calc_Diversity_Seg_DIVER(awd,"TAXONCODE")
 
 
 #Join all metrics together
 data.gen <- join_all(list(acd.gen,jcd.gen,cl.gen,od.gen,rd.gen,rdden.gen,condden.gen), 
-                     by=c("METHOD","SITE","SITEVISITID","TRANSECT","SEGMENT","GENUS_CODE"), type='full')
+                     by=c("METHOD","SITE","SITEVISITID","TRANSECT","ANALYST","SEGMENT","GENUS_CODE"), type='full')
 head(data.gen)
 
 #Calculate transect level prevalence for each recent dead cause or condition
@@ -147,24 +145,17 @@ head(data.gen2)
 View(data.gen)
 
 
-
-
 #Make final dataframe to save
-data.gen3<-left_join(data.gen2,survey_segment)
+data.gen3<-left_join(data.gen2,survey_site)
 if(nrow(data.gen2)!=nrow(data.gen3)) {cat("WARNING: Dfs didn't merge properly")}
 
-SURVEY_Seg<-c("METHOD","SITEVISITID", "SITE", "TRANSECT","SEGMENT","ANALYST")
-testseg<-unique(data.gen2[,SURVEY_Seg])
 
-test<-full_join(testseg,survey_segment)
-
-
-div.data2<-left_join(div.data,survey_segment)
-if(nrow(div.data)!=nrow(div.data2)) {cat("WARNING: Dfs didn't merge properly")}
+# div.data2<-left_join(div.data,survey_site)
+# if(nrow(div.data)!=nrow(div.data2)) {cat("WARNING: Dfs didn't merge properly")}
 
 #Save files
-write.csv(data.gen2,file="T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Segment/BenthicREA_segment_GENUS.csv",row.names = F)
-write.csv(div.data2,file="T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Segment/BenthicREA_segment_Diversity.csv",row.names = F)
+write.csv(data.gen3,file="T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Segment/BenthicREA_segment_GENUS.csv",row.names = F)
+# write.csv(div.data2,file="T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Segment/BenthicREA_segment_Diversity.csv",row.names = F)
 
 
 
