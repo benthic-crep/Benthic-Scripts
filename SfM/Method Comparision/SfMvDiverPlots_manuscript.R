@@ -428,7 +428,7 @@ ScaledMAE_manuscript<-ggplot(rmse.ssss, aes(x=Comp2, y=MAE_sc.mn, fill=Metric.ne
 ScaledMAE_manuscript
 
 
-ggsave(plot=ScaledMAE_manuscript,file="T:/Benthic/Data/SfM/Method Comparision/Figures/MAEScaled_Manuscript_Comparision.png",width=10,height=8)
+ggsave(plot=ScaledMAE_manuscript,file="T:/Benthic/Data/SfM/Method Comparision/Figures/MAEScaled_Manuscript_Comparision.jpeg",width=10,height=8)
 
 
 SSSSmet=subset(data.sm,GENUS_CODE=="SSSS")[,c("SS","MethodRep","AdColDen","JuvColDen",
@@ -482,6 +482,6 @@ Boxes=ggplot(Smm,aes(x=MethodRep2,y=value,fill=variable2))+
 Boxes
 
 ggsave(plot=Boxes,
-       file="T:/Benthic/Data/SfM/Method Comparision/Figures/Violin_Comparision_Manuscript.png",
+       file="T:/Benthic/Data/SfM/Method Comparision/Figures/Violin_Comparision_Manuscript.jpeg",
        width=10,height=6)
 

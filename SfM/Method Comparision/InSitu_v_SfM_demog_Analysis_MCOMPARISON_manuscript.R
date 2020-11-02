@@ -47,7 +47,7 @@ Plot1to1_new<-function(d,response_variable,predictor_variable,r_name,p_name,x,y)
     geom_abline(slope=1, intercept=0) +
     #geom_jitter(width=.25,height=0,color="black",alpha=0.5)+
     geom_smooth(method="lm", color="red", linetype="dashed", se=F) +
-    geom_label(label=r_text,x=x,y=y, nudge_y=-0.1, nudge_x=1,label.size=0.35, color="black", fill="cyan4") +
+    geom_label(label=r_text,x=x,y=y, nudge_y=-0.1, nudge_x=1,label.size=0.35, color="black", fill="white") +
     theme_bw()+
     theme(panel.grid.major = element_blank()
           ,panel.grid.minor = element_blank())+
@@ -63,7 +63,7 @@ PlotMethod<-function(d,grouping_field,metric_field,genus_field,metric_name,x,y,s
   
   p<-ggplot(s, aes(x=METHOD, y=METRIC, fill=METHOD)) + 
     geom_boxplot() +
-    geom_label(label=siglabel, x=x,y=y,label.size = 0.35,color = "black", fill="cyan4")+
+    geom_label(label=siglabel, x=x,y=y,label.size = 0.35,color = "black", fill="white")+
     theme_bw() +
     theme(
       axis.text.x = element_text(angle = 0)
@@ -83,7 +83,7 @@ PlotMethod_Diversity<-function(d,metric_field,metric_name,x,y,siglabel){
 
   p<-ggplot(d, aes(x=METHOD, y=METRIC, fill=METHOD)) + 
     geom_boxplot() +
-    geom_label(label=siglabel, x=x,y=y,label.size = 0.35,color = "black", fill="cyan4")+
+    geom_label(label=siglabel, x=x,y=y,label.size = 0.35,color = "black", fill="white")+
     theme_bw() +
     theme(
       axis.text.x = element_text(angle = 0)
@@ -105,7 +105,7 @@ PlotHabitat<-function(d,grouping_field,metric_field,genus_field,metric_name,x,y,
   p<-ggplot(s, aes(x=HAB_R1, y=METRIC, fill=METHOD)) + 
     geom_boxplot() +
     theme_bw() +
-    geom_label(label=siglabel, x=x,y=y,label.size = 0.35,color = "black", fill="cyan4")+
+    geom_label(label=siglabel, x=x,y=y,label.size = 0.35,color = "black", fill="white")+
     theme(
       axis.text.x = element_text(angle = 90)
       ,plot.background = element_blank()
@@ -122,7 +122,7 @@ PlotHabitat_Diversity<-function(d,metric_field,metric_name,x,y,siglabel){
   p<-ggplot(d, aes(x=HAB_R1, y=METRIC, fill=METHOD)) + 
     geom_boxplot() +
     theme_bw() +
-    geom_label(label=siglabel, x=x,y=y,label.size = 0.35,color = "black", fill="cyan4")+
+    geom_label(label=siglabel, x=x,y=y,label.size = 0.35,color = "black", fill="white")+
     theme(
       axis.text.x = element_text(angle = 90)
       ,plot.background = element_blank()
@@ -146,7 +146,7 @@ PlotDepth<-function(d,grouping_field,metric_field,metric_field2,genus_field,metr
     geom_line(data = newdat.lme, aes(y = METRIC2), size = 1)+
     geom_ribbon(data = newdat.lme, aes(y = NULL, ymin = lower, ymax = upper, 
                                        color = NULL, fill = METHOD),alpha = .15)+
-    geom_label(label=siglabel, x=x,y=y,label.size = 0.35,color = "black", fill="cyan4")+
+    geom_label(label=siglabel, x=x,y=y,label.size = 0.35,color = "black", fill="white")+
     theme_bw() +
     theme(
       axis.text.x = element_text(angle = 0)
@@ -170,7 +170,7 @@ PlotDepth_Diversity<-function(d,metric_field,metric_field2,metric_name,x,y,sigla
     geom_line(data = newdat.lme, aes(y = METRIC2), size = 1)+
     geom_ribbon(data = newdat.lme, aes(y = NULL, ymin = lower, ymax = upper, 
                                        color = NULL, fill = METHOD),alpha = .15)+
-    geom_label(label=siglabel, x=x,y=y,label.size = 0.35,color = "black", fill="cyan4")+
+    geom_label(label=siglabel, x=x,y=y,label.size = 0.35,color = "black", fill="white")+
     theme_bw() +
     theme(
       axis.text.x = element_text(angle = 0)
@@ -983,7 +983,7 @@ newdat.lme$upper<-newdat.lme$upper^2 #back transform predicted values
 
 p1<-Plot1to1_new(s.wide,"SfM_Ave.od","Diver_Ave.od","SfM Ave. % Old Dead","Diver Ave. % Old Dead", 10, 45)+labs(tag = "(G)")
 p2<-PlotMethod(site,"GENUS_CODE","Ave.od","SSSS","Ave. % Old Dead",2,50,"*")+labs(tag = "(H)")
-p2<-p2+geom_label(label="*", x=2,y=50,label.size = 0.35,color = "black", fill=""darkorange1"")
+p2<-p2+geom_label(label="*", x=2,y=50,label.size = 0.35,color = "black", fill="darkorange1")
 p3<-PlotHabitat(site,"GENUS_CODE","Ave.od","SSSS","Ave. % Old Dead",3,65,"Method x Habitat NS")+labs(tag = "(G)")
 p3<-p3+theme(axis.title.x=element_blank(),axis.text.x=element_blank()) #Remove axis labels for the manuscript
 p4<-PlotDepth(site,"GENUS_CODE","Ave.od","Ave.od","SSSS","Ave. % Old Dead",15,65,"Method x Depth NS")+labs(tag = "(H)")
@@ -1205,9 +1205,9 @@ corr
 
 p1<-Plot1to1_new(s.wide,"SfM_BLE_prev","Diver_BLE_prev","SfM Prevalence (%)","Diver Prevalence (%)",15,62)+labs(tag = "(I)")
 p2<-PlotMethod(site,"GENUS_CODE","BLE_prev","SSSS"," Prevalence (%)",2,65,"*")+labs(tag = "(J)")
-p2<-p2+geom_label(label="*", x=2,y=65,label.size = 0.35,color = "black", fill=""darkorange1"")
+p2<-p2+geom_label(label="*", x=2,y=65,label.size = 0.35,color = "black", fill="darkorange1")
 p3<-PlotHabitat(site,"GENUS_CODE","BLE_prev","SSSS","Prevalence (%)",1,65,"*")+labs(tag = "(I)")
-p3<-p3+geom_label(label="*", x=1,y=65,label.size = 0.35,color = "black", fill=""darkorange1"")
+p3<-p3+geom_label(label="*", x=1,y=65,label.size = 0.35,color = "black", fill="darkorange1")
 p4<-PlotDepth_NP(site,"GENUS_CODE","BLE_prev","SSSS","Prevalence (%)")+labs(tag = "(J)")
 
 BLES<-grid.arrange(p1,p2,p3,p4,nrow=2,ncol=2)
@@ -1368,7 +1368,7 @@ anova(mod1,mod2,test="chisq")
 p1<-Plot1to1_new(s.wide,"SfM_JuvColDen","Diver_JuvColDen","SfM Juvenile Density","Diver Juvenile Density",8,28)+labs(tag = "(A)")
 p1<-p1+ggtitle("Porites")+theme(plot.title = element_text(face = "italic"))
 p2<-PlotMethod(site,"GENUS_CODE","JuvColDen","POSP","Juvenile Density",2,30,"*")+labs(tag = "(D)")
-p2<-p2+geom_label(label="*", x=2,y=30,label.size = 0.35,color = "black", fill=""darkorange1"")
+p2<-p2+geom_label(label="*", x=2,y=30,label.size = 0.35,color = "black", fill="darkorange1")
 
 POSPcolden<-grid.arrange(p1,p2,nrow=2,ncol=1)
 
