@@ -159,8 +159,8 @@ Transectarea_old<-function(data,s.df){
 Convert_Severity<-function(data,severity_field,severity_new){
   data$SEV<-data[,severity_field]
   data<-data %>% mutate(sev_new=recode(SEV, 
-                                       `1`="NA",
-                                       `2`="NA",
+                                       `1`="1",
+                                       `2`="1",
                                        `3`="2",
                                        `4`="3",
                                        `5`="3"))

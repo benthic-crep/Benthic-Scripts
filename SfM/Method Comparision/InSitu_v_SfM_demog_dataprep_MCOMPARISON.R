@@ -18,7 +18,7 @@ source("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/lib/GIS_functions.
 setwd("C:/Users/Courtney.S.Couch/Documents/GitHub/Benthic-Scripts/SfM/Method Comparision")
 
 # SFM/ADULT: CLEAN ANALYSIS READY DATA ----------------------------------------------------
-df<-read.csv("C:/Users/Courtney.S.Couch/Documents/GitHub/Benthic-Scripts/SfM/Geodatabase QC/HARAMP2019_QCdsfm_ADULT.csv")
+df<-read.csv("T:/Benthic/Data/SfM/QC/HARAMP2019_QCdsfm_ADULT.csv")
 
 
 #Identify unknown corals to help ID
@@ -71,13 +71,14 @@ x$COLONYID<-ifelse(x$NO_COLONY==-1,NA,x$COLONYID)
 x[x=="BLP"]<-"BLE"
 
 #Change bleaching severity = 1 to NA
-x<-x %>% mutate_at(.vars = c("CONDITION_1", "EXTENT_1", "SEVERITY_1"), 
-                   list(~replace(.,CONDITION_1 =='BLE' & SEVERITY_1=='1', NA)));View(x)
-x<-x %>% mutate_at(.vars = c("CONDITION_2", "EXTENT_2", "SEVERITY_2"), 
-                   list(~replace(.,CONDITION_2 =='BLE' & SEVERITY_2=='1', NA)));View(x)
-x<-x %>% mutate_at(.vars = c("CONDITION_3", "EXTENT_3", "SEVERITY_3"), 
-                   list(~replace(.,CONDITION_3 =='BLE' & SEVERITY_3=='1',NA)));View(x)
+cols <- c("CONDITION_1", "EXTENT_1", "SEVERITY_1")
+x[x$CONDITION_1 =='BLE' & x$SEVERITY_1=='1', cols] <- NA
+cols <- c("CONDITION_2", "EXTENT_2", "SEVERITY_2")
+x[x$CONDITION_2 =='BLE' & x$SEVERITY_2=='1', cols] <- NA
+cols <- c("CONDITION_3", "EXTENT_3", "SEVERITY_3")
+x[x$CONDITION_3 =='BLE' & x$SEVERITY_3=='1', cols] <- NA
 
+View(x)
 #Create Genuscode and taxonname column from spcode
 genlookup<-read.csv("T:/Benthic/Data/Lookup Tables/Genus_lookup.csv")
 x<-CreateGenusCode(x,genlookup) 
@@ -219,14 +220,14 @@ x[is.na(x$CONDITION_3),"CONDITION_3"]<-"NONE"
 head(x)
 
 awd<-droplevels(x)
-write.csv(awd,file="C:/Users/Courtney.S.Couch/Documents/GitHub/Benthic-Scripts/SfM/Method Comparision/HARAMP19_SfMAdult_MCLEANED.csv",row.names = F)
+write.csv(awd,file="T:/Benthic/Data/SfM/Method Comparision/HARAMP19_SfMAdult_MCLEANED.csv",row.names = F)
 
 
 
 
 # SFM/JUVENILE: CLEAN ANALYSIS READY DATA -------------------------------------
 #Subset just the Adult data
-j<-read.csv("C:/Users/Courtney.S.Couch/Documents/GitHub/Benthic-Scripts/SfM/Geodatabase QC/HARAMP2019_QCdsfm_JUV.csv")
+j<-read.csv("T:/Benthic/Data/SfM/QC/HARAMP2019_QCdsfm_JUV.csv")
 
 head(x)
 View(x)
@@ -352,6 +353,6 @@ x[,NegNineCheckCols][x[,NegNineCheckCols] ==-9] <- NA #Convert missing numeric v
 
 
 jwd<-droplevels(x)
-write.csv(jwd,file="C:/Users/Courtney.S.Couch/Documents/GitHub/Benthic-Scripts/SfM/Method Comparision/HARAMP19_SfMJuv_MCLEANED.csv",row.names = F)
+write.csv(jwd,file="T:/Benthic/Data/SfM/Method Comparision/HARAMP19_SfMJuv_MCLEANED.csv",row.names = F)
 
 

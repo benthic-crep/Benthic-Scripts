@@ -8,6 +8,7 @@ library(ggplot2)
 library(reshape2)
 library(dplyr)
 library(plyr)
+library(gridExtra)
 
 setwd("C:/Users/Courtney.S.Couch/Documents/Courtney's Files/R Files/ESD/Juvenile Project")
 
@@ -126,7 +127,7 @@ GenerateMDS_Region_DB<-function(df,region_field,region_name){
   #calculate distance for NMDS
   mds <- metaMDS(gen.matrix)
   stress.value<-round(mds$stress,3) #extract stress value to plot later
-  stress.value<-paste("Stress = ",stress.value)
+  stress.value<-paste("(Stress = ",stress.value,")")
   
   data.scores <- as.data.frame(scores(mds))  #Using the scores function from vegan to extract the site scores and convert to a data.fram
   data.scores$Stratum <- rownames(data.scores)  # create a column of Stratum names, from the rownames of data.scores
@@ -145,14 +146,13 @@ GenerateMDS_Region_DB<-function(df,region_field,region_name){
     chull.df1<-data.scores[data.scores$region_year_depth==R_YR[i], ][chull(data.scores[data.scores$region_year_depth==R_YR[i], c("NMDS1", "NMDS2")]), ]
     hull.data<-rbind(hull.data,chull.df1)
   }
-  
+  title<-paste(region_name,stress.value,sep = " ")
   #Plot strata and Genera by year with hull
   p<-ggplot() + 
     geom_polygon(data=hull.data,aes(x=NMDS1,y=NMDS2,fill=ANALYSIS_YEAR,group=ANALYSIS_YEAR),alpha=0.30) + # add the convex hulls
     geom_point(data=data.scores,aes(x=NMDS1,y=NMDS2,colour=ANALYSIS_YEAR),size=2.5) + # add the point markers
     geom_text(data=species.scores,aes(x=NMDS1,y=NMDS2,label=GENUS_CODE),size=2,alpha=0.5) +  # add the species labels
     facet_wrap(~DEPTH_BIN)+
-    annotate(geom = 'text', label = stress.value, x = -Inf, y = Inf, hjust = 0, vjust = 1)+
     coord_equal() +
     theme_bw() + 
     theme(panel.background = element_blank(), 
@@ -161,23 +161,21 @@ GenerateMDS_Region_DB<-function(df,region_field,region_name){
           plot.background = element_blank(),
           legend.title = element_blank(),
           aspect.ratio=1)+
-    labs(x=NULL)+
-    ggtitle(region_name)
+    ggtitle(title)
   return(p)
 }
 #set aspect ratio of plots in theme
 
-nwhi<-GenerateMDS_Region(st,"NWHI","Northwestern Hawaiian Islands")
-mhi<-GenerateMDS_Region(st,"MHI","Main Hawaiian Islands")
-phoneix<-GenerateMDS_Region(st,"PHOENIX","Phoenix Islands")
-line<-GenerateMDS_Region(st,"LINE","Line Islands")
-samoa<-GenerateMDS_Region(st,"SAMOA","American Samoa")
-wake<-GenerateMDS_Region(st,"WAKE","Wake")
-nmar<-GenerateMDS_Region(st,"NMARIAN","Northern Marianas")
-smar<-GenerateMDS_Region(st,"SMARIAN","Southern Marianas")
+nwhi<-GenerateMDS_Region_DB(st,"NWHI","Northwestern Hawaiian Islands")
+mhi<-GenerateMDS_Region_DB(st,"MHI","Main Hawaiian Islands")
+phoneix<-GenerateMDS_Region_DB(st,"PHOENIX","Phoenix Islands")
+line<-GenerateMDS_Region_DB(st,"LINE","Line Islands")
+samoa<-GenerateMDS_Region_DB(st,"SAMOA","American Samoa")
+nmar<-GenerateMDS_Region_DB(st,"NMARIAN","Northern Marianas")
+smar<-GenerateMDS_Region_DB(st,"SMARIAN","Southern Marianas")
 
-allplots<-grid.arrange(nwhi,mhi,phoneix,line,wake,samoa,nmar,smar,nrow=3,ncol=3)
-ggsave(plot=allplots,file="T:/Benthic/Projects/Juvenile Project/Figures/Juv_Region_nMDS.pdf",width=10,height=7)
+allplots<-grid.arrange(nwhi,mhi,phoneix,line,samoa,nmar,smar,nrow=7,ncol=1)
+ggsave(plot=allplots,file="T:/Benthic/Projects/Juvenile Project/Figures/Juv_Region_Depth_nMDS.pdf",width=8,height=18)
 
 
 # Generate separate regional plots with each region faceted by island --------
