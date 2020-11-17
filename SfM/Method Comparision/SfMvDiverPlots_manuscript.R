@@ -9,6 +9,7 @@ library(tidyverse)
 library(ggpmisc)
 library(plotrix)
 library(FSA)
+library(dplyr)
 
 source("T:/Benthic/Data/SfM/ScriptFiles/SfMvDiver Plotting Functions.R") 
 
@@ -88,9 +89,9 @@ sfm2<-data.sm[data.sm$MethodRep=="SfM_2",];colnames(sfm2)[8:20] <- paste("SfM2",
 # 
 # outpath<-"T:/Benthic/Data/SfM/ComparisonPlots_20200204/Colony Size"
 # if(!dir.exists(outpath)){dir.create(outpath)}
-# p7<-PlotAll(df.all,"d1Ave.cl","SfM1Ave.cl","SfM Colony Length","Difference SfM Analyst and Diver", "Diver Colony Length","Mean Colony Length")
-# p8<-PlotAll(df.all,"d1Ave.cl","d2Ave.cl","Diver1 Colony Length","Difference Diver1 and Diver2","Diver2 Colony Length","Mean Colony Length")
-# p9<-PlotAll(df.all,"SfM1Ave.cl","SfM2Ave.cl","SfM1 Colony Length","Difference SfM Analyst1 and SfM Analyst2","SfM2 Colony Length","Mean Colony Length")
+# p7<-PlotAll(df.all,"d1Ave.cl","SfM1Ave.cl","SfM Colony Diameter","Difference SfM Analyst and Diver", "Diver Colony Diameter","Mean Colony Diameter")
+# p8<-PlotAll(df.all,"d1Ave.cl","d2Ave.cl","Diver1 Colony Diameter","Difference Diver1 and Diver2","Diver2 Colony Diameter","Mean Colony Diameter")
+# p9<-PlotAll(df.all,"SfM1Ave.cl","SfM2Ave.cl","SfM1 Colony Diameter","Difference SfM Analyst1 and SfM Analyst2","SfM2 Colony Diameter","Mean Colony Diameter")
 # 
 # outpath<-"T:/Benthic/Data/SfM/ComparisonPlots_20200204/Old Dead"
 # if(!dir.exists(outpath)){dir.create(outpath)}
@@ -346,7 +347,7 @@ rmse.ssss$Metric<-factor(rmse.ssss$Metric,
 #Scaled MAE plot for manuscript
 #Changing metric names to make more sense 
 metricnames<-data.frame(Metric=c("AdColDen","Ave.cl","Ave.od","BLE_prev","JuvColDen","Richness","Shannon"),
-                        Metric.new=c("`Adult Density`","`Average Colony Length`","`Average Old Dead`",
+                        Metric.new=c("`Adult Density`","`Average Colony Diameter`","`Average Old Dead`",
                                      "`Bleaching Prevalence`","`Juvenile Density`","`Adult Species Richness`",
                                      "`Adult Shannon Diversity`"))
 
@@ -354,7 +355,7 @@ metricnames<-data.frame(Metric=c("AdColDen","Ave.cl","Ave.od","BLE_prev","JuvCol
 rmse.ssss<-left_join(rmse.ssss,metricnames)
 
 #reorder metrics in plot
-metricoder<- c("`Adult Density`","`Juvenile Density`","`Average Colony Length`","`Average Old Dead`",
+metricoder<- c("`Adult Density`","`Juvenile Density`","`Average Colony Diameter`","`Average Old Dead`",
 "`Bleaching Prevalence`","`Adult Species Richness`","`Adult Shannon Diversity`")
 
 
@@ -396,12 +397,12 @@ dunnTest(ae_sc ~ Comp, data=subset(rmse.sub,Metric=="Shannon"),method="bh")
 #Set up text labels for post hoc tests on plots
 #rmse.ssss<- rmse.ssss[order(rmse.ssss$Metric.new),];rmse.ssss
 rmse.ssss$sig<-c("a","b","ab",
-                 "","ns","",
+                 "","","",
                  "a","b","a",
-                 "","ns","",
-                 "","ns","",
-                 "","ns","",
-                 "","ns","")
+                 "","","",
+                 "","","",
+                 "","","",
+                 "","","")
 
 ScaledMAE_manuscript<-ggplot(rmse.ssss, aes(x=Comp2, y=MAE_sc.mn, fill=Metric.new)) + 
   geom_hline(yintercept = c(0,1))+
@@ -440,7 +441,7 @@ Smm=melt(SSSSmet,id.vars = c("SS","MethodRep"))
 
 #Changing metric names to make more sense 
 metricnames<-data.frame(variable=c("AdColDen","Ave.cl","Ave.od","BLE_prev","JuvColDen","Richness","Shannon"),
-                        variable2=c("`Adult Density`","`Average Colony Length`","`Average Old Dead`",
+                        variable2=c("`Adult Density`","`Average Colony Diameter`","`Average Old Dead`",
                                      "`Bleaching Prevalence`","`Juvenile Density`","`Adult Species Richness`",
                                      "`Adult Shannon Diversity`"))
 Smm<-left_join(Smm,metricnames)
