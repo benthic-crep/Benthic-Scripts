@@ -262,6 +262,90 @@ nmar<-GenerateMDS_Island(st.sub,"NMARIAN","Northern Marianas")
 smar<-GenerateMDS_Island(st.sub,"SMARIAN","Southern Marianas")
 
 
+# Generate separate regional plots with each region faceted by island- Spider plot --------
+GenerateMDS_Island_spider<-function(df,region_field,region_name){
+  
+  #Subset Region of interest
+  df<-subset(df,REGION==region_field)
+  
+  #Remove genera that weren't observed in any regions or years
+  tmp<-ddply(df,.(GENUS_CODE),summarize,n=sum(JuvColDen))
+  nocol<-subset(tmp,n==0)
+  df<-df[!df$GENUS_CODE %in% nocol$GENUS_CODE,]
+  
+  #Convert to wide format
+  df.wide<-dcast(df, formula=METHOD+ REGION + ISLAND +SEC_NAME+ANALYSIS_YEAR+STRATANAME+DB_RZ~ GENUS_CODE, value.var="JuvColDen",fill=0)
+  df.wide<-subset(df.wide,SSSS!=0)#remove strata that do not have any colonies
+  df.wide<-subset(df.wide,select= -c(SSSS)) #remove total hard coral column
+  head(df.wide)
+  
+  #Extract community matrix and meta data
+  gen.matrix<-df.wide[8:ncol(df.wide)] #extract community matrix
+  head(gen.matrix)
+  meta <-df.wide[c(2,3,5)] #create a dataframe with just site and year
+  meta$ANALYSIS_YEAR<-as.factor(meta$ANALYSIS_YEAR)
+  
+  #calculate distance for NMDS
+  mds <- metaMDS(gen.matrix)
+  stress.value<-round(mds$stress,3) #extract stress value to add to plot later
+  stress.value<-paste("(Stress = ",stress.value,")")
+  
+  data.scores<- as.data.frame(scores(mds))  #Using the scores function from vegan to extract the site scores and convert to a data.fram
+  data.scores$Stratum <- rownames(data.scores)  # create a column of Stratum names, from the rownames of data.scores
+  data.scores<-cbind(data.scores,meta)
+  data.scores$island_year<-paste(data.scores$ISLAND,data.scores$ANALYSIS_YEAR,sep="-")
+  
+  species.scores <- as.data.frame(scores(mds, "species"))  #Using the scores function from vegan to extract the genus scores and convert to a data.fram
+  species.scores$GENUS_CODE <- rownames(species.scores)  # create a column of genus, from the rownames of species.scores
+  
+  #Calculate the group centroids
+  cent<-ddply(data.scores,.(REGION,ISLAND),summarize,
+              cNMDS1=mean(NMDS1),
+              cNMDS2=mean(NMDS2))
+  
+  segs<-left_join(data.scores,cent)
+
+  
+  title<-paste(region_name,stress.value,sep = " ")
+  #Plot strata and Genera by year with hull
+  p<-ggplot(data.scores,aes(x=NMDS1,y=NMDS2)) + 
+    geom_segment(data=segs,mapping = aes(xend=cNMDS1,yend=cNMDS2,color=ISLAND)) + # add segments
+    geom_text(data=species.scores,aes(x=NMDS1,y=NMDS2,label=GENUS_CODE),size=2, alpha=0.5) +  # add the species labels
+    geom_point(aes(color=ISLAND,shape=ANALYSIS_YEAR),size=2.5) + # add the point markers
+    geom_point(data=cent,aes(x=cNMDS1,y=cNMDS2,colour=ISLAND),size=1) + # add centroids
+    guides(colour=FALSE)+ #remove colors from legend
+    facet_wrap(~ISLAND)+
+    #annotate(geom = 'text', label = stress.value, x = -Inf, y = Inf, hjust = 0, vjust = 1)+
+    coord_equal() +
+    theme_bw() + 
+    theme(axis.text.x = element_blank(),  # remove x-axis text
+          axis.text.y = element_blank(), # remove y-axis text
+          axis.ticks = element_blank(),  # remove axis ticks
+          panel.background = element_blank(), 
+          panel.grid.major = element_blank(),  #remove major-grid labels
+          panel.grid.minor = element_blank(),  #remove minor-grid labels
+          plot.background = element_blank(),
+          legend.title = element_blank())+
+    ggtitle(title)
+  
+  ggsave(plot=p,path="T:/Benthic/Projects/Juvenile Project/Figures",width=8,height=6,filename=paste0("Juv_Island_nMDS_spider", sep="_", region_name, ".png"))
+  return(p)
+}
+
+#remove islands that don't have at least 3 strata in each time point
+st.sub<-st[!(st$ISLAND %in% c("French Frigate","Niihau","Swains","Alamagan","Sarigan","Aguijan")),]
+
+nwhi<-GenerateMDS_Island_spider(st.sub,"NWHI","Northwestern Hawaiian Islands")
+mhi<-GenerateMDS_Island_spider(st.sub,"MHI","Main Hawaiian Islands")
+phoneix<-GenerateMDS_Island_spider(st.sub,"PHOENIX","Phoenix Islands")
+line<-GenerateMDS_Island_spider(st.sub,"LINE","Line Islands")
+samoa<-GenerateMDS_Island_spider(st.sub,"SAMOA","American Samoa")
+wake<-GenerateMDS_Island_spider(st.sub,"WAKE","Wake")
+nmar<-GenerateMDS_Island_spider(st.sub,"NMARIAN","Northern Marianas")
+smar<-GenerateMDS_Island_spider(st.sub,"SMARIAN","Southern Marianas")
+
+
+
 #Plot boxplots of the most abundant taxa between years for each year. 
 meanden<-ddply(subset(st.sub,GENUS_CODE=="SSSS"),.(REGION),
         summarize,
