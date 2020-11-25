@@ -453,14 +453,13 @@ write.csv(output,"HARAMP2019_sfm_output.csv")
 
 # Export QC'd data ----------------------------------------------------------------------------
 
-#Make sure that the "juvenile" column is correct
-sfm$JUVENILE<-ifelse(sfm$SEGAREA=="1",-1,0)
+sfm$COLONYID<-c(1:length(sfm$FID))
 
 #Separate by adults and juveniles
-ad<-subset(sfm,JUVENILE!="-1"|NO_COLONY==-1 & SEGLENGTH==2.5)
-ad<-subset(ad,select=-c(totaldead))
-j<-subset(sfm,JUVENILE=="-1"&SEGLENGTH!=2.5) # includes segments where NO_COLONY = -1
-j<-subset(j,select=c(FID,ANALYST,OBS_YEAR,MISSION_ID,SITE,TRANSECT,SEGMENT,SEGLENGTH,SEGWIDTH,NO_COLONY,SPCODE,FRAGMENT,MORPH_CODE,
+ad<-subset(sfm,JUVENILE==0|REMNANT==-1)
+ad<-subset(ad,select=-c(FID,totaldead))
+j<-subset(sfm,JUVENILE=="-1") # includes segments where NO_COLONY = -1
+j<-subset(j,select=c(COLONYID,ANALYST,OBS_YEAR,MISSION_ID,SITE,TRANSECT,SEGMENT,SEGLENGTH,SEGWIDTH,NO_COLONY,SPCODE,FRAGMENT,MORPH_CODE,
                      EX_BOUND,JUVENILE,FRAGMENT,REMNANT,Shape_Leng,SEGAREA))
 
 
