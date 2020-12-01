@@ -97,7 +97,7 @@ nmar<-GenerateMDS_Region(st,"NMARIAN","Northern Marianas")
 smar<-GenerateMDS_Region(st,"SMARIAN","Southern Marianas")
 
 allplots<-grid.arrange(nwhi,mhi,phoneix,line,wake,samoa,nmar,smar,nrow=3,ncol=3)
-ggsave(plot=allplots,file="T:/Benthic/Projects/Juvenile Project/Figures/Juv_Region_nMDS.pdf",width=10,height=7)
+ggsave(plot=allplots,file="T:/Benthic/Projects/Juvenile Project/Figures/Juv_Region_nMDS.png",width=12,height=9)
 
 
 
@@ -155,7 +155,12 @@ GenerateMDS_Region_DB<-function(df,region_field,region_name){
     facet_wrap(~DEPTH_BIN)+
     coord_equal() +
     theme_bw() + 
-    theme(panel.background = element_blank(), 
+    theme(axis.text.x = element_blank(),  # remove x-axis text
+          axis.text.y = element_blank(), # remove y-axis text
+          axis.ticks = element_blank(),  # remove axis ticks
+          axis.title.x = element_blank(), # remove x-axis labels
+          axis.title.y = element_blank(),
+          panel.background = element_blank(), 
           panel.grid.major = element_blank(),  #remove major-grid labels
           panel.grid.minor = element_blank(),  #remove minor-grid labels
           plot.background = element_blank(),
@@ -164,18 +169,19 @@ GenerateMDS_Region_DB<-function(df,region_field,region_name){
     ggtitle(title)
   return(p)
 }
+
 #set aspect ratio of plots in theme
 
-nwhi<-GenerateMDS_Region_DB(st,"NWHI","Northwestern Hawaiian Islands")
+#nwhi<-GenerateMDS_Region_DB(st,"NWHI","Northwestern Hawaiian Islands")
 mhi<-GenerateMDS_Region_DB(st,"MHI","Main Hawaiian Islands")
-phoneix<-GenerateMDS_Region_DB(st,"PHOENIX","Phoenix Islands")
+#phoneix<-GenerateMDS_Region_DB(st,"PHOENIX","Phoenix Islands")
 line<-GenerateMDS_Region_DB(st,"LINE","Line Islands")
 samoa<-GenerateMDS_Region_DB(st,"SAMOA","American Samoa")
 nmar<-GenerateMDS_Region_DB(st,"NMARIAN","Northern Marianas")
 smar<-GenerateMDS_Region_DB(st,"SMARIAN","Southern Marianas")
 
-allplots<-grid.arrange(nwhi,mhi,phoneix,line,samoa,nmar,smar,nrow=7,ncol=1)
-ggsave(plot=allplots,file="T:/Benthic/Projects/Juvenile Project/Figures/Juv_Region_Depth_nMDS.pdf",width=8,height=18)
+allplots<-grid.arrange(mhi,line,samoa,nmar,smar,nrow=5,ncol=1)
+ggsave(plot=allplots,file="T:/Benthic/Projects/Juvenile Project/Figures/Juv_Region_Depth_nMDS.png",width=10,height=18)
 
 
 # Generate separate regional plots with each region faceted by island --------
@@ -229,7 +235,7 @@ GenerateMDS_Island<-function(df,region_field,region_name){
   #Plot strata and Genera by year with hull
   p<-ggplot() + 
     geom_polygon(data=hull.data,aes(x=NMDS1,y=NMDS2,fill=ANALYSIS_YEAR,group=ANALYSIS_YEAR),alpha=0.30) + # add the convex hulls
-    geom_text(data=species.scores,aes(x=NMDS1,y=NMDS2,label=GENUS_CODE),size=3, alpha=0.5) +  # add the species labels
+    geom_text(data=species.scores,aes(x=NMDS1,y=NMDS2,label=GENUS_CODE),size=2, alpha=0.5) +  # add the species labels
     geom_point(data=data.scores,aes(x=NMDS1,y=NMDS2,shape=ANALYSIS_YEAR,colour=ANALYSIS_YEAR),size=2.5) + # add the point markers
     facet_wrap(~ISLAND)+
     #annotate(geom = 'text', label = stress.value, x = -Inf, y = Inf, hjust = 0, vjust = 1)+
@@ -393,3 +399,87 @@ samoa<-GenerateBoxPlot_Island(st.sub,"SAMOA","American Samoa")
 wake<-GenerateBoxPlot_Island(st.sub,"WAKE","Wake")
 nmar<-GenerateBoxPlot_Island(st.sub,"NMARIAN","Northern Marianas")
 smar<-GenerateBoxPlot_Island(st.sub,"SMARIAN","Southern Marianas")
+
+
+#Plot trajectories
+GenerateMDS_Trajectory<-function(df,region_field,region_name){
+  
+  #Subset Region of interest
+  df<-subset(df,REGION==region_field)
+  
+  #Remove genera that weren't observed in any regions or years
+  tmp<-ddply(df,.(GENUS_CODE),summarize,n=sum(JuvColDen))
+  nocol<-subset(tmp,n==0)
+  df<-df[!df$GENUS_CODE %in% nocol$GENUS_CODE,]
+  
+  #Convert to wide format
+  df.wide<-dcast(df, formula=METHOD+ REGION + ISLAND +SEC_NAME+ANALYSIS_YEAR+STRATANAME+DEPTH_BIN~ GENUS_CODE, value.var="JuvColDen",fill=0)
+  df.wide<-subset(df.wide,SSSS!=0)#remove strata that do not have any colonies
+  df.wide<-subset(df.wide,select= -c(SSSS)) #remove total hard coral column
+  head(df.wide)
+  
+  #Extract community matrix and meta data
+  gen.matrix<-df.wide[8:ncol(df.wide)] #extract community matrix
+  head(gen.matrix)
+  meta <-df.wide[c(2,3,5,6,7)] #create a dataframe with just site and year
+
+  #calculate distance for NMDS
+  mds <- metaMDS(gen.matrix)
+  stress.value<-round(mds$stress,3) #extract stress value to add to plot later
+  stress.value<-paste("(Stress = ",stress.value,")")
+  
+  data.scores<- as.data.frame(scores(mds))  #Using the scores function from vegan to extract the site scores and convert to a data.fram
+  data.scores<-cbind(data.scores,meta)
+
+  species.scores <- as.data.frame(scores(mds, "species"))  #Using the scores function from vegan to extract the genus scores and convert to a data.fram
+  species.scores$GENUS_CODE <- rownames(species.scores)  # create a column of genus, from the rownames of species.scores
+  
+  scoreT1<-subset(data.scores,ANALYSIS_YEAR<=2016 & REGION!="NWHI")
+  scoreT1nwhi<-subset(data.scores,ANALYSIS_YEAR==2014 & REGION=="NWHI")
+  scoreT2<-subset(data.scores,ANALYSIS_YEAR>2016 & REGION!="NWHI")
+  scoreT2nwhi<-subset(data.scores,ANALYSIS_YEAR==2016 & REGION=="NWHI")
+  
+  scoreT1<-rbind(scoreT1,scoreT1nwhi)
+  scoreT1<-subset(scoreT1,select = -c(ANALYSIS_YEAR))
+  names(scoreT1)[names(scoreT1) == "NMDS1"] <- "T1_NMDS1";names(scoreT1)[names(scoreT1) == "NMDS2"] <- "T1_NMDS2"
+  scoreT2<-rbind(scoreT2,scoreT2nwhi)
+  scoreT2<-subset(scoreT2,select = -c(ANALYSIS_YEAR))
+  names(scoreT2)[names(scoreT2) == "NMDS1"] <- "T2_NMDS1";names(scoreT2)[names(scoreT2) == "NMDS2"] <- "T2_NMDS2"
+  
+  new.score<-left_join(scoreT1,scoreT2);head(new.score)
+  
+  data.scores$ANALYSIS_YEAR<-as.factor(data.scores$ANALYSIS_YEAR)
+  
+  title<-paste(region_name,stress.value,sep = " ")
+  #Plot strata and Genera by year with hull
+    p<-ggplot(data.scores,aes(x=NMDS1,y=NMDS2)) + 
+    geom_segment(data=new.score,mapping = aes(x=T1_NMDS1,xend=T2_NMDS1,y=T1_NMDS2,yend=T2_NMDS2,color=DEPTH_BIN)
+                 ,arrow=arrow(length=unit(0.3,"cm"),type="closed")) + # add segments
+    geom_text(data=species.scores,aes(x=NMDS1,y=NMDS2,label=GENUS_CODE),size=2, alpha=0.5) +  # add the species labels
+    coord_equal() +
+    theme_bw() + 
+    theme(axis.text.x = element_blank(),  # remove x-axis text
+          axis.text.y = element_blank(), # remove y-axis text
+          axis.ticks = element_blank(),  # remove axis ticks
+          panel.background = element_blank(), 
+          panel.grid.major = element_blank(),  #remove major-grid labels
+          panel.grid.minor = element_blank(),  #remove minor-grid labels
+          plot.background = element_blank(),
+          legend.title = element_blank())+
+    ggtitle(title)
+  
+  return(p)
+}
+
+nwhi<-GenerateMDS_Trajectory(st,"NWHI","Northwestern Hawaiian Islands")
+mhi<-GenerateMDS_Trajectory(st,"MHI","Main Hawaiian Islands")
+phoneix<-GenerateMDS_Trajectory(st,"PHOENIX","Phoenix Islands")
+line<-GenerateMDS_Trajectory(st,"LINE","Line Islands")
+samoa<-GenerateMDS_Trajectory(st,"SAMOA","American Samoa")
+wake<-GenerateMDS_Trajectory(st,"WAKE","Wake")
+nmar<-GenerateMDS_Trajectory(st,"NMARIAN","Northern Marianas")
+smar<-GenerateMDS_Trajectory(st,"SMARIAN","Southern Marianas")
+
+allplots<-grid.arrange(nwhi,mhi,phoneix,line,wake,samoa,nmar,smar,nrow=3,ncol=3)
+ggsave(plot=allplots,file="T:/Benthic/Projects/Juvenile Project/Figures/Juv_Trajectory_DB_nMDS.png",width=12,height=9)
+
