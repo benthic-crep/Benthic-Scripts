@@ -17,6 +17,226 @@ stw13<-read.csv("T:/Benthic/Projects/Juvenile Project/JuvProject_temporal_STRATA
 st<-read.csv("T:/Benthic/Projects/Juvenile Project/JuvProject_STRATAno2013.csv")#excludes MHI 2013 data
 st$DB_RZ<-st$DB_RZ_2
 
+#remove Unknown and tubastrea
+st<-st[!st$GENUS_CODE %in% c("UNKN","TUBA"),]
+
+
+#Remove FASP from MHI dataset- this was an error and only recorded at 1 site in 2016
+st$JuvColDen<-ifelse(st$GENUS_CODE=="FASP"&st$REGION=="MHI",0,st$JuvColDen)
+
+View(st)
+
+Permanova_Year<-function(df,region_field){
+  
+  #Create community matrix
+  #Subset Region of interest
+  df<-subset(df,REGION==region_field)
+  
+  #Remove genera that weren't observed in a given region or year
+  tmp<-ddply(df,.(GENUS_CODE),summarize,n=sum(JuvColDen))
+  nocol<-subset(tmp,n==0)
+  df<-df[!df$GENUS_CODE %in% nocol$GENUS_CODE,]
+  
+  #Convert to wide format
+  df.wide<-dcast(df, formula=REGION + ISLAND +SEC_NAME+ANALYSIS_YEAR+STRATANAME+DEPTH_BIN~ GENUS_CODE, value.var="JuvColDen",fill=0)
+  df.wide<-subset(df.wide,SSSS!=0)#remove strata that do not have any colonies
+  df.wide<-subset(df.wide,select= -c(SSSS)) #remove total hard coral column
+  head(df.wide)
+  
+  #Extract community matrix and meta data
+  gen.matrix<-df.wide[7:ncol(df.wide)] #extract community matrix
+  
+  head(gen.matrix)
+  meta <-df.wide[c(1:6)] #create a dataframe with env data
+  meta$ANALYSIS_YEAR<-as.factor(meta$ANALYSIS_YEAR)
+  
+  
+  ### ------------ Distance matrix ----------------------------------------------
+  ### Compute distance matrix using Bray-Curtis on raw density
+  range(gen.matrix) #the range looks good- no need to transform
+  
+  dist_den <- vegdist(gen.matrix, method = "bray")
+  
+  ### ------------ PERMANOVA -----------------------------------------------------
+  pmv1 <- adonis(gen.matrix ~ ANALYSIS_YEAR, data = meta,permutations = 999,method = "bray")
+  
+  return(pmv1)
+}
+Permanova_Year_Depth<-function(df,region_field){
+
+#Create community matrix
+#Subset Region of interest
+df<-subset(df,REGION==region_field)
+
+#Remove genera that weren't observed in a given region or year
+tmp<-ddply(df,.(GENUS_CODE),summarize,n=sum(JuvColDen))
+nocol<-subset(tmp,n==0)
+df<-df[!df$GENUS_CODE %in% nocol$GENUS_CODE,]
+
+#Convert to wide format
+df.wide<-dcast(df, formula=REGION + ISLAND +SEC_NAME+ANALYSIS_YEAR+STRATANAME+DEPTH_BIN~ GENUS_CODE, value.var="JuvColDen",fill=0)
+df.wide<-subset(df.wide,SSSS!=0)#remove strata that do not have any colonies
+df.wide<-subset(df.wide,select= -c(SSSS)) #remove total hard coral column
+head(df.wide)
+
+#Extract community matrix and meta data
+gen.matrix<-df.wide[7:ncol(df.wide)] #extract community matrix
+
+head(gen.matrix)
+meta <-df.wide[c(1:6)] #create a dataframe with env data
+meta$ANALYSIS_YEAR<-as.factor(meta$ANALYSIS_YEAR)
+
+
+### ------------ Distance matrix ----------------------------------------------
+### Compute distance matrix using Bray-Curtis on raw density
+range(gen.matrix) #the range looks good- no need to transform
+
+dist_den <- vegdist(gen.matrix, method = "bray")
+
+### ------------ PERMANOVA -----------------------------------------------------
+pmv1 <- adonis(gen.matrix ~ ANALYSIS_YEAR*DEPTH_BIN, data = meta,permutations = 999,method = "bray")
+
+# plot permuted F-values
+densityplot(permustats(pmv))
+
+pmv2 <- adonis(gen.matrix ~ ANALYSIS_YEAR*ISLAND, data = meta,permutations = 999,method = "bray")
+
+return(pmv1)
+}
+Permanova_Year_Island<-function(df,region_field){
+  
+  #Create community matrix
+  #Subset Region of interest
+  df<-subset(df,REGION==region_field)
+  
+  #Remove genera that weren't observed in a given region or year
+  tmp<-ddply(df,.(GENUS_CODE),summarize,n=sum(JuvColDen))
+  nocol<-subset(tmp,n==0)
+  df<-df[!df$GENUS_CODE %in% nocol$GENUS_CODE,]
+  
+  #Convert to wide format
+  df.wide<-dcast(df, formula=REGION + ISLAND +SEC_NAME+ANALYSIS_YEAR+STRATANAME+DEPTH_BIN~ GENUS_CODE, value.var="JuvColDen",fill=0)
+  df.wide<-subset(df.wide,SSSS!=0)#remove strata that do not have any colonies
+  df.wide<-subset(df.wide,select= -c(SSSS)) #remove total hard coral column
+  head(df.wide)
+  
+  #Extract community matrix and meta data
+  gen.matrix<-df.wide[7:ncol(df.wide)] #extract community matrix
+  
+  head(gen.matrix)
+  meta <-df.wide[c(1:6)] #create a dataframe with env data
+  meta$ANALYSIS_YEAR<-as.factor(meta$ANALYSIS_YEAR)
+  
+  
+  ### ------------ Distance matrix ----------------------------------------------
+  ### Compute distance matrix using Bray-Curtis on raw density
+  range(gen.matrix) #the range looks good- no need to transform
+  
+  dist_den <- vegdist(gen.matrix, method = "bray")
+  
+  ### ------------ PERMANOVA -----------------------------------------------------
+  pmv1 <- adonis(gen.matrix ~ ANALYSIS_YEAR*ISLAND, data = meta,permutations = 999,method = "bray")
+  
+  return(pmv1)
+}
+Simper_Year<-function(df,region_field){
+  
+  #Create community matrix
+  #Subset Region of interest
+  df<-subset(df,REGION==region_field)
+  
+  #Remove genera that weren't observed in a given region or year
+  tmp<-ddply(df,.(GENUS_CODE),summarize,n=sum(JuvColDen))
+  nocol<-subset(tmp,n==0)
+  df<-df[!df$GENUS_CODE %in% nocol$GENUS_CODE,]
+  
+  #Convert to wide format
+  df.wide<-dcast(df, formula=REGION + ISLAND +SEC_NAME+ANALYSIS_YEAR+STRATANAME+DEPTH_BIN~ GENUS_CODE, value.var="JuvColDen",fill=0)
+  df.wide<-subset(df.wide,SSSS!=0)#remove strata that do not have any colonies
+  df.wide<-subset(df.wide,select= -c(SSSS)) #remove total hard coral column
+  head(df.wide)
+  
+  #Extract community matrix and meta data
+  gen.matrix<-df.wide[7:ncol(df.wide)] #extract community matrix
+  
+  head(gen.matrix)
+  meta <-df.wide[c(1:6)] #create a dataframe with env data
+  meta$ANALYSIS_YEAR<-as.factor(meta$ANALYSIS_YEAR)
+  
+  sim <- simper(gen.matrix, group = meta$ANALYSIS_YEAR)
+  sim
+  summary(sim) 
+  return(summary(sim))
+}
+
+Permanova_Year_Island(st,"MHI")
+Permanova_Year_Depth(st,"MHI")
+Simper_Year(st,"MHI")
+
+Permanova_Year_Island(st,"NWHI")
+Permanova_Year_Depth(st,"NWHI")
+Simper_Year(st,"NWHI")
+
+Permanova_Year(st,"LINE")
+Permanova_Year_Island(st,"LINE")
+Permanova_Year_Depth(st,"LINE")
+Simper_Year(st,"LINE")
+
+Permanova_Year_Island(st,"PHOENIX")
+Permanova_Year_Depth(st,"PHOENIX")
+Simper_Year(st,"PHOENIX")
+
+Permanova_Year_Island(st,"SAMOA")
+Permanova_Year_Depth(st,"SAMOA")
+Simper_Year(st,"SAMOA")
+
+Permanova_Year_Island(st,"NMARIAN")
+Permanova_Year_Depth(st,"NMARIAN")
+Simper_Year(st,"NMARIAN")
+
+Permanova_Year_Island(st,"SMARIAN")
+Permanova_Year_Depth(st,"SMARIAN")
+Simper_Year(st,"SMARIAN")
+
+####SIMPER####
+sim <- simper(benthic.den, group = benthic.groups$ANALYSIS_YEAR)
+sim
+summary(sim) 
+
+
+#check PERMANOVA assumption of equal dispersion among groups/levels for each factor- checked all regions- looks good
+df<-subset(st,REGION=="NMARIAN")
+
+#Remove genera that weren't observed in a given region or year
+tmp<-ddply(df,.(GENUS_CODE),summarize,n=sum(JuvColDen))
+nocol<-subset(tmp,n==0)
+df<-df[!df$GENUS_CODE %in% nocol$GENUS_CODE,]
+
+#Convert to wide format
+df.wide<-dcast(df, formula=REGION + ISLAND +SEC_NAME+ANALYSIS_YEAR+STRATANAME+DEPTH_BIN~ GENUS_CODE, value.var="JuvColDen",fill=0)
+df.wide<-subset(df.wide,SSSS!=0)#remove strata that do not have any colonies
+df.wide<-subset(df.wide,select= -c(SSSS)) #remove total hard coral column
+head(df.wide)
+
+#Extract community matrix and meta data
+gen.matrix<-df.wide[7:ncol(df.wide)] #extract community matrix
+
+head(gen.matrix)
+meta <-df.wide[c(1:6)] #create a dataframe with env data
+meta$ANALYSIS_YEAR<-as.factor(meta$ANALYSIS_YEAR)
+
+gen.matrix_distmat <- vegdist((gen.matrix), method = "bray")
+
+bd <-  betadisper(gen.matrix_distmat, meta$ISLAND)
+boxplot(bd)
+anova(bd) 
+TukeyHSD(bd, ordered = FALSE, conf.level = 0.95)
+
+
+
+
+
+
 # Generate regional plots--------
 GenerateMDS_Region<-function(df,region_field,region_name){
 
@@ -41,7 +261,7 @@ GenerateMDS_Region<-function(df,region_field,region_name){
   meta$ANALYSIS_YEAR<-as.factor(meta$ANALYSIS_YEAR)
   
   #calculate distance for NMDS
-  mds <- metaMDS(gen.matrix)
+  mds <- metaMDS(gen.matrix, distance = "bray", k=2,trymax = 1000)
   stress.value<-round(mds$stress,3) #extract stress value to plot later
   stress.value<-paste("Stress = ",stress.value)
     
@@ -50,7 +270,7 @@ GenerateMDS_Region<-function(df,region_field,region_name){
   data.scores<-cbind(data.scores,meta)
   data.scores$region_year<-paste(data.scores$REGION,data.scores$ANALYSIS_YEAR,sep="-")
   
-  species.scores <- as.data.frame(scores(mds, "species"))  #Using the scores function from vegan to extract the genus scores and convert to a data.fram
+  species.scores <- as.data.frame(scores(mds, display = "species"))  #Using the scores function from vegan to extract the genus scores and convert to a data.fram
   species.scores$GENUS_CODE <- rownames(species.scores)  # create a column of genus, from the rownames of species.scores
 
 

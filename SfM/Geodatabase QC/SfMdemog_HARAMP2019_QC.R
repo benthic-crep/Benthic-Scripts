@@ -2,6 +2,8 @@
 #By Corinne Amir
 #Modified 12/1/20 by Courtney Couch
 
+source("C:/Users/Courtney.S.Couch/Documents/GitHub/Benthic-Scripts/Functions/Benthic_Functions_newApp_vTAOfork.R")
+
 # Read dataframes pulled directly from geodatabases
 #setwd("C:/Users/Corinne.Amir/Documents/GitHub/Benthic-Scripts/SfM/Geodatabase QC")
 setwd("C:/Users/Courtney.S.Couch/Documents/GitHub/Benthic-Scripts/SfM/Geodatabase QC")
@@ -592,6 +594,84 @@ write.csv(j,"HARAMP2019_QCdsfm_JUV_revised.csv",row.names = F)
 write.csv(sfm,"HARAMP2019_output_FINAL_jul242020_revised.csv",row.names = F)
 
 
+# Prepare for InPort-Merge together survey master table and Inport ready (Corinne ran final updates) colony-level data ------------------------------------
+j <- read.csv("T:/Benthic/Data/SfM/QC/SfM_Juvenile_Demographic_MHI_2019.csv");j<-subset(j,select= -c(X))
+ad <- read.csv("T:/Benthic/Data/SfM/QC/SfM_Adult_demographic_MHI_2019.csv");ad<-subset(ad,select= -c(site_seg)) 
+
+#SfM/ADULT: Column Names Changes -------------------------------------------------
+colnames(ad)[colnames(ad)=="RD_1"]<-"RECENTDEAD_1" #Change column name
+colnames(ad)[colnames(ad)=="RDCAUSE1"]<-"RECENT_SPECIFIC_CAUSE_CODE_1" #Change column name
+colnames(ad)[colnames(ad)=="RD_2"]<-"RECENTDEAD_2" #Change column name
+colnames(ad)[colnames(ad)=="RD_3"]<-"RECENTDEAD_3" #Change column name
+colnames(ad)[colnames(ad)=="RDCAUSE2"]<-"RECENT_SPECIFIC_CAUSE_CODE_2" #Change column name
+colnames(ad)[colnames(ad)=="RDCAUSE3"]<-"RECENT_SPECIFIC_CAUSE_CODE_3" #Change column name
+colnames(ad)[colnames(ad)=="FRAGMENT"]<-"FRAGMENT_YN" #Change column name
+colnames(ad)[colnames(ad)=="CON_1"]<-"COND" #Change column name
+colnames(ad)[colnames(ad)=="CON_2"]<-"CONDITION_2" #Change column name
+colnames(ad)[colnames(ad)=="CON_3"]<-"CONDITION_3" #Change column name
+colnames(ad)[colnames(ad)=="SEV_1"]<-"SEVERITY_1" #Change column name
+colnames(ad)[colnames(ad)=="SEV_2"]<-"SEVERITY_2" #Change column name
+colnames(ad)[colnames(ad)=="SEV_3"]<-"SEVERITY_3" #Change column name
+colnames(ad)[colnames(ad)=="Shape_Leng"]<-"COLONYLENGTH" #Change column name
+
+colnames(j)[colnames(j)=="FRAGMENT"]<-"FRAGMENT_YN" #Change column name
+colnames(j)[colnames(j)=="Shape_Leng"]<-"COLONYLENGTH" #Change column name
+
+
+#Modify colunns to match standard REA data
+ad$COLONYLENGTH<-ad$COLONYLENGTH*100 #convert from m to cm
+ad$COLONYLENGTH<-ifelse(ad$NO_COLONY==-1,NA,ad$COLONYLENGTH) #make sure that the segements that had no colonies have a colony length = 0
+ad$S_ORDER<-ifelse(ad$NO_COLONY==0 ,"Scleractinia",NA) #add S_order column
+ad$SPCODE<-ifelse(ad$NO_COLONY==-1 ,"AAAA",as.character(ad$SPCODE)) #Change spcode to AAAA if there are no colonies observed in the segment
+ad$COLONYID<-ifelse(ad$NO_COLONY==-1 ,NA,ad$COLONYID) #Change colonyid to NA if there are no colonies observed in the segment. COLONYID is a placeholder until Data Services can integrate it properly
+
+#Create Genuscode and taxonname column from spcode
+genlookup<-read.csv("T:/Benthic/Data/Lookup Tables/Genus_lookup.csv")
+ad<-CreateGenusCode(ad,genlookup) 
+colnames(ad)[colnames(ad)=="SPCODE"]<-"TAXONCODE" #Change column name
+head(ad)
+
+
+j$COLONYLENGTH<-j$COLONYLENGTH*100 #convert from m to cm
+j$COLONYLENGTH<-ifelse(j$NO_COLONY==-1,NA,j$COLONYLENGTH) #make sure that the segements that had no colonies have a colony length = 0
+j$S_ORDER<-ifelse(j$NO_COLONY==0,"Scleractinia",NA) #add S_order column
+j$SPCODE<-ifelse(j$NO_COLONY==-1 ,"AAAA",as.character(j$SPCODE)) #Change spcode to AAAA if there are no colonies observed in the segment
+j$COLONYID<-ifelse(j$NO_COLONY==-1 ,NA,j$COLONYID) #Change colonyid to NA if there are no colonies observed in the segment
+
+j<-CreateGenusCode(j,genlookup) 
+colnames(j)[colnames(j)=="SPCODE"]<-"TAXONCODE" #Change column name
+head(j)
+
+
+#Merge with Survey Master
+survey_master<-read.csv("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/data/SURVEY MASTER.csv")
+
+colnames(survey_master)[colnames(survey_master)=="new_MIN_DEPTH_M"]<-"MIN_DEPTH_M" #Change column name
+colnames(survey_master)[colnames(survey_master)=="new_MAX_DEPTH_M"]<-"MAX_DEPTH_M" #Change column name
+colnames(survey_master)[colnames(survey_master)=="LATITUDE_SV"]<-"LATITUDE" #Change column name
+colnames(survey_master)[colnames(survey_master)=="LONGITUDE_SV"]<-"LONGITUDE" #Change column name
+
+
+ad<-left_join(ad,survey_master[,c("MISSIONID","REGION","OBS_YEAR","ISLAND","SITEVISITID","SITE","SEC_NAME",
+                                "REEF_ZONE","DEPTH_BIN","HABITAT_CODE","LATITUDE","LONGITUDE","MIN_DEPTH_M","MAX_DEPTH_M")])
+head(ad)
+if(nrow(ad)!=nrow(ad)) {cat("WARNING:Data were dropped")} #Check that adult data weren't dropped  
+
+
+j<-left_join(j,survey_master[,c("MISSIONID","REGION","OBS_YEAR","ISLAND","SITEVISITID","SITE","SEC_NAME",
+                                  "REEF_ZONE","DEPTH_BIN","HABITAT_CODE","LATITUDE","LONGITUDE","MIN_DEPTH_M","MAX_DEPTH_M")])
+
+head(j)
+if(nrow(j)!=nrow(j)) {cat("WARNING:Data were dropped")} #Check that adult data weren't dropped  
+
+#Write out dataframes
+write.csv(j,file="T:/Benthic/Data/SfM/QC/SfM_Juvenile_Demographic_MHI_2019_forInPort.csv")
+write.csv(ad,file="T:/Benthic/Data/SfM/QC/SfM_Adult_demographic_MHI_2019_forInPort.csv")
+
+
+
+
+
 
 # Join the sitevisit table with the QC'd sfm geodatabase table (NOT UPDATED) ---------------------------------------------------------------
 
@@ -646,73 +726,3 @@ View(segment_per_site)
 
 
 
-
-# 
-# 
-# #Merge v1 and v1 geodatabases (v1 was already QC'd)
-# sfm <- rbind(v1,v2)
-# dim(sfm) #should have dim = 10188, 35....DOESNT
-# 
-# 
-# #Check if any site_segs are missing
-# seg.per.site <- plyr::ddply(sfm,.(SITE, SEGMENT, SEGLENGTH), summarize, num.annotated = n_distinct(SEGLENGTH))
-# eval.seg.per.site <- as.data.frame(acast(seg.per.site, SITE~SEGMENT, length))
-# #eval.seg.per.site$Total <- rowSums(eval.seg.per.site)
-# View(eval.seg.per.site) 
-
-
-#23 sites without 15m segment
-#12 sites with 2 values for 15m segment
-#1 site missing all but 15m segment = just repeat site = remove?
-#7 sites missing 2 values for 10m segment
-#2 sites missing 2 values for 5m segment (same sites as 0m missing)
-#4 sites missing 2 values for 0m segment
-#1 site missing 5m segment (LAN-1819)
-
-#Problem Sites
-#           0 5 10 15
-# HAW-04264 2 2  2  2 #MA Server QC -- OK
-# HAW-04287 2 2  2  2 #MA Server QC -- OK
-# HAW-04292 2 2  2  2 #MA Server QC -- OK
-# HAW-04299 2 2  2  2 #MA Server QC -- OK
-# HAW-03433 2 2  2  2 #Mia QC -- OK
-# HAW-03445 2 2  2  2 #Mia QC -- OK
-# HAW-03465 2 2  2  2 #Mia QC -- OK
-# KAU-02133 2 2  2  2 #MA Server QC -- OK
-# LAN-01811 2 2  2  2 #MA Server QC -- OK
-# OAH-03235 2 2  2  2 #MA Server QC -- OK
-# LAN-01814 2 2  2  2 #Mia QC -- OK
-# MAI-02529 2 2  2  2 #Mia QC -- OK
-
-# HAW-04224 2 2  1  0 #Missing 1+ segment
-# HAW-04267 2 2  1  1 #RS QC -- OK
-# KAH-00619 1 2  2  0 #FL QC -- OK
-# KAH-00632 2 2  1  1 #FL QC -- OK
-# KAH-00659 2 2  1  1 #AH QC -- OK
-# KAU-02016 0 0  0  1 #MA QC -- OK
-# LAN-01819 2 0  2  1 #FL QC -- OK
-# MAI-02520 1 1  1  0 #CA QC -- OK
-# MAI-02534 1 1  1  1 #FL QC -- OK
-# MOL-02260 2 2  1  1 #FL QC -- OK
-# MOL-02276 1 2  2  1 #FL QC -- OK
-
-# MOL-02263 2 2  2  0 #RS QC -- OK
-# MOL-02240 2 2  2  0 #ML QC -- OK
-# MOL-02291 2 2  2  0 #Doesn't exist -- OK
-# MOL-02265 2 2  2  0 #Doesn't exist -- OK
-# MAI-02544 2 2  2  0 #Doesn't exist -- OK
-# MOL-02221 2 2  2  0 #Doesn't exist -- OK
-# MOL-02254 2 2  2  0 #Doesn't exist -- OK
-# MAI-02466 2 2  2  0 #Doesn't exist -- OK
-# MAI-02515 2 2  2  0 #Doesn't exist -- OK
-# LAN-01795 2 2  2  0 #Doesn't exist -- OK
-# HAW-04304 2 2  2  0 #Doesn't exist -- OK
-# KAH-00608 2 2  2  0 #Doesn't exist -- OK
-# HAW-04300 2 2  2  0 #Doesn't exist -- OK
-# HAW-04220 2 2  2  0 #Doesn't exist -- OK
-# HAW-03434 2 2  2  0 #Doesn't exist -- OK
-# HAW-03436 2 2  2  0 #Doesn't exist -- OK
-# HAW-04296 2 2  2  0 #Doesn't exist -- OK
-# HAW-04259 2 2  2  0 #Doesn't exist -- OK
-
-# -   NA    2 2  2  1 #Wrong name (14 rows) -- recorded
