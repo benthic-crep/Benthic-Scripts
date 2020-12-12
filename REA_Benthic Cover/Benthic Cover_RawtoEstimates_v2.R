@@ -13,14 +13,12 @@ source("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/lib/fish_team_func
 source("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/lib/Islandwide Mean&Variance Functions.R")
 
 #Climate data - this is from CPCE
-#load("T:/Benthic/Data/REA Coral Demography & Cover/Raw from Oracle/ALL_BIA_CLIMATE_PERM.rdata")   #bia
-load("C:/Users/Courtney.S.Couch/Documents/Courtney's Files/R Files/ESD/Data/REA Coral Demography & Cover/Raw from Oracle/ALL_BIA_CLIMATE_PERM.rdata")   #bia
+load("T:/Benthic/Data/REA Coral Demography & Cover/Raw from Oracle/ALL_BIA_CLIMATE_PERM.rdata")   #bia
 
 cli$SITE<-SiteNumLeadingZeros(cli$SITE)
 
 #BIA data - this is from CPCE
-#load("T:/Benthic/Data/REA Coral Demography & Cover/Raw from Oracle/ALL_BIA_STR_RAW_NEW.rdata")   #bia
-load("C:/Users/Courtney.S.Couch/Documents/Courtney's Files/R Files/ESD/Data/REA Coral Demography & Cover/Raw from Oracle/ALL_BIA_STR_RAW_NEW.rdata")   #bia
+load("T:/Benthic/Data/REA Coral Demography & Cover/Raw from Oracle/ALL_BIA_STR_RAW_NEW.rdata")   #bia
 
 bia$SITE<-SiteNumLeadingZeros(bia$SITE)
 
@@ -28,8 +26,7 @@ bia$SITE<-SiteNumLeadingZeros(bia$SITE)
 #These data contain human annotated data. There may be a small subset of robot annotated data. 
 #The robot annoations are included because the confidence threshold in CoralNet was set to 90% allowing the robot to annotate points when it was 90% certain.
 #2019 NWHI data not in these view because it was analyzed as part of a bleaching dataset
-#load("T:/Benthic/Data/REA Coral Demography & Cover/Raw from Oracle/ALL_BIA_STR_CNET.rdata") #load data
-load("C:/Users/Courtney.S.Couch/Documents/Courtney's Files/R Files/ESD/Data/REA Coral Demography & Cover/Raw from Oracle/ALL_BIA_STR_CNET.rdata") #load data
+load("T:/Benthic/Data/REA Coral Demography & Cover/Raw from Oracle/ALL_BIA_STR_CNET.rdata") #load data
 
 cnet$SITE<-SiteNumLeadingZeros(cnet$SITE)
 table(cnet$REGION,cnet$OBS_YEAR)
@@ -54,7 +51,6 @@ sectors<-read.csv("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/data/Se
 test<-subset(sm,OBS_YEAR=="2019",TRANSECT_PHOTOS=="-1");nrow(test)
 
 # Merge together all Photoquad Datasets & make sure columns match ---------------------------------------
-
 bia$METHOD<-"CPCE"
 cli$METHOD<-"CPCE"
 #bia$FUNCTIONAL_GROUP<-"BIA"    #ACTUALLY FUNCTIONAL_GROUP SEEMS A BIT MIXED UP ... FROM QUICK LOOK AT CNET FILE, IT CAN TAKE DIFFERENT VALUES FOR SAME CODES (eg ALGAE or Hare Substrate) - SO GOING TO IGNORE IT!
@@ -82,12 +78,13 @@ ab<-rbind(x,y,z)
 #With the exception of OCC 2012 sites, there should be 30 images/site/10 points/image
 test<-ddply(ab,.(OBS_YEAR,SITEVISITID,SITE),summarize,count=sum(POINTS))
 test2<-test[test$count<150 |test$count>330,]
-test2
+View(test2)
 #Ignore 2012 OCC sites. They analyzed 50 points per images 
 
-#WRITE CODE TO TEMPORARILY REMOVE SITES THAT HAVE LESS THAN 150. WE ARE WORKING WITH KEVIN ON THIS.
-write.csv(test2,"BIA_pointnumbercheck.csv")
-
+#Remove sites with less than 150 points -These really should be removed from Oracle eventually
+test3<-test[test$count<150,];test3
+ab<-ab[!(ab$SITE %in% test3$SITE),];head(ab)
+subset(ab,SITE %in% c("TUT-00210","TUT-00275","OAH-00558")) #double check that sites were dropped properly
 
 #Generate a table of # of sites/region and year from original datasets before data cleaning takes place
 #use this later in the script to make sure sites haven't been dropped after data clean up.
@@ -95,9 +92,15 @@ oracle.site<-ddply(ab,.(REGION,OBS_YEAR),summarize,nSite=length(unique(SITE)))
 oracle.site
 
 #Check this against site master list
-sm.test<-subset(sm,OBS_YEAR=="2019");nrow(sm.test)
-sm.site<-ddply(sm.test,.(REGION,OBS_YEAR),summarize,nSite=length(unique(SITE)));sm.site
+table(sm$REGION,sm$OBS)
+ab.site<-ddply(subset(cnet,OBS_YEAR=="2019"),.(REGION,OBS_YEAR),summarize,nSite=length(unique(SITE)));ab.site
 
+#identify which new sites are in the CoralNet data, but still need to be integrated into the SURVEY MASTER file
+miss.from.sm<-cnet[!(cnet$SITEVISITID %in% sm$SITEVISITID),]
+miss.from.smSITE<-ddply(miss.from.sm,.(SITEVISITID,REGION,ISLAND,SITE,REEF_ZONE,DEPTH_BIN,ROUNDID,MISSIONID,OBS_YEAR, DATE_,HABITAT_CODE,
+                                       LATITUDE,LONGITUDE,MIN_DEPTH,MAX_DEPTH),summarize,tmp=length(REPLICATE));miss.from.smSITE
+
+write.csv(miss.from.smSITE,file="C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/data/121120_SitesmissingfromSM.csv") #export list and manually add to SM
 #write.csv(ab, file="tmp All BIA BOTH METHODS.csv")
 
 SURVEY_INFO<-c("OBS_YEAR", "REGION",  "ISLAND")
