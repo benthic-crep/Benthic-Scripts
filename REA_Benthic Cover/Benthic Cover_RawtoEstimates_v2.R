@@ -219,7 +219,7 @@ class(sm$DATE_)
 head(sm)
 
 sm$SITE<-SiteNumLeadingZeros(sm$SITE)
-sm<-sm[,c("DATE_","MISSIONID","SITEVISITID","SITE","ANALYSIS_YEAR","ANALYSIS_SCHEME","OBS_YEAR","SEC_NAME","EXCLUDE_FLAG","TRANSECT_PHOTOS","Oceanography")]
+sm<-sm[,c("DATE_","MISSIONID","SITEVISITID","SITE","OCC_SITEID","ANALYSIS_YEAR","ANALYSIS_SCHEME","OBS_YEAR","SEC_NAME","EXCLUDE_FLAG","TRANSECT_PHOTOS","Oceanography")]
 wsd_t1<-merge(sm,wsd,by=c("SITEVISITID","SITE","OBS_YEAR"),all.y=TRUE)
 head(wsd_t1)
 
@@ -292,8 +292,10 @@ data.cols<-T3data.cols
 wsd$PERM_SITE[is.na(wsd$PERM_SITE)]<-"0"
 wsd$TRANSECT_PHOTOS[is.na(wsd$TRANSECT_PHOTOS)]<-"0"
 
-wsd<-subset(wsd,Oceanography!=1 & TRANSECT_PHOTOS!=0 & EXCLUDE_FLAG!="-1"& PERM_SITE!=-1 &CLIMATE_STATION_YN!=-1)
+#Remove occ sites,sites with exclude flag =-1 and permanent sites
+wsd<-subset(wsd,is.na(OCC_SITEID)& EXCLUDE_FLAG!="-1"& PERM_SITE!=-1)
 
+View(wsd)
 #Check analysis sector names & make sure number of sites match SURVEY master file
 wsd<-droplevels(wsd)
 levels(wsd$MISSIONID)

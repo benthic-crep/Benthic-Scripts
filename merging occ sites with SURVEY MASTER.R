@@ -13,31 +13,32 @@ occ$SITE<-SiteNumLeadingZeros(occ$SITE)
 occ<-subset(occ,STATUS=="Active") #remove inactive sites
 
 #Manually drop the following OCC sites from OCC site list- they weren't surveyed for photoquads and are causing merging issues
-occ<-occ[!(occ$OCC_SITEID %in% c("OCC-GUA-016","OCC-PAG-003")),];head(occ)
+occ<-occ[!(occ$OCC_SITEID %in% c("OCC-GUA-016","OCC-PAG-003","OCC-MAU-017")),];head(occ)
 
 #add depth bin column to occ
-# occ$DEPTH_BIN<-NULL
-# for (i in c(1:nrow(occ))){ #opening brace
-#   if(occ$SITE_DEPTH_M[i] >0 & occ$SITE_DEPTH_M[i]<=6){ #c&p
-#     occ$DEPTH_BIN[i] = "Shallow" #c&p
-#   } #c&p
-#   if(occ$SITE_DEPTH_M[i] >6 & occ$SITE_DEPTH_M[i]<=18){ #c&p
-#     occ$DEPTH_BIN[i]= "Mid" #c&p
-#   } #c&p
-#   if(occ$SITE_DEPTH_M[i] >18 ){ #c&p
-#     occ$DEPTH_BIN[i]= "Deep" #c&p
-#   } #c&p
-# }
+occ$DEPTH_BIN<-NULL
+for (i in c(1:nrow(occ))){ #opening brace
+  if(occ$SITE_DEPTH_M[i] >0 & occ$SITE_DEPTH_M[i]<=6){ #c&p
+    occ$DEPTH_BIN[i] = "Shallow" #c&p
+  } #c&p
+  if(occ$SITE_DEPTH_M[i] >6 & occ$SITE_DEPTH_M[i]<=18){ #c&p
+    occ$DEPTH_BIN[i]= "Mid" #c&p
+  } #c&p
+  if(occ$SITE_DEPTH_M[i] >18 ){ #c&p
+    occ$DEPTH_BIN[i]= "Deep" #c&p
+  } #c&p
+}
 
 head(occ)
 
 
 nrow(sm)
-sm.new<-left_join(sm,occ[,c("SITE","OCC_SITEID")]);nrow(sm.test) #Join dfs together and make sure sitevisitIDS weren't droped
+sm.new<-left_join(sm,occ[,c("SITE","OCC_SITEID","DEPTH_BIN")]);nrow(sm.test) #Join dfs together and make sure sitevisitIDS weren't droped
 tmp<-sm.new[duplicated(sm.new$SITEVISITID),];head(tmp);nrow(tmp) #double check there aren't duplicate SITEVISITIDs
 
 
-
+#We condected bleaching surveys and photoquad surveys at shallow and deep STR sites in 2019 in the NWHI- they were orginally given a bleaching site name, but were later changed.
+#The site names in the OCC df don't match what's in the CoralNet data. This script will match up sites by SITEVISITID- manually replace OCC_SITEID with OCC_SITEID2 for the NWHI 2019 sites
 nwhi<-subset(cnet,REGION=="NWHI"&OBS_YEAR=="2019")
 tmp2<-ddply(nwhi,.(SITEVISITID,SITE,OCC_SITEID),summarize,tmp=length(REPLICATE));tmp2
 names(tmp2)[names(tmp2) == "OCC_SITEID"] <- "OCC_SITEID2"

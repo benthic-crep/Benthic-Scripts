@@ -65,8 +65,8 @@ ggplot(all_col) +
   ggtitle("POSP (at GENUS) Size Frequency")
 
 #PLOB
-p_j<-subset(j,ISLAND=="Palmyra"& TAXONCODE=="PLUT")
-p_ad<-subset(a,ISLAND=="Palmyra"& TAXONCODE=="PLUT")
+p_j<-subset(j,ISLAND=="Palmyra"& TAXONCODE=="PLOB")
+p_ad<-subset(a,ISLAND=="Palmyra"& TAXONCODE=="PLOB")
 
 all_col<-rbind(p_ad[,c("SITE","OBS_YEAR","COLONYLENGTH")],p_j[,c("SITE","OBS_YEAR","COLONYLENGTH")])
 
@@ -76,4 +76,24 @@ ggplot(all_col) +
   geom_vline(xintercept=5, color = "black")+
   ggtitle("PLOB Size Frequency")
 
+ggplot(all_col) + 
+  geom_histogram(aes(x = COLONYLENGTH, fill = OBS_YEAR))+
+  geom_vline(xintercept=5, color = "black")+
+  ggtitle("PLOB Size Frequency")
 
+#PLUT
+p_j<-subset(j,ISLAND=="Palmyra"& TAXONCODE=="PLUT")
+p_ad<-subset(a,ISLAND=="Palmyra"& TAXONCODE=="PLUT")
+
+all_col<-rbind(p_ad[,c("SITE","OBS_YEAR","COLONYLENGTH")],p_j[,c("SITE","OBS_YEAR","COLONYLENGTH")])
+
+all_col$OBS_YEAR<-as.factor(all_col$OBS_YEAR)
+ggplot(all_col) + 
+  geom_density(aes(x = COLONYLENGTH, fill = OBS_YEAR), alpha = 0.2)+
+  geom_vline(xintercept=5, color = "black")+
+  ggtitle("PLUT Size Frequency")
+
+ggplot(all_col) + 
+  geom_histogram(aes(x = COLONYLENGTH, fill = OBS_YEAR))+
+  geom_vline(xintercept=5, color = "black")+
+  ggtitle("PLUT Size Frequency")

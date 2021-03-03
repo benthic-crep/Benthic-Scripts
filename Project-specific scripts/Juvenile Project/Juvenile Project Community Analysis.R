@@ -20,54 +20,17 @@ st$DB_RZ<-st$DB_RZ_2
 #remove Unknown and tubastrea
 st<-st[!st$GENUS_CODE %in% c("UNKN","TUBA"),]
 
-
 #Remove FASP from MHI dataset- this was an error and only recorded at 1 site in 2016
 st$JuvColDen<-ifelse(st$GENUS_CODE=="FASP"&st$REGION=="MHI",0,st$JuvColDen)
 
 View(st)
 
-Permanova_Year<-function(df,region_field){
-  
-  #Create community matrix
-  #Subset Region of interest
-  df<-subset(df,REGION==region_field)
-  
-  #Remove genera that weren't observed in a given region or year
-  tmp<-ddply(df,.(GENUS_CODE),summarize,n=sum(JuvColDen))
-  nocol<-subset(tmp,n==0)
-  df<-df[!df$GENUS_CODE %in% nocol$GENUS_CODE,]
-  
-  #Convert to wide format
-  df.wide<-dcast(df, formula=REGION + ISLAND +SEC_NAME+ANALYSIS_YEAR+STRATANAME+DEPTH_BIN~ GENUS_CODE, value.var="JuvColDen",fill=0)
-  df.wide<-subset(df.wide,SSSS!=0)#remove strata that do not have any colonies
-  df.wide<-subset(df.wide,select= -c(SSSS)) #remove total hard coral column
-  head(df.wide)
-  
-  #Extract community matrix and meta data
-  gen.matrix<-df.wide[7:ncol(df.wide)] #extract community matrix
-  
-  head(gen.matrix)
-  meta <-df.wide[c(1:6)] #create a dataframe with env data
-  meta$ANALYSIS_YEAR<-as.factor(meta$ANALYSIS_YEAR)
-  
-  
-  ### ------------ Distance matrix ----------------------------------------------
-  ### Compute distance matrix using Bray-Curtis on raw density
-  range(gen.matrix) #the range looks good- no need to transform
-  
-  dist_den <- vegdist(gen.matrix, method = "bray")
-  
-  ### ------------ PERMANOVA -----------------------------------------------------
-  pmv1 <- adonis(gen.matrix ~ ANALYSIS_YEAR, data = meta,permutations = 999,method = "bray")
-  
-  return(pmv1)
-}
-Permanova_Year_Depth<-function(df,region_field){
 
-#Create community matrix
-#Subset Region of interest
-df<-subset(df,REGION==region_field)
+#I still need to play with different data transformations (e.g. sqrt or 4th root) and removing rare taxa
 
+#Create community matrix 
+Generate_Community_matrix<-function(df){
+  
 #Remove genera that weren't observed in a given region or year
 tmp<-ddply(df,.(GENUS_CODE),summarize,n=sum(JuvColDen))
 nocol<-subset(tmp,n==0)
@@ -82,32 +45,11 @@ head(df.wide)
 #Extract community matrix and meta data
 gen.matrix<-df.wide[7:ncol(df.wide)] #extract community matrix
 
-head(gen.matrix)
-meta <-df.wide[c(1:6)] #create a dataframe with env data
-meta$ANALYSIS_YEAR<-as.factor(meta$ANALYSIS_YEAR)
-
-
-### ------------ Distance matrix ----------------------------------------------
-### Compute distance matrix using Bray-Curtis on raw density
-range(gen.matrix) #the range looks good- no need to transform
-
-dist_den <- vegdist(gen.matrix, method = "bray")
-
-### ------------ PERMANOVA -----------------------------------------------------
-pmv1 <- adonis(gen.matrix ~ ANALYSIS_YEAR*DEPTH_BIN, data = meta,permutations = 999,method = "bray")
-
-# plot permuted F-values
-densityplot(permustats(pmv))
-
-pmv2 <- adonis(gen.matrix ~ ANALYSIS_YEAR*ISLAND, data = meta,permutations = 999,method = "bray")
-
-return(pmv1)
+return(gen.matrix)
 }
-Permanova_Year_Island<-function(df,region_field){
-  
-  #Create community matrix
-  #Subset Region of interest
-  df<-subset(df,REGION==region_field)
+
+#Create metadata dataframe
+Generate_metadata<-function(df){
   
   #Remove genera that weren't observed in a given region or year
   tmp<-ddply(df,.(GENUS_CODE),summarize,n=sum(JuvColDen))
@@ -120,13 +62,58 @@ Permanova_Year_Island<-function(df,region_field){
   df.wide<-subset(df.wide,select= -c(SSSS)) #remove total hard coral column
   head(df.wide)
   
-  #Extract community matrix and meta data
-  gen.matrix<-df.wide[7:ncol(df.wide)] #extract community matrix
-  
   head(gen.matrix)
   meta <-df.wide[c(1:6)] #create a dataframe with env data
   meta$ANALYSIS_YEAR<-as.factor(meta$ANALYSIS_YEAR)
   
+  return(meta)
+}
+
+Permanova_Year<-function(df,region_field){
+  
+  #Subset Region of interest
+  df<-subset(df,REGION==region_field)
+  
+  #generate the community matrix and metadata df
+  gen.matrix<-Generate_Community_matrix(df)
+  meta<-Generate_metadata(df)
+  
+  ### ------------ Distance matrix ----------------------------------------------
+  ### Compute distance matrix using Bray-Curtis on raw density
+  range(gen.matrix) #the range looks good- no need to transform
+  
+  ### ------------ PERMANOVA -----------------------------------------------------
+  pmv1 <- adonis(gen.matrix ~ ANALYSIS_YEAR, data = meta,permutations = 999,method = "bray")
+  
+  return(pmv1)
+}
+Permanova_Year_Depth<-function(df,region_field){
+
+#Subset Region of interest
+df<-subset(df,REGION==region_field)
+
+#generate the community matrix and metadata df
+gen.matrix<-Generate_Community_matrix(df)
+meta<-Generate_metadata(df)
+
+### ------------ Distance matrix ----------------------------------------------
+### Compute distance matrix using Bray-Curtis on raw density
+range(gen.matrix) #the range looks good- no need to transform
+
+### ------------ PERMANOVA -----------------------------------------------------
+pmv1 <- adonis(gen.matrix ~ ANALYSIS_YEAR*DEPTH_BIN, data = meta,permutations = 999,method = "bray")
+
+return(pmv1)
+}
+Permanova_Year_Island<-function(df,region_field){
+  
+  #Create community matrix
+  #Subset Region of interest
+  df<-subset(df,REGION==region_field)
+  
+  #generate the community matrix and metadata df
+  gen.matrix<-Generate_Community_matrix(df)
+  meta<-Generate_metadata(df)
   
   ### ------------ Distance matrix ----------------------------------------------
   ### Compute distance matrix using Bray-Curtis on raw density
@@ -145,23 +132,9 @@ Simper_Year<-function(df,region_field){
   #Subset Region of interest
   df<-subset(df,REGION==region_field)
   
-  #Remove genera that weren't observed in a given region or year
-  tmp<-ddply(df,.(GENUS_CODE),summarize,n=sum(JuvColDen))
-  nocol<-subset(tmp,n==0)
-  df<-df[!df$GENUS_CODE %in% nocol$GENUS_CODE,]
-  
-  #Convert to wide format
-  df.wide<-dcast(df, formula=REGION + ISLAND +SEC_NAME+ANALYSIS_YEAR+STRATANAME+DEPTH_BIN~ GENUS_CODE, value.var="JuvColDen",fill=0)
-  df.wide<-subset(df.wide,SSSS!=0)#remove strata that do not have any colonies
-  df.wide<-subset(df.wide,select= -c(SSSS)) #remove total hard coral column
-  head(df.wide)
-  
-  #Extract community matrix and meta data
-  gen.matrix<-df.wide[7:ncol(df.wide)] #extract community matrix
-  
-  head(gen.matrix)
-  meta <-df.wide[c(1:6)] #create a dataframe with env data
-  meta$ANALYSIS_YEAR<-as.factor(meta$ANALYSIS_YEAR)
+  #generate the community matrix and metadata df
+  gen.matrix<-Generate_Community_matrix(df)
+  meta<-Generate_metadata(df)
   
   sim <- simper(gen.matrix, group = meta$ANALYSIS_YEAR)
   sim
@@ -169,6 +142,29 @@ Simper_Year<-function(df,region_field){
   return(summary(sim))
 }
 
+#check PERMANOVA assumption of equal dispersion among groups for a given region
+#No signficant diff in dispersion for YEAR, but box plots show mild dispersion in Phoenix islands
+#No signficant diff in dispersion for ISLAND, but box plots show mild dispersion in LINE, MHI AND NMARIAN
+
+df2<-subset(st,REGION=="LINE")
+gen.matrix<-Generate_Community_matrix(df2)
+meta<-Generate_metadata(df2)
+
+gen.matrix_disp <- vegdist((gen.matrix), method = "bray")
+
+#Analysis year
+bd <-  betadisper(gen.matrix_disp, meta$ANALYSIS_YEAR)
+boxplot(bd)
+anova(bd) 
+#TukeyHSD(bd, ordered = FALSE, conf.level = 0.95)
+
+# Island
+bd <-  betadisper(gen.matrix_disp, meta$ISLAND)
+boxplot(bd)
+anova(bd) 
+#TukeyHSD(bd, ordered = FALSE, conf.level = 0.95)
+
+#Run PERMANOVAs for each region
 Permanova_Year_Island(st,"MHI")
 Permanova_Year_Depth(st,"MHI")
 Simper_Year(st,"MHI")
@@ -198,44 +194,6 @@ Permanova_Year_Island(st,"SMARIAN")
 Permanova_Year_Depth(st,"SMARIAN")
 Simper_Year(st,"SMARIAN")
 
-####SIMPER####
-sim <- simper(benthic.den, group = benthic.groups$ANALYSIS_YEAR)
-sim
-summary(sim) 
-
-
-#check PERMANOVA assumption of equal dispersion among groups/levels for each factor- checked all regions- looks good
-df<-subset(st,REGION=="NMARIAN")
-
-#Remove genera that weren't observed in a given region or year
-tmp<-ddply(df,.(GENUS_CODE),summarize,n=sum(JuvColDen))
-nocol<-subset(tmp,n==0)
-df<-df[!df$GENUS_CODE %in% nocol$GENUS_CODE,]
-
-#Convert to wide format
-df.wide<-dcast(df, formula=REGION + ISLAND +SEC_NAME+ANALYSIS_YEAR+STRATANAME+DEPTH_BIN~ GENUS_CODE, value.var="JuvColDen",fill=0)
-df.wide<-subset(df.wide,SSSS!=0)#remove strata that do not have any colonies
-df.wide<-subset(df.wide,select= -c(SSSS)) #remove total hard coral column
-head(df.wide)
-
-#Extract community matrix and meta data
-gen.matrix<-df.wide[7:ncol(df.wide)] #extract community matrix
-
-head(gen.matrix)
-meta <-df.wide[c(1:6)] #create a dataframe with env data
-meta$ANALYSIS_YEAR<-as.factor(meta$ANALYSIS_YEAR)
-
-gen.matrix_distmat <- vegdist((gen.matrix), method = "bray")
-
-bd <-  betadisper(gen.matrix_distmat, meta$ISLAND)
-boxplot(bd)
-anova(bd) 
-TukeyHSD(bd, ordered = FALSE, conf.level = 0.95)
-
-
-
-
-
 
 # Generate regional plots--------
 GenerateMDS_Region<-function(df,region_field,region_name){
@@ -243,22 +201,9 @@ GenerateMDS_Region<-function(df,region_field,region_name){
   #Subset Region of interest
   df<-subset(df,REGION==region_field)
 
-    #Remove genera that weren't observed in any regions or years
-  tmp<-ddply(df,.(GENUS_CODE),summarize,n=sum(JuvColDen))
-  nocol<-subset(tmp,n==0)
-  df<-df[!df$GENUS_CODE %in% nocol$GENUS_CODE,]
-  
-  #Convert to wide format
-  df.wide<-dcast(df, formula=METHOD+ REGION + ISLAND +SEC_NAME+ANALYSIS_YEAR+STRATANAME+DB_RZ~ GENUS_CODE, value.var="JuvColDen",fill=0)
-  df.wide<-subset(df.wide,SSSS!=0)#remove strata that do not have any colonies
-  df.wide<-subset(df.wide,select= -c(SSSS)) #remove total hard coral column
-  head(df.wide)
-  
-  #Extract community matrix and meta data
-  gen.matrix<-df.wide[8:ncol(df.wide)] #extract community matrix
-  head(gen.matrix)
-  meta <-df.wide[c(2,5)] #create a dataframe with just site and year
-  meta$ANALYSIS_YEAR<-as.factor(meta$ANALYSIS_YEAR)
+  #generate the community matrix and metadata df
+  gen.matrix<-Generate_Community_matrix(df)
+  meta<-Generate_metadata(df)
   
   #calculate distance for NMDS
   mds <- metaMDS(gen.matrix, distance = "bray", k=2,trymax = 1000)
@@ -327,22 +272,9 @@ GenerateMDS_Region_DB<-function(df,region_field,region_name){
   #Subset Region of interest
   df<-subset(df,REGION==region_field)
   
-  #Remove genera that weren't observed in any regions or years
-  tmp<-ddply(df,.(GENUS_CODE),summarize,n=sum(JuvColDen))
-  nocol<-subset(tmp,n==0)
-  df<-df[!df$GENUS_CODE %in% nocol$GENUS_CODE,]
-  
-  #Convert to wide format
-  df.wide<-dcast(df, formula=METHOD+ REGION + ISLAND +SEC_NAME+ANALYSIS_YEAR+STRATANAME+DEPTH_BIN~ GENUS_CODE, value.var="JuvColDen",fill=0)
-  df.wide<-subset(df.wide,SSSS!=0)#remove strata that do not have any colonies
-  df.wide<-subset(df.wide,select= -c(SSSS)) #remove total hard coral column
-  head(df.wide)
-  
-  #Extract community matrix and meta data
-  gen.matrix<-df.wide[8:ncol(df.wide)] #extract community matrix
-  head(gen.matrix)
-  meta <-df.wide[c(2,5,7)] #create a dataframe with just site and year
-  meta$ANALYSIS_YEAR<-as.factor(meta$ANALYSIS_YEAR)
+  #generate the community matrix and metadata df
+  gen.matrix<-Generate_Community_matrix(df)
+  meta<-Generate_metadata(df)
   
   #calculate distance for NMDS
   mds <- metaMDS(gen.matrix)
@@ -359,7 +291,7 @@ GenerateMDS_Region_DB<-function(df,region_field,region_name){
   species.scores$GENUS_CODE <- rownames(species.scores)  # create a column of genus, from the rownames of species.scores
   
   
-  #Generate Hulls that you will plot around each group
+  #Generate the hull/polygon data that will be used to group strata by depth and year in the plot
   hull.data<-NULL
   R_YR=unique(data.scores$region_year_depth)
   for(i in 1:length(R_YR)){
@@ -414,22 +346,9 @@ GenerateMDS_Island<-function(df,region_field,region_name){
   #Subset Region of interest
   df<-subset(df,REGION==region_field)
     
-  #Remove genera that weren't observed in any regions or years
-  tmp<-ddply(df,.(GENUS_CODE),summarize,n=sum(JuvColDen))
-  nocol<-subset(tmp,n==0)
-  df<-df[!df$GENUS_CODE %in% nocol$GENUS_CODE,]
-  
-  #Convert to wide format
-  df.wide<-dcast(df, formula=METHOD+ REGION + ISLAND +SEC_NAME+ANALYSIS_YEAR+STRATANAME+DB_RZ~ GENUS_CODE, value.var="JuvColDen",fill=0)
-  df.wide<-subset(df.wide,SSSS!=0)#remove strata that do not have any colonies
-  df.wide<-subset(df.wide,select= -c(SSSS)) #remove total hard coral column
-  head(df.wide)
-  
-  #Extract community matrix and meta data
-  gen.matrix<-df.wide[8:ncol(df.wide)] #extract community matrix
-  head(gen.matrix)
-  meta <-df.wide[c(2,3,5)] #create a dataframe with just site and year
-  meta$ANALYSIS_YEAR<-as.factor(meta$ANALYSIS_YEAR)
+  #generate the community matrix and metadata df
+  gen.matrix<-Generate_Community_matrix(df)
+  meta<-Generate_metadata(df)
   
   #calculate distance for NMDS
   mds <- metaMDS(gen.matrix)
@@ -444,7 +363,7 @@ GenerateMDS_Island<-function(df,region_field,region_name){
   species.scores <- as.data.frame(scores(mds, "species"))  #Using the scores function from vegan to extract the genus scores and convert to a data.fram
   species.scores$GENUS_CODE <- rownames(species.scores)  # create a column of genus, from the rownames of species.scores
 
-  
+  #Generate the hull/polygon data that will be used to group strata by island and year in the plot
   hull.data<-NULL
   IS_YR=unique(data.scores$island_year)
   for(i in 1:length(IS_YR)){
@@ -452,6 +371,7 @@ GenerateMDS_Island<-function(df,region_field,region_name){
     hull.data<-rbind(hull.data,chull.df1)
   }
   title<-paste(region_name,stress.value,sep = " ")
+  
   #Plot strata and Genera by year with hull
   p<-ggplot() + 
     geom_polygon(data=hull.data,aes(x=NMDS1,y=NMDS2,fill=ANALYSIS_YEAR,group=ANALYSIS_YEAR),alpha=0.30) + # add the convex hulls
@@ -494,22 +414,9 @@ GenerateMDS_Island_spider<-function(df,region_field,region_name){
   #Subset Region of interest
   df<-subset(df,REGION==region_field)
   
-  #Remove genera that weren't observed in any regions or years
-  tmp<-ddply(df,.(GENUS_CODE),summarize,n=sum(JuvColDen))
-  nocol<-subset(tmp,n==0)
-  df<-df[!df$GENUS_CODE %in% nocol$GENUS_CODE,]
-  
-  #Convert to wide format
-  df.wide<-dcast(df, formula=METHOD+ REGION + ISLAND +SEC_NAME+ANALYSIS_YEAR+STRATANAME+DB_RZ~ GENUS_CODE, value.var="JuvColDen",fill=0)
-  df.wide<-subset(df.wide,SSSS!=0)#remove strata that do not have any colonies
-  df.wide<-subset(df.wide,select= -c(SSSS)) #remove total hard coral column
-  head(df.wide)
-  
-  #Extract community matrix and meta data
-  gen.matrix<-df.wide[8:ncol(df.wide)] #extract community matrix
-  head(gen.matrix)
-  meta <-df.wide[c(2,3,5)] #create a dataframe with just site and year
-  meta$ANALYSIS_YEAR<-as.factor(meta$ANALYSIS_YEAR)
+  #generate the community matrix and metadata df
+  gen.matrix<-Generate_Community_matrix(df)
+  meta<-Generate_metadata(df)
   
   #calculate distance for NMDS
   mds <- metaMDS(gen.matrix)
@@ -521,7 +428,7 @@ GenerateMDS_Island_spider<-function(df,region_field,region_name){
   data.scores<-cbind(data.scores,meta)
   data.scores$island_year<-paste(data.scores$ISLAND,data.scores$ANALYSIS_YEAR,sep="-")
   
-  species.scores <- as.data.frame(scores(mds, "species"))  #Using the scores function from vegan to extract the genus scores and convert to a data.fram
+  species.scores <- as.data.frame(scores(mds, "species"))  #Using the scores function from vegan to extract the genus scores and convert to a data.frame
   species.scores$GENUS_CODE <- rownames(species.scores)  # create a column of genus, from the rownames of species.scores
   
   #Calculate the group centroids
@@ -530,10 +437,10 @@ GenerateMDS_Island_spider<-function(df,region_field,region_name){
               cNMDS2=mean(NMDS2))
   
   segs<-left_join(data.scores,cent)
-
   
   title<-paste(region_name,stress.value,sep = " ")
-  #Plot strata and Genera by year with hull
+  
+  #Plot strata-level data in spider plot 
   p<-ggplot(data.scores,aes(x=NMDS1,y=NMDS2)) + 
     geom_segment(data=segs,mapping = aes(xend=cNMDS1,yend=cNMDS2,color=ISLAND)) + # add segments
     geom_text(data=species.scores,aes(x=NMDS1,y=NMDS2,label=GENUS_CODE),size=2, alpha=0.5) +  # add the species labels
@@ -621,72 +528,64 @@ nmar<-GenerateBoxPlot_Island(st.sub,"NMARIAN","Northern Marianas")
 smar<-GenerateBoxPlot_Island(st.sub,"SMARIAN","Southern Marianas")
 
 
-#Plot trajectories
+#Plot nMDS trajectories (segments with arrows)
 GenerateMDS_Trajectory<-function(df,region_field,region_name){
   
   #Subset Region of interest
   df<-subset(df,REGION==region_field)
   
-  #Remove genera that weren't observed in any regions or years
-  tmp<-ddply(df,.(GENUS_CODE),summarize,n=sum(JuvColDen))
-  nocol<-subset(tmp,n==0)
-  df<-df[!df$GENUS_CODE %in% nocol$GENUS_CODE,]
+  #generate the community matrix and metadata df
+  gen.matrix<-Generate_Community_matrix(df)
+  meta<-Generate_metadata(df)
   
-  #Convert to wide format
-  df.wide<-dcast(df, formula=METHOD+ REGION + ISLAND +SEC_NAME+ANALYSIS_YEAR+STRATANAME+DEPTH_BIN~ GENUS_CODE, value.var="JuvColDen",fill=0)
-  df.wide<-subset(df.wide,SSSS!=0)#remove strata that do not have any colonies
-  df.wide<-subset(df.wide,select= -c(SSSS)) #remove total hard coral column
-  head(df.wide)
-  
-  #Extract community matrix and meta data
-  gen.matrix<-df.wide[8:ncol(df.wide)] #extract community matrix
-  head(gen.matrix)
-  meta <-df.wide[c(2,3,5,6,7)] #create a dataframe with just site and year
-
   #calculate distance for NMDS
   mds <- metaMDS(gen.matrix)
   stress.value<-round(mds$stress,3) #extract stress value to add to plot later
   stress.value<-paste("(Stress = ",stress.value,")")
   
-  data.scores<- as.data.frame(scores(mds))  #Using the scores function from vegan to extract the site scores and convert to a data.fram
+  data.scores<- as.data.frame(scores(mds))  #Using the scores function from vegan to extract the site scores and convert to a data.frame
   data.scores<-cbind(data.scores,meta)
 
-  species.scores <- as.data.frame(scores(mds, "species"))  #Using the scores function from vegan to extract the genus scores and convert to a data.fram
+  species.scores <- as.data.frame(scores(mds, "species"))  #Using the scores function from vegan to extract the genus scores and convert to a data.frame ("species" = genus, we are forced to choose species or site)
   species.scores$GENUS_CODE <- rownames(species.scores)  # create a column of genus, from the rownames of species.scores
   
+  #Create dataframes of NMDS scores for time point 1 and time point 2 
   scoreT1<-subset(data.scores,ANALYSIS_YEAR<=2016 & REGION!="NWHI")
-  scoreT1nwhi<-subset(data.scores,ANALYSIS_YEAR==2014 & REGION=="NWHI")
+  scoreT1nwhi<-subset(data.scores,ANALYSIS_YEAR==2014 & REGION=="NWHI") #because NWHI has 3 time points
   scoreT2<-subset(data.scores,ANALYSIS_YEAR>2016 & REGION!="NWHI")
   scoreT2nwhi<-subset(data.scores,ANALYSIS_YEAR==2016 & REGION=="NWHI")
   
-  scoreT1<-rbind(scoreT1,scoreT1nwhi)
+  #combine T1 dfs for all regions & rename columns
+  scoreT1<-rbind(scoreT1,scoreT1nwhi) 
   scoreT1<-subset(scoreT1,select = -c(ANALYSIS_YEAR))
   names(scoreT1)[names(scoreT1) == "NMDS1"] <- "T1_NMDS1";names(scoreT1)[names(scoreT1) == "NMDS2"] <- "T1_NMDS2"
   scoreT2<-rbind(scoreT2,scoreT2nwhi)
   scoreT2<-subset(scoreT2,select = -c(ANALYSIS_YEAR))
   names(scoreT2)[names(scoreT2) == "NMDS1"] <- "T2_NMDS1";names(scoreT2)[names(scoreT2) == "NMDS2"] <- "T2_NMDS2"
   
-  new.score<-left_join(scoreT1,scoreT2);head(new.score)
+  new.score<-left_join(scoreT1,scoreT2);head(new.score) #combine T1 and T2 dfs
   
+  #Convert year to factor
   data.scores$ANALYSIS_YEAR<-as.factor(data.scores$ANALYSIS_YEAR)
   
-  title<-paste(region_name,stress.value,sep = " ")
-  #Plot strata and Genera by year with hull
+  title<-paste(region_name,stress.value,sep = " ") #Create plot title with region name and NMDS stress value
+  
+  #Plot strata-level data with arrows for the trajectory of each stratum between time points
     p<-ggplot(data.scores,aes(x=NMDS1,y=NMDS2)) + 
     geom_segment(data=new.score,mapping = aes(x=T1_NMDS1,xend=T2_NMDS1,y=T1_NMDS2,yend=T2_NMDS2,color=DEPTH_BIN)
-                 ,arrow=arrow(length=unit(0.3,"cm"),type="closed")) + # add segments
+                 ,arrow=arrow(length=unit(0.3,"cm"),type="closed")) + # add arrows
     geom_text(data=species.scores,aes(x=NMDS1,y=NMDS2,label=GENUS_CODE),size=2, alpha=0.5) +  # add the species labels
-    coord_equal() +
+    coord_equal() + #standardizes plot dimensions
     theme_bw() + 
     theme(axis.text.x = element_blank(),  # remove x-axis text
           axis.text.y = element_blank(), # remove y-axis text
           axis.ticks = element_blank(),  # remove axis ticks
-          panel.background = element_blank(), 
+          panel.background = element_blank(), #remove background
           panel.grid.major = element_blank(),  #remove major-grid labels
           panel.grid.minor = element_blank(),  #remove minor-grid labels
           plot.background = element_blank(),
-          legend.title = element_blank())+
-    ggtitle(title)
+          legend.title = element_blank())+ #remove legend title
+    ggtitle(title) #add plot title
   
   return(p)
 }

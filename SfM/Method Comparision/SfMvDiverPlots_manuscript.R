@@ -404,17 +404,17 @@ rmse.ssss$sig<-c("a","b","ab",
                  "","","",
                  "","","")
 
-ScaledMAE_manuscript<-ggplot(rmse.ssss, aes(x=Comp2, y=MAE_sc.mn, fill=Metric.new)) + 
+ScaledMAE_manuscript<-ggplot(rmse.ssss, aes(x=Comp2, y=MAE_sc.mn, fill=Comp2)) + 
   geom_hline(yintercept = c(0,1))+
   geom_bar(position="dodge",stat="identity") +
   geom_errorbar(aes(ymin=MAE_sc.mn-MAE_sc.se, ymax=MAE_sc.mn+MAE_sc.se),width=.15, position=position_dodge(.9)) + 
-  guides(fill=FALSE) + facet_wrap(.~ `Metric.new` , scales="fixed", labeller=label_parsed) +
+  guides(fill=FALSE) + facet_wrap(.~ `Metric.new` , scales="fixed", labeller=label_parsed,nrow=2) +
   ylab("Midpoint Scaled Mean Absolute Error")+
   ylim(c(0,.5))+
   xlab("Error Comparison")+
   theme_bw() +
   theme(
-    axis.text.x = element_text(angle = 0)
+    axis.text.x = element_text(angle = 90,size=12)
     ,plot.background = element_blank()
     ,panel.grid.major = element_blank()
     ,panel.grid.minor = element_blank()

@@ -1206,8 +1206,8 @@ corr
 p1<-Plot1to1_new(s.wide,"SfM_BLE_prev","Diver_BLE_prev","SfM % Bleaching","Diver % Bleaching",15,62)+labs(tag = "(I)")
 p2<-PlotMethod(site,"GENUS_CODE","BLE_prev","SSSS","% Bleaching",2,65,"*")+labs(tag = "(J)")
 p2<-p2+geom_label(label="*", x=2,y=65,label.size = 0.35,color = "black", fill="darkorange1")
-p3<-PlotHabitat(site,"GENUS_CODE","BLE_prev","SSSS","% Bleaching",1,65,"*")+labs(tag = "(I)")
-p3<-p3+geom_label(label="*", x=1,y=65,label.size = 0.35,color = "black", fill="darkorange1")
+p3<-PlotHabitat(site,"GENUS_CODE","BLE_prev","SSSS","% Bleaching",1.15,65,"*")+labs(tag = "(I)")
+p3<-p3+geom_label(label="*", x=1.15,y=65,label.size = 0.35,color = "black", fill="darkorange1")
 p4<-PlotDepth_NP(site,"GENUS_CODE","BLE_prev","SSSS","% Bleaching")+labs(tag = "(J)")
 
 BLES<-grid.arrange(p1,p2,p3,p4,nrow=2,ncol=2)
