@@ -202,10 +202,19 @@ esa<-read.csv("T:/Benthic/Data/Lookup Tables/ESACorals_lookup.csv")
 
 
 
-st.data.sp_esa<-st.data.sp[st.data.sp$SPCODE %in% c(esa$SPCODE),]
-st.data.sp_esa<-st.data.sp_esa[,1:17]
-st.data.sp_esa$DEPTH_BIN<-Generate_DB(st.data.sp_esa)
-st.data.sp_esa<-left_join(st.data.sp_esa,esa)
+st.data.sp_esa<-st.data.sp[st.data.sp$SPCODE %in% c(esa$SPCODE),] #subset just esa taxa
+st.data.sp_esa<-st.data.sp_esa[,1:17] #subset columns of interest
+st.data.sp_esa$DEPTH_BIN<-Generate_DB(st.data.sp_esa) #create a depth bin column
+st.data.sp_esa<-st.data.sp_esa[,-c(7,13,14)] #remove more columns
+st.data.sp_esa<-left_join(st.data.sp_esa,esa) # join data with esa taxa look up table
+st.data.sp_esa<-st.data.sp_esa[,c(1:6,15:17,7:14)] #reorder columns
+
+is.data.sp_esa<-is.data.sp[is.data.sp$SPCODE %in% c(esa$SPCODE),] #subset just esa taxa
+is.data.sp_esa<-is.data.sp_esa[,1:11] #subset columns of interest
+is.data.sp_esa<-left_join(is.data.sp_esa,esa) # join data with esa taxa look up table
+is.data.sp_esa<-is.data.sp_esa[,c(1:4,12:13,5:11)] #reorder columns
+
+
 is.data.sp_esa<-
 sec.data.sp_esa<-
 
