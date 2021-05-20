@@ -412,7 +412,6 @@ write.csv(sm.test,"tmp_sitemasterQC.csv")
 
 # #Subset just Forereef Sites & just target taxa
 # site.data.sp2<-subset(site.data.sp2,REEF_ZONE=="Forereef")
-# site.data.sp2<-subset(site.data.sp2,SPCODE %in% c("ACSP", "MOSP", "PAVS", "POCS","POSP","SSSS"))
 # rich.data<-subset(rich.data,REEF_ZONE=="Forereef")
 
 # #Make sure you everything but forereef are dropped
