@@ -868,7 +868,7 @@ PoolSecStrat=function(site_data){
 
 #We've had numerous conversations about whether we want to use a separate flat file with a variety of pooling schemes that we merge with the site level data
 #For now we've chosen to keep it written out like this.
-  #Create STRATANAME by idenityfing which ANALAYSIS SCHEME you want to use then concatinating with depth and reef zone that will be used to pool data
+  #Create STRATANAME by identifying which ANALAYSIS SCHEME you want to use then concatenating with depth and reef zone that will be used to pool data
   site_data$BEN_SEC<-site_data$SEC_NAME
 
   #Changing sector pooling SAMOA
@@ -879,7 +879,8 @@ PoolSecStrat=function(site_data){
   site_data$BEN_SEC<-ifelse(site_data$OBS_YEAR=="2018"&site_data$BEN_SEC %in% c("SWA_OPEN","SWA_SANCTUARY"),"SWA",as.character(site_data$BEN_SEC))
   site_data$BEN_SEC<-ifelse(site_data$OBS_YEAR=="2015"&site_data$BEN_SEC %in% c("TAU_OPEN","TAU_SANCTUARY"),"TAU",as.character(site_data$BEN_SEC))
   site_data$BEN_SEC<-ifelse(site_data$OBS_YEAR=="2015"&site_data$BEN_SEC %in% c("TUT_NE_OPEN","TUT_AUNUU_A"),"TUT_NE",as.character(site_data$BEN_SEC))
-  site_data$BEN_SEC<-ifelse(site_data$OBS_YEAR=="2015"&site_data$BEN_SEC %in% c("TUT_SW_OPEN","TUT_FAGALUA"),"TUT_SW",as.character(site_data$BEN_SEC))
+  #site_data$BEN_SEC<-ifelse(site_data$OBS_YEAR=="2015"&site_data$BEN_SEC %in% c("TUT_SW_OPEN","TUT_FAGALUA"),"TUT_SW",as.character(site_data$BEN_SEC))
+  site_data$BEN_SEC<-ifelse(site_data$OBS_YEAR=="2015"&site_data$BEN_SEC %in% c("TUT_FAGALUA","TUT_FAGATELE"),"TUT_FAGALUA_FAGATELE",as.character(site_data$BEN_SEC))
 
   #Changing sector pooling PRIA - remove PRIA backreef for 2019
   site_data <- site_data[!(site_data$OBS_YEAR == "2018" & site_data$ISLAND=="Kingman" & site_data$REEF_ZONE=="Backreef"),]

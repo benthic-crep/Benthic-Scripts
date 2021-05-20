@@ -42,9 +42,10 @@ st.list_w4<-rbind(st.list_w2,st.list_w3)
 
 head(st.list_w4);st.list_w4<-droplevels(st.list_w4) #generate the list
 
-data.gen_temp<-site.data.sp2[site.data.sp2$STRATANAME %in% c(st.list_w4$STRATANAME),] #Subset data to only include strata of interest
+site.data.sp2<-site.data.sp2[site.data.sp2$STRATANAME %in% c(st.list_w4$STRATANAME),] #Subset data to only include strata of interest
 
-View(data.gen_temp) #double check that strata were dropped correctly
+View(site.data.sp2) #double check that strata were dropped correctly
+
 
 
 
@@ -122,9 +123,17 @@ View(sectors)
 
 #Calculate Island Estimates
 acdSP_is<-Calc_Domain(site.data.sp2,"SPCODE","AdColDen","Adpres.abs")
-acdSP_is<-acdSP_is[,c("METHOD","REGION","ANALYSIS_YEAR","DOMAIN_SCHEMA","SPCODE","n","Ntot","Mean_AdColDen","SE_AdColDen")]
+acdSP_is<-acdSP_is[,c("METHOD","REGION","ANALYSIS_YEAR","DOMAIN_SCHEMA","SPCODE","n","Ntot","Mean_AdColDen","SE_AdColDen","CV_D._st","Y._st","SE_Y._st")]
+  colnames(acdSP_is)[colnames(acdSP_is)=="CV_D._st"]<-"Adult_CV"
+  colnames(acdSP_is)[colnames(acdSP_is)=="Y._st"]<-"Adult_Abun"
+  colnames(acdSP_is)[colnames(acdSP_is)=="SE_Y._st"]<-"Adult_SE_Abun"
+
 jcdSP_is<-Calc_Domain(site.data.sp2,"SPCODE","JuvColDen","Juvpres.abs")
-jcdSP_is<-jcdSP_is[,c("METHOD","REGION","ANALYSIS_YEAR","DOMAIN_SCHEMA","SPCODE","n","Ntot","Mean_JuvColDen","SE_JuvColDen")]
+jcdSP_is<-jcdSP_is[,c("METHOD","REGION","ANALYSIS_YEAR","DOMAIN_SCHEMA","SPCODE","n","Ntot","Mean_JuvColDen","SE_JuvColDen","CV_D._st")]
+  colnames(jcdSP_is)[colnames(jcdSP_is)=="CV_D._st"]<-"Juv_CV"
+  colnames(jcdSP_is)[colnames(jcdSP_is)=="Y._st"]<-"Juv_Abun"
+  colnames(jcdSP_is)[colnames(jcdSP_is)=="SE_Y._st"]<-"Juv_SE_Abun"
+
 odSP_is<-Calc_Domain(site.data.sp2,"SPCODE","Ave.od")
 odSP_is<-odSP_is[,c("METHOD","REGION","ANALYSIS_YEAR","DOMAIN_SCHEMA","SPCODE","n","Ntot","Mean_Ave.od","SE_Ave.od")]
 rdSP_is<-Calc_Domain(site.data.sp2,"SPCODE","Ave.rd")
@@ -145,9 +154,16 @@ site.data.sp2$DOMAIN_SCHEMA<-site.data.sp2$BEN_SEC
 
 
 acdSP_sec<-Calc_Domain(site.data.sp2,"SPCODE","AdColDen","Adpres.abs")
-acdSP_sec<-acdSP_sec[,c("METHOD","REGION","ANALYSIS_YEAR","ISLAND","DOMAIN_SCHEMA","SPCODE","n","Ntot","Mean_AdColDen","SE_AdColDen")]
+acdSP_sec<-acdSP_sec[,c("METHOD","REGION","ANALYSIS_YEAR","ISLAND","DOMAIN_SCHEMA","SPCODE","n","Ntot","Mean_AdColDen","SE_AdColDen","CV_D._st","Y._st","SE_Y._st")]
+  colnames(acdSP_sec)[colnames(acdSP_sec)=="CV_D._st"]<-"Adult_CV"
+  colnames(acdSP_sec)[colnames(acdSP_sec)=="Y._st"]<-"Adult_Abun"
+  colnames(acdSP_sec)[colnames(acdSP_sec)=="SE_Y._st"]<-"Adult_SE_Abun"
 jcdSP_sec<-Calc_Domain(site.data.sp2,"SPCODE","JuvColDen","Juvpres.abs")
-jcdSP_sec<-jcdSP_sec[,c("METHOD","REGION","ANALYSIS_YEAR","ISLAND","DOMAIN_SCHEMA","SPCODE","n","Ntot","Mean_JuvColDen","SE_JuvColDen")]
+jcdSP_sec<-jcdSP_sec[,c("METHOD","REGION","ANALYSIS_YEAR","ISLAND","DOMAIN_SCHEMA","SPCODE","n","Ntot","Mean_JuvColDen","SE_JuvColDen","CV_D._st","Y._st","SE_Y._st")]
+  colnames(jcdSP_sec)[colnames(jcdSP_sec)=="CV_D._st"]<-"Juv_CV"
+  colnames(jcdSP_sec)[colnames(jcdSP_sec)=="Y._st"]<-"Juv_Abun"
+  colnames(jcdSP_sec)[colnames(jcdSP_sec)=="SE_Y._st"]<-"Juv_SE_Abun"
+
 odSP_sec<-Calc_Domain(site.data.sp2,"SPCODE","Ave.od")
 odSP_sec<-odSP_sec[,c("METHOD","REGION","ANALYSIS_YEAR","ISLAND","DOMAIN_SCHEMA","SPCODE","n","Ntot","Mean_Ave.od","SE_Ave.od")]
 rdSP_sec<-Calc_Domain(site.data.sp2,"SPCODE","Ave.rd")
@@ -162,18 +178,13 @@ ChronicDZSP_sec<-Calc_Domain_Prevalence(site.data.sp2,"SPCODE","ChronicDZ")
 ChronicDZSP_sec<-ChronicDZSP_sec[,c("METHOD","REGION","ANALYSIS_YEAR","ISLAND","DOMAIN_SCHEMA","SPCODE","n","Ntot","Mean_ChronicDZ_Prev","SE_ChronicDZ_Prev")]
 
 
-
+#Merge dataframes together
 MyMerge <- function(x, y){
   df <- merge(x, y, by= c("METHOD","REGION","ISLAND","ANALYSIS_YEAR","Stratum","REEF_ZONE","DB_RZ","SPCODE","n","Ntot"), all.x= TRUE, all.y= TRUE)
   return(df)
 }
 st.data.sp<-Reduce(MyMerge, list(acdSP_st,jcdSP_st,odSP_st,rdSP_st,clSP_st,BLESP_st,AcuteDZSP_st,ChronicDZSP_st))
 colnames(st.data.sp)[colnames(st.data.sp)=="ANALYSIS_SCHEMA"]<-"Stratum"
-
-
-write.csv(st.data.sp,file="T:/Benthic/Data/Data Requests/ESDPacificwide_STRATA_Timeseries.csv")
-
-
 
 
 MyMerge <- function(x, y){
@@ -183,8 +194,6 @@ MyMerge <- function(x, y){
 is.data.sp<-Reduce(MyMerge, list(acdSP_is,jcdSP_is,odSP_is,rdSP_is,clSP_is,bleSP_is,AcuteDZSP_is,ChronicDZSP_is))
 colnames(is.data.sp)[colnames(is.data.sp)=="DOMAIN_SCHEMA"]<-"ISLAND"
 
-write.csv(is.data.sp,file="T:/Benthic/Data/Data Requests/ESDPacificwide_ISLAND_Timeseries.csv")
-
 
 MyMerge <- function(x, y){
   df <- merge(x, y, by= c("METHOD","REGION","ANALYSIS_YEAR","ISLAND","DOMAIN_SCHEMA","SPCODE","n","Ntot"), all.x= TRUE, all.y= TRUE)
@@ -193,14 +202,28 @@ MyMerge <- function(x, y){
 sec.data.sp<-Reduce(MyMerge, list(acdSP_sec,jcdSP_sec,odSP_sec,rdSP_sec,clSP_sec,bleSP_sec,AcuteDZSP_sec,ChronicDZSP_sec))
 colnames(sec.data.sp)[colnames(sec.data.sp)=="DOMAIN_SCHEMA"]<-"Sector"
 
-write.csv(sec.data.sp,file="T:/Benthic/Data/Data Requests/ESDPacificwide_SECTOR_Timeseries.csv")
+#REMOVE HOWLAND AND BAKER 2017 data- we only surveyed juveniles and coral cover at those islands in 2017
+#Chose not to remove it until here in case you would like juvenile data from those locations and year.
+st.data.sp<-filter(st.data.sp,!(ISLAND %in% c("Howland","Baker") & st.data.sp$ANALYSIS_YEAR=="2017"))
+is.data.sp<-filter(is.data.sp,!(ISLAND %in% c("Howland","Baker") & is.data.sp$ANALYSIS_YEAR=="2017"))
+sec.data.sp<-filter(sec.data.sp,!(ISLAND %in% c("Howland","Baker") & sec.data.sp$ANALYSIS_YEAR=="2017"))
+
+
+write.csv(st.data.sp,file="T:/Benthic/Data/Data Requests/ESDPacificwide_STRATA_Timeseries.csv",row.names=F)
+write.csv(is.data.sp,file="T:/Benthic/Data/Data Requests/ESDPacificwide_ISLAND_Timeseries.csv",row.names=F)
+write.csv(sec.data.sp,file="T:/Benthic/Data/Data Requests/ESDPacificwide_SECTOR_Timeseries.csv",row.names=F)
 
 
 #Subset just ESA species and years for PIRO
 
+#read in time series data (the script above takes 3+ hours to run)
+# st.data.sp<-read.csv("T:/Benthic/Data/Data Requests/ESDPacificwide_STRATA_Timeseries.csv")
+# is.data.sp<-read.csv("T:/Benthic/Data/Data Requests/ESDPacificwide_ISLAND_Timeseries.csv")
+# sec.data.sp<-read.csv("T:/Benthic/Data/Data Requests/ESDPacificwide_SECTOR_Timeseries.csv")
+
+
+
 esa<-read.csv("T:/Benthic/Data/Lookup Tables/ESACorals_lookup.csv")
-
-
 
 st.data.sp_esa<-st.data.sp[st.data.sp$SPCODE %in% c(esa$SPCODE),] #subset just esa taxa
 st.data.sp_esa<-st.data.sp_esa[,1:17] #subset columns of interest
@@ -208,21 +231,25 @@ st.data.sp_esa$DEPTH_BIN<-Generate_DB(st.data.sp_esa) #create a depth bin column
 st.data.sp_esa<-st.data.sp_esa[,-c(7,13,14)] #remove more columns
 st.data.sp_esa<-left_join(st.data.sp_esa,esa) # join data with esa taxa look up table
 st.data.sp_esa<-st.data.sp_esa[,c(1:6,15:17,7:14)] #reorder columns
+head(st.data.sp_esa)
 
 is.data.sp_esa<-is.data.sp[is.data.sp$SPCODE %in% c(esa$SPCODE),] #subset just esa taxa
-is.data.sp_esa<-is.data.sp_esa[,1:11] #subset columns of interest
+is.data.sp_esa<-is.data.sp_esa[,1:12] #subset columns of interest
 is.data.sp_esa<-left_join(is.data.sp_esa,esa) # join data with esa taxa look up table
-is.data.sp_esa<-is.data.sp_esa[,c(1:4,12:13,5:11)] #reorder columns
+is.data.sp_esa<-is.data.sp_esa[,c(1:4,13:14,5:12)] #reorder columns
+head(is.data.sp_esa)
+
+sec.data.sp_esa<-sec.data.sp[sec.data.sp$SPCODE %in% c(esa$SPCODE),] #subset just esa taxa
+sec.data.sp_esa<-sec.data.sp_esa[,1:13] #subset columns of interest
+sec.data.sp_esa<-left_join(sec.data.sp_esa,esa) # join data with esa taxa look up table
+sec.data.sp_esa<-sec.data.sp_esa[,c(1:4,14:15,5:13)] #reorder columns
+sec.data.sp_esa<-sec.data.sp_esa %>% drop_na(Mean_AdColDen)
+
+head(sec.data.sp_esa)
 
 
-is.data.sp_esa<-
-sec.data.sp_esa<-
-
-
-
-
-write.csv(st.data.sp,file="T:/Benthic/Data/Data Requests/ESDPacificwide_STRATA_ESA.csv")
-write.csv(sec.data.sp,file="T:/Benthic/Data/Data Requests/ESDPacificwide_ISLAND_ESA.csv")
-write.csv(sec.data.sp,file="T:/Benthic/Data/Data Requests/ESDPacificwide_SECTOR_ESA.csv")
+write.csv(st.data.sp_esa,file="T:/Benthic/Data/Data Requests/ESDPacificwide_STRATA_ESA.csv")
+write.csv(is.data.sp_esa,file="T:/Benthic/Data/Data Requests/ESDPacificwide_ISLAND_ESA.csv")
+write.csv(sec.data.sp_esa,file="T:/Benthic/Data/Data Requests/ESDPacificwide_SECTOR_ESA.csv")
 
 

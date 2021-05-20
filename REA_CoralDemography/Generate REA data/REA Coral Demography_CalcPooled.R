@@ -20,6 +20,8 @@ site.data.sp2<-read.csv("T:/Benthic/Data/REA Coral Demography & Cover/Summary Da
 site.data.tax2<-read.csv("T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Site/BenthicREA_sitedata_TAXONCODE.csv")
 
 
+# Remove special missions -------------------------------------------------
+
 #Change all special missions to exclude flag =-1, right now they are 0. Then exclude these sites
 levels(site.data.gen2$MISSIONID)
 site.data.gen2$EXCLUDE_FLAG<-ifelse(site.data.gen2$MISSIONID %in% c("MP1410","MP1512","MP1602","MP2006"),-1,0) #I left SE1602 in (2016 Jarvis and Rose)
@@ -126,9 +128,17 @@ View(sectors)
 
 #Calculate Island Estimates
 acdG_is<-Calc_Domain(site.data.gen2,"GENUS_CODE","AdColDen","Adpres.abs")
-acdG_is<-acdG_is[,c("METHOD","REGION","ANALYSIS_YEAR","DOMAIN_SCHEMA","GENUS_CODE","n","Ntot","Mean_AdColDen","SE_AdColDen")]
+acdG_is<-acdG_is[,c("METHOD","REGION","ANALYSIS_YEAR","DOMAIN_SCHEMA","GENUS_CODE","n","Ntot","Mean_AdColDen","SE_AdColDen","CV_D._st","Y._st","SE_Y._st")]
+colnames(acdG_is)[colnames(acdG_is)=="CV_D._st"]<-"Adult_CV"
+colnames(acdG_is)[colnames(acdG_is)=="Y._st"]<-"Adult_Abun"
+colnames(acdG_is)[colnames(acdG_is)=="SE_Y._st"]<-"Adult_SE_Abun"
+
 jcdG_is<-Calc_Domain(site.data.gen2,"GENUS_CODE","JuvColDen","Juvpres.abs")
-jcdG_is<-jcdG_is[,c("METHOD","REGION","ANALYSIS_YEAR","DOMAIN_SCHEMA","GENUS_CODE","n","Ntot","Mean_JuvColDen","SE_JuvColDen")]
+jcdG_is<-jcdG_is[,c("METHOD","REGION","ANALYSIS_YEAR","DOMAIN_SCHEMA","GENUS_CODE","n","Ntot","Mean_JuvColDen","SE_JuvColDen","CV_D._st")]
+colnames(jcdG_is)[colnames(jcdG_is)=="CV_D._st"]<-"Juv_CV"
+colnames(jcdG_is)[colnames(jcdG_is)=="Y._st"]<-"Juv_Abun"
+colnames(jcdG_is)[colnames(jcdG_is)=="SE_Y._st"]<-"Juv_SE_Abun"
+
 odG_is<-Calc_Domain(site.data.gen2,"GENUS_CODE","Ave.od")
 odG_is<-odG_is[,c("METHOD","REGION","ANALYSIS_YEAR","DOMAIN_SCHEMA","GENUS_CODE","n","Ntot","Mean_Ave.od","SE_Ave.od")]
 rdG_is<-Calc_Domain(site.data.gen2,"GENUS_CODE","Ave.rd")
@@ -149,9 +159,15 @@ site.data.gen2$DOMAIN_SCHEMA<-site.data.gen2$BEN_SEC
 
 
 acdG_sec<-Calc_Domain(site.data.gen2,"GENUS_CODE","AdColDen","Adpres.abs")
-acdG_sec<-acdG_sec[,c("METHOD","REGION","ANALYSIS_YEAR","ISLAND","DOMAIN_SCHEMA","GENUS_CODE","n","Ntot","Mean_AdColDen","SE_AdColDen")]
+acdG_sec<-acdG_sec[,c("METHOD","REGION","ANALYSIS_YEAR","ISLAND","DOMAIN_SCHEMA","GENUS_CODE","n","Ntot","Mean_AdColDen","SE_AdColDen","CV_D._st","Y._st","SE_Y._st")]
+  colnames(acdG_sec)[colnames(acdG_sec)=="CV_D._st"]<-"Adult_CV"
+  colnames(acdG_sec)[colnames(acdG_sec)=="Y._st"]<-"Adult_Abun"
+  colnames(acdG_sec)[colnames(acdG_sec)=="SE_Y._st"]<-"Adult_SE_Abun"
 jcdG_sec<-Calc_Domain(site.data.gen2,"GENUS_CODE","JuvColDen","Juvpres.abs")
-jcdG_sec<-jcdG_sec[,c("METHOD","REGION","ANALYSIS_YEAR","ISLAND","DOMAIN_SCHEMA","GENUS_CODE","n","Ntot","Mean_JuvColDen","SE_JuvColDen")]
+jcdG_sec<-jcdG_sec[,c("METHOD","REGION","ANALYSIS_YEAR","ISLAND","DOMAIN_SCHEMA","GENUS_CODE","n","Ntot","Mean_JuvColDen","SE_JuvColDen","CV_D._st","Y._st","SE_Y._st")]
+  colnames(jcdG_sec)[colnames(jcdG_sec)=="CV_D._st"]<-"Juv_CV"
+  colnames(jcdG_sec)[colnames(jcdG_sec)=="Y._st"]<-"Juv_Abun"
+  colnames(jcdG_sec)[colnames(jcdG_sec)=="SE_Y._st"]<-"Juv_SE_Abun"
 odG_sec<-Calc_Domain(site.data.gen2,"GENUS_CODE","Ave.od")
 odG_sec<-odG_sec[,c("METHOD","REGION","ANALYSIS_YEAR","ISLAND","DOMAIN_SCHEMA","GENUS_CODE","n","Ntot","Mean_Ave.od","SE_Ave.od")]
 rdG_sec<-Calc_Domain(site.data.gen2,"GENUS_CODE","Ave.rd")
@@ -175,9 +191,6 @@ MyMerge <- function(x, y){
 st.data.gen<-Reduce(MyMerge, list(acdG_st,jcdG_st,odG_st,rdG_st,clG_st,BLEG_st,AcuteDZG_st,ChronicDZG_st))
 colnames(st.data.gen)[colnames(st.data.gen)=="ANALYSIS_SCHEMA"]<-"Stratum"
 
-write.csv(st.data.gen,file="T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Stratum/BenthicREA_stratadata_GENUS.csv")
-# write.csv(rich_st,"Pacificwide_richness_frf_str3.csv")
-
 
 MyMerge <- function(x, y){
   df <- merge(x, y, by= c("METHOD","REGION","ANALYSIS_YEAR","DOMAIN_SCHEMA","GENUS_CODE","n","Ntot"), all.x= TRUE, all.y= TRUE)
@@ -186,7 +199,6 @@ MyMerge <- function(x, y){
 is.data.gen<-Reduce(MyMerge, list(acdG_is,jcdG_is,odG_is,rdG_is,clG_is,bleG_is,AcuteDZG_is,ChronicDZG_is))
 colnames(is.data.gen)[colnames(is.data.gen)=="DOMAIN_SCHEMA"]<-"Island"
 
-write.csv(is.data.gen,file="T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Island/BenthicREA_islanddata_GENUS.csv")
 
 
 MyMerge <- function(x, y){
@@ -196,6 +208,8 @@ MyMerge <- function(x, y){
 sec.data.gen<-Reduce(MyMerge, list(acdG_sec,jcdG_sec,odG_sec,rdG_sec,clG_sec,bleG_sec,AcuteDZG_sec,ChronicDZG_sec))
 colnames(sec.data.gen)[colnames(sec.data.gen)=="DOMAIN_SCHEMA"]<-"Sector"
 
+write.csv(st.data.gen,file="T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Stratum/BenthicREA_stratadata_GENUS.csv")
+write.csv(is.data.gen,file="T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Island/BenthicREA_islanddata_GENUS.csv")
 write.csv(sec.data.gen,file="T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Sector/BenthicREA_sectordata_GENUS.csv")
 
 
@@ -216,7 +230,6 @@ write.csv(sm.test,"tmp_sitemasterQC.csv")
 
 # #Subset just Forereef Sites & just target taxa
 # site.data.sp2<-subset(site.data.sp2,REEF_ZONE=="Forereef")
-# site.data.sp2<-subset(site.data.sp2,SPCODE %in% c("ACSP", "MOSP", "PAVS", "POCS","POSP","SSSS"))
 # rich.data<-subset(rich.data,REEF_ZONE=="Forereef")
 
 # #Make sure you everything but forereef are dropped
@@ -273,9 +286,17 @@ View(sectors)
 
 #Calculate Island Estimates
 acdSP_is<-Calc_Domain(site.data.sp2,"SPCODE","AdColDen","Adpres.abs")
-acdSP_is<-acdSP_is[,c("METHOD","REGION","ANALYSIS_YEAR","DOMAIN_SCHEMA","SPCODE","n","Ntot","Mean_AdColDen","SE_AdColDen")]
+acdSP_is<-acdSP_is[,c("METHOD","REGION","ANALYSIS_YEAR","DOMAIN_SCHEMA","SPCODE","n","Ntot","Mean_AdColDen","SE_AdColDen","CV_D._st","Y._st","SE_Y._st")]
+  colnames(acdSP_is)[colnames(acdSP_is)=="CV_D._st"]<-"Adult_CV"
+  colnames(acdSP_is)[colnames(acdSP_is)=="Y._st"]<-"Adult_Abun"
+  colnames(acdSP_is)[colnames(acdSP_is)=="SE_Y._st"]<-"Adult_SE_Abun"
+
 jcdSP_is<-Calc_Domain(site.data.sp2,"SPCODE","JuvColDen","Juvpres.abs")
-jcdSP_is<-jcdSP_is[,c("METHOD","REGION","ANALYSIS_YEAR","DOMAIN_SCHEMA","SPCODE","n","Ntot","Mean_JuvColDen","SE_JuvColDen")]
+jcdSP_is<-jcdSP_is[,c("METHOD","REGION","ANALYSIS_YEAR","DOMAIN_SCHEMA","SPCODE","n","Ntot","Mean_JuvColDen","SE_JuvColDen","CV_D._st")]
+  colnames(jcdSP_is)[colnames(jcdSP_is)=="CV_D._st"]<-"Juv_CV"
+  colnames(jcdSP_is)[colnames(jcdSP_is)=="Y._st"]<-"Juv_Abun"
+  colnames(jcdSP_is)[colnames(jcdSP_is)=="SE_Y._st"]<-"Juv_SE_Abun"
+
 odSP_is<-Calc_Domain(site.data.sp2,"SPCODE","Ave.od")
 odSP_is<-odSP_is[,c("METHOD","REGION","ANALYSIS_YEAR","DOMAIN_SCHEMA","SPCODE","n","Ntot","Mean_Ave.od","SE_Ave.od")]
 rdSP_is<-Calc_Domain(site.data.sp2,"SPCODE","Ave.rd")
@@ -296,9 +317,16 @@ site.data.sp2$DOMAIN_SCHEMA<-site.data.sp2$BEN_SEC
 
 
 acdSP_sec<-Calc_Domain(site.data.sp2,"SPCODE","AdColDen","Adpres.abs")
-acdSP_sec<-acdSP_sec[,c("METHOD","REGION","ANALYSIS_YEAR","ISLAND","DOMAIN_SCHEMA","SPCODE","n","Ntot","Mean_AdColDen","SE_AdColDen")]
+acdSP_sec<-acdSP_sec[,c("METHOD","REGION","ANALYSIS_YEAR","ISLAND","DOMAIN_SCHEMA","SPCODE","n","Ntot","Mean_AdColDen","SE_AdColDen","CV_D._st","Y._st","SE_Y._st")]
+  colnames(acdSP_sec)[colnames(acdSP_sec)=="CV_D._st"]<-"Adult_CV"
+  colnames(acdSP_sec)[colnames(acdSP_sec)=="Y._st"]<-"Adult_Abun"
+  colnames(acdSP_sec)[colnames(acdSP_sec)=="SE_Y._st"]<-"Adult_SE_Abun"
 jcdSP_sec<-Calc_Domain(site.data.sp2,"SPCODE","JuvColDen","Juvpres.abs")
-jcdSP_sec<-jcdSP_sec[,c("METHOD","REGION","ANALYSIS_YEAR","ISLAND","DOMAIN_SCHEMA","SPCODE","n","Ntot","Mean_JuvColDen","SE_JuvColDen")]
+jcdSP_sec<-jcdSP_sec[,c("METHOD","REGION","ANALYSIS_YEAR","ISLAND","DOMAIN_SCHEMA","SPCODE","n","Ntot","Mean_JuvColDen","SE_JuvColDen","CV_D._st","Y._st","SE_Y._st")]
+  colnames(jcdSP_sec)[colnames(jcdSP_sec)=="CV_D._st"]<-"Juv_CV"
+  colnames(jcdSP_sec)[colnames(jcdSP_sec)=="Y._st"]<-"Juv_Abun"
+  colnames(jcdSP_sec)[colnames(jcdSP_sec)=="SE_Y._st"]<-"Juv_SE_Abun"
+
 odSP_sec<-Calc_Domain(site.data.sp2,"SPCODE","Ave.od")
 odSP_sec<-odSP_sec[,c("METHOD","REGION","ANALYSIS_YEAR","ISLAND","DOMAIN_SCHEMA","SPCODE","n","Ntot","Mean_Ave.od","SE_Ave.od")]
 rdSP_sec<-Calc_Domain(site.data.sp2,"SPCODE","Ave.rd")

@@ -1,0 +1,26 @@
+{
+    "id": "6B7C7469",
+    "path": "~/GitHub/Benthic-Scripts/REA_CoralDemography/REA Coral Demography_CalcPooled_for TimeSeries.R",
+    "project_path": null,
+    "type": "r_source",
+    "hash": "0",
+    "contents": "",
+    "dirty": true,
+    "created": 1621284914211.0,
+    "source_on_save": false,
+    "relative_order": 4,
+    "properties": {
+        "source_window_id": "",
+        "Source": "Source",
+        "cursorPosition": "510,0",
+        "scrollLine": "484"
+    },
+    "folds": "24|34|52|0|\n54|65|223|0|\n224|64|391|0|\n",
+    "lastKnownWriteTime": 1621468960,
+    "encoding": "UTF-8",
+    "collab_server": "",
+    "source_window": "",
+    "last_content_update": 1621469116303,
+    "read_only": false,
+    "read_only_alternatives": []
+}
