@@ -1,0 +1,21 @@
+{
+    "debugBreakpointsState": {
+        "breakpoints": [
+            {
+                "id": 0,
+                "path": "~/GitHub/Benthic-Scripts/REA_Benthic Cover/Benthic Cover_RawtoEstimates_forTimeSeries.R",
+                "line_number": 407,
+                "function_steps": "",
+                "function_name": "Timeseries_Subset",
+                "state": 2,
+                "editor_state": 2,
+                "editor_line_number": 407,
+                "is_pending_debug_completion": false,
+                "needs_updated_steps": true,
+                "type": 0,
+                "is_package_breakpoint": false,
+                "package_name": ""
+            }
+        ]
+    }
+}

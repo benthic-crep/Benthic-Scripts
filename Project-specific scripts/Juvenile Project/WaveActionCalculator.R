@@ -1,0 +1,132 @@
+# WAVE ACTION CALCULATOR #
+## this code assigns wave action per HCBC site using two data files
+
+library(dplyr)
+library(sp)
+library(sf)
+library(raster)
+library(ncf) # for gcdist()
+
+setwd("M:/Environmental Data Summary/DataDownload/WaveEnergySwath")
+list.files()
+
+### read in wave data
+cont <- read.csv("15m_contours.csv") # 15m contour data
+fish <- read.csv("FISH_waves_1979_2010.csv") # fish site data
+
+# modify data
+head(cont)
+colnames(cont)
+cont <- cont[ which(cont$BAD_FLAG == 0),] # remove the bad flags
+cont$X2011 <- NULL # remove 2011 and 2012 data so both datasets have same year range
+cont$X2012 <- NULL
+cont$BAD_FLAG <- NULL
+
+head(fish)
+colnames(fish)
+fish <- fish[ which(fish$BAD_FLAG == 0),]
+fish$Wave.Power..kwhr.m. <- NULL
+fish$ISL <- substr(fish$Site, 1, 3)
+fish$Site <- NULL
+fish$BAD_FLAG <- NULL
+fish <- fish[,c(1,2,35,3:34)] # reorder
+
+all <- rbind(fish, cont) # combined data sets
+nrow(fish)
+nrow(cont)
+
+unique(all$ISL)
+target <- c("KUR", "LIS", "PHR", "FFS", "HAW", "MAI", "KAU", "MOL", "LAN", "NII", "OAH")
+
+all <- all[ which(all$ISL %in% target),] # only want hawaiian islands
+
+# calculate mean per coordinate across all years
+all_2 <- all %>%
+  rowwise() %>%
+  mutate(means=mean(X1979:X2010, na.rm=T))
+
+head(as.data.frame(all_2))
+
+# save full wave action dataframe as a new data set
+setwd("C:/Users/Morgan.Winston/Desktop")
+write.csv(all_2, "WaveActionHawaii_1997_2010.csv")
+
+# run pairwise gcdist() function to view distance matrix between all of the points
+wave_dist <- gcdist(all_2$x, all_2$y)
+wave_dist_f <- gcdist(cont$x, cont$y)
+
+dim(wave_dist)
+dim(all_2)
+
+# look at the histogram of that -- focus on smallest size to see how close the points are to one another
+hist(wave_dist)
+min(wave_dist[ which(wave_dist>0)])
+plot(table(round(wave_dist[ which(wave_dist>0 & wave_dist<1)],3)))
+plot(table(round(wave_dist_f[ which(wave_dist_f>0 & wave_dist_f<10)],3)))
+
+# convert to spatial points data frame
+xy <- all_2[,c(1,2)]
+all_sp <- SpatialPointsDataFrame(coords = xy, data = all_2,
+                               proj4string = CRS("+proj=longlat +datum=WGS84 +ellps=WGS84 +towgs84=0,0,0"))
+str(all_sp)
+plot(all_sp) # looks good
+extent(all_sp)
+table(all_sp$ISL)
+cell_size <- 50/1000 # go from meters to km
+
+span_x <- diff(extent(all_sp)[1:2]) # the span of degrees
+span_x_km <- span_x*111.111 # converting degrees to km of the span of the points
+n_cell_x <- round(span_x_km/cell_size) # the value we want to assign to ncol 
+
+span_y <- diff(extent(all_sp)[3:4]) # the span of degrees
+span_y_km <- span_y*111.111
+n_cell_y <- round(span_y_km/cell_size) # the value we want to assign to nrow 
+
+# convert from spdf to raster
+rast <- raster()
+extent(rast) <- extent(all_sp) # this might be unnecessary
+ncol(rast) <- n_cell_x # this is one way of assigning cell size / resolution
+nrow(rast) <- n_cell_y
+rast2 <- rasterize(all_sp, rast, all_sp$means, fun=mean)
+rast2
+# writeRaster(rast2, "WavesHawaii.nc", format = "CDF") too big to save
+plot(rast2)
+
+### read in HCBC data
+setwd("C:/Users/Morgan.Winston/Desktop/MHI NWHI 2019 Coral Bleaching/Data/Bleaching Assessments/Combined/Current Database/For Analysis/Raw Bleaching Data") # set working directory 
+hcbc <- read.csv("HCBC_2019_ObsOnly.csv")
+hcbc <- hcbc[c(5,8,12,13)] # remove extra columns -- only need site name + coords
+colnames(hcbc)
+
+# convert HCBC data to spatial points data
+xy_hcbc <- hcbc[,c(4,3)]
+hcbc_sp <- SpatialPointsDataFrame(coords = xy_hcbc, data = hcbc,
+                                 proj4string = CRS("+proj=longlat +datum=WGS84 +ellps=WGS84 +towgs84=0,0,0"))
+str(hcbc_sp)
+
+# plot oahu to check out the data
+plot(hcbc_sp[ which(hcbc$Island_Name == "Oahu"),], col = "red")
+plot(all_sp[ which(all_sp$ISL == "OAH"),], add = TRUE)
+# the only issue may be for HCBC sites in Kaneohe Bay -- pretty far from wave action data (which is also unlikely accurate reflection for these calm sites)
+
+### calculate the mean wave action values within 250m radius of each HCBC point
+# source expanding extract function
+source("M:/Environmental Data Summary/HelperCode/ExpandingExtract.R")
+
+sites_waves <- ExpandingExtract(r = rast2, SpDF = hcbc_sp, Dists = seq(0, 4000, by = 50))
+sites_waves
+
+hcbc_2 <- cbind(hcbc, sites_waves)
+
+ggplot(hcbc_2[ which(hcbc_2$Island_Name == "Lanai"),], aes(x = Longitude_DD, y = Latitude_DD, color = Dist)) + 
+  geom_point() +
+  scale_color_viridis_c()
+
+plot(sort(hcbc_2$Dist)) # where there are natural breaks in distances
+abline(h = 1000)
+abline(h=750) # this seems like a reasonable break
+abline(h=500)
+
+# save the data!
+setwd("C:/Users/Morgan.Winston/Desktop/MHI NWHI 2019 Coral Bleaching/Data/Bleaching Assessments/Combined/Current Database/For Analysis/Supplemental Data")
+write.csv(hcbc_2, "Hawaii_WaveActionData.csv")
