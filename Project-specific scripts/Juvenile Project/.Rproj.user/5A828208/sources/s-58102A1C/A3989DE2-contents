@@ -1,3 +1,11 @@
+#This script is a modified version of the Benthic Cover_RawtoEstimates script that generates strata, sector and island summaries from site level data
+#After discussion amongst the benthic and fish teams regarding pooling strategies we decided that if individuals are interested in comparing strata, sectors and islands across time
+#it is not appropriate to include all strata surveyed in a given year because the same strata may not have been sampled across years due to logistical constraints.
+#In this script, we identify which strata were sampled in multiple years then subset those strata. It may not be appropriate to use island-level estimates because the island data generated in this
+#script may only consist of a few strata.
+
+
+
 rm(list=ls())
 
 setwd("C:/Users/Courtney.S.Couch/Documents/Courtney's Files/R Files/ESD/BIA")
@@ -122,7 +130,6 @@ ab<-droplevels(ab)
 
 # Reclassify EMA and Halimeda --------------------------------------------
 
-
 #CREATING CLASS EMA "Encrusting Macroalgae
 levels(ab$TIER_1)<-c(levels(ab$TIER_1), "EMA")
 levels(ab$CATEGORY_NAME)<-c(levels(ab$CATEGORY_NAME), "Encrusting macroalga")
@@ -186,7 +193,7 @@ r_levels<-c(unique(as.character(ab$TIER_1)))
 photo$N<-rowSums(photo[,r_levels])
 data.cols<-c(r_levels)
 
-#Substract mobile inverts and tape wand shallow and uclassified
+#Subtract mobile inverts and tape wand shallow and unclassified
 photo$new.N<-photo$N-(photo$MF+photo$UC+photo$TW)
 
 #Calculate proportion
@@ -195,7 +202,7 @@ head(photo)
 
 r_levels<-c(unique(as.character(ab$TIER_1)))
 T1data.cols<-c(r_levels)
-T1data.cols<-T1data.cols[!T1data.cols %in% c("WAND","UNK","TAPE","MOBF","SHAD")]
+T1data.cols<-T1data.cols[!T1data.cols %in% c("TW","UC","MF")]
 
 
 wsd<-merge(sites, photo, by=c("METHOD", "OBS_YEAR", "SITE"), all.y=T)
@@ -235,7 +242,7 @@ wsd_t1$TRANSECT_PHOTOS<-"-1" #make sure that all rows = -1
 #Remove the unknowns and TWS columns
 wsd_t1<-subset(wsd_t1,select= -c(MF,UC,TW))
 
-#Save Tier 1 site data to t drive. This file has all sites (fish, benthic and OCC) that were annoated between 2010 and 2018
+#Save Tier 1 site data to t drive. This file has all sites (fish, benthic and OCC) that were annotated between 2010 and 2020
 write.csv(wsd_t1, file="T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Site/BenthicCover_2010-2020_Tier1_SITE.csv",row.names=F)
 
 
@@ -275,7 +282,7 @@ test2
 #Remove the unknowns and TWS columns
 wsd_t3<-subset(wsd_t3,select= -c(WAND,UNK,TAPE,MOBF,SHAD))
 
-#Save Tier 1 site data to t drive. This file has all sites (fish, benthic and OCC) that were annoated between 2010 and 2018
+#Save Tier 3 site data to t drive. This file has all sites (fish, benthic and OCC) that were annoated between 2010 and 2020
 write.csv(wsd_t3, file="T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Site/BenthicCover_2010-2020_Tier3_SITE.csv",row.names = F)
 
 
@@ -380,6 +387,9 @@ wsd<-merge(wsd, st, by=c("ANALYSIS_SCHEME", "ANALYSIS_SEC", "STRATA"), all.x=T)
 #check if some are missing an AREA_HA .. which means that they didnt get into the stratification scheme properly
 unique(wsd[is.na(wsd$AREA_HA), c("ISLAND", "ANALYSIS_SEC", "SEC_NAME", "OBS_YEAR", "ANALYSIS_SCHEME", "STRATA")])
 
+#change swains back to SEC_NAME for Swains
+wsd$ANALYSIS_SEC<-ifelse(wsd$ISLAND=="Swains",as.character(wsd$SEC_NAME),as.character(wsd$ANALYSIS_SEC))
+
 #NOW CHECK HOW MANY REPS WE HAVE PER STRATA
 a<-dcast(wsd, ANALYSIS_SCHEME + ISLAND + ANALYSIS_SEC + OBS_YEAR ~ STRATA, value.var="AREA_HA", length); a
 
@@ -411,12 +421,8 @@ head(st.list_w3);st.list_w3<-droplevels(st.list_w3) #generate the list
 wsd<-wsd[wsd$STRATANAME %in% c(st.list_w3$STRATANAME),] #Subset data to only include strata of interest
 
 
-####################################################################################################################################################################
-#
-#     POOL WSD (WORKING SITE DATA TO STRATA THEN TO HIGHER LEVELS
-##
-###################################################################################################################################################################
 
+# POOL WSD (WORKING SITE DATA TO STRATA THEN TO HIGHER LEVELS -------------
 
 ### CALCULATE MEAN AND VARIANCE WITHIN STRATA ###
 SPATIAL_POOLING_BASE<-c("REGION","ISLAND", "ANALYSIS_SEC", "REEF_ZONE", "STRATA")
@@ -431,20 +437,20 @@ head(dps$Mean)
 # e.g. SAVE BY ISLAND AND REEF_ZONE PER YEAR
 OUTPUT_LEVEL<-c("REGION","ISLAND","ANALYSIS_SEC","STRATA","ANALYSIS_YEAR") 
 dpst<-Calc_Pooled_Simple(dps$Mean, dps$SampleVar, data.cols, OUTPUT_LEVEL, "AREA_HA")
-# write.csv(dpst, file="T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Stratum/BenthicCover_2010-2019_Tier1_STRATA_forTimesSeries.csv")
+#write.csv(dpst, file="T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Stratum/BenthicCover_2010-2019_Tier1_STRATA_forTimesSeries.csv")
 write.csv(dpst, file="T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Stratum/BenthicCover_2010-2019_Tier3_STRATA_forTimesSeries.csv")
 
 # e.g. SAVE BY SECTOR PER YEAR
 OUTPUT_LEVEL<-c("REGION","ISLAND","ANALYSIS_SEC","ANALYSIS_YEAR") 
 dpsec<-Calc_Pooled_Simple(dps$Mean, dps$SampleVar, data.cols, OUTPUT_LEVEL, "AREA_HA")
-# write.csv(dpsec, file="T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Sector/BenthicCover_2010-2019_Tier1_SECTOR_forTimesSeries.csv")
+#write.csv(dpsec, file="T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Sector/BenthicCover_2010-2019_Tier1_SECTOR_forTimesSeries.csv")
 write.csv(dpsec, file="T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Sector/BenthicCover_2010-2019_Tier3_SECTOR_forTimeseries.csv")
 
 
 # e.g. SAVE BY ISLAND PER YEAR
 OUTPUT_LEVEL<-c("REGION","ISLAND","ANALYSIS_YEAR") 
 dpis<-Calc_Pooled_Simple(dps$Mean, dps$SampleVar, data.cols, OUTPUT_LEVEL, "AREA_HA")
-# write.csv(dpis, file="T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Island/BenthicCover_2010-2019_Tier1_ISLAND_forTimesSeries.csv")
+#write.csv(dpis, file="T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Island/BenthicCover_2010-2019_Tier1_ISLAND_forTimesSeries.csv")
 write.csv(dpis, file="T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Island/BenthicCover_2010-2019_Tier3_ISLAND_forTimeseries.csv")
 
 
