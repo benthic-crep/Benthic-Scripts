@@ -1,0 +1,80 @@
+###############################
+### WGS84 to UTM Conversion ###
+###############################
+ 
+#############################################################################
+### Topography, NOAA Coastal Relief Model, 3 arc second, Vol. 10 (Hawaii) ###
+### https://coastwatch.pfeg.noaa.gov/erddap/griddap/usgsCeCrm10.html      ###
+### NOAA NGDC   (Dataset ID: usgsCeCrm10)                                 ###
+#############################################################################
+
+# topo = raster("G:/GIS/usgsCeCrm10.nc")
+# topo = as.data.frame(rasterToPoints(topo))
+# topo$Topography = ifelse(topo$Topography %in% c(-30:0), topo$Topography, NA)
+# topo = topo %>% drop_na()
+# save(topo, file = 'data/Topography_NOAA_CRM_vol10.RData')
+
+library(dplyr)
+library(raster)
+library(ggplot2)
+library(ggdark)
+library(patchwork)
+
+load(paste0("/Users/", Sys.info()[7], "/Desktop/Topography_NOAA_CRM_vol10.RData"))
+
+df = topo
+
+df$longitude = round(df$x, digits = 2)
+df$latitude = round(df$y, digits = 2)
+
+df = df %>%
+  group_by(longitude, latitude) %>%
+  summarise(Topography = mean(Topography, na.rm = T))
+
+df$cell = 1:dim(df)[1]; df$cell = as.numeric(df$cell)
+df$division = as.numeric(1)
+df$strat = ""
+df$strat = ifelse(df$Topography <= 0 & df$Topography >= -6, 1L, df$strat)
+df$strat = ifelse(df$Topography < -6 & df$Topography >= -18, 2L, df$strat)
+df$strat = ifelse(df$Topography < -18 & df$Topography >= -30, 3L, df$strat)
+df$strat = as.numeric(df$strat)
+df$depth = as.numeric(df$Topography*-1)
+
+df <- df %>% subset(longitude < -157.5 & longitude > -158.5 & latitude > 21 & latitude < 22)
+
+depth = df %>% 
+  ggplot( aes(longitude, latitude, fill = depth)) + 
+  geom_tile(aes(width = 0.01, height = 0.01)) +
+  scale_fill_viridis_c("") +
+  coord_fixed() +
+  ggdark::dark_theme_minimal() + 
+  theme(axis.title = element_blank())
+
+strat = df %>% 
+  ggplot( aes(longitude, latitude, fill = as.factor(strat))) + 
+  geom_tile(aes(width = 0.01, height = 0.01)) +
+  scale_fill_viridis_d("") +
+  coord_fixed() +
+  ggdark::dark_theme_minimal() + 
+  theme(axis.title = element_blank())
+
+depth + strat
+
+df = as.data.frame(df)
+
+par(mfrow = c(2,2))
+
+cell = rasterFromXYZ(df[,c("longitude", "latitude", "cell")]); plot(cell)
+division = rasterFromXYZ(df[,c("longitude", "latitude", "division")]); plot(division)
+strat = rasterFromXYZ(df[,c("longitude", "latitude", "strat")]); plot(strat)
+depth = rasterFromXYZ(df[,c("longitude", "latitude", "depth")]); plot(depth)
+
+# https://www.nceas.ucsb.edu/sites/default/files/2020-04/OverviewCoordinateReferenceSystems.pdf
+default_proj = "+init=epsg:4326 +proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs +towgs84=0,0,0"
+utm_zone <- (floor((df$longitude[1] + 180)/6) %% 60) + 1
+utm_proj <- paste0("+proj=utm +zone=", utm_zone, " +ellps=WGS84 +datum=WGS84 +units=km +no_defs")
+
+crs(cell) = default_proj; cell = projectRaster(cell, crs = utm_proj); plot(cell)
+crs(division) = default_proj; division = projectRaster(division, crs = utm_proj); plot(division)
+crs(strat) = default_proj; strat = projectRaster(strat, crs = utm_proj); plot(strat)
+crs(depth) = default_proj; depth = projectRaster(depth, crs = utm_proj); plot(depth)
