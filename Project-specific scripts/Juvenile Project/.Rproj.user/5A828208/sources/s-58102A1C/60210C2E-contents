@@ -1,4 +1,0 @@
-awd<-read.csv("T:/Benthic/Data/REA Coral Demography & Cover/Analysis Ready Raw data/CoralBelt_Adults_raw_CLEANED.csv")
-nwhi<-subset(awd,REGION=="NWHI"&OBS_YEAR=="2016")
-
-write.csv(nwhi,file="PMNM_2016NCRMP_AdultColonyData.csv")

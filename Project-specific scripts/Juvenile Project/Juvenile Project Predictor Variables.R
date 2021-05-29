@@ -20,6 +20,8 @@ library(geosphere)
 library(rgdal)
 library(stringr)
 library(mgcv)
+detach(package:dplyr) #dplyr has issues if plyr is loaded first
+library(dplyr)
 
 setwd("C:/Users/Courtney.S.Couch/Documents/Courtney's Files/R Files/ESD/Juvenile Project")
 
@@ -37,10 +39,9 @@ load("C:/Users/Courtney.S.Couch/Documents/GitHub/env_data_summary/outputs/Survey
 
 #Subset survey master and env columns of interest
 cols<-c("MISSIONID","DATE_","SITEVISITID", "OBS_YEAR", "REGION", "ISLAND","SEC_NAME", "SITE","HABITAT_CODE","REEF_ZONE",
-               "DEPTH_BIN", "LATITUDE_LOV", "LONGITUDE_LOV","new_MIN_DEPTH_M","new_MAX_DEPTH_M","DHW.MeanMax_Degree_Heating_Weeks_YR01",
-        "DHW.MeanMax_Degree_Heating_Weeks_YR05", "DHW.MeanMax_Degree_Heating_Weeks_YR10","DHW.MaxMax_Degree_Heating_Weeks_YR10",
-        "DHW.MeanDur_Major_Degree_Heating_Weeks_YR10","mean_annual_range_Chlorophyll_A_ESAOCCCI_8Day_YR05",
-        "mean_annual_range_Kd490_ESAOCCCI_8Day_YR05","mean_kdPAR_VIIRS_Weekly_YR05")
+               "DEPTH_BIN", "LATITUDE_LOV", "LONGITUDE_LOV","new_MIN_DEPTH_M","new_MAX_DEPTH_M","HUMANS20","HUMANS200", "DHW.MeanMax_Degree_Heating_Weeks_YR01","DHW.MeanMax_Degree_Heating_Weeks_YR05", "DHW.MeanMax_Degree_Heating_Weeks_YR10","DHW.MaxMax_Degree_Heating_Weeks_YR10",
+        "DHW.MeanDur_Major_Degree_Heating_Weeks_YR10","mean_annual_range_Chlorophyll_A_ESAOCCCI_8Day_YR10",
+        "mean_annual_range_Kd490_ESAOCCCI_8Day_YR10","mean_kdPAR_VIIRS_Weekly_YR10")
 sm_env<-SM[,cols]
 
 
@@ -59,11 +60,21 @@ predlist<-data.frame(Variable=c("Habitat Code","Frequency of DHW events","Mean M
                      Summarized_to_Stratum= c("Y","N","N","N","N","Y","N","N","Y","N","N","Y","Y"))
 
 
-
-# DHW ---------------------------------------------------------------------
-dhw_mean<-sm_env %>%
+# Human Density -----------------------------------------------------------
+# We are missing human density from most of the benthic sites, calculate strata level human density using fish sites
+humans_sum<-sm_env %>%
   group_by(REGION,OBS_YEAR,ISLAND,ANALYSIS_SEC,STRATANAME) %>%
-  summarize(MeanMaxDHW10=mean(DHW.MeanMax_Degree_Heating_Weeks_YR10),MaxMaxDHW10=mean(DHW.MaxMax_Degree_Heating_Weeks_YR10))
+  summarize(HUMANS20_mean=mean(HUMANS20,na.rm=T),
+            HUMANS200_mean=mean(HUMANS200,na.rm=T))
+
+head(humans_sum)
+
+
+# Summarizing EDS variables ---------------------------------------------------------------------
+eds_sum<-sm_env %>%
+  group_by(REGION,OBS_YEAR,ISLAND,ANALYSIS_SEC,STRATANAME) %>%
+  summarize(MeanMaxDHW10=mean(DHW.MeanMax_Degree_Heating_Weeks_YR10),MaxMaxDHW10=mean(DHW.MaxMax_Degree_Heating_Weeks_YR10),
+            Meankd490=mean(mean_annual_range_Kd490_ESAOCCCI_8Day_YR10),meankdPAR=mean(mean_kdPAR_VIIRS_Weekly_YR10))
 
 
 
@@ -114,7 +125,7 @@ OUTPUT_LEVEL<-c("REGION","ISLAND","ANALYSIS_SEC","STRATANAME","DEPTH_BIN")
 dpst<-Calc_Pooled_Simple(dps$Mean, dps$SampleVar, data.cols, OUTPUT_LEVEL, "AREA_HA");dpst<-as.data.frame(dpst)
 
 #Clean up- remove SE columns and remove "Mean" from column names
-dpst<-dpst %>% dplyr::select(Mean.REGION:Mean.MEAN_SH,PooledSE.MEAN_SH)
+dpst<-dpst %>% dplyr::select(Mean.REGION:Mean.MEAN_SH,PooledSE.MEAN_SH,-c(Mean.N))
 
 dpst<-dpst %>%
   dplyr::rename_all(funs(stringr::str_replace_all(., "Mean.", "")))
@@ -127,8 +138,8 @@ head(dpst)
 colnames(dpst)[which(colnames(dpst) == 'ANALYSIS_SEC')]<-"SEC_NAME" 
 colnames(dpst)[which(colnames(dpst) == 'SE.MEAN_SH')]<-"SE_MEAN_SH" 
 
-
-write.csv(dpst, file="C:/Users/Courtney.S.Couch/Documents/Courtney's Files/R Files/ESD/Juvenile Project/Predictor Variables/JuvProject_SubstrateHeight_STRATA.csv",row.names = F)
+sh_sum<-dpst
+head(sh_sum)
 
 
 # Habitat code ------------------------------------------------------------
@@ -153,6 +164,11 @@ hab_sum<-jwd_siteS %>%
     group_by(REGION,OBS_YEAR,ISLAND,ANALYSIS_SEC,STRATANAME,Hab_simple) %>%
     summarize(n=length(unique(SITEVISITID)))
 
+
+jwd_siteS %>%
+  group_by(REGION) %>%
+  summarize(n=length(unique(SITEVISITID)))
+
 site_sum<-jwd_siteS %>%
   group_by(REGION,OBS_YEAR,ISLAND,ANALYSIS_SEC,STRATANAME) %>%
   summarize(ntot=length(unique(SITEVISITID)))
@@ -169,18 +185,13 @@ hab_sum_w<-hab_sum %>%
   spread(Hab_simple,prop)
 head(hab_sum_w)
 
-write.csv(hab_sum_w, file="C:/Users/Courtney.S.Couch/Documents/Courtney's Files/R Files/ESD/Juvenile Project/Predictor Variables/JuvProject_Habitat_STRATA.csv")
-
-
 
 # MEAN DEPTH --------------------------------------------------------------
 
 jwd_siteS$MidDepth<-(jwd_siteS$MAX_DEPTH_M+jwd_siteS$MIN_DEPTH_M)/2
-depth_mean<-jwd_siteS %>%
+depth_sum<-jwd_siteS %>%
   group_by(REGION,OBS_YEAR,ISLAND,ANALYSIS_SEC,STRATANAME) %>%
   summarize(MeanDepth=mean(MidDepth),MeanMaxDepth=mean(MAX_DEPTH_M))
-
-write.csv(depth_mean, file="C:/Users/Courtney.S.Couch/Documents/Courtney's Files/R Files/ESD/Juvenile Project/Predictor Variables/JuvProject_MeanDepth_STRATA.csv")
 
 
 # LATITUDE ----------------------------------------------------------------
@@ -219,34 +230,30 @@ df=df_utm
 #   summarize(lat_strata_weighted_mean = weighted.mean(LATITUDE, depth_strata_sum))
 # View(df.)
 
-lat_mean = df %>%
+lat_sum = df %>%
   group_by(REGION,OBS_YEAR,ISLAND,ANALYSIS_SEC,STRATANAME)%>%
   mutate(depth_strata_sum = n())%>%
   summarize(utmlat_strata_weighted_mean = weighted.mean(X, depth_strata_sum),
             lat_strata_weighted_mean = weighted.mean(LATITUDE, depth_strata_sum))
-View(lat_mean)
+View(lat_sum)
 
 
-model = gam(JuvColDen ~ + s(lat_strata_weighted_mean, k = 3),
-            family = "tw(theta = NULL, link = 'log',a = 1.01, b = 1.99)",
-            data = df,
-            weights = df$weight,
-            gamma = 1.4)
-
-plot(model)
-
-
-model = gam(JuvColDen ~ + s(lat_depth_weighted_mean, k = 3),
-            family = "tw(theta = NULL, link = 'log',a = 1.01, b = 1.99)",
-            data = df,
-            #weights = df$weight,
-            gamma = 1.4)
-
-plot(model)
-
-write.csv(lat_mean, file="C:/Users/Courtney.S.Couch/Documents/Courtney's Files/R Files/ESD/Juvenile Project/Predictor Variables/JuvProject_MeanLatitude_STRATA.csv")
-
-
+# model = gam(JuvColDen ~ + s(lat_strata_weighted_mean, k = 3),
+#             family = "tw(theta = NULL, link = 'log',a = 1.01, b = 1.99)",
+#             data = df,
+#             weights = df$weight,
+#             gamma = 1.4)
+# 
+# plot(model)
+# 
+# 
+# model = gam(JuvColDen ~ + s(lat_depth_weighted_mean, k = 3),
+#             family = "tw(theta = NULL, link = 'log',a = 1.01, b = 1.99)",
+#             data = df,
+#             #weights = df$weight,
+#             gamma = 1.4)
+# 
+# plot(model)
 
 
 # BENTHIC COVER
@@ -308,19 +315,26 @@ OUTPUT_LEVEL<-c("REGION","ISLAND","ANALYSIS_SEC","STRATANAME","ANALYSIS_YEAR")
 dpst<-Calc_Pooled_Simple(dps$Mean, dps$SampleVar, data.cols, OUTPUT_LEVEL, "AREA_HA");dpst<-as.data.frame(dpst)
 
 #Clean up- remove SE columns and remove "Mean" from column names
-dpst<-dpst %>% dplyr::select(Mean.REGION:Mean.SAND_RUB)
+dpst<-dpst %>% dplyr::select(Mean.REGION:Mean.SAND_RUB,-c(Mean.N))
 
 dpst<-dpst %>%
   dplyr::rename_all(funs(stringr::str_replace_all(., "Mean.", "")))
 head(dpst)
 
-write.csv(dpst, file="C:/Users/Courtney.S.Couch/Documents/Courtney's Files/R Files/ESD/Juvenile Project/Predictor Variables/JuvProject_Cover_STRATA.csv")
+cover_sum<-dpst
+head(cover_sum)
 
 
+# Combine all summaries into 1 dataframe ----------------------------------
+all_pred<- cover_sum %>%
+      left_join(depth_sum) %>%
+      left_join(hab_sum_w) %>%
+      left_join(lat_sum) %>%
+      left_join(eds_sum) %>%
+      left_join(sh_sum) %>%
+      left_join(humans_sum)
 
-
-
-
+head(all_pred)
 
 
 ~~~~~~~~
