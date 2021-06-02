@@ -15,6 +15,21 @@
                 "type": 0,
                 "is_package_breakpoint": false,
                 "package_name": ""
+            },
+            {
+                "id": 1,
+                "path": "~/GitHub/Benthic-Scripts/Project-specific scripts/Juvenile Project/Juvenile Project Predictor Variables.R",
+                "line_number": 29,
+                "function_steps": "",
+                "function_name": "toplevel",
+                "state": 1,
+                "editor_state": 1,
+                "editor_line_number": 29,
+                "is_pending_debug_completion": false,
+                "needs_updated_steps": true,
+                "type": 1,
+                "is_package_breakpoint": false,
+                "package_name": ""
             }
         ]
     }

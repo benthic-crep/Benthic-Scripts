@@ -1,0 +1,26 @@
+{
+    "id": "4F69143D",
+    "path": "~/GitHub/Benthic-Scripts/Project-specific scripts/Juvenile Project/Juvenile Maps.R",
+    "project_path": "Juvenile Maps.R",
+    "type": "r_source",
+    "hash": "69369533",
+    "contents": "",
+    "dirty": false,
+    "created": 1622140329154.0,
+    "source_on_save": false,
+    "relative_order": 4,
+    "properties": {
+        "source_window_id": "",
+        "Source": "Source",
+        "cursorPosition": "47,0",
+        "scrollLine": "0"
+    },
+    "folds": "",
+    "lastKnownWriteTime": 1622141821,
+    "encoding": "UTF-8",
+    "collab_server": "",
+    "source_window": "",
+    "last_content_update": 1622141821183,
+    "read_only": false,
+    "read_only_alternatives": []
+}
