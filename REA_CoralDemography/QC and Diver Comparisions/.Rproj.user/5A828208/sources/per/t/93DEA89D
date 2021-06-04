@@ -1,0 +1,26 @@
+{
+    "id": "93DEA89D",
+    "path": "~/GitHub/Benthic-Scripts/REA_CoralDemography/QC and Diver Comparisions/HARAMP2019_QC_v4.R",
+    "project_path": "HARAMP2019_QC_v4.R",
+    "type": "r_source",
+    "hash": "1666176998",
+    "contents": "",
+    "dirty": false,
+    "created": 1622250091149.0,
+    "source_on_save": false,
+    "relative_order": 1,
+    "properties": {
+        "source_window_id": "",
+        "Source": "Source",
+        "cursorPosition": "90,0",
+        "scrollLine": "84"
+    },
+    "folds": "",
+    "lastKnownWriteTime": 1621279829,
+    "encoding": "UTF-8",
+    "collab_server": "",
+    "source_window": "",
+    "last_content_update": 1621279829,
+    "read_only": false,
+    "read_only_alternatives": []
+}

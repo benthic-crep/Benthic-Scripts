@@ -1,0 +1,21 @@
+{
+    "debugBreakpointsState": {
+        "breakpoints": [
+            {
+                "id": 0,
+                "path": "~/GitHub/Benthic-Scripts/REA_CoralDemography/QC and Diver Comparisions/PMNM2017_REA_QC.R",
+                "line_number": 197,
+                "function_steps": "",
+                "function_name": "toplevel",
+                "state": 1,
+                "editor_state": 1,
+                "editor_line_number": 197,
+                "is_pending_debug_completion": false,
+                "needs_updated_steps": true,
+                "type": 1,
+                "is_package_breakpoint": false,
+                "package_name": ""
+            }
+        ]
+    }
+}

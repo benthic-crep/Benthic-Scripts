@@ -20,6 +20,7 @@ j<-read.csv("PMNM 2017_V0_CORAL_OBS_F.csv") #read in adult data
 
 
 load("ALL_REA_ADULTCORAL_RAW_2013-2020.Rdata")
+
 #Change to uppercase
 names(ad) <- toupper(names(ad))
 names(j) <- toupper(names(j))
@@ -34,6 +35,7 @@ colnames(ad)[colnames(ad)=="SEG"]<-"SEGMENT" #Change column name
 colnames(ad)[colnames(ad)=="TRLEN"]<-"SEGLENGTH" #Change column name
 colnames(ad)[colnames(ad)=="TRWID"]<-"SEGWIDTH" #Change column name
 colnames(ad)[colnames(ad)=="SPECIES"]<-"SPCODE" #Change column name
+colnames(ad)[colnames(ad)=="GENUS"]<-"GENUS_CODE" #Change column name
 colnames(ad)[colnames(ad)=="RECENTDEAD"]<-"RECENTDEAD_1" #Change column name
 colnames(ad)[colnames(ad)=="RECENTGENERALCAUSECODE"]<-"RECENT_GENERAL_CAUSE_CODE_1" #Change column name
 colnames(ad)[colnames(ad)=="RECENTSPECIFICCAUSECODE"]<-"RECENT_SPECIFIC_CAUSE_CODE_1" #Change column name
@@ -41,71 +43,45 @@ colnames(ad)[colnames(ad)=="DZCODE"]<-"COND" #Change column name
 colnames(ad)[colnames(ad)=="FRAGMENT_YN"]<-"Fragment" #Change column name
 colnames(ad)[colnames(ad)=="COND"]<-"CONDITION_1" #Change column name
 
+colnames(j)[colnames(j)=="MAX_DEPTH"]<-"MAX_DEPTH_FT" #Change column name
+colnames(j)[colnames(j)=="MIN_DEPTH"]<-"MIN_DEPTH_FT" 
+colnames(j)[colnames(j)=="MORPHOLOGY"]<-"MORPH_CODE" #Change column name
+colnames(j)[colnames(j)=="TRAN"]<-"TRANSECTNUM" #Change column name
+colnames(j)[colnames(j)=="SEG"]<-"SEGMENT" #Change column name
+colnames(j)[colnames(j)=="TRLEN"]<-"SEGLENGTH" #Change column name
+colnames(j)[colnames(j)=="TRWID"]<-"SEGWIDTH" #Change column name
+colnames(j)[colnames(j)=="SPECIES"]<-"SPCODE" #Change column name
+colnames(j)[colnames(j)=="GENUS"]<-"GENUS_CODE" #Change column name
 
+#Convert depth data to meters
+ad$MAX_DEPTH_M<-ad$MAX_DEPTH_FT*0.3048
+ad$MIN_DEPTH_M<-ad$MIN_DEPTH_FT*0.3048
 
+j$MAX_DEPTH_M<-j$MAX_DEPTH_FT*0.3048
+j$MIN_DEPTH_M<-j$MIN_DEPTH_FT*0.3048
 
-
-
-
+ad$OBS_YEAR<-2017
+j$OBS_YEAR<-2017
 
 #Add a colony id (temporary)
 ad$COLONYID<-seq(1:length(ad$COLONYID))
 
 # Prepping Adult Data -----------------------------------------------------
 
-ad$SITE<-SiteNumLeadingZeros(ad$SITE) # Change site number such as MAR-22 to MAR-0022
-
-### Use these functions to look at data
-head(ad)
-tail(ad)
-sort(colnames(ad))
-View(ad)
-
-
-#Create vector of column names to include then exclude unwanted columns from dataframe
-#NOTE- REMOVED RECENTDEAD_3s columns not present in mission app report datafile
-DATA_COLS<-c("MISSIONID","REGION_NAME","ISLAND","SITE","LATITUDE",	"LONGITUDE","REEF_ZONE","DEPTH_BIN","OBS_YEAR",
-             "DATE_","SITEVISITID","HABITAT_CODE","DIVER","TRANSECT","SEGMENT","SEGWIDTH","SEGLENGTH",
-             "COLONYID","Taxoncode","MORPH_CODE","COLONYLENGTH","OLDDEAD","Fragment.yn",
-             "RECENTDEAD","RECENT_GENERAL_CAUSE_CODE","RECENT_SPECIFIC_CAUSE_CODE",
-             "RECENTDEAD_2",	"RECENT_GENERAL_CAUSE_CODE_2","RECENT_SPECIFIC_CAUSE_CODE_2",	
-             "RECENT_GENERAL_CAUSE_CODE_3","RECENT_SPECIFIC_CAUSE_CODE_3","CONDITION_1",
-             "CONDITION_2","CONDITION_3","EXTENT","EXTENT_2","EXTENT_3","SEVERITY","SEVERITY_2","SEVERITY_3",
-             "GENUS_CODE","S_ORDER","TAXONNAME","SITE_MIN_DEPTH","SITE_MAX_DEPTH", "Qualitycontrol")
-
-#remove extraneous columns
-ad<-ad[,DATA_COLS]
-
-
-##Change column names to make code easier to code
-colnames(ad)[colnames(ad)=="Taxoncode"]<-"SPCODE" #Change column name
-colnames(ad)[colnames(ad)=="RECENTDEAD"]<-"RDEXTENT1" #Change column name
-colnames(ad)[colnames(ad)=="RECENT_GENERAL_CAUSE_CODE"]<-"GENRD1" #Change column name
-colnames(ad)[colnames(ad)=="RECENT_SPECIFIC_CAUSE_CODE"]<-"RD1" #Change column name
-colnames(ad)[colnames(ad)=="RECENTDEAD_2"]<-"RDEXTENT2" #Change column name
-colnames(ad)[colnames(ad)=="RECENT_GENERAL_CAUSE_CODE_2"]<-"GENRD2" #Change column name
-colnames(ad)[colnames(ad)=="RECENT_SPECIFIC_CAUSE_CODE_2"]<-"RD2" #Change column name
-colnames(ad)[colnames(ad)=="RECENT_GENERAL_CAUSE_CODE_3"]<-"GENRD3" #Change column name
-colnames(ad)[colnames(ad)=="RECENT_SPECIFIC_CAUSE_CODE_3"]<-"RD3" #Change column name
-colnames(ad)[colnames(ad)=="Qualitycontrol"] <- "QC"
-
-sort(colnames(ad))
-
-
-#Change NAs in the Taxon and genus code to AAAA
+#Change NAs in the Taxon and genus code to AAAA & PEVE to PLUT
 ad$GENUS_CODE<-as.character(ad$GENUS_CODE)
 ad$SPCODE<-as.character(ad$SPCODE)
 
 ad <- ad %>% 
-  mutate(GENUS_CODE = replace(GENUS_CODE, GENUS_CODE == "-", "AAAA"))  %>%
-  mutate(SPCODE = replace(SPCODE, SPCODE == "-", "AAAA"))
+  mutate(GENUS_CODE = replace(GENUS_CODE, GENUS_CODE == "", "AAAA"))  %>%
+  mutate(SPCODE = replace(SPCODE, SPCODE == "PEVE", "PLUT"))  %>%
+  mutate(TAXONNAME = replace(TAXONNAME, TAXONNAME == "Porites evermanni", "Porites lutea"))  %>%
+  mutate(SPCODE = replace(SPCODE, SPCODE == "", "AAAA"))
 View(ad)
 
 
 ##Calcuating segment and transect area and add column for transect area
 ad<-Transectarea(ad)
-
-write.csv(ad, "Leg_2_adult_data.csv")
 
 
 #BH: create a site table
@@ -121,37 +97,6 @@ site_by_island <- sv %>%
 View(site_by_island)
 
 
-#Create Table of sites where repeat segments were conducted 
-rep.seg<-subset(ad,TRANSECT==2) #subset just transect 2, which is the repeat segments
-
-#Change segment numbers from 1,3,5,7 to 0-15 so it makes more sense for downstream analyses and comparision with SfM data
-rep.seg$SEG<-NULL
-for (i in c(1:nrow(rep.seg))){ #opening brace
-  if(rep.seg$SEGMENT[i] =="1"){ #c&p
-    rep.seg$SEG[i] = "0" #c&p
-  } #c&p
-  if(rep.seg$SEGMENT[i] =="3"){ #c&p
-    rep.seg$SEG[i]= "5" #c&p
-  } #c&p
-  if(rep.seg$SEGMENT[i] =="5"){ #c&p
-    rep.seg$SEG[i]= "10" #c&p
-  } #c&p
-  if(rep.seg$SEGMENT[i] =="7"){ #c&p
-    rep.seg$SEG[i]= "15" #c&p
-  } #c&p
-} #c&p
-
-#look at coverage of rep segs across islands and habitats
-rep.seg$SITE_SEG<-paste(rep.seg$SITE,rep.seg$SEG,sep="_")
-unique(rep.seg$SITE_SEG)
-
-rep.seg_sites<-rep.seg %>%
-  select (ISLAND, OBS_YEAR, SITE, LATITUDE, LONGITUDE, REEF_ZONE, DEPTH_BIN, DATE_, HABITAT_CODE, SITE_MIN_DEPTH, SITE_MAX_DEPTH)%>%
-  distinct(SITE, .keep_all= TRUE) %>%
-  group_by(ISLAND, HABITAT_CODE) %>%
-  summarize (n_distinct(SITE))
-View(rep.seg_sites)
-
 
 
 # Prep Juvenile data ------------------------------------------------------
@@ -161,43 +106,22 @@ j$COLONYID <- seq(1:length(j$COLONYID))
 j$COLONYID <-  j$COLONYID + length(ad$COLONYID)
 
 
-j$SITE<-SiteNumLeadingZeros(j$SITE)
 
-sort(colnames(j))
-#Create vector of column names to include then ejclude unwanted columns from dataframe
-DATA_COLS<-c("MISSIONID","REGION_NAME","ISLAND","SITE","LATITUDE",	"LONGITUDE","REEF_ZONE","DEPTH_BIN","OBS_YEAR", "DATE_","SITEVISITID","HABITAT_CODE","DIVER","TRANSECTNUM","SEGWIDTH","SEGLENGTH","COLONYID","Taxoncode","COLONYLENGTH","GENUS","S_ORDER","MIN_DEPTH","MAX_DEPTH", "Segment", "Qualitycontrol")
-sort(colnames(j))
-head(j[,DATA_COLS])
-j<-j[,DATA_COLS]
-
-
-##Change column names to make code easier to code
-#BH: converted Taxoncode to SPCODE; converted GENUS name correctly
-colnames(j)[colnames(j)=="GENUS"]<-"GENUS_CODE" #Change column name
-colnames(j)[colnames(j)=="Taxoncode"]<-"SPCODE" #Change column name
-colnames(j)[colnames(j)=="TRANSECTNUM"]<-"TRANSECT" #Change column name
-colnames(j)[colnames(j)=="MIN_DEPTH"]<-"SITE_MIN_DEPTH" #Change column name
-colnames(j)[colnames(j)=="MAX_DEPTH"]<-"SITE_MAX_DEPTH" #Change column name
-colnames(j)[colnames(j)=="Segment"]<-"SEGMENT" 
-colnames(j)[colnames(j)=="Qualitycontrol"]<-"QC"
-
-#Change NAs in Genus and SPCODE to AAAA 
-j$GENUS_CODE[j$GENUS_CODE=="-"]<-NA 
-j$SPCODE[j$SPCODE=="-"]<-NA 
-
+#Change NAs in the Taxon and genus code to AAAA & PEVE to PLUT
 j$GENUS_CODE<-as.character(j$GENUS_CODE)
 j$SPCODE<-as.character(j$SPCODE)
 
-#Change NA to AAAA to ensure you keep the 0s in
-j$GENUS_CODE[is.na(j$GENUS_CODE)]<-"AAAA"#change nas to AAAA
-j$SPCODE[is.na(j$SPCODE)]<-"AAAA"#change nas to AAAA
-
+j <- j %>% 
+  mutate(GENUS_CODE = replace(GENUS_CODE, GENUS_CODE == "", "AAAA"))  %>%
+  mutate(SPCODE = replace(SPCODE, SPCODE == "PEVE", "PLUT"))  %>%
+  mutate(TAXONNAME = replace(TAXONNAME, TAXONNAME == "Porites evermanni", "Porites lutea"))  %>%
+  mutate(SPCODE = replace(SPCODE, SPCODE == "", "AAAA"))
+View(j)
 
 ##Calcuating segment and transect area and add column for transect area
 library(plyr)
 j<-Transectarea(j)
 
-write.csv(j, "Leg_2_juv_data.csv")
 
 
 # QC Checks ---------------------------------------------------------------
@@ -215,72 +139,50 @@ ad <- ad %>% filter (TRANSECT==1)
 j <- j %>% filter (TRANSECT==1)
 
 
-#1. Check that all data has been QC'd. If the following code returns records then there are segments that have not been QC'd
-ad[ad$QC=="-",]
-j[j$QC=="-",]
-
-output[1,]<-c("Data have been QC'd","OK")
-
-#if needed, create list of sites needing QC
-#Sites_need_QC<-ad %>%
-#select (ISLAND, OBS_YEAR, SITE, QC) %>%
-#filter (QC == "-") %>%
-#distinct(SITE, .keep_all= TRUE)
-#View(Sites_need_QC)
-
-
-#2. Check number of sites is correct. Protip: sites that don't have demographic data (i.e.PQ only) will be absent from this data set but present in the site list generated from the Mission Ap
-write.csv(site_by_island, "Site_check_leg2.csv")
-
-output[2,]<-c("Number of sites is correct","pending")
-
-
-#3. Benthic and fish sites do not overlap. Sites that appear in this list are overlapping and should be discussed with the fish team and corrected with Michael
-fish<-read.csv("fish_sites.csv")
-colnames(fish)[colnames(fish)=="Island"]<-"ISLAND"
-colnames(fish)[colnames(fish)=="Site"]<-"SITE" 
-inner_join(ad, fish, by = c("SITE", "ISLAND"))
-
-output[3,]<-c("Benthic and fish sites do not overlap","OK")
-
 
 #4. Make sure that all sites have all segments. If segments are missing double check datasheets and keep a record of segments that weren't surveyed
-test2<-ddply(ad,.(SITE,SEGMENT,DIVER),summarize,temp=length(SEGMENT))
-eval <- acast(test2, SITE~SEGMENT, length)
-#use this file to evaluate where segments may be missing
-write.csv(eval, "Missing_seg_eval.csv")
+test2<-ddply(ad,.(SITE,TRANSECTNUM,SEGMENT,DIVER),summarize,temp=length(SEGMENT))
+test2$SS<-paste(test2$SITE,test2$TRANSECTNUM,test2$SEGMENT,sep="_")
+eval<-ddply(test2,.(SS),summarize,n=length(unique(SS))) #look for duplicates
+if(eval$n>1) {cat("duplicate segments")}  
 
-# if there are multiple segment entries for a given this needs to be fixed
-seg_totals<-ddply(test2,.(SITE,SEGMENT),summarize,count=length(SEGMENT))
-seg_totals[seg_totals$count>1,] 
+eval2<-ddply(test2,.(SITE,TRANSECTNUM),summarize,n=length(unique(SEGMENT))) #look at how many sites 
 
-output[4,]<-c("All sites have all segments & no duplicate segments","error; HAW-04239")
+
 
 
 #5. Check that depths are not null and Add a new column to sitevisit table and flags any sites that don't match depth ranges for a given depth bin
+sv<-ad %>%
+  select (ISLAND, OBS_YEAR, SITE, LATITUDE, LONGITUDE, REEF_ZONE, DEPTH_BIN, DATE_, HABITAT_CODE, MAX_DEPTH_M , MIN_DEPTH_M ) %>%
+  distinct(SITE, .keep_all= TRUE)
+View(sv)
+
+# sv<-j %>%
+#   select (ISLAND, OBS_YEAR, SITE, LATITUDE, LONGITUDE, REEF_ZONE, DEPTH_BIN, DATE_, HABITAT_CODE, MAX_DEPTH_M , MIN_DEPTH_M ) %>%
+#   distinct(SITE, .keep_all= TRUE)
+# View(sv)
+
+
 sv$db_ok<-NULL
 for (i in c(1:nrow(sv))){ #opening brace
-  if(sv$DEPTH_BIN[i] =="Deep"& sv$SITE_MIN_DEPTH[i]>=60){ #c&p
+  if(sv$DEPTH_BIN[i] =="Deep"& sv$MIN_DEPTH_M[i]>=18){ #c&p
     sv$db_ok[i] = "ok" #c&p
   } #c&p
-  if(sv$DEPTH_BIN[i] =="Mid"& sv$SITE_MIN_DEPTH[i]>20&sv$SITE_MAX_DEPTH[i]<60){ #c&p
+  if(sv$DEPTH_BIN[i] =="Mid"& sv$MIN_DEPTH_M[i]>6&sv$MAX_DEPTH_M[i]<18){ #c&p
     sv$db_ok[i] = "ok" #c&p
   } #c&p
-  if(sv$DEPTH_BIN[i] =="Shallow"& sv$SITE_MAX_DEPTH[i]<=20){ #c&p
+  if(sv$DEPTH_BIN[i] =="Shallow"& sv$MAX_DEPTH_M[i]<=6){ #c&p
     sv$db_ok[i] = "ok" #c&p
   } #c&p
-} #closing curly brace for entire forloop
+} #closing curly brace for entire for loop
 sv$db_ok[is.na(sv$db_ok)]<-"error"
 subset(sv,db_ok=="error") #identify the sites that have incorrect depth bins
-
-output[5,]<-c("Depth Bins Match site Depths","OK")
 
 
 #6.Check for incorrect species
 ddply(ad,.(GENUS_CODE,SPCODE),summarize,temp=length(SPCODE))
 ddply(j,.(GENUS_CODE,SPCODE),summarize,temp=length(SPCODE))
 
-output[6,]<-c("Species codes are correct","OK -- although several species present that aren't scored to species, only genus")
 
 
 #7.That the columns have the appropripate type of data (e.g. numeric vs. text) & no errant codes (e.g. ble instead of BLE)
@@ -288,7 +190,7 @@ output[6,]<-c("Species codes are correct","OK -- although several species presen
 sapply(ad,unique)
 sapply(j, unique)
 
-output[7,]<-c("No errant codes","ADULTS: Depreciated morph codes present (i.e. EF, LM, BP); DAMA present in GENRD1; tre present in CONDITION_2")
+
 
 
 #8. Identify colonies <5cm in the adult database but not fragments 
