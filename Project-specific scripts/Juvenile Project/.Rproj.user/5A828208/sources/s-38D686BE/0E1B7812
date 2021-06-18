@@ -1,26 +1,26 @@
 {
-    "id": "1F982F71",
-    "path": "~/GitHub/Benthic-Scripts/REA_CoralDemography/Generate REA data/REA Coral Demography_DataPrep.R",
+    "id": "0E1B7812",
+    "path": "~/GitHub/Benthic-Scripts/REA_Benthic Cover/Benthic Cover_RawtoEstimates_forTimeSeries.R",
     "project_path": null,
     "type": "r_source",
-    "hash": "3858385204",
+    "hash": "0",
     "contents": "",
     "dirty": false,
-    "created": 1622250503390.0,
+    "created": 1624040993315.0,
     "source_on_save": false,
-    "relative_order": 3,
+    "relative_order": 8,
     "properties": {
         "source_window_id": "",
         "Source": "Source",
-        "cursorPosition": "311,0",
-        "scrollLine": "0"
+        "cursorPosition": "65,0",
+        "scrollLine": "54"
     },
     "folds": "",
-    "lastKnownWriteTime": 1621281685,
+    "lastKnownWriteTime": 1624057522,
     "encoding": "UTF-8",
     "collab_server": "",
     "source_window": "",
-    "last_content_update": 1621281685,
+    "last_content_update": 1624057522597,
     "read_only": false,
     "read_only_alternatives": []
 }
