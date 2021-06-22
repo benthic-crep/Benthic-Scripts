@@ -6,6 +6,10 @@ library(sp)
 library(sf)
 library(raster)
 library(ncf) # for gcdist()
+library(ggsn)
+library("rnaturalearth")
+library("rnaturalearthdata")
+library(ggspatial)
 
 setwd("M:/Environmental Data Summary/DataDownload/WaveEnergySwath")
 list.files()
@@ -65,8 +69,41 @@ plot(table(round(wave_dist_f[ which(wave_dist_f>0 & wave_dist_f<10)],3)))
 xy <- all_2[,c(1,2)]
 all_sp <- SpatialPointsDataFrame(coords = xy, data = all_2,
                                proj4string = CRS("+proj=longlat +datum=WGS84 +ellps=WGS84 +towgs84=0,0,0"))
-str(all_sp)
-plot(all_sp) # looks good
+
+
+
+### read in juvenile data
+setwd("T:/Benthic/Projects/Juvenile Project") # set working directory 
+juv <- read.csv("JuvProject_temporal_SITE.csv")
+juv <- subset(juv,select=c(ISLAND,SITE,LATITUDE,LONGITUDE)) # remove extra columns -- only need site name + coords
+colnames(juv)
+
+
+#Read in islands shapefile
+islands<-st_read("U:/GIS/Data/Pacific/islands.shp")
+
+#Plotting the wave and juvenile data for a subset of islands to check overlap 
+ggplot(data = islands) +
+  geom_sf() +
+  geom_point(data = subset(all_2,ISL=="OAH"), aes(x = x, y = y), size = 2, shape = 21, fill = "slateblue3") +
+  geom_point(data = subset(juv,ISLAND=="Oahu"),aes(x = LONGITUDE, y = LATITUDE), size = 2, shape = 8, color = "darkorange1") +
+ coord_sf(xlim = c(-158.5, -157.5), ylim = c(21.2, 21.8), expand = FALSE)+
+  theme(panel.grid.major = element_line(color = gray(0.5), linetype = "dashed", 
+                                        size = 0.5), panel.background = element_rect(fill = "aliceblue"))+
+  annotation_scale(location = "bl", width_hint = 0.4)
+  
+extent(subset(all_2,ISL=="MAU"))
+
+ggplot(data = islands) +
+  geom_sf() +
+  geom_point(data = subset(all_2,ISL=="MAU"), aes(x = x, y = y), size = 2, shape = 21, fill = "slateblue3") +
+  geom_point(data = subset(juv,ISLAND=="Maug"),aes(x = LONGITUDE, y = LATITUDE), size = 2, shape = 8, color = "darkorange1") +
+  coord_sf(xlim = c(145.2, 145.25), ylim = c(20, 20.05), expand = FALSE)+
+  theme(panel.grid.major = element_line(color = gray(0.5), linetype = "dashed", 
+                                        size = 0.5), panel.background = element_rect(fill = "aliceblue"))+
+  annotation_scale(location = "bl", width_hint = 0.4)
+
+
 extent(all_sp)
 table(all_sp$ISL)
 cell_size <- 50/1000 # go from meters to km
@@ -87,24 +124,14 @@ nrow(rast) <- n_cell_y
 rast2 <- rasterize(all_sp, rast, all_sp$means, fun=mean)
 rast2
 # writeRaster(rast2, "WavesHawaii.nc", format = "CDF") too big to save
-plot(rast2)
-
-### read in juvenile data
-setwd("T:/Benthic/Projects/Juvenile Project") # set working directory 
-juv <- read.csv("JuvProject_temporal_SITE.csv")
-juv <- subset(juv,select=c(ISLAND,SITE,LATITUDE,LONGITUDE)) # remove extra columns -- only need site name + coords
-colnames(juv)
+# plot(rast2) #waaaaay too large to plot
 
 # convert juv data to spatial points data
-xy_juv <- juv[,c(2,3)]
+xy_juv <- juv[,c(3,4)]
 juv_sp <- SpatialPointsDataFrame(coords = xy_juv, data = juv,
                                  proj4string = CRS("+proj=longlat +datum=WGS84 +ellps=WGS84 +towgs84=0,0,0"))
 str(juv_sp)
 
-# plot oahu to check out the data
-plot(juv_sp[ which(juv$ISLAND == "Oahu"),], col = "red")
-plot(all_sp[ which(all_sp$ISL == "OAH"),], add = TRUE)
-# the only issue may be for juv sites in Kaneohe Bay -- pretty far from wave action data (which is also unlikely accurate reflection for these calm sites)
 
 ### calculate the mean wave action values within 250m radius of each juv point
 # source expanding extract function

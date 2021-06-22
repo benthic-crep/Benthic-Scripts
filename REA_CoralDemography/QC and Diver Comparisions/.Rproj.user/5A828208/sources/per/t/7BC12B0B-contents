@@ -80,11 +80,11 @@ ad <- ad %>%
 View(ad)
 
 
-##Calcuating segment and transect area and add column for transect area
+##Calculating segment and transect area and add column for transect area
 ad<-Transectarea(ad)
 
 
-#BH: create a site table
+#create a site table
 detach(package:plyr)
 sv<-ad %>%
   select (ISLAND, OBS_YEAR, SITE, LATITUDE, LONGITUDE, REEF_ZONE, DEPTH_BIN, DATE_, HABITAT_CODE, SITE_MIN_DEPTH, SITE_MAX_DEPTH) %>%
