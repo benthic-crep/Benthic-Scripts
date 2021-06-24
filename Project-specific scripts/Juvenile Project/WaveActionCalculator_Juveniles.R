@@ -79,29 +79,29 @@ juv <- subset(juv,select=c(ISLAND,SITE,LATITUDE,LONGITUDE)) # remove extra colum
 colnames(juv)
 
 
-#Read in islands shapefile
-islands<-st_read("U:/GIS/Data/Pacific/islands.shp")
-
-#Plotting the wave and juvenile data for a subset of islands to check overlap 
-ggplot(data = islands) +
-  geom_sf() +
-  geom_point(data = subset(all_2,ISL=="OAH"), aes(x = x, y = y), size = 2, shape = 21, fill = "slateblue3") +
-  geom_point(data = subset(juv,ISLAND=="Oahu"),aes(x = LONGITUDE, y = LATITUDE), size = 2, shape = 8, color = "darkorange1") +
- coord_sf(xlim = c(-158.5, -157.5), ylim = c(21.2, 21.8), expand = FALSE)+
-  theme(panel.grid.major = element_line(color = gray(0.5), linetype = "dashed", 
-                                        size = 0.5), panel.background = element_rect(fill = "aliceblue"))+
-  annotation_scale(location = "bl", width_hint = 0.4)
-  
-extent(subset(all_2,ISL=="MAU"))
-
-ggplot(data = islands) +
-  geom_sf() +
-  geom_point(data = subset(all_2,ISL=="MAU"), aes(x = x, y = y), size = 2, shape = 21, fill = "slateblue3") +
-  geom_point(data = subset(juv,ISLAND=="Maug"),aes(x = LONGITUDE, y = LATITUDE), size = 2, shape = 8, color = "darkorange1") +
-  coord_sf(xlim = c(145.2, 145.25), ylim = c(20, 20.05), expand = FALSE)+
-  theme(panel.grid.major = element_line(color = gray(0.5), linetype = "dashed", 
-                                        size = 0.5), panel.background = element_rect(fill = "aliceblue"))+
-  annotation_scale(location = "bl", width_hint = 0.4)
+# #Read in islands shapefile
+# islands<-st_read("U:/GIS/Data/Pacific/islands.shp")
+# 
+# #Plotting the wave and juvenile data for a subset of islands to check overlap 
+# ggplot(data = islands) +
+#   geom_sf() +
+#   geom_point(data = subset(all_2,ISL=="OAH"), aes(x = x, y = y), size = 2, shape = 21, fill = "slateblue3") +
+#   geom_point(data = subset(juv,ISLAND=="Oahu"),aes(x = LONGITUDE, y = LATITUDE), size = 2, shape = 8, color = "darkorange1") +
+#  coord_sf(xlim = c(-158.5, -157.5), ylim = c(21.2, 21.8), expand = FALSE)+
+#   theme(panel.grid.major = element_line(color = gray(0.5), linetype = "dashed", 
+#                                         size = 0.5), panel.background = element_rect(fill = "aliceblue"))+
+#   annotation_scale(location = "bl", width_hint = 0.4)
+#   
+# extent(subset(all_2,ISL=="MAU"))
+# 
+# ggplot(data = islands) +
+#   geom_sf() +
+#   geom_point(data = subset(all_2,ISL=="MAU"), aes(x = x, y = y), size = 2, shape = 21, fill = "slateblue3") +
+#   geom_point(data = subset(juv,ISLAND=="Maug"),aes(x = LONGITUDE, y = LATITUDE), size = 2, shape = 8, color = "darkorange1") +
+#   coord_sf(xlim = c(145.2, 145.25), ylim = c(20, 20.05), expand = FALSE)+
+#   theme(panel.grid.major = element_line(color = gray(0.5), linetype = "dashed", 
+#                                         size = 0.5), panel.background = element_rect(fill = "aliceblue"))+
+#   annotation_scale(location = "bl", width_hint = 0.4)
 
 
 extent(all_sp)
