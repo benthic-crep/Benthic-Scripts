@@ -45,6 +45,12 @@ cols<-c("MISSIONID","DATE_","SITEVISITID", "OBS_YEAR", "REGION", "ISLAND","SEC_N
         "mean_annual_range_Kd490_ESAOCCCI_8Day_YR10","mean_kdPAR_VIIRS_Weekly_YR10")
 sm_env<-SM[,cols]
 
+#Subset survey master to only include juvenile sites
+sm_env<-sm_env[sm_env$SITEVISITID %in% c(jwd_site$SITEVISITID),]
+
+nrow(sm_env)
+j<-jwd_site%>%dplyr::filter(GENUS_CODE=="SSSS")
+nrow(j)
 
 #Only use Total Scl juvenile data 
 jwd_siteS<-subset(jwd_site,GENUS_CODE=="SSSS")
@@ -54,11 +60,11 @@ sm_env$STRATANAME<-paste(sm_env$ANALYSIS_SEC,sm_env$REEF_ZONE,sm_env$DEPTH_BIN,s
 
 #List of Predictor Variables, where the data can be found and whether they are ready to use at the Stratum level
 predlist<-data.frame(Variable=c("Habitat Code","Frequency of DHW events","Mean Max DHW over previous 10yr","Mean Max DHW over previous 5yr",
-                                "Time Since last > 8 DHW","Latitude","kd490","Chlorophylla", "Mean Depth","Mean Proximity to Humans","Wave Power","Substrate Height",
+                                "Time Since last > 8 DHW","Latitude","kd490","kdPAR","Chlorophylla", "Mean Depth","Mean Proximity to Humans","Wave Power","Substrate Height",
                                 "Benthic Cover"),
                      Data_Location= c("SURVEY_MASTER","EDS","EDS","EDS","EDS","SURVEY_MASTER","EDS","EDS","SURVEY_MASTER","SURVEY_MASTER","M Drive","Predictor Variables Folder",
                                       "T drive"),
-                     Summarized_to_Stratum= c("Y","N","N","N","N","Y","N","N","Y","N","N","Y","Y"))
+                     Summarized_to_Stratum= c("Y","N","Y","Y","N","Y","N","N","Y","N","N","Y","Y"))
 
 
 # Human Density -----------------------------------------------------------
@@ -80,65 +86,33 @@ eds_sum<-sm_env %>%
 
 # WAVE POWER --------------------------------------------------------
 
-SURVEY_SITE<-c("DATE_","SITEVISITID", "ANALYSIS_YEAR","OBS_YEAR", "REGION", "ISLAND","SEC_NAME", "SITE","HABITAT_CODE","REEF_ZONE",
-               "DEPTH_BIN", "LATITUDE", "LONGITUDE","MEAN_SH","SD_SH_DIFF")
-sh.site<-unique(sh[,SURVEY_SITE]);head(sh.site)
-sh.site$STRATANAME<-paste(sh.site$SEC_NAME,sh.site$REEF_ZONE,sh.site$DEPTH_BIN,sep="_") #Create stratum
-
 #Calculate Strata-Level Wave data
+#merge wave data with survey master
+cols<-c("MISSIONID","DATE_","SITEVISITID", "OBS_YEAR", "REGION", "SEC_NAME", "SITE","HABITAT_CODE","REEF_ZONE",
+        "DEPTH_BIN")
+sm_wave<-SM[,cols]
+
+wsd<-left_join(wave,sm_wave)
 
 #Merge together wsd and sectors
-wsd<-left_join(wave,sectors[,c("SEC_NAME","REEF_ZONE","DEPTH_BIN","AREA_HA")]);nrow(wsd);head(wsd)
-
-#Remove NAs from dataframe
-wsd<-wsd[!is.na(wsd$MEAN_SH), ]
-View(wsd)
+wsd<-left_join(wsd,sectors[,c("REGION","SEC_NAME","REEF_ZONE","DEPTH_BIN","AREA_HA")]);nrow(wsd);head(wsd)
 
 #Subset just Forereef sites
 wsd$REEF_ZONE<-ifelse(wsd$REEF_ZONE=="Protected Slope","Forereef",as.character(wsd$REEF_ZONE))
-wsd<-subset(wsd,REEF_ZONE=="Forereef")
+wsd<-wsd%>% dplyr::filter(REEF_ZONE=="Forereef")
+table(wsd$REEF_ZONE)
 
 wsd$STRATANAME<-paste(wsd$SEC_NAME,wsd$REEF_ZONE,wsd$DEPTH_BIN,sep="_") #Create stratum
 head(wsd)
 
-
 wsd$ANALYSIS_SEC<-wsd$SEC_NAME
 wsd$ANALYSIS_YEAR<-wsd$OBS_YEAR
 
-data.cols<-c("WavePower")
+#Summarize to stratum level
+wave_sum<-wsd %>%
+  group_by(REGION,OBS_YEAR,ISLAND,ANALYSIS_SEC,STRATANAME) %>%
+  summarize(MeanWavePower=mean(WavePower))
 
-### CALCULATE MEAN AND VARIANCE WITHIN STRATA ###
-SPATIAL_POOLING_BASE<-c("REGION","ISLAND", "ANALYSIS_SEC", "REEF_ZONE", "STRATANAME","DEPTH_BIN")    
-
-#generate within strata means and vars
-POOLING_LEVEL<-c(SPATIAL_POOLING_BASE)
-dps<-Calc_PerStrata(wsd, data.cols, c(POOLING_LEVEL, "AREA_HA"))
-head(dps$Mean)
-
-###### REMOVE STRATA with N=1 (cannot pool those up)
-dps$Mean<-dps$Mean[dps$Mean$N>1,]
-dps$SampleVar<-dps$SampleVar[dps$SampleVar$N>1,]
-dps$SampleSE<-dps$SampleSE[dps$SampleSE$N>1,]
-
-# e.g. SAVE BY ISLAND AND REEF_ZONE PER YEAR
-OUTPUT_LEVEL<-c("REGION","ISLAND","ANALYSIS_SEC","STRATANAME","DEPTH_BIN") 
-dpst<-Calc_Pooled_Simple(dps$Mean, dps$SampleVar, data.cols, OUTPUT_LEVEL, "AREA_HA");dpst<-as.data.frame(dpst)
-
-#Clean up- remove SE columns and remove "Mean" from column names
-dpst<-dpst %>% dplyr::select(Mean.REGION:Mean.MEAN_SH,PooledSE.MEAN_SH,-c(Mean.N))
-
-dpst<-dpst %>%
-  dplyr::rename_all(funs(stringr::str_replace_all(., "Mean.", "")))
-
-dpst<-dpst %>%
-  dplyr::rename_all(funs(stringr::str_replace_all(., "Pooled", "")))
-
-head(dpst)
-
-colnames(dpst)[which(colnames(dpst) == 'ANALYSIS_SEC')]<-"SEC_NAME" 
-colnames(dpst)[which(colnames(dpst) == 'SE.MEAN_SH')]<-"SE_MEAN_SH" 
-
-wave_sum<-dpst
 head(wave_sum)
 
 # SUBSTRATE HEIGHT --------------------------------------------------------
@@ -395,7 +369,8 @@ all_pred<- cover_sum %>%
       left_join(lat_sum) %>%
       left_join(eds_sum) %>%
       left_join(sh_sum) %>%
-      left_join(humans_sum)
+      left_join(humans_sum) %>%
+      left_join(wave_sum)
 
 head(all_pred)
 

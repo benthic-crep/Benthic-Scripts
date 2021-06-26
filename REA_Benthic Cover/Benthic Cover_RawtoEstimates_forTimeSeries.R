@@ -30,15 +30,16 @@ sectors<-read.csv("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/data/Se
 # CHECK THAT DATA IS READY FOR POOLING AND DO SOME FINAL CLEAN UPS --------
 
 #Identify which taxonomic level you would like to summarize
-#wsd<-wsd_t1
-wsd<-wsd_t3
+
+wsd<-wsd_t1
+#wsd<-wsd_t3
 
 #Define data columns
-#T1data.cols<-colnames(subset(wsd,select=c(CCA:TURF)))
-T3data.cols<-colnames(subset(wsd,select=c(ACAS:TAB)))
+T1data.cols<-colnames(subset(wsd,select=c(CCA:TURF)))
+#T3data.cols<-colnames(subset(wsd,select=c(ACAS:TAB)))
 
-#data.cols<-T1data.cols
-data.cols<-T3data.cols
+data.cols<-T1data.cols
+#data.cols<-T3data.cols
 
 #remove permanent sites, climate sites and special projects
 wsd$PERM_SITE[is.na(wsd$PERM_SITE)]<-"0"
@@ -117,23 +118,20 @@ table(wsd$SEC_NAME,wsd$ANALYSIS_YEAR)
 #NOW CHECK HOW MANY REPS WE HAVE PER STRATA
 a<-dcast(wsd, ANALYSIS_SCHEME + ISLAND + ANALYSIS_SEC + OBS_YEAR ~ STRATA, value.var="AREA_HA", length); a
 
-
-# Subset Strata and Sectors that were surveyed in more than 1 year --------
-tmp<-ddply(wsd,.(ANALYSIS_YEAR,ANALYSIS_SEC,STRATA),
-                  summarize,
-                  n=length(unique(SITEVISITID)))
-tmp1<-tmp[tmp$n>1,]
-wsd<-left_join(tmp1,wsd) #merge the 2 data frames to remove sectors only surveyed once
-table(wsd$ANALYSIS_SEC,wsd$ANALYSIS_YEAR)
-
-
 # GENERATE DATA FOR TEMPORAL ANALYSIS
+
+# Subset Strata and Sectors that were surveyed in more than 1 year -------
+
 st.list<-ddply(wsd,.(ANALYSIS_YEAR,REGION,ISLAND,ANALYSIS_SEC ,STRATANAME),summarize,n=length(unique(SITEVISITID)))
-st.list2<-subset(st.list,n>=2);head(st.list) #remove strata that have less than 2 sites/stratum
+st.list2<-st.list %>% dplyr::filter(n>=2);head(st.list2) #remove strata that have less than 2 sites/stratum
 
 #Generate list of strata that were surveyed in all years for a given region and had at least 2 sites/stratum
-st.list_w<-dcast(st.list2, formula=REGION+ISLAND+ANALYSIS_SEC+STRATANAME~ ANALYSIS_YEAR, value.var="n",fill=0)
-st.list_w$year_n<-rowSums(st.list_w[,5:ncol(st.list_w)] > 0, na.rm=T) #count # of years of data
+st.list_w<-dcast(st.list2, formula=REGION+ISLAND+ANALYSIS_SEC+STRATANAME~ ANALYSIS_YEAR, value.var="n",fill=0)#count # of years of data
+st.list_w$year_n<-rowSums(st.list_w[,5:ncol(st.list_w)] > 0, na.rm=T) 
+
+st.list_w<-st.list_w %>% dplyr::filter(year_n>=2);head(st.list2) #remove strata that have less than 2 sites/stratum
+
+
 #Identify the max number of years a stratum was surveyed within a sector
 yMax<-ddply(st.list_w,.(REGION,ISLAND,ANALYSIS_SEC),
             summarize,
@@ -142,8 +140,6 @@ st.list_w3<-left_join(yMax,st.list_w) #only include strata that were surveyed th
 head(st.list_w3);st.list_w3<-droplevels(st.list_w3) #generate the list
 
 wsd<-wsd[wsd$STRATANAME %in% c(st.list_w3$STRATANAME),] #Subset data to only include strata of interest
-
-
 
 # POOL WSD (WORKING SITE DATA TO STRATA THEN TO HIGHER LEVELS -------------
 
@@ -164,8 +160,8 @@ dpst<-as.data.frame(dpst)
 dpst<-subset(dpst,select=-c(PooledSE.REGION:PooledSE.N))
 colnames(dpst)[1:6]<-sub("Mean.","",colnames(dpst)[1:6]) #remove mean from metadata columns
 
-#write.csv(dpst, file="T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Stratum/BenthicCover_2010-2019_Tier1_STRATA_forTimesSeries.csv")
-write.csv(dpst, file="T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Stratum/BenthicCover_2010-2019_Tier3_STRATA_forTimesSeries.csv")
+write.csv(dpst, file="T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Stratum/BenthicCover_2010-2019_Tier1_STRATA_forTimesSeries.csv",row.names=F)
+#write.csv(dpst, file="T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Stratum/BenthicCover_2010-2019_Tier3_STRATA_forTimesSeries.csv",row.names=F)
 
 # e.g. SAVE BY SECTOR PER YEAR
 OUTPUT_LEVEL<-c("REGION","ISLAND","ANALYSIS_SEC","ANALYSIS_YEAR") 
@@ -173,8 +169,8 @@ dpsec<-Calc_Pooled_Simple(dps$Mean, dps$SampleVar, data.cols, OUTPUT_LEVEL, "ARE
 dpsec<-as.data.frame(dpsec)
 dpsec<-subset(dpsec,select=-c(PooledSE.REGION:PooledSE.N))
 colnames(dpsec)[1:5]<-sub("Mean.","",colnames(dpsec)[1:5]) #remove mean from metadata columns
-#write.csv(dpsec, file="T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Sector/BenthicCover_2010-2019_Tier1_SECTOR_forTimesSeries.csv")
-write.csv(dpsec, file="T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Sector/BenthicCover_2010-2019_Tier3_SECTOR_forTimeseries.csv")
+write.csv(dpsec, file="T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Sector/BenthicCover_2010-2019_Tier1_SECTOR_forTimesSeries.csv",row.names=F)
+#write.csv(dpsec, file="T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Sector/BenthicCover_2010-2019_Tier3_SECTOR_forTimeseries.csv",row.names=F)
 
 
 #####NOTE: We are are not summarizing to ISLAND level because we've dropped quite a few strata and sectors. 
