@@ -4,6 +4,8 @@
 #click enable maps API and it will automatically show you your API key. Save the key in a text file 
 #Additional information: https:/www.littlemissdata.com/blog/maps & http:/eriqande.github.io/rep-res-web/lectures/making-maps-with-R.html
 
+#https://www.findingyourway.io/blog/2018/12/05/2018-12-05-using-ggmap-after-july-2018/
+
 library(sp)
 library(raster)
 library(rgdal)

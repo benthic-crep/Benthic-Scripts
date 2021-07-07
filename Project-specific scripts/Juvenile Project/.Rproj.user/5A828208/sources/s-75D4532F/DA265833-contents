@@ -38,15 +38,43 @@ cover3<-read.csv("T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Site
 sectors<-read.csv("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/data/Sectors-Strata-Areas.csv", stringsAsFactors=FALSE)
 load("C:/Users/Courtney.S.Couch/Documents/GitHub/env_data_summary/outputs/Survey_Master_Timeseries_2021-02-27.Rdata") #Survey master file with env data
 
+
+#Change Regions in Survey Master to correspond to juvenile data
+SM$REGION<-ifelse(SM$ISLAND %in% c("FDP", "Maug", "Asuncion", "Alamagan", "Pagan", "Agrihan", "Guguan", "Sarigan","Farallon_de_Pajaros")
+                  ,"NMARIAN", as.character(SM$REGION))
+SM$REGION<-ifelse(SM$ISLAND %in% c("Saipan", "Tinian", "Aguijan", "Rota", "Guam")
+                  ,"SMARIAN", as.character(SM$REGION))
+SM$REGION<-ifelse(SM$ISLAND %in% c("Howland","Baker")
+                  ,"PHOENIX", as.character(SM$REGION))
+SM$REGION<-ifelse(SM$ISLAND =="Wake"
+                  ,"WAKE", as.character(SM$REGION))
+SM$REGION<-ifelse(SM$ISLAND %in% c("Kingman","Palmyra","Jarvis")
+                  ,"LINE", as.character(SM$REGION))
+
+
 #Subset survey master and env columns of interest
 cols<-c("MISSIONID","DATE_","SITEVISITID", "OBS_YEAR", "REGION", "ISLAND","SEC_NAME", "SITE","HABITAT_CODE","REEF_ZONE",
-               "DEPTH_BIN", "LATITUDE_LOV", "LONGITUDE_LOV","new_MIN_DEPTH_M","new_MAX_DEPTH_M","HUMANS20","HUMANS200", "DHW.MeanMax_Degree_Heating_Weeks_YR01","DHW.MeanMax_Degree_Heating_Weeks_YR05", "DHW.MeanMax_Degree_Heating_Weeks_YR10","DHW.MaxMax_Degree_Heating_Weeks_YR10",
+               "DEPTH_BIN", "LATITUDE_LOV", "LONGITUDE_LOV","new_MIN_DEPTH_M","new_MAX_DEPTH_M","DHW.MeanMax_Degree_Heating_Weeks_YR01","DHW.MeanMax_Degree_Heating_Weeks_YR05", "DHW.MeanMax_Degree_Heating_Weeks_YR10","DHW.MaxMax_Degree_Heating_Weeks_YR10",
         "DHW.MeanDur_Major_Degree_Heating_Weeks_YR10","mean_annual_range_Chlorophyll_A_ESAOCCCI_8Day_YR10",
         "mean_annual_range_Kd490_ESAOCCCI_8Day_YR10","mean_kdPAR_VIIRS_Weekly_YR10")
 sm_env<-SM[,cols]
 
+
+
+#Generate a list of Regions and years to include in final summary
+REGION<-c("NWHI","MHI","PHOENIX","LINE","SMARIAN","NMARIAN","SAMOA")
+OBS_YEAR<-c("2016","2019","2018","2018","2017","2017","2018")
+keep<-as.data.frame(cbind(REGION,OBS_YEAR))
+
+keep$r_y<-paste(keep$REGION,keep$OBS_YEAR,sep = "_")
+
+#ONly include years where sites were most recently surveyed for each region
+sm_env$r_y<-paste(sm_env$REGION,sm_env$OBS_YEAR,sep = "_")
+sm_env<-sm_env[sm_env$r_y %in% c(keep$r_y),]
+
 #Subset survey master to only include juvenile sites
 sm_env<-sm_env[sm_env$SITEVISITID %in% c(jwd_site$SITEVISITID),]
+table(sm_env$REGION,sm_env$OBS_YEAR)
 
 nrow(sm_env)
 j<-jwd_site%>%dplyr::filter(GENUS_CODE=="SSSS")
@@ -69,19 +97,37 @@ predlist<-data.frame(Variable=c("Habitat Code","Frequency of DHW events","Mean M
 
 # Human Density -----------------------------------------------------------
 # We are missing human density from most of the benthic sites, calculate strata level human density using fish sites
-humans_sum<-sm_env %>%
-  group_by(REGION,OBS_YEAR,ISLAND,ANALYSIS_SEC,STRATANAME) %>%
+#I had to use the 2016 MHI data because no human data is available for the 2019 sites
+
+SM2<-SM
+#Generate a list of Regions and years to include in final summary
+REGION<-c("NWHI","MHI","PHOENIX","LINE","SMARIAN","NMARIAN","SAMOA")
+OBS_YEAR<-c("2016","2016","2018","2018","2017","2017","2018")
+keep<-as.data.frame(cbind(REGION,OBS_YEAR))
+
+keep$r_y<-paste(keep$REGION,keep$OBS_YEAR,sep = "_")
+
+#ONly include years where sites were most recently surveyed for each region
+SM2$r_y<-paste(SM2$REGION,SM2$OBS_YEAR,sep = "_")
+SM2<-SM2[SM2$r_y %in% c(keep$r_y),]
+
+
+SM2$ANALYSIS_SEC<-SM2$SEC_NAME
+SM2$STRATANAME<-paste(SM2$ANALYSIS_SEC,SM2$REEF_ZONE,SM2$DEPTH_BIN,sep="_")
+
+humans_sum<-SM2 %>%
+  group_by(REGION,ISLAND,ANALYSIS_SEC,STRATANAME) %>%
   summarize(HUMANS20_mean=mean(HUMANS20,na.rm=T),
             HUMANS200_mean=mean(HUMANS200,na.rm=T))
 
-head(humans_sum)
+View(humans_sum)
 
 
 # Summarizing EDS variables ---------------------------------------------------------------------
 eds_sum<-sm_env %>%
-  group_by(REGION,OBS_YEAR,ISLAND,ANALYSIS_SEC,STRATANAME) %>%
-  summarize(MeanMaxDHW10=mean(DHW.MeanMax_Degree_Heating_Weeks_YR10),MaxMaxDHW10=mean(DHW.MaxMax_Degree_Heating_Weeks_YR10),
-            Meankd490=mean(mean_annual_range_Kd490_ESAOCCCI_8Day_YR10),meankdPAR=mean(mean_kdPAR_VIIRS_Weekly_YR10))
+  group_by(REGION,ISLAND,ANALYSIS_SEC,STRATANAME) %>%
+  summarize(MeanMaxDHW10=mean(DHW.MeanMax_Degree_Heating_Weeks_YR10,na.rm=T),MaxMaxDHW10=mean(DHW.MaxMax_Degree_Heating_Weeks_YR10,na.rm=T),
+            Meankd490=mean(mean_annual_range_Kd490_ESAOCCCI_8Day_YR10,na.rm=T),meankdPAR=mean(mean_kdPAR_VIIRS_Weekly_YR10,na.rm=T))
 
 
 # WAVE POWER --------------------------------------------------------
@@ -110,16 +156,19 @@ wsd$ANALYSIS_YEAR<-wsd$OBS_YEAR
 
 #Summarize to stratum level
 wave_sum<-wsd %>%
-  group_by(REGION,OBS_YEAR,ISLAND,ANALYSIS_SEC,STRATANAME) %>%
-  summarize(MeanWavePower=mean(WavePower))
+  group_by(REGION,ISLAND,ANALYSIS_SEC,STRATANAME) %>%
+  summarize(MeanWavePower=mean(WavePower,na.rm=T))
 
 head(wave_sum)
 
 # SUBSTRATE HEIGHT --------------------------------------------------------
+#ONly include years where sites were most recently surveyed for each region
+sh.new<-sh%>%dplyr::filter(OBS_YEAR>=2017)
 
-SURVEY_SITE<-c("DATE_","SITEVISITID", "ANALYSIS_YEAR","OBS_YEAR", "REGION", "ISLAND","SEC_NAME", "SITE","HABITAT_CODE","REEF_ZONE",
+
+SURVEY_SITE<-c("DATE_","SITEVISITID", "ANALYSIS_YEAR","REGION", "ISLAND","SEC_NAME", "SITE","HABITAT_CODE","REEF_ZONE",
                "DEPTH_BIN", "LATITUDE", "LONGITUDE","MEAN_SH","SD_SH_DIFF")
-sh.site<-unique(sh[,SURVEY_SITE]);head(sh.site)
+sh.site<-unique(sh.new[,SURVEY_SITE]);head(sh.site)
 sh.site$STRATANAME<-paste(sh.site$SEC_NAME,sh.site$REEF_ZONE,sh.site$DEPTH_BIN,sep="_") #Create stratum
 
 #Calculate Strata-Level Substrate Height data
@@ -198,7 +247,7 @@ jwd_siteS<-jwd_siteS %>% mutate(Hab_simple=recode(HABITAT_CODE,
                                                   `PSC`="Sand_Rubble"))
 
 hab_sum<-jwd_siteS %>%
-    group_by(REGION,OBS_YEAR,ISLAND,ANALYSIS_SEC,STRATANAME,Hab_simple) %>%
+    group_by(REGION,ISLAND,ANALYSIS_SEC,STRATANAME,Hab_simple) %>%
     summarize(n=length(unique(SITEVISITID)))
 
 
@@ -207,7 +256,7 @@ jwd_siteS %>%
   summarize(n=length(unique(SITEVISITID)))
 
 site_sum<-jwd_siteS %>%
-  group_by(REGION,OBS_YEAR,ISLAND,ANALYSIS_SEC,STRATANAME) %>%
+  group_by(REGION,ISLAND,ANALYSIS_SEC,STRATANAME) %>%
   summarize(ntot=length(unique(SITEVISITID)))
 
 hab_sum<-left_join(hab_sum,site_sum)
@@ -227,8 +276,8 @@ head(hab_sum_w)
 
 jwd_siteS$MidDepth<-(jwd_siteS$MAX_DEPTH_M+jwd_siteS$MIN_DEPTH_M)/2
 depth_sum<-jwd_siteS %>%
-  group_by(REGION,OBS_YEAR,ISLAND,ANALYSIS_SEC,STRATANAME) %>%
-  summarize(MeanDepth=mean(MidDepth),MeanMaxDepth=mean(MAX_DEPTH_M))
+  group_by(REGION,ISLAND,ANALYSIS_SEC,STRATANAME) %>%
+  summarize(MeanDepth=mean(MidDepth,na.rm=T),MeanMaxDepth=mean(MAX_DEPTH_M,na.rm=T))
 
 
 # LATITUDE ----------------------------------------------------------------
@@ -268,7 +317,7 @@ df=df_utm
 # View(df.)
 
 lat_sum = df %>%
-  group_by(REGION,OBS_YEAR,ISLAND,ANALYSIS_SEC,STRATANAME)%>%
+  group_by(REGION,ISLAND,ANALYSIS_SEC,STRATANAME)%>%
   mutate(depth_strata_sum = n())%>%
   summarize(utmlat_strata_weighted_mean = weighted.mean(X, depth_strata_sum),
             lat_strata_weighted_mean = weighted.mean(LATITUDE, depth_strata_sum))
@@ -313,14 +362,9 @@ head(cover)
 
 cover$STRATANAME<-paste(cover$SEC_NAME,cover$REEF_ZONE,cover$DEPTH_BIN,sep="_") #Create stratum
 
-
-#Calculate Strata-Level Cover data
-nrow(jwd_siteS)
-wsd<-left_join(jwd_siteS,cover[,c("SITEVISITID","CORAL","CCA","RUBBLE","SAND","TURF","MA","SAND_RUB")]); head(wsd);nrow(wsd)
-head(wsd[which(is.na(wsd)),])
-
+#We are missing some cover data from some benthic sites so use all benthic and fish sites
 #Merge together wsd and sectors
-wsd<-left_join(wsd,sectors[,c("SEC_NAME","REEF_ZONE","DEPTH_BIN","AREA_HA")]);nrow(wsd);head(wsd)
+wsd<-left_join(cover,sectors[,c("SEC_NAME","REEF_ZONE","DEPTH_BIN","AREA_HA")]);nrow(wsd);head(wsd)
 
 #Subset just Forereef sites
 wsd$REEF_ZONE<-ifelse(wsd$REEF_ZONE=="Protected Slope","Forereef",as.character(wsd$REEF_ZONE))
@@ -376,19 +420,19 @@ head(all_pred)
 
 
 ~~~~~~~~
-#Change specific sector names to match the sector shape file polygons
-dpst$SEC_NAME[dpst$SEC_NAME == "HAW_HAMAKUA"] <- "HAW_HAMAK"
-dpst$SEC_NAME[dpst$SEC_NAME == "GUA_PATI_POINT"] <- "GUA_PATI_PT"
-
-#Separate strata to create sector maps in Arc
-sh<-subset(dpst,DEPTH_BIN=="Shallow")
-m<-subset(dpst,DEPTH_BIN=="Mid")
-d<-subset(dpst,DEPTH_BIN=="Deep")
-
-write.csv(sh, file="C:/Users/Courtney.S.Couch/Documents/Courtney's Files/R Files/ESD/Juvenile Project/Predictor Variables/JuvProject_SubstrateHeight_Shallow.csv",row.names = F)
-write.csv(m, file="C:/Users/Courtney.S.Couch/Documents/Courtney's Files/R Files/ESD/Juvenile Project/Predictor Variables/JuvProject_SubstrateHeight_Mid.csv",row.names = F)
-write.csv(d, file="C:/Users/Courtney.S.Couch/Documents/Courtney's Files/R Files/ESD/Juvenile Project/Predictor Variables/JuvProject_SubstrateHeight_Deep.csv",row.names = F)
-
-# Combine juvenile, cover and substrate height data -----------------------
+# #Change specific sector names to match the sector shape file polygons
+# dpst$SEC_NAME[dpst$SEC_NAME == "HAW_HAMAKUA"] <- "HAW_HAMAK"
+# dpst$SEC_NAME[dpst$SEC_NAME == "GUA_PATI_POINT"] <- "GUA_PATI_PT"
+# 
+# #Separate strata to create sector maps in Arc
+# sh<-subset(dpst,DEPTH_BIN=="Shallow")
+# m<-subset(dpst,DEPTH_BIN=="Mid")
+# d<-subset(dpst,DEPTH_BIN=="Deep")
+# 
+# write.csv(sh, file="C:/Users/Courtney.S.Couch/Documents/Courtney's Files/R Files/ESD/Juvenile Project/Predictor Variables/JuvProject_SubstrateHeight_Shallow.csv",row.names = F)
+# write.csv(m, file="C:/Users/Courtney.S.Couch/Documents/Courtney's Files/R Files/ESD/Juvenile Project/Predictor Variables/JuvProject_SubstrateHeight_Mid.csv",row.names = F)
+# write.csv(d, file="C:/Users/Courtney.S.Couch/Documents/Courtney's Files/R Files/ESD/Juvenile Project/Predictor Variables/JuvProject_SubstrateHeight_Deep.csv",row.names = F)
+# 
+# # Combine juvenile, cover and substrate height data -----------------------
 
 
