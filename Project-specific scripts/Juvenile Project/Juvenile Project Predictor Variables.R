@@ -27,8 +27,8 @@ setwd("C:/Users/Courtney.S.Couch/Documents/Courtney's Files/R Files/ESD/Juvenile
 
 #LOAD DATA
 jwd_strat<-read.csv("T:/Benthic/Projects/Juvenile Project/JuvProject_pb_STRATA.csv")#Post bleaching strata-level juvenile data
-jwd_site<-read.csv("T:/Benthic/Projects/Juvenile Project/JuvProject_pb_SITE.csv"); jwd_site<-subset(jwd_site,select= -c(X))#Post bleaching strata-level juvenile data
-d_strat<-read.csv("T:/Benthic/Projects/Juvenile Project/JuvProject_deltadensity_STRATA.csv")
+jwd_site<-read.csv("T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Site/BenthicREA_sitedata_GENUS.csv")
+d_strat<-read.csv("T:/Benthic/Projects/Juvenile Project/JuvProject_deltadensity_STRATA.csv"); d_strat<-subset(d_strat,select= -c(X))
 
 wave<-read.csv("T:/Benthic/Projects/Juvenile Project/Pacific_WaveActionData.csv")
 SM<-read.csv("M:/Environmental Data Summary/Outputs/Survey_Master_Timeseries_2021-02-27.csv")
@@ -36,20 +36,81 @@ sh<-read.csv("C:/Users/Courtney.S.Couch/Documents/Courtney's Files/R Files/ESD/J
 cover1<-read.csv("T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Site/BenthicCover_2010-2020_Tier1_SITE.csv")#Cover from all sites
 cover3<-read.csv("T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Site/BenthicCover_2010-2020_Tier3_SITE.csv")#Cover from all sites
 sectors<-read.csv("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/data/Sectors-Strata-Areas.csv", stringsAsFactors=FALSE)
-load("C:/Users/Courtney.S.Couch/Documents/GitHub/env_data_summary/outputs/Survey_Master_Timeseries_2021-02-27.Rdata") #Survey master file with env data
+#load("C:/Users/Courtney.S.Couch/Documents/GitHub/env_data_summary/outputs/Survey_Master_Timeseries_2021-02-27.Rdata") #Survey master file with env data
 
 
-#Change Regions in Survey Master to correspond to juvenile data
-SM$REGION<-ifelse(SM$ISLAND %in% c("FDP", "Maug", "Asuncion", "Alamagan", "Pagan", "Agrihan", "Guguan", "Sarigan","Farallon_de_Pajaros")
-                  ,"NMARIAN", as.character(SM$REGION))
-SM$REGION<-ifelse(SM$ISLAND %in% c("Saipan", "Tinian", "Aguijan", "Rota", "Guam")
-                  ,"SMARIAN", as.character(SM$REGION))
-SM$REGION<-ifelse(SM$ISLAND %in% c("Howland","Baker")
-                  ,"PHOENIX", as.character(SM$REGION))
-SM$REGION<-ifelse(SM$ISLAND =="Wake"
-                  ,"WAKE", as.character(SM$REGION))
-SM$REGION<-ifelse(SM$ISLAND %in% c("Kingman","Palmyra","Jarvis")
-                  ,"LINE", as.character(SM$REGION))
+
+
+#Change Regions to correspond to juvenile data
+Convert_Region<-function(data){
+  data$REGION<-ifelse(data$ISLAND %in% c("Farallon de Pajaros", "Maug", "Asuncion", "Alamagan", "Pagan", "Agrihan", "Guguan", "Sarigan","Farallon_de_Pajaros")
+                      ,"NMARIAN", as.character(data$REGION))
+  data$REGION<-ifelse(data$ISLAND %in% c("Saipan", "Tinian", "Aguijan", "Rota", "Guam")
+                    ,"SMARIAN", as.character(data$REGION))
+  data$REGION<-ifelse(data$ISLAND %in% c("Howland","Baker")
+                    ,"PHOENIX", as.character(data$REGION))
+  data$REGION<-ifelse(data$ISLAND =="Wake"
+                    ,"WAKE", as.character(data$REGION))
+  data$REGION<-ifelse(data$ISLAND %in% c("Kingman","Palmyra","Jarvis")
+                    ,"LINE", as.character(data$REGION))
+  return(data$REGION)
+}
+
+SM$REGION<-Convert_Region(SM)
+sh$REGION<-Convert_Region(sh)
+cover1$REGION<-Convert_Region(cover1)
+cover3$REGION<-Convert_Region(cover3)
+sectors$REGION<-Convert_Region(sectors)
+jwd_site$REGION<-Convert_Region(jwd_site)
+
+
+#Remove spaces in island and sec names
+d_strat<- mutate_if(d_strat, 
+          is.character, 
+          str_replace_all, pattern = " ", replacement = "_")
+
+jwd_site <- mutate_if(jwd_site, 
+                is.character, 
+                str_replace_all, pattern = " ", replacement = "_")
+
+wave<-mutate_if(wave, 
+                is.character, 
+                str_replace_all, pattern = " ", replacement = "_")
+
+sh<-mutate_if(sh, 
+              is.character, 
+              str_replace_all, pattern = " ", replacement = "_")
+
+cover1<-mutate_if(cover1, 
+              is.character, 
+              str_replace_all, pattern = " ", replacement = "_")
+
+cover3<-mutate_if(cover3, 
+                  is.character, 
+                  str_replace_all, pattern = " ", replacement = "_")
+
+sectors<-mutate_if(sectors, 
+                  is.character, 
+                  str_replace_all, pattern = " ", replacement = "_")
+
+SM<-mutate_if(SM, 
+                is.character, 
+              str_replace_all, pattern = " ", replacement = "_")
+
+#Clean up juv site data
+levels(jwd_site$MISSIONID)
+jwd_site<-jwd_site[!jwd_site$MISSIONID %in% c("MP1410","MP1512","MP1602","SE1602","MP2006"),]
+jwd_site$Year_Island<-paste(jwd_site$OBS_YEAR,jwd_site$ISLAND,sep="_")
+jwd_site$Year_Region<-paste(jwd_site$OBS_YEAR,jwd_site$REGION,sep="_")
+jwd_site<-jwd_site[!jwd_site$Year_Island %in% c("2017_Baker","2017_Jarvis","2017_Howland"),] 
+jwd_site<-subset(jwd_site,Year_Region !="2013_MHI")
+jwd_site<-droplevels(jwd_site);levels(jwd_site$MISSIONID)
+View(jwd_site)
+
+#Only use Total Scl juvenile data 
+jwd_siteS<-jwd_site%>%dplyr::filter(GENUS_CODE=="SSSS")
+jwd_siteS$ANALYSIS_SEC<-jwd_siteS$SEC_NAME
+jwd_siteS$STRATANAME<-paste(jwd_siteS$ANALYSIS_SEC,jwd_siteS$REEF_ZONE,jwd_siteS$DEPTH_BIN,sep="_")
 
 
 #Subset survey master and env columns of interest
@@ -62,8 +123,8 @@ sm_env<-SM[,cols]
 
 
 #Generate a list of Regions and years to include in final summary
-REGION<-c("NWHI","MHI","PHOENIX","LINE","SMARIAN","NMARIAN","SAMOA")
-OBS_YEAR<-c("2016","2019","2018","2018","2017","2017","2018")
+REGION<-c("NWHI","MHI","PHOENIX","LINE","SMARIAN","NMARIAN","SAMOA","WAKE")
+OBS_YEAR<-c("2016","2019","2018","2018","2017","2017","2018","2017")
 keep<-as.data.frame(cbind(REGION,OBS_YEAR))
 
 keep$r_y<-paste(keep$REGION,keep$OBS_YEAR,sep = "_")
@@ -76,15 +137,9 @@ sm_env<-sm_env[sm_env$r_y %in% c(keep$r_y),]
 sm_env<-sm_env[sm_env$SITEVISITID %in% c(jwd_site$SITEVISITID),]
 table(sm_env$REGION,sm_env$OBS_YEAR)
 
-nrow(sm_env)
-j<-jwd_site%>%dplyr::filter(GENUS_CODE=="SSSS")
-nrow(j)
-
-#Only use Total Scl juvenile data 
-jwd_siteS<-subset(jwd_site,GENUS_CODE=="SSSS")
-jwd_siteS$ANALYSIS_SEC<-jwd_siteS$SEC_NAME
 sm_env$ANALYSIS_SEC<-sm_env$SEC_NAME
 sm_env$STRATANAME<-paste(sm_env$ANALYSIS_SEC,sm_env$REEF_ZONE,sm_env$DEPTH_BIN,sep="_")
+
 
 #List of Predictor Variables, where the data can be found and whether they are ready to use at the Stratum level
 predlist<-data.frame(Variable=c("Habitat Code","Frequency of DHW events","Mean Max DHW over previous 10yr","Mean Max DHW over previous 5yr",
@@ -101,8 +156,8 @@ predlist<-data.frame(Variable=c("Habitat Code","Frequency of DHW events","Mean M
 
 SM2<-SM
 #Generate a list of Regions and years to include in final summary
-REGION<-c("NWHI","MHI","PHOENIX","LINE","SMARIAN","NMARIAN","SAMOA")
-OBS_YEAR<-c("2016","2016","2018","2018","2017","2017","2018")
+REGION<-c("NWHI","MHI","PHOENIX","LINE","SMARIAN","NMARIAN","SAMOA","WAKE")
+OBS_YEAR<-c("2016","2016","2018","2018","2017","2017","2018","2017")
 keep<-as.data.frame(cbind(REGION,OBS_YEAR))
 
 keep$r_y<-paste(keep$REGION,keep$OBS_YEAR,sep = "_")
@@ -232,8 +287,7 @@ head(sh_sum)
 # in order to convert habitat type to continuous factor- calculate % of sites in a stratum that are carbonate reef, basalt and sand/rubble
 
 #Simplify habitat codes into 3 groups (carbonate, basalt, sand/rubble)
-jwd_siteS$ANALYSIS_SEC<-jwd_siteS$SEC_NAME
-jwd_siteS<-jwd_siteS %>% mutate(Hab_simple=recode(HABITAT_CODE, 
+sm_env<-sm_env %>% mutate(Hab_simple=recode(HABITAT_CODE, 
                                                   `AGR`="Carbonate",
                                                   `APR`="Carbonate",
                                                   `APS`="Carbonate",
@@ -246,16 +300,16 @@ jwd_siteS<-jwd_siteS %>% mutate(Hab_simple=recode(HABITAT_CODE,
                                                   `SCR`="Sand_Rubble",
                                                   `PSC`="Sand_Rubble"))
 
-hab_sum<-jwd_siteS %>%
+hab_sum<-sm_env %>%
     group_by(REGION,ISLAND,ANALYSIS_SEC,STRATANAME,Hab_simple) %>%
     summarize(n=length(unique(SITEVISITID)))
 
 
-jwd_siteS %>%
+sm_env %>%
   group_by(REGION) %>%
   summarize(n=length(unique(SITEVISITID)))
 
-site_sum<-jwd_siteS %>%
+site_sum<-sm_env %>%
   group_by(REGION,ISLAND,ANALYSIS_SEC,STRATANAME) %>%
   summarize(ntot=length(unique(SITEVISITID)))
 
@@ -342,7 +396,9 @@ View(lat_sum)
 # plot(model)
 
 
-# BENTHIC COVER
+
+# BENTHIC COVER -----------------------------------------------------------
+
 cover<-left_join(cover3,cover1[,c("SITEVISITID","CORAL","MA","TURF","SED")])  
 nrow(cover);View(cover)
 
@@ -359,6 +415,17 @@ cols<-c("SITEVISITID", "OBS_YEAR", "REGION", "ISLAND","SEC_NAME", "SITE","REEF_Z
 cover<-cover[,cols]
 cover$SAND_RUB<-cover$RUBBLE+cover$SAND
 head(cover)
+
+#Generate a list of Regions and years to include in final summary
+REGION<-c("NWHI","MHI","PHOENIX","LINE","SMARIAN","NMARIAN","SAMOA","WAKE")
+OBS_YEAR<-c("2016","2019","2018","2018","2017","2017","2018","2017")
+keep<-as.data.frame(cbind(REGION,OBS_YEAR))
+
+keep$r_y<-paste(keep$REGION,keep$OBS_YEAR,sep = "_")
+
+#ONly include years where sites were most recently surveyed for each region
+cover$r_y<-paste(cover$REGION,cover$OBS_YEAR,sep = "_")
+cover<-cover[cover$r_y %in% c(keep$r_y),]
 
 cover$STRATANAME<-paste(cover$SEC_NAME,cover$REEF_ZONE,cover$DEPTH_BIN,sep="_") #Create stratum
 
@@ -405,9 +472,10 @@ head(dpst)
 cover_sum<-dpst
 head(cover_sum)
 
-
+  
 # Combine all summaries into 1 dataframe ----------------------------------
-all_pred<- cover_sum %>%
+all_pred<- d_strat   %>%    
+      left_join(cover_sum) %>%
       left_join(depth_sum) %>%
       left_join(hab_sum_w) %>%
       left_join(lat_sum) %>%
