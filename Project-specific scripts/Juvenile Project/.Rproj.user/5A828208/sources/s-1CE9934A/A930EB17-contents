@@ -1,0 +1,20 @@
+rm(list=ls())
+
+
+#LOAD LIBRARY FUNCTIONS ... 
+source("C:/Users/Courtney.S.Couch/Documents/GitHub/Benthic-Scripts/Functions/Benthic_Functions_newApp_vTAOfork.R")
+source("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/lib/GIS_functions.R")
+
+library(VCA)
+library(forcats)
+library(geosphere)
+library(rgdal)
+library(stringr)
+library(mgcv)
+detach(package:dplyr) #dplyr has issues if plyr is loaded first
+library(dplyr)
+
+setwd("C:/Users/Courtney.S.Couch/Documents/Courtney's Files/R Files/ESD/Juvenile Project")
+
+
+df<-read.csv("T:/Benthic/Projects/Juvenile Project/JuvDeltaDen_Pred.csv")#Post bleaching strata-level juvenile data

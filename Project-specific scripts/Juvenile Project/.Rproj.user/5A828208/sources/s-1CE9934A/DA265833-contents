@@ -473,6 +473,9 @@ all_pred<- d_strat   %>%
 head(all_pred)
 View(all_pred)
 
+write.csv(all_pred, file="T:/Benthic/Projects/Juvenile Project/JuvDeltaDen_Pred.csv",row.names = F)
+
+
 # #Change specific sector names to match the sector shape file polygons
 # dpst$SEC_NAME[dpst$SEC_NAME == "HAW_HAMAKUA"] <- "HAW_HAMAK"
 # dpst$SEC_NAME[dpst$SEC_NAME == "GUA_PATI_POINT"] <- "GUA_PATI_PT"
