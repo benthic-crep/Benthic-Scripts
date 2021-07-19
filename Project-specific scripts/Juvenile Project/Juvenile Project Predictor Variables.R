@@ -402,16 +402,16 @@ cover<-cover[,cols]
 cover$SAND_RUB<-cover$RUBBLE+cover$SAND
 head(cover)
 
-#Generate a list of Regions and years to include in final summary
-REGION<-c("NWHI","MHI","PHOENIX","LINE","SMARIAN","NMARIAN","SAMOA","WAKE")
-OBS_YEAR<-c("2016","2019","2018","2018","2017","2017","2018","2017")
-keep<-as.data.frame(cbind(REGION,OBS_YEAR))
-
-keep$r_y<-paste(keep$REGION,keep$OBS_YEAR,sep = "_")
-
-#ONly include years where sites were most recently surveyed for each region
-cover$r_y<-paste(cover$REGION,cover$OBS_YEAR,sep = "_")
-cover<-cover[cover$r_y %in% c(keep$r_y),]
+# #Generate a list of Regions and years to include in final summary
+# REGION<-c("NWHI","MHI","PHOENIX","LINE","SMARIAN","NMARIAN","SAMOA","WAKE")
+# OBS_YEAR<-c("2016","2019","2018","2018","2017","2017","2018","2017")
+# keep<-as.data.frame(cbind(REGION,OBS_YEAR))
+# 
+# keep$r_y<-paste(keep$REGION,keep$OBS_YEAR,sep = "_")
+# 
+# #ONly include years where sites were most recently surveyed for each region
+# cover$r_y<-paste(cover$REGION,cover$OBS_YEAR,sep = "_")
+# cover<-cover[cover$r_y %in% c(keep$r_y),]
 
 cover$STRATANAME<-paste(cover$SEC_NAME,cover$REEF_ZONE,cover$DEPTH_BIN,sep="_") #Create stratum
 
@@ -431,7 +431,7 @@ wsd$ANALYSIS_YEAR<-wsd$OBS_YEAR
 data.cols<-c("CORAL","CCA","RUBBLE","SAND","TURF","MA","SAND_RUB")
 
 ### CALCULATE MEAN AND VARIANCE WITHIN STRATA ###
-SPATIAL_POOLING_BASE<-c("REGION","ISLAND", "ANALYSIS_SEC", "REEF_ZONE", "STRATANAME")    
+SPATIAL_POOLING_BASE<-c("REGION","ISLAND", "ANALYSIS_SEC", "REEF_ZONE", "STRATANAME","DEPTH_BIN")    
 ADDITIONAL_POOLING_BY<-c("ANALYSIS_YEAR")                                    # additional fields that we want to break data at, but which do not relate to physical areas (eg survey year or method)
 
 #generate within strata means and vars
@@ -445,7 +445,7 @@ dps$SampleVar<-dps$SampleVar[dps$SampleVar$N>1,]
 dps$SampleSE<-dps$SampleSE[dps$SampleSE$N>1,]
 
 # e.g. SAVE BY ISLAND AND REEF_ZONE PER YEAR
-OUTPUT_LEVEL<-c("REGION","ISLAND","ANALYSIS_SEC","STRATANAME","ANALYSIS_YEAR") 
+OUTPUT_LEVEL<-c("REGION","ISLAND","ANALYSIS_SEC","STRATANAME","DEPTH_BIN","ANALYSIS_YEAR") 
 dpst<-Calc_Pooled_Simple(dps$Mean, dps$SampleVar, data.cols, OUTPUT_LEVEL, "AREA_HA");dpst<-as.data.frame(dpst)
 
 #Clean up- remove SE columns and remove "Mean" from column names
@@ -458,7 +458,59 @@ head(dpst)
 cover_sum<-dpst
 head(cover_sum)
 
-  
+
+cover_sum<-cover_sum%>% dplyr::filter(ANALYSIS_YEAR>2013)
+#CONVERT TO WIDE THEN CALCULATE DELTA CHANGE
+cover_sumW<-pivot_wider(cover_sum,
+  names_from = ANALYSIS_YEAR,
+  values_from = CCA)
+
+all_pred %>% pivot_longer(
+
+cover_sum$ANALYSIS_YEAR<-as.factor(cover_sum$ANALYSIS_YEAR)
+
+p<-ggplot(subset(cover_sum,REGION=="SAMOA"),aes(x=ANALYSIS_YEAR,y=CCA,fill=DEPTH_BIN))+
+    geom_bar(stat='identity')+
+    facet_wrap(~ANALYSIS_SEC,scale='free_x')+
+    theme_bw() +
+    theme(
+      axis.text.x = element_text(angle = 90)
+      ,plot.background = element_blank()
+      ,panel.grid.major = element_blank()
+      ,panel.grid.minor = element_blank()
+      ,axis.ticks.x = element_blank() # no x axis ticks
+      ,axis.title.x = element_text( vjust = -.0001) # adjust x axis to lower the same amount as the genus labels
+      ,legend.position="bottom")
+p
+
+p<-ggplot(subset(cover_sum,REGION=="PHOENIX"),aes(x=ANALYSIS_YEAR,y=CCA,fill=DEPTH_BIN))+
+  geom_bar(stat='identity')+
+  facet_wrap(~ANALYSIS_SEC,scale='free_x')+
+  theme_bw() +
+  theme(
+    axis.text.x = element_text(angle = 90)
+    ,plot.background = element_blank()
+    ,panel.grid.major = element_blank()
+    ,panel.grid.minor = element_blank()
+    ,axis.ticks.x = element_blank() # no x axis ticks
+    ,axis.title.x = element_text( vjust = -.0001) # adjust x axis to lower the same amount as the genus labels
+    ,legend.position="bottom")
+p
+
+p<-ggplot(subset(cover_sum,REGION=="LINE"),aes(x=ANALYSIS_YEAR,y=CCA,fill=DEPTH_BIN))+
+  geom_bar(stat='identity')+
+  facet_wrap(~ANALYSIS_SEC,scale='free_x')+
+  theme_bw() +
+  theme(
+    axis.text.x = element_text(angle = 90)
+    ,plot.background = element_blank()
+    ,panel.grid.major = element_blank()
+    ,panel.grid.minor = element_blank()
+    ,axis.ticks.x = element_blank() # no x axis ticks
+    ,axis.title.x = element_text( vjust = -.0001) # adjust x axis to lower the same amount as the genus labels
+    ,legend.position="bottom")
+p
+
 # Combine all summaries into 1 dataframe ----------------------------------
 all_pred<- d_strat   %>%    
       left_join(cover_sum) %>%
@@ -472,6 +524,9 @@ all_pred<- d_strat   %>%
 
 head(all_pred)
 View(all_pred)
+
+write.csv(all_pred, file="T:/Benthic/Projects/Juvenile Project/JuvDeltaDen_Pred.csv",row.names = F)
+
 
 # #Change specific sector names to match the sector shape file polygons
 # dpst$SEC_NAME[dpst$SEC_NAME == "HAW_HAMAKUA"] <- "HAW_HAMAK"

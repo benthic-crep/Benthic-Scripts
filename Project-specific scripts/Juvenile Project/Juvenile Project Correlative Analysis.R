@@ -100,11 +100,18 @@ head(df)
 fit1<-lm(DeltaDen_mo~CORAL+CCA+TURF+SAND_RUB+MeanDepth+Basalt_HC+lat_strata_weighted_mean+MeanMaxDHW10+Meankd490+
            MEAN_SH+HUMANS20_mean+MeanWavePower,data=df)
 
-fit2<-lm(DeltaDen_mo~CORAL+CCA+SAND_RUB+MeanDepth+Basalt_HC+MeanMaxDHW10+Meankd490+
-           MEAN_SH+HUMANS20_mean+MeanWavePower,data=df)
+fit2<-gam(DeltaDen_mo~s(CORAL)+s(CCA)+s(SAND_RUB)+s(MeanDepth)+s(Basalt_HC)+s(MeanMaxDHW10)+s(Meankd490)+
+           s(MEAN_SH)+s(HUMANS20_mean)+s(MeanWavePower),data=df) #overparameterized
+
+fit2<-gam(DeltaDen_mo~s(CCA)+s(SAND_RUB)+s(MeanDepth)+s(MeanMaxDHW10)+
+            s(HUMANS20_mean)+s(MeanWavePower),data=df) #I can't include more than 6
+summary(fit2)
+par(mfrow=c(3,2))
+plot(fit2)
+
 
 par(mfrow=c(2,2))
-plot(fit1)
+plot(fit2)
 
 preds<-df[,8:length(df)]
 library(GGally)
@@ -115,6 +122,7 @@ car::vif(fit1)
 
 #turf cover and CCA cover are correlated and CCA and mean latitude are also correlated
 #Dropping turf and latitude
+par(mfrow=c(2,2))
 
 mod1<-gam(DeltaDen_mo~s(MeanDepth)+s(MaxMaxDHW10), data=df)
 summary(mod1)
@@ -123,7 +131,7 @@ mod2<-gam(DeltaDen_mo~s(lat_strata_weighted_mean), data=df)
 summary(mod2)
 plot(mod2)
 
-mod3<-gam(DeltaDen_mo~s(utmlat_strata_weighted_mean), data=df)
+mod3<-gam(DeltaDen_mo~s(lat_strata_weighted_mean), data=df)
 summary(mod3)
 plot(mod3)
 
@@ -154,4 +162,9 @@ ggplot(aes(x=MaxMaxDHW10,y=fit), data=predicts) +
     ,panel.grid.major = element_blank()
     ,panel.grid.minor = element_blank())
 
+
+
+#Thoughts
+#Add in time since last DHW event
+#Look at CCA change through time
 
