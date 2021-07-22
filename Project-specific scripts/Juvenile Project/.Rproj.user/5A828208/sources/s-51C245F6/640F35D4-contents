@@ -1,0 +1,14 @@
+# Randomly generate sites
+
+# load appropriate grid file
+
+# ------------------MHI-------------------------------
+# connect to T drive, load grid file
+df<-read.csv("T:/Fish/GIS/Projects/Gridding/MHI/MHI_grid_points.csv")
+
+# Function to randomly select rows:
+sample.df<-function(df,n) df[sample(nrow(df),n), ,drop=FALSE]
+
+# Oahu:
+oah.south<-sample.df(df[(df$ISLAND == "Oahu") & (df$SEC_NAME=="OAH_SOUTH"), ], 3)
+

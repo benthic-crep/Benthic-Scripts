@@ -460,7 +460,7 @@ head(cover_sum)
 
 
 cover_sum<-cover_sum%>% dplyr::filter(ANALYSIS_YEAR>2013)
-#CONVERT TO WIDE THEN CALCULATE DELTA CHANGE
+#CONVERT TO WIDE THEN CALCULATE DELTA CHANGE in cover
 cover_sumW<-pivot_wider(cover_sum,
   names_from = ANALYSIS_YEAR,
   values_from = CCA)
