@@ -1,0 +1,16 @@
+wide$DeltaCover<-NULL
+for (i in c(1:nrow(wide))){ #opening brace
+  if(wide$REGION[i] %in% c("SMARIAN","NMARIAN","WAKE")){ #c&p
+    wide$DeltaCover[i] = wide$t2017[i]-wide$t2014[i] #c&p
+  } #c&P
+  if(wide$REGION[i] %in% c("SAMOA","LINE","PHOENIX")){ #c&p
+    wide$DeltaCover[i] = wide$t2018[i]-wide$t2015[i] #c&p
+  } #c&P
+  if(wide$REGION[i] == "MHI"){ #c&p
+    wide$DeltaCover[i] = wide$t2019[i]-wide$t2016[i] #c&p
+  } #c&P
+  if(wide$REGION[i] == "NWHI"){ #c&p
+    wide$DeltaCover[i] = wide$t2016[i]-wide$t2014[i] #c&p
+  } #c&P
+} #closing curly brace for entire forloop
+colnames(wide)[which(colnames(wide) == 'DeltaCover')] <- metric_name #change group to whatever your grouping field is.

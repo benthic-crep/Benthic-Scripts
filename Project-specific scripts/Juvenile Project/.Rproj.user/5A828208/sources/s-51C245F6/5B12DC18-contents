@@ -1,0 +1,223 @@
+#Packages to read in
+library(ggplot2)
+require(gridExtra)
+library(reshape2)
+library(plyr)
+library(grid)
+library(data.table) 
+library(tidyr)
+library(splitstackshape)
+
+
+##Math functions
+maxrange<-function(e) {max(e)-min(e)}
+se<-function(e) {sd(e)/sqrt(length(e))}
+
+#merging more than 2 dataframes together. use df <- Reduce(MyMerge, list(m1, m2, m3)) to use function
+MyMerge <- function(x, y){
+  df <- merge(x, y, by= c("SITE","SITEVISITID","TRANSECT","GENUS_CODE"), all.x= TRUE, all.y= TRUE)
+  return(df)
+}
+
+
+# CRCP REPORT CARD --------------------------------------------------------
+
+####Assigns a numeric score from 60-100% in a df based on a-f grades
+gradetoscore<-function(data){
+  data$score<-NULL
+  for (i in c(1:nrow(data))){ #opening brace
+    if(data$grade[i] =="f"){ #c&p
+      data$score[i] = "60" #c&p
+    } #c&p
+    if(data$grade[i] =="d"){ #c&p
+      data$score[i]= "70" #c&p
+    } #c&p
+    if(data$grade[i] =="c"){ #c&p
+      data$score[i]= "80" #c&p
+    } #c&p
+    if(data$grade[i] =="b"){ #c&p
+      data$score[i]= "90" #c&p
+    } #c&p
+    if(data$grade[i] =="a"){ #c&p
+      data$score[i]= "100" #c&p
+    } #c&p
+    
+  } #closing curly brace for entire forloop
+  
+  return(data)
+}
+
+####assign a habitat code to each island based on predesignated grouping for CNMI
+cnmi_istohab<-function(data){
+  data$hab<-NULL
+  for (i in c(1:nrow(data))){ #opening brace
+    if(data$islacode[i] %in% c("AGU","GUAWEMPA","GUAEAOPEN","GUAEAMPA","GUAWEOPEN","GUAEAALL","GUAWEALL","MAU","ROT","SAI","TIN")){ #c&p
+      data$hab[i] = "CR" #c&p
+    } #c&P
+    if(data$islacode[i] %in% c("AGR","ALA","GUG","PAG")){ #c&p
+      data$hab[i]= "MX" #c&p
+    } #c&p
+    if(data$islacode[i] %in% c("ASC","FDP","SAR")){ #c&p
+      data$hab[i]= "CM" #c&p
+    } #c&p
+  } #closing curly brace for entire forloop
+  
+  return(data)
+}
+
+
+####assign a islandgroup code to each island based on predesignated grouping for CNMI
+cnmi_isgrp<-function(data){
+  data$islandgroup<-NULL
+  for (i in c(1:nrow(data))){ #opening brace
+    if(data$islacode[i] %in% c("ASC","FDP","MAU")){ #c&p
+      data$islandgroup[i] = "MTMNM" #c&p
+    } #c&P
+    if(data$islacode[i] %in% c("AGR","ALA","SAR","GUG","PAG")){ #c&p
+      data$islandgroup[i]= "CNMIRMT" #c&p
+    } #c&p
+    if(data$islacode[i] %in% c("AGU","SAI","TIN")){ #c&p
+      data$islandgroup[i]= "AGUSAITIN" #c&p
+    } #c&p
+    if(data$islacode[i] =="ROT"){ #c&p
+      data$islandgroup[i]= "ROT" #c&p
+    } #c&p
+    if(data$islacode[i] =="GUAEAALL"){ #c&p
+      data$islandgroup[i]= "GUAEAALL" #c&p
+    } #c&p
+    if(data$islacode[i] =="GUAWEALL"){ #c&p
+      data$islandgroup[i]= "GUAWEALL" #c&p
+    } #c&p
+    if(data$islacode[i] =="GUAEAOPEN"){ #c&p
+      data$islandgroup[i]= "GUAEAOPEN" #c&p
+    } #c&p
+    if(data$islacode[i] =="GUAWEOPEN"){ #c&p
+      data$islandgroup[i]= "GUAWEOPEN" #c&p
+    } #c&p
+    
+    
+  } #closing curly brace for entire forloop
+  
+  return(data)
+}
+
+
+####assign a habitat code to each island based on predesignated grouping for MHI
+MHI_istohab<-function(data){
+  data$hab<-NULL
+  data$habsec<-as.character(data$habsec) #need to convert to character
+  for (i in c(1:nrow(data))){ #opening brace
+    if(data$habsec[i] %in% c("HAWCR","LANCR","MOLCR","KAHCR")){ 
+      data$hab[i] = "CR" #c&p
+    } #c&P
+    if(data$habsec[i] %in% c("KAUSI",	"MAISI",	"MOLSI",	"NIISI",	"OAHSI")){
+      data$hab[i]= "SI" #c&p
+    } #c&p
+    if(data$habsec[i] %in% c("HAWCM",	"LANCM",	"MAICM",	"MOLCM",	"NIICM",	"OAHCM")){
+      data$hab[i]= "CM" #c&p
+    } #c&p
+  } #closing curly brace for entire forloop
+  
+  return(data)
+}
+
+####assign a islandgroup code to each island based on predesignated grouping for MHI
+MHI_isgrp<-function(data){
+  data$islandgroup<-NULL
+  data$habsec<-as.character(data$habsec) #need to convert to character
+  for (i in c(1:nrow(data))){ #opening brace
+    if(data$habsec[i] %in% c("HAWCM","HAWCR")){ #c&p
+      data$islandgroup[i] = "HAW" #c&p
+    } #c&P
+    if(data$habsec[i] %in% c("KAHCR","LANCM","LANCR","MAICM","MAISI","MOLCM","MOLCR","MOLSI")){ #c&p
+      data$islandgroup[i]= "MAUINUI" #c&p
+    } #c&p
+    if(data$habsec[i] %in% c("KAUSI","NIICM","NIISI")){ #c&p
+      data$islandgroup[i]= "KAUNII" #c&p
+    } #c&p
+    if(data$habsec[i] %in% c("OAHCM","OAHSI")){ #c&p
+      data$islandgroup[i]= "OAH" #c&p
+    } #c&p
+  } #closing curly brace for entire forloop
+  
+  return(data)
+}
+
+
+####assign a habitat code to each island based on predesignated grouping for MHI
+NWHI_istohab<-function(data){
+  data$hab<-NULL
+  data$islacode<-as.character(data$islacode) #need to convert to character
+  for (i in c(1:nrow(data))){ #opening brace
+    if(data$islacode[i] %in% c("FFS","KUR","LIS","MAR","PHR")){ 
+      data$hab[i] = "CR" #c&p
+    } #c&P
+    if(data$islacode[i] %in% c("LAY","MID")){
+      data$hab[i]= "SI" #c&p
+    } #c&p
+  } #closing curly brace for entire forloop
+  
+  return(data)
+}
+
+
+# PLOTTING FUNCIONS -------------------------------------------------------
+
+##Create a function to generate theme in gFgplot
+theme_my <- theme_bw() + theme(
+  axis.line        = element_line(colour = "black"),
+  panel.grid.major = element_blank(), 
+  axis.title= element_text(face="bold"),
+  panel.grid.minor = element_blank(),
+  strip.background = element_blank(),
+  legend.key       = element_blank()
+)
+
+##Create a function to generate theme in ggplot
+theme_my2 <-  theme_bw()+theme(axis.title.x=element_blank(),
+                               axis.text.x=element_blank(),
+                               axis.ticks.x=element_blank(),
+                               axis.title= element_text(face="bold"),
+                               plot.title = element_text(size = 11),legend.key=element_blank(),
+                               legend.title=element_blank(),panel.grid=element_blank(),legend.position = "none")
+
+
+##Function that allows you to separate legend and put it in a blank space in a figure matrix
+get_legend<-function(myggplot){
+  tmp <- ggplot_gtable(ggplot_build(myggplot))
+  leg <- which(sapply(tmp$grobs, function(x) x$name) == "guide-box")
+  legend <- tmp$grobs[[leg]]
+  return(legend)
+}
+
+
+Plot_hab<-function(data,x,y,group){
+  p<-ggplot(data, aes_q(x=substitute(x), y=substitute(y),fill=substitute(group))) +
+    geom_bar(stat="identity") +
+    facet_wrap(~Habitat_grp,ncol=4,scales="free_x")+
+    coord_cartesian(ylim=c(0,100))+
+    geom_hline(yintercept = 60,color="black",lty="dashed")+
+    geom_hline(yintercept = 70,color="black",lty="dashed")+
+    geom_hline(yintercept = 80,color="black",lty="dashed")+
+    geom_hline(yintercept = 90,color="black",lty="dashed")+
+    geom_hline(yintercept = 100,color="black",lty="dashed")+
+    theme_my+
+    theme(axis.text.x = element_text(angle = 90, hjust = 1,vjust = 0.5))+
+    labs(y="% of Max Weighted Density Score",x="Island")
+  return(p)
+}
+
+Plot_allisland<-function(data,x,y,group){
+  p<-ggplot(data, aes_q(x=substitute(x), y=substitute(y),fill=substitute(group))) +
+    geom_bar(stat="identity") +
+    coord_cartesian(ylim=c(0,100))+
+    geom_hline(yintercept = 60,color="black",lty="dashed")+
+    geom_hline(yintercept = 70,color="black",lty="dashed")+
+    geom_hline(yintercept = 80,color="black",lty="dashed")+
+    geom_hline(yintercept = 90,color="black",lty="dashed")+
+    geom_hline(yintercept = 100,color="black",lty="dashed")+
+    theme_my+
+    theme(axis.text.x = element_text(angle = 90, hjust = 1,vjust = 0.5))+
+    labs(y="% of Max Weighted Density Score",x="Island")
+ return(p) 
+}

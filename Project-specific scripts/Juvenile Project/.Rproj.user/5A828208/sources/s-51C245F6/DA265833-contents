@@ -402,17 +402,6 @@ cover<-cover[,cols]
 cover$SAND_RUB<-cover$RUBBLE+cover$SAND
 head(cover)
 
-# #Generate a list of Regions and years to include in final summary
-# REGION<-c("NWHI","MHI","PHOENIX","LINE","SMARIAN","NMARIAN","SAMOA","WAKE")
-# OBS_YEAR<-c("2016","2019","2018","2018","2017","2017","2018","2017")
-# keep<-as.data.frame(cbind(REGION,OBS_YEAR))
-# 
-# keep$r_y<-paste(keep$REGION,keep$OBS_YEAR,sep = "_")
-# 
-# #ONly include years where sites were most recently surveyed for each region
-# cover$r_y<-paste(cover$REGION,cover$OBS_YEAR,sep = "_")
-# cover<-cover[cover$r_y %in% c(keep$r_y),]
-
 cover$STRATANAME<-paste(cover$SEC_NAME,cover$REEF_ZONE,cover$DEPTH_BIN,sep="_") #Create stratum
 
 #We are missing some cover data from some benthic sites so use all benthic and fish sites
@@ -459,17 +448,69 @@ cover_sum<-dpst
 head(cover_sum)
 
 
-cover_sum<-cover_sum%>% dplyr::filter(ANALYSIS_YEAR>2013)
+cover_sum2<-cover_sum%>% dplyr::filter(ANALYSIS_YEAR>2013)
+
+# #Generate a list of Regions and years to include in final summary
+REGION<-c("NWHI","MHI","PHOENIX","LINE","SMARIAN","NMARIAN","SAMOA","WAKE")
+ANALYSIS_YEAR<-c("2016","2019","2018","2018","2017","2017","2018","2017")
+keep<-as.data.frame(cbind(REGION,ANALYSIS_YEAR))
+
+keep$r_y<-paste(keep$REGION,keep$ANALYSIS_YEAR,sep = "_")
+
+#ONly include years where sites were most recently surveyed for each region
+cover_sum$r_y<-paste(cover_sum$REGION,cover_sum$ANALYSIS_YEAR,sep = "_")
+cover_sum<-cover_sum[cover_sum$r_y %in% c(keep$r_y),]
+
+
 #CONVERT TO WIDE THEN CALCULATE DELTA CHANGE in cover
-cover_sumW<-pivot_wider(cover_sum,
-  names_from = ANALYSIS_YEAR,
-  values_from = CCA)
+#Calculate absolute % cover change between years
+CalcDeltaCover<-function(data,data.col,metric_name="DeltaCCA"){
+  data$D_COL<-data[,data.col]
+  #Convert long to wide
+  wide<-data %>%
+    dplyr::select(REGION,ISLAND,ANALYSIS_YEAR,ANALYSIS_SEC,STRATANAME,DEPTH_BIN,D_COL) %>%
+    pivot_wider(names_from = ANALYSIS_YEAR,values_from = D_COL)
+  
+  colnames(wide)[6:11] <- paste("t", colnames(wide[,c(6:11)]), sep = "") #add "t" to year column
+  
+  wide$DeltaCover<-NULL
+  for (i in c(1:nrow(wide))){ #opening brace
+    if(wide$REGION[i] %in% c("SMARIAN","NMARIAN","WAKE")){ #c&p
+      wide$DeltaCover[i] = wide$t2017[i]-wide$t2014[i] #c&p
+    } #c&P
+    if(wide$REGION[i] %in% c("SAMOA","LINE","PHOENIX")){ #c&p
+      wide$DeltaCover[i] = wide$t2018[i]-wide$t2015[i] #c&p
+    } #c&P
+    if(wide$REGION[i] == "MHI"){ #c&p
+      wide$DeltaCover[i] = wide$t2019[i]-wide$t2016[i] #c&p
+    } #c&P
+    if(wide$REGION[i] == "NWHI"){ #c&p
+      wide$DeltaCover[i] = wide$t2016[i]-wide$t2014[i] #c&p
+    } #c&P
+  } #closing curly brace for entire forloop
+  colnames(wide)[which(colnames(wide) == 'DeltaCover')] <- metric_name #change group to whatever your grouping field is.
+  
+  wide<- dplyr::select(wide,-c(t2014:t2019))
+  return(wide)
+}
+#Calc Delta CCA and Coral cover
+CCA_sumW<-CalcDeltaCover(cover_sum2,"CCA","Delta_CCA");head(CCA_sumW)
+Coral_sumW<-CalcDeltaCover(cover_sum2,"CORAL","Delta_CORAL");head(Coral_sumW)
+Turf_sumW<-CalcDeltaCover(cover_sum2,"TURF","Delta_TURF");head(Turf_sumW)
+SandRub_sumW<-CalcDeltaCover(cover_sum2,"SAND_RUB","Delta_SAND_RUB");head(SandRub_sumW)
 
-all_pred %>% pivot_longer(
+delcover<- CCA_sumW   %>%    
+  left_join(Coral_sumW) %>%
+  left_join(Turf_sumW) %>%
+  left_join(SandRub_sumW)
 
-cover_sum$ANALYSIS_YEAR<-as.factor(cover_sum$ANALYSIS_YEAR)
+head(delcover)
+nrow(delcover)
+nrow(CCA_sumW)
 
-p<-ggplot(subset(cover_sum,REGION=="SAMOA"),aes(x=ANALYSIS_YEAR,y=CCA,fill=DEPTH_BIN))+
+cover_sum2$ANALYSIS_YEAR<-as.factor(cover_sum2$ANALYSIS_YEAR)
+
+p<-ggplot(subset(cover_sum2,REGION=="SAMOA"),aes(x=ANALYSIS_YEAR,y=CCA,fill=DEPTH_BIN))+
     geom_bar(stat='identity')+
     facet_wrap(~ANALYSIS_SEC,scale='free_x')+
     theme_bw() +
@@ -483,7 +524,7 @@ p<-ggplot(subset(cover_sum,REGION=="SAMOA"),aes(x=ANALYSIS_YEAR,y=CCA,fill=DEPTH
       ,legend.position="bottom")
 p
 
-p<-ggplot(subset(cover_sum,REGION=="PHOENIX"),aes(x=ANALYSIS_YEAR,y=CCA,fill=DEPTH_BIN))+
+p<-ggplot(subset(cover_sum2,REGION=="PHOENIX"),aes(x=ANALYSIS_YEAR,y=CCA,fill=DEPTH_BIN))+
   geom_bar(stat='identity')+
   facet_wrap(~ANALYSIS_SEC,scale='free_x')+
   theme_bw() +
@@ -497,7 +538,7 @@ p<-ggplot(subset(cover_sum,REGION=="PHOENIX"),aes(x=ANALYSIS_YEAR,y=CCA,fill=DEP
     ,legend.position="bottom")
 p
 
-p<-ggplot(subset(cover_sum,REGION=="LINE"),aes(x=ANALYSIS_YEAR,y=CCA,fill=DEPTH_BIN))+
+p<-ggplot(subset(cover_sum2,REGION=="LINE"),aes(x=ANALYSIS_YEAR,y=CCA,fill=DEPTH_BIN))+
   geom_bar(stat='identity')+
   facet_wrap(~ANALYSIS_SEC,scale='free_x')+
   theme_bw() +
@@ -510,10 +551,45 @@ p<-ggplot(subset(cover_sum,REGION=="LINE"),aes(x=ANALYSIS_YEAR,y=CCA,fill=DEPTH_
     ,axis.title.x = element_text( vjust = -.0001) # adjust x axis to lower the same amount as the genus labels
     ,legend.position="bottom")
 p
+
+
+#Plot delta cover
+#convert wide to long
+library(stringr)
+delcoverN<-delcover %>% 
+  rename_all(~stringr::str_replace(.,"Delta_",""))
+
+delcoverL<-pivot_longer(delcoverN,
+                        cols = CCA:SAND_RUB,
+                        names_to = "Category",
+                        values_to = "DeltaCover")
+
+#Calculate Island-level means- These are unweighted and therefore incorrect- just for curiosity sake
+# delcover_sum<-delcoverL %>%
+#   group_by(REGION,ISLAND,Category) %>%
+#   summarize(MeanDelta=mean(DeltaCover),na.rm=T),SEDelta=mean(MAX_DEPTH_M,na.rm=T))
+
+p<-ggplot(delcoverL,aes(x=Category,y=DeltaCover,fill=Category))+
+  geom_boxplot()+
+  geom_hline(yintercept=1)+
+  facet_wrap(~REGION)+
+  theme_bw() +
+  theme(
+    axis.text.x = element_text(angle = 90)
+    ,plot.background = element_blank()
+    ,panel.grid.major = element_blank()
+    ,panel.grid.minor = element_blank()
+    ,axis.ticks.x = element_blank() # no x axis ticks
+    ,axis.title.x = element_text( vjust = -.0001) # adjust x axis to lower the same amount as the genus labels
+    ,legend.position="bottom")
+p
+
+
 
 # Combine all summaries into 1 dataframe ----------------------------------
 all_pred<- d_strat   %>%    
       left_join(cover_sum) %>%
+      left_join(delcover) %>%
       left_join(depth_sum) %>%
       left_join(hab_sum_w) %>%
       left_join(lat_sum) %>%

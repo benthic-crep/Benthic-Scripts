@@ -8,6 +8,7 @@ M%3A%2FEnvironmental%20Data%20Summary%2FMorganBleachingCode%2FEnvironmental%20Da
 M%3A%2FEnvironmental%20Data%20Summary%2FMorganBleachingCode%2FEnvironmental%20Data%20Summary%20S1_Extract_HCBC_PAR.R="8DEC79F9"
 T%3A%2FBenthic%2FData%2FSfM%2FScriptFiles%2FSfMvDiver%20Plotting%20Functions.R="6C22C6D0"
 T%3A%2FFish%2FCruise%20Prep%2FISLAND_GRIDS%2FR%20scripts%20to%20generate%20points%2FMHI_generate_random_points.R="8F8E6E48"
+~%2FCourtney's%20Files%2FR%20Files%2FESD%2FCourtneysBenthicFunctions.R="C5F6A005"
 ~%2FGitHub%2FBenthic-Scripts%2FFunctions%2FBenthic_Functions_newApp_vTAOfork.R="F22E2CB3"
 ~%2FGitHub%2FBenthic-Scripts%2FProject-specific%20scripts%2FJuvenile%20Project%2FJuvenile%20Maps.R="5A1C0704"
 ~%2FGitHub%2FBenthic-Scripts%2FProject-specific%20scripts%2FJuvenile%20Project%2FJuvenile%20Project%20Correlative%20Analysis.R="F0B9A83E"
@@ -27,3 +28,4 @@ T%3A%2FFish%2FCruise%20Prep%2FISLAND_GRIDS%2FR%20scripts%20to%20generate%20point
 ~%2FGitHub%2Fenv_data_summary%2Fscripts%2F3_Extract_Climatologies.R="14644842"
 ~%2FGitHub%2Fenv_data_summary%2Fscripts%2F4_Extract_Timeseries.R="E1D309DD"
 ~%2FGitHub%2Ffish-paste%2Flib%2FIslandwide%20Mean%26Variance%20Functions.r="61982821"
+~%2FGitHub%2Ffish-paste%2Flib%2Ffish_team_functions.R="2D753F7E"
