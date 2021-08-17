@@ -74,14 +74,14 @@ Transectarea<-function(data,s.df){
   data$SEGAREA<-data$SEGLENGTH*data$SEGWIDTH # Calculate segment area
   
   #Calculate total transect area then merge back to a dataframe
-  s.df<-ddply(data, .(MISSIONID,REGION_NAME,ISLAND,OBS_YEAR,SITE,TRANSECT,SEGMENT,SITEVISITID),
+  s.df<-ddply(data, .(MISSIONID,REGION,ISLAND,OBS_YEAR,SITE,TRANSECT,SEGMENT,SITEVISITID),
               summarise,
               SEGAREA=median(SEGAREA))
-  tr.df<-ddply(s.df, .(MISSIONID,REGION_NAME,ISLAND,OBS_YEAR,SITE,TRANSECT,SITEVISITID),
+  tr.df<-ddply(s.df, .(MISSIONID,REGION,ISLAND,OBS_YEAR,SITE,TRANSECT,SITEVISITID),
                summarise,
                TRANSECTAREA=sum(SEGAREA))
   
-  data<-merge(data,tr.df, by=c("MISSIONID","REGION_NAME","ISLAND","OBS_YEAR","SITE","SITEVISITID","TRANSECT"),all=TRUE)
+  data<-merge(data,tr.df, by=c("MISSIONID","REGION","ISLAND","OBS_YEAR","SITE","SITEVISITID","TRANSECT"),all=TRUE)
   
   
   return(data)

@@ -447,6 +447,7 @@ head(dpst)
 cover_sum<-dpst
 head(cover_sum)
 
+cover_sum3<-cover_sum
 
 cover_sum2<-cover_sum%>% dplyr::filter(ANALYSIS_YEAR>2013)
 
@@ -494,10 +495,10 @@ CalcDeltaCover<-function(data,data.col,metric_name="DeltaCCA"){
   return(wide)
 }
 #Calc Delta CCA and Coral cover
-CCA_sumW<-CalcDeltaCover(cover_sum2,"CCA","Delta_CCA");head(CCA_sumW)
-Coral_sumW<-CalcDeltaCover(cover_sum2,"CORAL","Delta_CORAL");head(Coral_sumW)
-Turf_sumW<-CalcDeltaCover(cover_sum2,"TURF","Delta_TURF");head(Turf_sumW)
-SandRub_sumW<-CalcDeltaCover(cover_sum2,"SAND_RUB","Delta_SAND_RUB");head(SandRub_sumW)
+CCA_sumW<-CalcDeltaCover(cover_sum3,"CCA","Delta_CCA");head(CCA_sumW)
+Coral_sumW<-CalcDeltaCover(cover_sum3,"CORAL","Delta_CORAL");head(Coral_sumW)
+Turf_sumW<-CalcDeltaCover(cover_sum3,"TURF","Delta_TURF");head(Turf_sumW)
+SandRub_sumW<-CalcDeltaCover(cover_sum3,"SAND_RUB","Delta_SAND_RUB");head(SandRub_sumW)
 
 delcover<- CCA_sumW   %>%    
   left_join(Coral_sumW) %>%
@@ -510,7 +511,7 @@ nrow(CCA_sumW)
 
 cover_sum2$ANALYSIS_YEAR<-as.factor(cover_sum2$ANALYSIS_YEAR)
 
-p<-ggplot(subset(cover_sum2,REGION=="SAMOA"),aes(x=ANALYSIS_YEAR,y=CCA,fill=DEPTH_BIN))+
+p<-ggplot(subset(cover_sum3,REGION=="SAMOA"),aes(x=ANALYSIS_YEAR,y=CCA,fill=DEPTH_BIN))+
     geom_bar(stat='identity')+
     facet_wrap(~ANALYSIS_SEC,scale='free_x')+
     theme_bw() +
@@ -524,7 +525,7 @@ p<-ggplot(subset(cover_sum2,REGION=="SAMOA"),aes(x=ANALYSIS_YEAR,y=CCA,fill=DEPT
       ,legend.position="bottom")
 p
 
-p<-ggplot(subset(cover_sum2,REGION=="PHOENIX"),aes(x=ANALYSIS_YEAR,y=CCA,fill=DEPTH_BIN))+
+p<-ggplot(subset(cover_sum2,REGION=="MHI"),aes(x=ANALYSIS_YEAR,y=CCA,fill=DEPTH_BIN))+
   geom_bar(stat='identity')+
   facet_wrap(~ANALYSIS_SEC,scale='free_x')+
   theme_bw() +

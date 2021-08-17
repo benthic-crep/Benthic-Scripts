@@ -256,16 +256,9 @@ load("T:/Benthic/Data/REA Coral Demography & Cover/Raw from Oracle/ALL_REA_JUVCO
 
 x<-df #leave this as df
 
-x$SITE<-SiteNumLeadingZeros(x$SITE) # Change site number such as MAR-22 to MAR-0022
-
 #Convert date formats
 class(x$DATE_)
 x$DATE_ <- as.Date(x$DATE_, format = "%Y-%m-%d")
-
-### Use these functions to look at data
-head(x)
-tail(x)
-table(x$REGION, x$OBS_YEAR) #review years and regions in dataframe
 
 #Create vector of column names to include then exclude unwanted columns from dataframe
 DATA_COLS<-c("MISSIONID","REGION","REGION_NAME","ISLAND","ISLANDCODE","SITE","LATITUDE",	"LONGITUDE","REEF_ZONE","DEPTH_BIN","OBS_YEAR",
@@ -276,6 +269,30 @@ DATA_COLS<-c("MISSIONID","REGION","REGION_NAME","ISLAND","ISLANDCODE","SITE","LA
 #remove extraneous columns
 head(x[,DATA_COLS])
 x<-x[,DATA_COLS]
+
+#Cleanup 2017 NWHI data to merge with the rest of the juvenile data
+nw<-read.csv("T:/Benthic/Data/REA Coral Demography & Cover/Raw from Oracle/PMNM2017_JUVENILECOLONY_QCd.csv")
+
+head(nw[,DATA_COLS])
+nw<-nw[,DATA_COLS]
+
+
+
+
+#Convert date formats
+class(x$DATE_)
+nw$DATE_ <- as.Date(nw$DATE_, format = "%Y-%m-%d")
+
+x<-rbind(x,nw)
+
+x$SITE<-SiteNumLeadingZeros(x$SITE) # Change site number such as MAR-22 to MAR-0022
+
+
+### Use these functions to look at data
+head(x)
+tail(x)
+table(x$REGION, x$OBS_YEAR) #review years and regions in dataframe
+
 
 #Double check level and class of variables to make sure there aren't any errors
 sapply(x,levels)

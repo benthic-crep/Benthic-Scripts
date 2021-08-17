@@ -1,0 +1,47 @@
+## Oahu fixed sites map
+# set up workspace -----------------------
+library(maptools) # for reading shapefiles
+library(PBSmapping) # for map making (plotMap)
+library(foreign) # for reading shapefiles
+library(raster) # for extent function
+library(maps)
+library(devtools)
+devtools::install_github("JosephCrispell/basicPlotteR") # for non-overlapping labels
+library(basicPlotteR)# for non-overlapping labels
+library(dplyr)
+
+# read in fixed sites location
+fsit<-read.csv("D:/CRED/Oahu fixed sites/maps/Oahu_fixed_sites.csv") 
+
+# reading in island shapefiles (uses maptools and foreign)
+island <- importShapefile("D:/CRED/GIS/Common shapefiles/islands.shp")
+
+# get bounding coordinates for each island
+ext<-read.csv("D:/CRED/fish_team_R/web based stuff/island_extents_for_cruisebrief_maps.csv")
+
+# Extract the extent data from an IslandCode as a object of class EXTENT - i.e. this prints the bounding coordinates for each island (IC2ext(ext,"OAH")). This will be called later to create plot boundaries
+IC2ext=function(ext,IC){
+  i=which(ext$ISLAND.CODE==IC)
+  return(extent(ext$LEFT_XMIN[i],ext$RIGHT_XMAX[i],ext$BOTTOM_YMIN[i],ext$TOP_YMAX[i]))
+}
+
+
+# PLOTS----------------------------------------------------------
+
+# save graphs in figures folder - set wd
+setwd("D:/CRED/Oahu fixed sites/maps")
+
+# create png file
+png(filename = "fixed_Oahu.png", width = 8, height = 7.5, units = "in",  bg = "white", res = 800, restoreConsole = TRUE)
+
+# run the IC2ext function to print the bounding box for Oahu, and plug coordinates into xlim and ylim in the map code
+IC2ext(ext,"OAH")
+
+# Map
+plotMap(island,xlim=c( -158.4007 ,  -157.5177 ), ylim=c(21.14674, 21.81164),col="gray",bg="lightblue", axes=F,xlab="",ylab="", projection = TRUE, plt = c(.01, .99, .01, .8), polyProps = NULL)#,tckLab=T)
+title(main="Oahu", line=-1.0, cex=1.5)
+points(pch=19,fsit$Long, fsit$Lat,col="red",cex=1.3)
+addTextLabels(fsit$Long, fsit$Lat, fsit$Site,cex.label=1, col.background="white", col.label="black" )
+
+# close graphics file
+dev.off()

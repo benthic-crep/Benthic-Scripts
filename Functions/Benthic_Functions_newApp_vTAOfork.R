@@ -1025,6 +1025,63 @@ Calc_Strata=function(site_data,grouping_field,metric_field,pres.abs_field="Adpre
   return(Strata_roll)
 }
 
+#Calculate weighted stratum values
+Calc_Strata_Weighted=function(site_data,grouping_field,metric_field,M_hi=250){
+  
+  #Build in flexibility to look at genus or taxon level
+  site_data$GROUP<-site_data[,grouping_field]
+  
+  #Build in flexibility to summarized different metrics
+  site_data$METRIC<-site_data[,metric_field]
+  site_data$METRIC<-as.numeric(site_data$METRIC)
+  
+  #For a Given ANALYSIS_SCHEMA, we need to pool N_h, and generate w_h
+  strat.temp<-ddply(subset(site_data,GROUP=="SSSS"),.(METHOD,REGION,ISLAND,ANALYSIS_YEAR,DOMAIN_SCHEMA,ANALYSIS_SCHEMA,NH),summarize,temp=sum(NH,na.rm=TRUE)) #calculate # of possible sites in a given stratum
+  Strata_NH<-ddply(strat.temp,.(METHOD,REGION,ISLAND,ANALYSIS_YEAR,DOMAIN_SCHEMA,ANALYSIS_SCHEMA),summarize,N_h.as=sum(NH,na.rm=TRUE)) #calculate # of possible sites in a given stratum
+  Dom_NH<-ddply(Strata_NH,.(METHOD,REGION,ISLAND,ANALYSIS_YEAR,DOMAIN_SCHEMA),summarize,Dom_N_h=sum(N_h.as,na.rm=TRUE))#calculate # of possible sites in a given domain, use this to calculate weighting factor
+  Strata_NH<-left_join(Strata_NH,Dom_NH) #add Dom_N_h into Strata_NH df
+  Strata_NH$w_h.as<-Strata_NH$N_h.as/Strata_NH$Dom_N_h # add schema weighting factor to schema dataframe
+  
+  #Now add back the Analysis_Schema Dom_N_h, Nh and wh to site_data - can't use match because we need to merge based on analysis scheme and analysis year
+  site_data<-left_join(site_data,Strata_NH)
+  
+  #Calculate summary metrics at the stratum level (rolled up from site level)
+  Strata_roll=ddply(site_data,.(METHOD,REGION,ISLAND,ANALYSIS_YEAR,DOMAIN_SCHEMA,ANALYSIS_SCHEMA,REEF_ZONE,DB_RZ,GROUP,Dom_N_h),summarize,
+                    n_h=length(SITE),# No. of Sites surveyed in a Strata
+                    N_h=median(N_h.as,na.rm=T),# Strata Area (as N 50x50 grids) - median allows you to pick 1 value
+                    w_h=median(w_h.as,na.rm=T),# weigting factor for a given stratum- median allows you to pick 1 value
+                    D._h=mean(METRIC,na.rm=T), # Mean of Site-Level metric in a Stratum
+                    S1_h=var(METRIC,na.rm=T), #sample variance in metric between sites
+                    varD._h=(1-(n_h/N_h))*S1_h/n_h, #Strata level  variance of mean density
+                    nmtot=(N_h*250), #total possible area
+                    th=10, #minimum sampling unit
+                    Y._h=D._h*nmtot*th,#total colony abundance in stratum **corrected using diones code
+                    varY._h=((nmtot^2)*varD._h*(th^2)), #variance in total abundance- corrected using diones code
+                    SE_D._h=sqrt(varD._h),
+                    CV_D._h=(SE_D._h/D._h)*100,
+                    SE_Y._h=sqrt(varY._h),
+                    CV_Y._h=(SE_Y._h/Y._h)*100,
+                    D._h_W=D._h*w_h,
+                    varD._hW=varD._h*w_h^2,
+                    SE_D._hW=sqrt(varD._hW))
+  
+  
+  Strata_roll$M_hi=250 #define total possible transects in a site
+  Strata_roll=Strata_roll[,c("REGION","ISLAND","ANALYSIS_YEAR","DOMAIN_SCHEMA","ANALYSIS_SCHEMA","REEF_ZONE","DB_RZ","GROUP",
+                             "n_h","N_h",
+                             "D._h","SE_D._h","D._h_W","SE_D._hW")]
+  
+  #remove strata that have only 1 site because you can't calculate variance
+  Strata_roll<-Strata_roll[Strata_roll$n_h>1,]
+  
+  colnames(Strata_roll)[which(colnames(Strata_roll) == 'GROUP')] <- grouping_field #change group to whatever your grouping field is.
+
+  
+  return(Strata_roll)
+}
+
+
+
 #This function is very similar to Calc_Strata, but calculates the Domain NH by adding up all possible strata in a domain rather than just the ones that were sampled to calculate
 #total domain area and strata weights
 #This is an older function so make sure it's up to date with changes that have been made to rest of script
@@ -1119,7 +1176,6 @@ Calc_Domain=function(site_data,grouping_field="S_ORDER",metric_field,pres.abs_fi
                     SE_po._st=sqrt(varpo._st), #SE of domain metric estimate
                     CV_po._st=SE_po._st/po._st) #CV of domain metric estimate
 
-#need to double check calculations with Dione
   # Domain_roll=Domain_roll[,c("REGION","ISLAND","ANALYSIS_YEAR","DOMAIN_SCHEMA","GROUP",
   #                            "n","Ntot","D._st","SE_D._st")]
   #
@@ -1130,6 +1186,76 @@ Calc_Domain=function(site_data,grouping_field="S_ORDER",metric_field,pres.abs_fi
 
   return(Domain_roll)
 }
+
+#DOMAIN ROLL UP FUNCTION for region-This function calculates mean, var, SE and CV at the DOMAIN level. I've built in flexilbity to use either genus or taxoncode as well as other metrics (size class, morph)
+# You can input any metric you would like (eg. adult density, mean % old dead,etc). Note that for any metric that does not involve density of colonies,
+# Y._h (total colony abundance in stratum),varY._h (variance in total abundance), SE_Y._h and CV_Y._h are meaningless-DO NOT USE
+Calc_Domain_Region=function(site_data,grouping_field="S_ORDER",metric_field,pres.abs_field="Adpres.abs"){
+  
+  Strata_data=Calc_Strata(site_data,grouping_field,metric_field,pres.abs_field)
+  
+  #Build in flexibility to look at genus or taxon level
+  Strata_data$GROUP<-Strata_data[,grouping_field]
+  
+  DomainStr_NH=ddply(subset(Strata_data,GROUP=="SSSS"),.(METHOD,REGION,ANALYSIS_YEAR),summarize,DomainSumN_h=sum(N_h,na.rm=TRUE)) #total possible sites in a domain
+  Strata_data<-left_join(Strata_data, DomainStr_NH)# add previous to strata data
+  Strata_data$w_h=Strata_data$N_h/Strata_data$DomainSumN_h
+  
+  Domain_roll=ddply(Strata_data,.(METHOD,REGION,ANALYSIS_YEAR,GROUP),summarize,
+                    D._st=sum(w_h*D._h,na.rm=TRUE), #Domain weighted estimate (sum of Weighted strata density)
+                    varD._st=sum(w_h^2*varD._h,na.rm=TRUE), #Domain weighted variance estimate
+                    Y._st=sum(Y._h,na.rm=TRUE), #Domain total abundance (sum of extrapolated strata abundance)
+                    varY._st=sum(varY._h,na.rm=TRUE),#Domain variance total abundance (sum of extrapolated strata varaiance abundance)
+                    n=sum(n_h,na.rm=TRUE), #total sites surveyed in domain
+                    Ntot=sum(N_h,na.rm=TRUE), #total possible sites in domain
+                    SE_D._st=sqrt(varD._st), #SE of domain metric estimate
+                    CV_D._st=(SE_D._st/D._st)*100, #CV of domain metric estimate
+                    SE_Y._st=sqrt(varY._st),#SE of domain abundance estimate
+                    CV_Y._st=(SE_Y._st/Y._st)*100,#CV of domain abundnace estimate
+                    po._st=sum(w_h*avp,na.rm=TRUE), #Domain weighted estimate
+                    varpo._st=sum(w_h^2*var_prop,na.rm=TRUE), #Domain weighted variance estimate
+                    SE_po._st=sqrt(varpo._st), #SE of domain metric estimate
+                    CV_po._st=SE_po._st/po._st) #CV of domain metric estimate
+  
+  # Domain_roll=Domain_roll[,c("REGION","ANALYSIS_YEAR","GROUP",
+  #                            "n","Ntot","D._st","SE_D._st")]
+  #
+  colnames(Domain_roll)[which(colnames(Domain_roll) == 'D._st')] <- paste0("Mean","_",metric_field)
+  colnames(Domain_roll)[which(colnames(Domain_roll) == 'SE_D._st')] <- paste0("SE","_",metric_field)
+  colnames(Domain_roll)[which(colnames(Domain_roll) == 'GROUP')] <- grouping_field #change group to whatever your grouping field is.
+  
+  
+  return(Domain_roll)
+}
+
+#This function reads in strata (not site) level data so that you can calculate metrics such as weighted delta change at the domain level
+Calc_DomainDelta=function(Strata_data,grouping_field="S_ORDER",metric_field,pres.abs_field="Adpres.abs"){
+  
+
+  #Build in flexibility to look at genus or taxon level
+  Strata_data$GROUP<-Strata_data[,grouping_field]
+  
+  DomainStr_NH=ddply(subset(Strata_data,GROUP=="SSSS"),.(METHOD,REGION,DOMAIN_SCHEMA),summarize,DomainSumN_h=sum(N_h,na.rm=TRUE)) #total possible sites in a domain
+  Strata_data<-left_join(Strata_data, DomainStr_NH)# add previous to strata data
+  Strata_data$w_h=Strata_data$N_h/Strata_data$DomainSumN_h
+  
+  Domain_roll=ddply(Strata_data,.(METHOD,REGION,DOMAIN_SCHEMA,GROUP),summarize,
+                    D._st=sum(w_h*D._h,na.rm=TRUE), #Domain weighted estimate (sum of Weighted strata density)
+                    varD._st=sum(w_h^2*varD._h,na.rm=TRUE), #Domain weighted variance estimate
+                    SE_D._st=sqrt(varD._st)) #SE of domain metric estimate
+
+  
+  # Domain_roll=Domain_roll[,c("REGION","ISLAND","ANALYSIS_YEAR","DOMAIN_SCHEMA","GROUP",
+  #                            "n","Ntot","D._st","SE_D._st")]
+  #
+  colnames(Domain_roll)[which(colnames(Domain_roll) == 'D._st')] <- paste0("Mean","_",metric_field)
+  colnames(Domain_roll)[which(colnames(Domain_roll) == 'SE_D._st')] <- paste0("SE","_",metric_field)
+  colnames(Domain_roll)[which(colnames(Domain_roll) == 'GROUP')] <- grouping_field #change group to whatever your grouping field is.
+  
+  
+  return(Domain_roll)
+}
+
 
 # Calc_Analysis_Domain=function(site_data,sec,grouping_field="S_ORDER",metric_field,pres.abs_field="Adpres.abs"){
 #

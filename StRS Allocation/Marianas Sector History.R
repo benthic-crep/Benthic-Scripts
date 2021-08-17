@@ -49,7 +49,7 @@ sec_F$OBS_YEAR<-paste(sec_F$OBS_YEAR,"Fish",sep="_")
 
 
 #Counting number of days we surveyed each sector in previous years
-ben<-survey_master%>% filter(OBS_YEAR>=2014 & REGION=="MARIAN" & Benthic==1)
+ben<-survey_master%>% dplyr::filter(OBS_YEAR>=2014 & REGION=="MARIAN" & Benthic==1)
 
 ben_days<-ddply(ben,.(OBS_YEAR,ISLAND,SEC_NAME),summarize,DAYS_N=length(unique(DATE_,na.rm=T)))
 ben_days
@@ -58,3 +58,20 @@ ben_daysW<-ben_days %>% pivot_wider(names_from=OBS_YEAR, values_from=DAYS_N,valu
 
 write.csv(ben_daysW,file="T:/Cruise/CruisePreps/2020/RA-20-01 (MARAMP)/Team Plans/2014-2017_Marianas_Benthicdaysbysector.csv")
 
+#Number of sites/island in previous years
+ben_site<-ddply(ben,.(OBS_YEAR,ISLAND),summarize,N=length(unique(SITEVISITID,na.rm=T)))
+ben_site
+
+ben_siteW<-ben_site %>% pivot_wider(names_from=OBS_YEAR, values_from=N,values_fill=NA)
+View(ben_siteW)
+
+#MHI 2019 # sites/day
+ben<-survey_master%>% dplyr::filter(OBS_YEAR==2017 & REGION=="MARIAN" & Benthic==1)
+
+ben_sitedays<-ddply(ben,.(OBS_YEAR,ISLAND),summarize,
+                DAYS_N=length(unique(DATE_,na.rm=T)),
+                SITE_N=length(unique(SITEVISITID,na.rm=T)),
+                              SITES_per_DAY=SITE_N/DAYS_N,na.rm=T)
+ben_sitedays
+
+ben_daysW<-ben_days %>% pivot_wider(names_from=OBS_YEAR, values_from=DAYS_N,values_fill=NA)
