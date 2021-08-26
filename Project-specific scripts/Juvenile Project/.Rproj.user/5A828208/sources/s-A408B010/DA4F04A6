@@ -1,0 +1,27 @@
+{
+    "id": "DA4F04A6",
+    "path": "~/GitHub/Benthic-Scripts/Project-specific scripts/Juvenile Project/Pacific Juvenile Map.R",
+    "project_path": "Pacific Juvenile Map.R",
+    "type": "r_source",
+    "hash": "0",
+    "contents": "",
+    "dirty": false,
+    "created": 1628795368136.0,
+    "source_on_save": false,
+    "relative_order": 14,
+    "properties": {
+        "tempName": "Untitled1",
+        "source_window_id": "",
+        "Source": "Source",
+        "cursorPosition": "119,0",
+        "scrollLine": "0"
+    },
+    "folds": "",
+    "lastKnownWriteTime": 1628796485,
+    "encoding": "UTF-8",
+    "collab_server": "",
+    "source_window": "",
+    "last_content_update": 1628796485305,
+    "read_only": false,
+    "read_only_alternatives": []
+}

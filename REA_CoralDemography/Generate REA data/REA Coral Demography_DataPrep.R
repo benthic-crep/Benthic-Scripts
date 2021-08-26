@@ -253,7 +253,6 @@ write.csv(awd,file="T:/Benthic/Data/REA Coral Demography & Cover/Analysis Ready 
 ## CREATE JUVENILE CLEAN ANALYSIS READY DATA ----
 ## LOAD benthic data
 load("T:/Benthic/Data/REA Coral Demography & Cover/Raw from Oracle/ALL_REA_JUVCORAL_RAW_2013-2020.rdata") #from oracle
-
 x<-df #leave this as df
 
 #Convert date formats
@@ -270,17 +269,18 @@ DATA_COLS<-c("MISSIONID","REGION","REGION_NAME","ISLAND","ISLANDCODE","SITE","LA
 head(x[,DATA_COLS])
 x<-x[,DATA_COLS]
 
-#Cleanup 2017 NWHI data to merge with the rest of the juvenile data
+#Cleanup 2017 NWHI data to merge with the rest of the juvenile data -temporary workaround until data team migrates data to Oracle
 nw<-read.csv("T:/Benthic/Data/REA Coral Demography & Cover/Raw from Oracle/PMNM2017_JUVENILECOLONY_QCd.csv")
 
 head(nw[,DATA_COLS])
 nw<-nw[,DATA_COLS]
 
-
-
+nw$COLONYID<-nrow(x)+1:length(nw$SITEVISITID)
+nw$COLONYID<-ifelse(nw$TAXONCODE=="AAAA",NA,nw$COLONYID)
 
 #Convert date formats
-class(x$DATE_)
+class(nw$DATE_)
+nw$DATE_ <- dmy(nw$DATE_)
 nw$DATE_ <- as.Date(nw$DATE_, format = "%Y-%m-%d")
 
 x<-rbind(x,nw)

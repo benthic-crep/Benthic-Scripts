@@ -56,10 +56,15 @@ SURVEY_SITE<-c("METHOD","MISSIONID","DATE_","SITEVISITID", "ANALYSIS_YEAR","OBS_
 survey_site<-unique(jwd[,SURVEY_SITE])
 
 #TEMPORARY WORK AROUND-ASK MICHAEL TO FIX
-survey_site$REEF_ZONE<-ifelse(survey_site$SITE=="HAW-04285","Forereef",as.character(survey_site$REEF_ZONE))
+jwd$REEF_ZONE<-ifelse(jwd$SITE=="HAW-04285","Forereef",as.character(jwd$REEF_ZONE))
+
+#Convert Protected Slope to Forereef
+jwd$REEF_ZONE<-ifelse(jwd$REEF_ZONE=="Protected Slope","Forereef",as.character(jwd$REEF_ZONE))
 
 #Remove 2 sites that weren't surveyed for juveniles
 jwd<-jwd[!(jwd$SITE %in% c("OFU-01012","PAG-00596")),]
+
+
 
 #Look at the size class data to determine the min colony size cut off for analysis
 #Subset 2019 Hawaii data
@@ -167,14 +172,15 @@ site.data.gen2$REGION<-ifelse(site.data.gen2$ISLAND %in% c("Kingman","Palmyra","
                               ,"LINE", as.character(site.data.gen2$REGION))
 
 site.data.gen2$STRATANAME<- paste(site.data.gen2$SEC_NAME,site.data.gen2$REEF_ZONE,site.data.gen2$DEPTH_BIN,sep="_")
-
-
-
+site.data.gen2$REGION_YEAR<-paste(site.data.gen2$REGION,site.data.gen2$OBS_YEAR,sep="_")
+#Remove the 2013 MHI and 2014 NWHI data
+site.data.gen2<-site.data.gen2[!site.data.gen2$REGION_YEAR %in% c("NWHI_2014","MHI_2013"),]
+View(site.data.gen2)
 # 
 # # Summarize Post bleaching data for driver analysis -----------------------
 # 
 # #Subset post bleaching regions and years for downstream driver analysis
-# REGION_YEAR<-c("MHI_2019","NWHI_2016","NMARIAN_2017","SMARIAN_2017","PHOENIX_2018","LINE_2018","SAMOA_2018")
+# REGION_YEAR<-c("MHI_2019","NWHI_2017","NMARIAN_2017","SMARIAN_2017","PHOENIX_2018","LINE_2018","SAMOA_2018")
 # 
 # site.data.gen2$REGION_YEAR<-paste(site.data.gen2$REGION,site.data.gen2$OBS_YEAR,sep="_")
 # 
@@ -281,10 +287,8 @@ head(jcdG_stW)
 jcdG_stWS<-subset(jcdG_stW,GENUS_CODE=="SSSS")
 
 
-
-
 #Subset most recent survey data for each region
-REGION_YEAR<-c("MHI_2019","NWHI_2016","NMARIAN_2017","SMARIAN_2017","PHOENIX_2018","LINE_2018","SAMOA_2018","WAKE_2017")
+REGION_YEAR<-c("MHI_2019","NWHI_2017","NMARIAN_2017","SMARIAN_2017","PHOENIX_2018","LINE_2018","SAMOA_2018","WAKE_2017")
 jcdG_stS<-as.data.frame(jcdG_stS)
 
 jcdG_stS$REGION_YEAR<-paste(jcdG_stS$REGION,jcdG_stS$ANALYSIS_YEAR,sep="_")
@@ -360,7 +364,7 @@ jcdG_rS<-subset(jcdG_r,GENUS_CODE=="SSSS")
 #     n.df$Tdiff[i] = difftime(as.Date(n.df$a2019[i]) ,as.Date(n.df$a2016[i]) , units = c("weeks")) #c&p
 #   } #c&p
 #   if(n.df$REGION[i] =="NWHI"){ #c&p
-#     n.df$Tdiff[i] = difftime(as.Date(n.df$a2016[i]) ,as.Date(n.df$a2014[i]) , units = c("weeks")) #c&p
+#     n.df$Tdiff[i] = difftime(as.Date(n.df$a2017[i]) ,as.Date(n.df$a2015[i]) , units = c("weeks")) #c&p
 #   } #c&p
 # } #closing curly brace for entire forloop
 # head(n.df)
@@ -395,7 +399,7 @@ jcdG_rS<-subset(jcdG_r,GENUS_CODE=="SSSS")
 #     juv.new$DeltaDen[i] = juv.new$a2019[i] - juv.new$a2016[i] #c&p
 #   } #c&p
 #   if(juv.new$REGION[i] =="NWHI"){ #c&p
-#     juv.new$DeltaDen[i] = juv.new$a2016[i] - juv.new$a2014[i] #c&p
+#     juv.new$DeltaDen[i] = juv.new$a2017[i] - juv.new$a2015[i] #c&p
 #   } #c&p
 # } #closing curly brace for entire forloop
 # head(juv.new)
@@ -472,7 +476,7 @@ for (i in c(1:nrow(n.df))){ #opening brace
     n.df$Tdiff[i] = difftime(as.Date(n.df$a2019[i]) ,as.Date(n.df$a2016[i]) , units = c("weeks")) #c&p
   } #c&p
   if(n.df$REGION[i] =="NWHI"){ #c&p
-    n.df$Tdiff[i] = difftime(as.Date(n.df$a2016[i]) ,as.Date(n.df$a2014[i]) , units = c("weeks")) #c&p
+    n.df$Tdiff[i] = difftime(as.Date(n.df$a2017[i]) ,as.Date(n.df$a2015[i]) , units = c("weeks")) #c&p
   } #c&p
 } #closing curly brace for entire forloop
 head(n.df)
@@ -507,7 +511,7 @@ for (i in c(1:nrow(juv.new))){ #opening brace
     juv.new$DeltaDen[i] = juv.new$a2019[i] - juv.new$a2016[i] #c&p
   } #c&p
   if(juv.new$REGION[i] =="NWHI"){ #c&p
-    juv.new$DeltaDen[i] = juv.new$a2016[i] - juv.new$a2014[i] #c&p
+    juv.new$DeltaDen[i] = juv.new$a2017[i] - juv.new$a2015[i] #c&p
   } #c&p
 } #closing curly brace for entire forloop
 head(juv.new)
@@ -562,7 +566,44 @@ delta.sumD<-ddply(delta.df,.(REGION,DEPTH_BIN),
 #The time after the bleaching event is very important. I removed the 2016 and 2017 juvenile data for jarvis, baker and howland. it may be interesting to look at these separately
 
 
-# MIXED MODELING -SPATIAL TEMPORAL PATTERNS -------------------------------
+
+# Mixed models - slope method ---------------------------------------------
+head(data.gen_tempS)
+
+
+data.gen_tempS$REGION_YEAR<-paste(data.gen_tempS$REGION,data.gen_tempS$OBS_YEAR,sep="_")
+#Remove the 2013 MHI and 2014 NWHI data
+data.gen_tempS<-data.gen_tempS[!data.gen_tempS$REGION_YEAR %in% c("NWHI_2014","MHI_2013"),]
+View(data.gen_tempS)
+
+data.gen_tempS<-data.gen_tempS %>% mutate(T1_T2= dplyr::recode(OBS_YEAR,
+                                           `2014`="1",
+                                           `2015`="1",
+                                           `2016`="1",
+                                           `2017`="2",
+                                           `2018`="2",
+                                           `2019`="2"))
+
+
+#Check for normality and equal variance
+plotNormalHistogram(data.gen_tempS$JuvColDen)
+l<-log(data.gen_tempS$JuvColDen+1)
+plotNormalHistogram(l)
+
+
+mod<-lmer(JuvColDen~T1_T2+ (1+T1_T2|STRATANAME/SEC_NAME),data=data.gen_tempS)
+qqnorm(residuals(mod),ylab="Sample Quantiles for residuals")
+qqline(residuals(mod), col="red")
+
+summary(mod)  # Report the results
+par(mfrow = c(2, 2))  # Split the plotting panel into a 2 x 2 grid
+plot(mod) 
+
+#Extract Slope values-SOMETHING'S NOT RIGHT. All of the slope values are the same.
+coef(mod)$STRATANAME
+
+
+# MIXED MODELING -Delta density-------------------------------
 
 #Check for normality and equal variance
 plotNormalHistogram(jcdG_stWS$JuvDenW)
