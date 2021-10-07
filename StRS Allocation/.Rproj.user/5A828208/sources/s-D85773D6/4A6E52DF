@@ -1,0 +1,24 @@
+{
+    "id": "4A6E52DF",
+    "path": "T:/Fish/Cruise Prep/ISLAND_GRIDS/R scripts to generate points/SAMOA_generate_random_points.R",
+    "project_path": null,
+    "type": "r_source",
+    "hash": "0",
+    "contents": "",
+    "dirty": false,
+    "created": 1633387325440.0,
+    "source_on_save": false,
+    "relative_order": 5,
+    "properties": {
+        "source_window_id": "",
+        "Source": "Source"
+    },
+    "folds": "",
+    "lastKnownWriteTime": 1455067336,
+    "encoding": "UTF-8",
+    "collab_server": "",
+    "source_window": "",
+    "last_content_update": 1455067336,
+    "read_only": false,
+    "read_only_alternatives": []
+}

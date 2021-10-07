@@ -3,9 +3,9 @@
     "path": "~/GitHub/Benthic-Scripts/Project-specific scripts/Juvenile Project/Juvenile Project Summary Script_v3.R",
     "project_path": "Juvenile Project Summary Script_v3.R",
     "type": "r_source",
-    "hash": "0",
+    "hash": "1425572692",
     "contents": "",
-    "dirty": false,
+    "dirty": true,
     "created": 1628541698330.0,
     "source_on_save": false,
     "relative_order": 7,
@@ -13,15 +13,15 @@
         "tempName": "Untitled1",
         "source_window_id": "",
         "Source": "Source",
-        "cursorPosition": "601,40",
-        "scrollLine": "582"
+        "cursorPosition": "623,47",
+        "scrollLine": "603"
     },
-    "folds": "",
-    "lastKnownWriteTime": 1629338496,
+    "folds": "319|42|429|0|\n455|27|480|0|\n490|30|515|0|\n",
+    "lastKnownWriteTime": 1630095966,
     "encoding": "UTF-8",
     "collab_server": "",
     "source_window": "",
-    "last_content_update": 1629338496752,
+    "last_content_update": 1630096287343,
     "read_only": false,
     "read_only_alternatives": []
 }

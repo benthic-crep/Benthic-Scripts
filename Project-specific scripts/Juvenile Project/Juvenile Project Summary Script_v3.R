@@ -546,7 +546,7 @@ lat.sum<-ddply(data.gen_tempS,.(REGION,ISLAND),
                summarize,
                LATITUDE=median(LATITUDE,na.rm=T))
 
-j.sum<-ddply(delta.dfW,.(REGION,ISLAND),
+j.sum<-ddply(delta.df,.(REGION,ISLAND),
              summarize,
              DeltaDen=median(DeltaDen_yr,na.rm=T))
 deltaden_lat<-left_join(j.sum,lat.sum)
@@ -577,30 +577,58 @@ data.gen_tempS<-data.gen_tempS[!data.gen_tempS$REGION_YEAR %in% c("NWHI_2014","M
 View(data.gen_tempS)
 
 data.gen_tempS<-data.gen_tempS %>% mutate(T1_T2= dplyr::recode(OBS_YEAR,
-                                           `2014`="1",
-                                           `2015`="1",
-                                           `2016`="1",
-                                           `2017`="2",
-                                           `2018`="2",
-                                           `2019`="2"))
+                                           `2014`="1_Before",
+                                           `2015`="1_Before",
+                                           `2016`="1_Before",
+                                           `2017`="2_After",
+                                           `2018`="2_After",
+                                           `2019`="2_After"))
 
 
 #Check for normality and equal variance
 plotNormalHistogram(data.gen_tempS$JuvColDen)
-l<-log(data.gen_tempS$JuvColDen+1)
+l<-log(data.gen_tempS$JuvColDen+0.5)
+data.gen_tempS$l<-log(data.gen_tempS$JuvColDen+0.5)
 plotNormalHistogram(l)
 
 
-mod<-lmer(JuvColDen~T1_T2+ (1+T1_T2|STRATANAME/SEC_NAME),data=data.gen_tempS)
+mod<-lmer(l~T1_T2+ (1+T1_T2|STRATANAME/SEC_NAME),data=data.gen_tempS,REML = FALSE, control = lmerControl(
+  optimizer ='optimx', optCtrl=list(method='L-BFGS-B')))
 qqnorm(residuals(mod),ylab="Sample Quantiles for residuals")
 qqline(residuals(mod), col="red")
 
 summary(mod)  # Report the results
-par(mfrow = c(2, 2))  # Split the plotting panel into a 2 x 2 grid
+par(mfrow = c(1, 1))  # Split the plotting panel into a 2 x 2 grid
 plot(mod) 
 
+
+
+
 #Extract Slope values-SOMETHING'S NOT RIGHT. All of the slope values are the same.
-coef(mod)$STRATANAME
+slopeden<-tibble::rownames_to_column(coef(mod)[["STRATANAME"]])
+slopeden<-slopeden[c(-2)];colnames(slopeden)<-c("STRATANAME","SlopeDen")
+
+#Merge with delta def
+delta.df<-left_join(delta.df,slopeden);head(delta.df)
+delta.df$Diff<-delta.df$DeltaDen_yr-delta.df$SlopeDen
+delta.df[order(delta.df$Diff),]
+View(delta.df)
+
+par(mfrow = c(1, 2))  # Split the plotting panel into a 2 x 2 grid
+plot(x=predict(mod), y=data.gen_tempS$l,
+     xlab='Predicted Values',
+     ylab='Actual Values',
+     main='Predicted vs. Actual Density')
+abline(mod)
+
+mod2<-lm(delta.df$SlopeDen~delta.df$DeltaDen_yr)
+summary(mod2)
+plot(x=delta.df$DeltaDen_yr, y=delta.df$SlopeDen,
+     xlab='Delta Density/yr',
+     ylab='Model Slope Density',
+     main='Slope vs. Delta Density')
+abline(mod2)
+
 
 
 # MIXED MODELING -Delta density-------------------------------
