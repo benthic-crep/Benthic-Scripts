@@ -586,21 +586,62 @@ data.gen_tempS<-data.gen_tempS %>% mutate(T1_T2= dplyr::recode(OBS_YEAR,
 
 
 #Check for normality and equal variance
+
+#Untransformed
+op<-par(mfrow = c(2, 2))  # Split the plotting panel into a 2 x 2 grid
 plotNormalHistogram(data.gen_tempS$JuvColDen)
-l<-log(data.gen_tempS$JuvColDen+0.5)
-data.gen_tempS$l<-log(data.gen_tempS$JuvColDen+0.5)
-plotNormalHistogram(l)
-
-
-mod<-lmer(l~T1_T2+ (1+T1_T2|STRATANAME/SEC_NAME),data=data.gen_tempS,REML = FALSE, control = lmerControl(
+mod<-lmer(JuvColDen~T1_T2+ (1+T1_T2|DB_RZ/SEC_NAME),data=data.gen_tempS,REML = FALSE, control = lmerControl(
   optimizer ='optimx', optCtrl=list(method='L-BFGS-B')))
 qqnorm(residuals(mod),ylab="Sample Quantiles for residuals")
 qqline(residuals(mod), col="red")
+leveneTest(residuals(mod) ~ data.gen_tempS$T1_T2)
+E2<-resid(mod, type = "pearson") # extract normalized residuals
+F2<-fitted(mod) # extract the fitted data
+plot(F2, E2, xlab = "fitted values", ylab = "residuals",main ="LMM-untransformed") # plot the relationship
 
-summary(mod)  # Report the results
-par(mfrow = c(1, 1))  # Split the plotting panel into a 2 x 2 grid
-plot(mod) 
 
+a<-subset(data.gen_tempS,JuvColDen==0)
+nrow(a)/nrow(data.gen_tempS) #5% of dataset are zero values
+
+
+#Try glmm with poisson distribution
+#Convert density to counts
+data.gen_tempS$JuvCount<-round(data.gen_tempS$JuvColDen*6,0)
+head(data.gen_tempS)
+
+mod<-glmer(JuvCount~T1_T2+ (1+T1_T2|DB_RZ/SEC_NAME),family="poisson",data=data.gen_tempS)
+leveneTest(residuals(mod) ~ data.gen_tempS$T1_T2)
+E2<-resid(mod, type = "pearson") # extract normalized residuals
+F2<-fitted(mod) # extract the fitted data
+plot(F2, E2, xlab = "fitted values", ylab = "residuals",main="GLMM-Poisson") # plot the relationship
+
+
+#negative binomial
+mod<-glm.nb(JuvCount~T1_T2,data=data.gen_tempS)
+
+mod<-glmer.nb(JuvCount~T1_T2+ (1+T1_T2|DB_RZ/SEC_NAME),data=data.gen_tempS,verbose=TRUE)
+leveneTest(residuals(mod) ~ data.gen_tempS$T1_T2)
+E2<-resid(mod, type = "pearson") # extract normalized residuals
+F2<-fitted(mod) # extract the fitted data
+plot(F2, E2, xlab = "fitted values", ylab = "residuals",main="GLMM-Negative Binomial") # plot the relationship
+
+
+
+# #Transformed
+# l<-log(data.gen_tempS$JuvColDen+0.5)
+# data.gen_tempS$l<-log(data.gen_tempS$JuvColDen+0.5)
+# plotNormalHistogram(l)
+# 
+# 
+# mod<-lmer(l~T1_T2+ (1+T1_T2|DB_RZ/SEC_NAME),data=data.gen_tempS,REML = FALSE, control = lmerControl(
+#   optimizer ='optimx', optCtrl=list(method='L-BFGS-B')))
+# qqnorm(residuals(mod),ylab="Sample Quantiles for residuals")
+# qqline(residuals(mod), col="red")
+# 
+# summary(mod)  # Report the results
+# par(mfrow = c(1, 1))  # Split the plotting panel into a 2 x 2 grid
+# plot(mod) 
+# 
 
 
 
