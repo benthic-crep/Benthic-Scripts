@@ -1,0 +1,46 @@
+#Calculate difference in MEAN Juv density between years
+juv.new4$VarDeltaDen<-NULL
+for (i in c(1:nrow(juv.new4))){ #opening brace
+  if(juv.new4$REGION[i] =="LINE"){ #c&p
+    juv.new4$VarDeltaDen[i] = sqrt((juv.new4$v2018[i]/juv.new4$n2018[i]) - (juv.new4$v2015[i]/juv.new4$n2015[i])) #c&p
+  } #c&p
+  if(juv.new4$REGION[i] =="PHOENIX"){ #c&p
+    juv.new4$VarDeltaDen[i] = juv.new4$m2018[i] - juv.new4$m2015[i] #c&p
+  } #c&p
+  if(juv.new4$REGION[i] =="SAMOA"){ #c&p
+    juv.new4$VarDeltaDen[i] = juv.new4$m2018[i] - juv.new4$m2015[i] #c&p
+  } #c&p
+  if(juv.new4$REGION[i] =="WAKE"){ #c&p
+    juv.new4$VarDeltaDen[i] = juv.new4$m2017[i] - juv.new4$m2014[i] #c&p
+  } #c&p
+  if(juv.new4$REGION[i] =="NMARIAN"){ #c&p
+    juv.new4$VarDeltaDen[i] = juv.new4$m2017[i] - juv.new4$m2014[i] #c&p
+  } #c&p
+  if(juv.new4$REGION[i] =="SMARIAN"){ #c&p
+    juv.new4$VarDeltaDen[i] = juv.new4$m2017[i] - juv.new4$m2014[i] #c&p
+  if(juv.new4$REGION[i] =="MHI"){ #c&p
+    juv.new4$VarDeltaDen[i] = juv.new4$m2019[i] - juv.new4$m2016[i] #c&p
+  } #c&p
+  if(juv.new4$REGION[i] =="NWHI"){ #c&p
+    juv.new4$VarDeltaDen[i] = juv.new4$m2017[i] - juv.new4$m2015[i] #c&p
+  } #c&p
+} #closing curly brace for entire forloop
+head(juv.new4)
+
+
+#Calculate Island Estimates
+delta.df$ANALYSIS_SCHEMA<-delta.df$STRATANAME
+delta.df$DOMAIN_SCHEMA<-delta.df$ISLAND
+delta.df$ANALYSIS_YEAR<-delta.df$OBS_YEAR
+delta.df$DB_RZ<-paste(delta.df$DEPTH_BIN,delta.df$REEF_ZONE,sep="_")
+
+delta_is<-Calc_DomainDelta(delta.df,"JuvColDen")
+delta_is<-jcdG_is[,c("REGION","ANALYSIS_YEAR","DOMAIN_SCHEMA","GENUS_CODE","n","Ntot","Mean_JuvColDen","SE_JuvColDen")]
+
+#Calculate Regional Estimates
+delta.df$ANALYSIS_SCHEMA<-delta.df$STRATANAME
+delta.df$ANALYSIS_YEAR<-delta.df$OBS_YEAR
+
+delta_r<-Calc_Domain_Region(delta.df,"GENUS_CODE","JuvColDen","Juvpres.abs")
+delta_r<-delta_r[,c("REGION","ANALYSIS_YEAR","GENUS_CODE","n","Ntot","Mean_JuvColDen","SE_JuvColDen")]
+

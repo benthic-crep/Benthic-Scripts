@@ -124,7 +124,7 @@ site.data.gen<-ddply(jcd.gen, .(SITE,SITEVISITID,GENUS_CODE), #calc total coloni
                      summarise,
                      JuvColDen=mean(JuvColDen,na.rm=T))
 
-site.data.gen2<-site.data.gen
+site.data.gen2<-site.data.gen #Create a copy (it takes a long time to run the ddply function above)
 
 # Merge Site level data with sectors file and export site data ------------
 sectors<-read.csv("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/data/Sectors-Strata-Areas.csv", stringsAsFactors=FALSE)
@@ -151,7 +151,7 @@ site.data.gen2<-site.data.gen2[!site.data.gen2$Year_Island %in% c("2017_Baker","
 site.data.gen2<-droplevels(site.data.gen2);levels(site.data.gen2$MISSIONID)
 View(site.data.gen2)
 
-#Convert Protected Reef Slope to Forreef and Subset just Forereef sites
+#Convert Protected Reef Slope to Forereef and Subset just Forereef sites
 site.data.gen2$REEF_ZONE<-ifelse(site.data.gen2$REEF_ZONE=="Protected Slope","Forereef",as.character(site.data.gen2$REEF_ZONE))
 site.data.gen2<-subset(site.data.gen2,REEF_ZONE=="Forereef")
 
@@ -173,9 +173,14 @@ site.data.gen2$REGION<-ifelse(site.data.gen2$ISLAND %in% c("Kingman","Palmyra","
 
 site.data.gen2$STRATANAME<- paste(site.data.gen2$SEC_NAME,site.data.gen2$REEF_ZONE,site.data.gen2$DEPTH_BIN,sep="_")
 site.data.gen2$REGION_YEAR<-paste(site.data.gen2$REGION,site.data.gen2$OBS_YEAR,sep="_")
+
 #Remove the 2013 MHI and 2014 NWHI data
-site.data.gen2<-site.data.gen2[!site.data.gen2$REGION_YEAR %in% c("NWHI_2014","MHI_2013"),]
-View(site.data.gen2)
+site.data.gen3<-site.data.gen2[!site.data.gen2$REGION_YEAR %in% c("NWHI_2014","MHI_2013"),]
+
+table(site.data.gen2$REGION,site.data.gen2$OBS_YEAR)
+table(site.data.gen3$REGION,site.data.gen3$OBS_YEAR)
+
+
 # 
 # # Summarize Post bleaching data for driver analysis -----------------------
 # 
@@ -239,23 +244,23 @@ View(site.data.gen2)
 # CALCULATE DeltaDensity/Year for Correlative Analysis --------------------
 #To remove the confounding effect of time, Calculate change since bleaching event or year following bleaching event
 #I decided to create new list of strata without 2013 MHI sites- terrible sampling and delta den for MHI is calcualted 2019-2016
-# GENERATE DATA FOR TEMPORAL ANALYSIS---------------------------------------------------
+
+# GENERATE DATA FOR TEMPORAL ANALYSIS WITH 2013 MHI---------------------------------------------------
 site.data.gen2$STRATANAME<- paste(site.data.gen2$SEC_NAME,site.data.gen2$REEF_ZONE,site.data.gen2$DEPTH_BIN,sep="_")
 st.list<-ddply(site.data.gen2,.(METHOD,OBS_YEAR,REGION,ISLAND,SEC_NAME,STRATANAME),summarize,n=length(unique(SITE)))
-st.list2<-subset(st.list,n>=2);head(st.list)
+st.list2<-subset(st.list,n>=2);head(st.list) #drop strata that have < 2 sites/stratum
 
 #Generate list of strata that were surveyed in all years for a given region and had at least 2 sites/stratum
 st.list_w<-dcast(st.list2, formula=METHOD+REGION+ISLAND+SEC_NAME+STRATANAME~ OBS_YEAR, value.var="n",fill=0)
-dCOLS<-c("2014","2015","2016","2017","2018","2019")
+dCOLS<-c("2013","2014","2015","2016","2017","2018","2019")
 st.list_w$year_n<-rowSums(st.list_w[,dCOLS] > 0, na.rm=T) #count # of years of data
-st.list_w2<-subset(st.list_w,REGION %in% c("NMARIAN","SMARIAN","LINE","PHOENIX","WAKE","SAMOA","MHI") & year_n>=2)
-st.list_w3<-subset(st.list_w,REGION %in% c("NWHI") & year_n>=3)
+st.list_w2<-subset(st.list_w,REGION %in% c("NMARIAN","SMARIAN","LINE","PHOENIX","WAKE","SAMOA") & year_n>=2)
+st.list_w3<-subset(st.list_w,REGION %in% c("NWHI","MHI") & year_n>=3)
 st.list_w4<-rbind(st.list_w2,st.list_w3)
 
 head(st.list_w4);st.list_w4<-droplevels(st.list_w4) #generate the list
 
 data.gen_temp<-site.data.gen2[site.data.gen2$STRATANAME %in% c(st.list_w4$STRATANAME),] #Subset juv data to only include strata of intersest 
-data.gen_temp<-data.gen_temp[data.gen_temp$OBS_YEAR >2013,] #Remove 2013 MHI data- we had very poor sampling that year and it's 2 years prior to bleaching event
 
 View(data.gen_temp) #double check that strata were dropped correctly
 
@@ -263,7 +268,7 @@ View(data.gen_temp) #double check that strata were dropped correctly
 #POOL UP TO STRATA, SECTOR, ISLAND
 #Set ANALYSIS_SCHEMA to STRATA and DOMAIN_SCHEMA to whatever the highest level you want estimates for (e.g. sector, island, region)
 data.gen_temp$ANALYSIS_SCHEMA<-data.gen_temp$STRATANAME
-data.gen_temp$DOMAIN_SCHEMA<-data.gen_temp$SEC_NAME
+data.gen_temp$DOMAIN_SCHEMA<-data.gen_temp$SEC_NAME 
 data.gen_temp$ANALYSIS_YEAR<-data.gen_temp$OBS_YEAR
 data.gen_temp$DB_RZ<-paste(data.gen_temp$DEPTH_BIN,data.gen_temp$REEF_ZONE,sep="_")
 
@@ -279,158 +284,121 @@ head(jcdG_st)
 jcdG_st<-cSplit(jcdG_st, 'DB_RZ', sep="_", type.convert=FALSE);colnames(jcdG_st)[colnames(jcdG_st)=="DB_RZ_1"]<-"DEPTH_BIN"
 jcdG_stS<-subset(jcdG_st,GENUS_CODE=="SSSS")
 
-#Calculate weighted strata density - need this for the barplots
+
+write.csv(jcdG_st,file="T:/Benthic/Projects/Juvenile Project/JuvProject_STRATA_WITH_MHI2013.csv")
+
+
+
+# GENERATE DATA FOR TEMPORAL ANALYSIS WITHOUT 2013 MHI---------------------------------------------------
+site.data.gen3$STRATANAME<- paste(site.data.gen3$SEC_NAME,site.data.gen3$REEF_ZONE,site.data.gen3$DEPTH_BIN,sep="_")
+st.list<-ddply(site.data.gen3,.(METHOD,OBS_YEAR,REGION,ISLAND,SEC_NAME,STRATANAME),summarize,n=length(unique(SITE)))
+st.list2<-subset(st.list,n>=2);head(st.list) #Make sure each stratum has at least 2 sites
+
+#Generate list of strata that were surveyed in all years for a given region and had at least 2 sites/stratum
+st.list_w<-dcast(st.list2, formula=METHOD+REGION+ISLAND+SEC_NAME+STRATANAME~ OBS_YEAR, value.var="n",fill=0)
+dCOLS<-c("2014","2015","2016","2017","2018","2019")
+st.list_w$year_n<-rowSums(st.list_w[,dCOLS] > 0, na.rm=T) #count # of years of data
+st.list_w2<-subset(st.list_w,REGION %in% c("NMARIAN","SMARIAN","LINE","PHOENIX","WAKE","SAMOA","MHI") & year_n>=2)
+st.list_w3<-subset(st.list_w,REGION %in% c("NWHI") & year_n>=3)
+st.list_w4<-rbind(st.list_w2,st.list_w3)
+
+head(st.list_w4);st.list_w4<-droplevels(st.list_w4) #generate the list
+
+data.gen_temp<-site.data.gen3[site.data.gen3$STRATANAME %in% c(st.list_w4$STRATANAME),] #Subset juv data to only include strata of intersest 
+
+#POOL UP TO STRATA, SECTOR, ISLAND
+#Set ANALYSIS_SCHEMA to STRATA and DOMAIN_SCHEMA to whatever the highest level you want estimates for (e.g. sector, island, region)
+data.gen_temp$ANALYSIS_SCHEMA<-data.gen_temp$STRATANAME
+data.gen_temp$DOMAIN_SCHEMA<-data.gen_temp$SEC_NAME 
+data.gen_temp$ANALYSIS_YEAR<-data.gen_temp$OBS_YEAR
+data.gen_temp$DB_RZ<-paste(data.gen_temp$DEPTH_BIN,data.gen_temp$REEF_ZONE,sep="_")
+
+#Create a vector of columns to subset for strata estimates
+c.keep<-c("METHOD","REGION","ISLAND","DOMAIN_SCHEMA","ANALYSIS_YEAR","ANALYSIS_SCHEMA","REEF_ZONE","DB_RZ","GENUS_CODE",
+          "n_h","N_h","D._h","SE_D._h")
+
+jcdG_st<-Calc_Strata(data.gen_temp,"GENUS_CODE","JuvColDen","Juvpres.abs");jcdG_st=jcdG_st[,c.keep]
+colnames(jcdG_st)<-c("METHOD","REGION","ISLAND","SEC_NAME","ANALYSIS_YEAR","STRATANAME","REEF_ZONE","DB_RZ","GENUS_CODE","n","Ntot","JuvColDen","SE_JuvColDen")
+jcdG_st$ANALYSIS_YEAR<-as.factor(jcdG_st$ANALYSIS_YEAR)
+head(jcdG_st)
+
+jcdG_st<-cSplit(jcdG_st, 'DB_RZ', sep="_", type.convert=FALSE);colnames(jcdG_st)[colnames(jcdG_st)=="DB_RZ_1"]<-"DEPTH_BIN"
+jcdG_stS<-subset(jcdG_st,GENUS_CODE=="SSSS")
+
+
+write.csv(jcdG_st,file="T:/Benthic/Projects/Juvenile Project/JuvProject_STRATA_WITHOUT_MHI2013.csv")
+
+###I Think I may be able to delete this text
+
+# #Subset most recent survey data for each region
+# REGION_YEAR<-c("MHI_2019","NWHI_2017","NMARIAN_2017","SMARIAN_2017","PHOENIX_2018","LINE_2018","SAMOA_2018","WAKE_2017")
+# jcdG_stS<-as.data.frame(jcdG_stS)
+# 
+# jcdG_stS$REGION_YEAR<-paste(jcdG_stS$REGION,jcdG_stS$ANALYSIS_YEAR,sep="_")
+# jcdG_stS_pb<-jcdG_stS[jcdG_stS$REGION_YEAR %in% REGION_YEAR,]
+# head(jcdG_stS_pb)
+# 
+# 
+# #Calculate Island Estimates
+# data.gen_temp$ANALYSIS_SCHEMA<-data.gen_temp$STRATANAME
+# data.gen_temp$DOMAIN_SCHEMA<-data.gen_temp$ISLAND
+# data.gen_temp$ANALYSIS_YEAR<-data.gen_temp$OBS_YEAR
+# data.gen_temp$DB_RZ<-paste(data.gen_temp$DEPTH_BIN,data.gen_temp$REEF_ZONE,sep="_")
+# 
+# jcdG_is<-Calc_Domain(data.gen_temp,"GENUS_CODE","JuvColDen","Juvpres.abs")
+# jcdG_is<-jcdG_is[,c("REGION","ANALYSIS_YEAR","DOMAIN_SCHEMA","GENUS_CODE","n","Ntot","Mean_JuvColDen","SE_JuvColDen")]
+# jcdG_isS<-subset(jcdG_is,GENUS_CODE=="SSSS")
+# 
+# #Calculate Regional Estimates
+# data.gen_temp$ANALYSIS_SCHEMA<-data.gen_temp$STRATANAME
+# data.gen_temp$ANALYSIS_YEAR<-data.gen_temp$OBS_YEAR
+# data.gen_temp$DB_RZ<-paste(data.gen_temp$DEPTH_BIN,data.gen_temp$REEF_ZONE,sep="_")
+# 
+# jcdG_r<-Calc_Domain_Region(data.gen_temp,"GENUS_CODE","JuvColDen","Juvpres.abs")
+# jcdG_r<-jcdG_r[,c("REGION","ANALYSIS_YEAR","GENUS_CODE","n","Ntot","Mean_JuvColDen","SE_JuvColDen")]
+# jcdG_r$REGION<-ifelse(is.na(jcdG_r$REGION),"Wake",jcdG_r$REGION)
+# jcdG_rS<-subset(jcdG_r,GENUS_CODE=="SSSS")
+
+
+# Calculate Weighted Strata Delta density -------------------------------------------------
+data.gen_tempS<-subset(data.gen_temp,GENUS_CODE=="SSSS")
+
+
+#Set ANALYSIS_SCHEMA to STRATA and DOMAIN_SCHEMA to whatever the highest level you want estimates for (e.g. sector, island, region)
+data.gen_tempS$ANALYSIS_SCHEMA<-data.gen_tempS$STRATANAME
+data.gen_tempS$DOMAIN_SCHEMA<-data.gen_tempS$REGION 
+data.gen_tempS$ANALYSIS_YEAR<-data.gen_tempS$OBS_YEAR
+data.gen_tempS$DB_RZ<-paste(data.gen_tempS$DEPTH_BIN,data.gen_tempS$REEF_ZONE,sep="_")
+
+#Create a vector of columns to subset for strata estimates
+c.keep<-c("METHOD","REGION","ISLAND","DOMAIN_SCHEMA","ANALYSIS_YEAR","ANALYSIS_SCHEMA","REEF_ZONE","DB_RZ","GENUS_CODE",
+          "n_h","N_h","D._h","SE_D._h")
+
+#ORGINAL text- eventually move to juv density LMM section
 jcdG_stW<-Calc_Strata_Weighted(data.gen_temp,"GENUS_CODE","JuvColDen")
-colnames(jcdG_stW)<-c("REGION","ISLAND","ANALYSIS_YEAR","SEC_NAME","STRATANAME","REEF_ZONE","DB_RZ","GENUS_CODE","n","Ntot","JuvColDen","SE_JuvColDen","JuvDenW","SEJuvDenW")
+colnames(jcdG_stW)<-c("REGION","ISLAND","ANALYSIS_YEAR","SEC_NAME","STRATANAME","REEF_ZONE","DB_RZ","GENUS_CODE","n","Ntot","JuvColDen","Var_JuvColDen","SE_JuvColDen","JuvDenW","SEJuvDenW")
 jcdG_stW$ANALYSIS_YEAR<-as.factor(jcdG_stW$ANALYSIS_YEAR)
 head(jcdG_stW)
 jcdG_stWS<-subset(jcdG_stW,GENUS_CODE=="SSSS")
 
 
-#Subset most recent survey data for each region
-REGION_YEAR<-c("MHI_2019","NWHI_2017","NMARIAN_2017","SMARIAN_2017","PHOENIX_2018","LINE_2018","SAMOA_2018","WAKE_2017")
-jcdG_stS<-as.data.frame(jcdG_stS)
-
-jcdG_stS$REGION_YEAR<-paste(jcdG_stS$REGION,jcdG_stS$ANALYSIS_YEAR,sep="_")
-jcdG_stS_pb<-jcdG_stS[jcdG_stS$REGION_YEAR %in% REGION_YEAR,]
-head(jcdG_stS_pb)
-
-
-#Calculate Island Estimates
-data.gen_temp$ANALYSIS_SCHEMA<-data.gen_temp$STRATANAME
-data.gen_temp$DOMAIN_SCHEMA<-data.gen_temp$ISLAND
-data.gen_temp$ANALYSIS_YEAR<-data.gen_temp$OBS_YEAR
-data.gen_temp$DB_RZ<-paste(data.gen_temp$DEPTH_BIN,data.gen_temp$REEF_ZONE,sep="_")
-
-jcdG_is<-Calc_Domain(data.gen_temp,"GENUS_CODE","JuvColDen","Juvpres.abs")
-jcdG_is<-jcdG_is[,c("REGION","ANALYSIS_YEAR","DOMAIN_SCHEMA","GENUS_CODE","n","Ntot","Mean_JuvColDen","SE_JuvColDen")]
-jcdG_isS<-subset(jcdG_is,GENUS_CODE=="SSSS")
-
-#Calculate Regional Estimates
-data.gen_temp$ANALYSIS_SCHEMA<-data.gen_temp$STRATANAME
-data.gen_temp$ANALYSIS_YEAR<-data.gen_temp$OBS_YEAR
-data.gen_temp$DB_RZ<-paste(data.gen_temp$DEPTH_BIN,data.gen_temp$REEF_ZONE,sep="_")
-
-jcdG_r<-Calc_Domain_Region(data.gen_temp,"GENUS_CODE","JuvColDen","Juvpres.abs")
-jcdG_r<-jcdG_r[,c("REGION","ANALYSIS_YEAR","GENUS_CODE","n","Ntot","Mean_JuvColDen","SE_JuvColDen")]
-jcdG_r$REGION<-ifelse(is.na(jcdG_r$REGION),"Wake",jcdG_r$REGION)
-jcdG_rS<-subset(jcdG_r,GENUS_CODE=="SSSS")
+#Calculate weighted strata density - for mixed models of regional patterns in delta density
+jcdG_stW<-Calc_Strata_Weighted(data.gen_tempS,"GENUS_CODE","JuvColDen")
+colnames(jcdG_stW)<-c("REGION","ISLAND","ANALYSIS_YEAR","SEC_NAME","STRATANAME","REEF_ZONE","DB_RZ","GENUS_CODE","n","Ntot","JuvColDen","Var_JuvColDen","SE_JuvColDen","JuvDenW","SEJuvDenW")
+jcdG_stW$ANALYSIS_YEAR<-as.factor(jcdG_stW$ANALYSIS_YEAR)
+head(jcdG_stW)
+jcdG_stWS<-subset(jcdG_stW,GENUS_CODE=="SSSS")
 
 
-# Calculate Weighted Strata Delta density -------------------------------------------------
-# jcdst_deltaW<-jcdG_stWS
-# 
-# #Identify median date that surveys were conducted for each strata and year
-# data.gen_tempS<-subset(data.gen_temp,GENUS_CODE=="SSSS")
-# date.sum<-ddply(data.gen_tempS,.(METHOD,ANALYSIS_YEAR,REGION,DEPTH_BIN,STRATANAME),
-#                 summarize,
-#                 DATE_=median(DATE_,na.rm=T))
-# date.sum$ANALYSIS_YEAR<-as.factor(date.sum$ANALYSIS_YEAR)
-# jcdst_deltaW$ANALYSIS_YEAR<-as.factor(jcdst_deltaW$ANALYSIS_YEAR)
-# strat.data.new<-left_join(jcdst_deltaW,date.sum)
-# 
-# #Identify median date that surveys were conducted for region and year
-# temp.date<-ddply(data.gen_tempS,.(ANALYSIS_YEAR,REGION),
-#                  summarize,
-#                  DATE_=median(DATE_,na.rm=T))
-# temp.date
-# #Convert date long to wide
-# strat.data.new$YEAR<-paste("a",strat.data.new$ANALYSIS_YEAR,sep="")
-# tmp<-strat.data.new[,c("METHOD","REGION","ISLAND","YEAR","STRATANAME","DEPTH_BIN","DATE_")];head(tmp)
-# n.df <- spread(tmp, YEAR, DATE_);head(n.df)
-# 
-# #Calculate difference between dates
-# n.df$Tdiff<-NULL
-# for (i in c(1:nrow(n.df))){ #opening brace
-#   if(n.df$REGION[i] =="LINE"){ #c&p
-#     n.df$Tdiff[i] = difftime(as.Date(n.df$a2018[i]) ,as.Date(n.df$a2015[i]) , units = c("weeks")) #c&p
-#   } #c&p
-#   if(n.df$REGION[i] =="PHOENIX"){ #c&p
-#     n.df$Tdiff[i] = difftime(as.Date(n.df$a2018[i]) ,as.Date(n.df$a2015[i]) , units = c("weeks")) #c&p
-#   } #c&p
-#   if(n.df$REGION[i] =="SAMOA"){ #c&p
-#     n.df$Tdiff[i] = difftime(as.Date(n.df$a2018[i]) ,as.Date(n.df$a2015[i]) , units = c("weeks")) #c&p
-#   } #c&p
-#   if(n.df$REGION[i] =="WAKE"){ #c&p
-#     n.df$Tdiff[i] = difftime(as.Date(n.df$a2017[i]) ,as.Date(n.df$a2014[i]) , units = c("weeks")) #c&p
-#   } #c&p
-#   if(n.df$REGION[i] =="NMARIAN"){ #c&p
-#     n.df$Tdiff[i] = difftime(as.Date(n.df$a2017[i]) ,as.Date(n.df$a2014[i]) , units = c("weeks")) #c&p
-#   } #c&p
-#   if(n.df$REGION[i] =="SMARIAN"){ #c&p
-#     n.df$Tdiff[i] = difftime(as.Date(n.df$a2017[i]) ,as.Date(n.df$a2014[i]) , units = c("weeks")) #c&p
-#   } #c&p
-#   if(n.df$REGION[i] =="MHI"){ #c&p
-#     n.df$Tdiff[i] = difftime(as.Date(n.df$a2019[i]) ,as.Date(n.df$a2016[i]) , units = c("weeks")) #c&p
-#   } #c&p
-#   if(n.df$REGION[i] =="NWHI"){ #c&p
-#     n.df$Tdiff[i] = difftime(as.Date(n.df$a2017[i]) ,as.Date(n.df$a2015[i]) , units = c("weeks")) #c&p
-#   } #c&p
-# } #closing curly brace for entire forloop
-# head(n.df)
-# 
-# n.df$years<-n.df$Tdiff/52 #transform Tdiff into months
-# 
-# tmp<-strat.data.new[,c("METHOD","REGION","ISLAND","SEC_NAME","YEAR","STRATANAME","DEPTH_BIN","JuvDenW")];head(tmp)
-# juv.new <- spread(tmp, YEAR, JuvDenW);head(juv.new)
-# 
-# #Calculate difference in Juv density between years
-# juv.new$DeltaDen<-NULL
-# for (i in c(1:nrow(juv.new))){ #opening brace
-#   if(juv.new$REGION[i] =="LINE"){ #c&p
-#     juv.new$DeltaDen[i] = juv.new$a2018[i] - juv.new$a2015[i] #c&p
-#   } #c&p
-#   if(juv.new$REGION[i] =="PHOENIX"){ #c&p
-#     juv.new$DeltaDen[i] = juv.new$a2018[i] - juv.new$a2015[i] #c&p
-#   } #c&p
-#   if(juv.new$REGION[i] =="SAMOA"){ #c&p
-#     juv.new$DeltaDen[i] = juv.new$a2018[i] - juv.new$a2015[i] #c&p
-#   } #c&p
-#   if(juv.new$REGION[i] =="WAKE"){ #c&p
-#     juv.new$DeltaDen[i] = juv.new$a2017[i] - juv.new$a2014[i] #c&p
-#   } #c&p
-#   if(juv.new$REGION[i] =="NMARIAN"){ #c&p
-#     juv.new$DeltaDen[i] = juv.new$a2017[i] - juv.new$a2014[i] #c&p
-#   } #c&p
-#   if(juv.new$REGION[i] =="SMARIAN"){ #c&p
-#     juv.new$DeltaDen[i] = juv.new$a2017[i] - juv.new$a2014[i] #c&p
-#   } #c&p
-#   if(juv.new$REGION[i] =="MHI"){ #c&p
-#     juv.new$DeltaDen[i] = juv.new$a2019[i] - juv.new$a2016[i] #c&p
-#   } #c&p
-#   if(juv.new$REGION[i] =="NWHI"){ #c&p
-#     juv.new$DeltaDen[i] = juv.new$a2017[i] - juv.new$a2015[i] #c&p
-#   } #c&p
-# } #closing curly brace for entire forloop
-# head(juv.new)
-# 
-# #Clean up date and juv datasets and merge & CALCULATE Delta density/year
-# n.df<-n.df[,c("METHOD","REGION","ISLAND","STRATANAME","DEPTH_BIN","years")];head(n.df)
-# juv.new<-juv.new[,c("METHOD","REGION","ISLAND","SEC_NAME","STRATANAME","DEPTH_BIN","DeltaDen")];head(juv.new)
-# delta.dfW<-left_join(juv.new,n.df);head(delta.dfW)
-# delta.dfW$DeltaDen_yr<-delta.dfW$DeltaDen/delta.dfW$years
-# View(delta.dfW)
-# 
-# 
-# #Speak with Mary about calculating weighted island and regional delta density
-# #Calculating variance of delta density is tricky- delta var = sum of variances/sum of sample sizes?
-# 
-# #For now just calculate unweighted delta density
-# delta.sumI<-ddply(delta.dfW,.(REGION,ISLAND),
-#                   summarize,
-#                   DeltaMEAN=mean(DeltaDen_yr,na.rm=T),
-#                   DeltaSE=std.error(DeltaDen_yr,na.rm=T))
-# 
-# delta.sumR<-ddply(delta.dfW,.(REGION),
-#                   summarize,
-#                   DeltaMEAN=mean(DeltaDen_yr,na.rm=T),
-#                   DeltaSE=std.error(DeltaDen_yr,na.rm=T))
-# 
+# Calculate Weighted and Island Regional Delta density -------------------------------------------------
 
+#There are 2 ways I'm playing around with calculating weighted SE of delta density
+#Option 1-
 
-# Calculate Unweighted Regional Delta density -------------------------------------------------
+jcdst_delta<-jcdG_st 
 
-jcdst_delta<-jcdG_stS #unweighted stata-level data
+#French Frigate Mid FRF area isn't correct- temp fix
+jcdst_delta$Ntot<-ifelse(jcdst_delta$STRATANAME=="French Frigate_Forereef_Mid",4787.00,jcdst_delta$Ntot)
 
 #Identify median date that surveys were conducted for each strata and year
 data.gen_tempS<-subset(data.gen_temp,GENUS_CODE=="SSSS")
@@ -483,65 +451,121 @@ head(n.df)
 
 n.df$years<-n.df$Tdiff/52 #transform Tdiff into months
 
-tmp<-strat.data.new[,c("METHOD","REGION","ISLAND","SEC_NAME","YEAR","STRATANAME","DEPTH_BIN","JuvColDen")];head(tmp)
-juv.new <- spread(tmp, YEAR, JuvColDen);head(juv.new)
+#Convert long to wide for mean, n and var (have to do in 3 different chunks)
+#mean
+tmp<-strat.data.new[,c("METHOD","REGION","ISLAND","SEC_NAME","YEAR","STRATANAME","DEPTH_BIN","JuvColDen","Ntot")];head(tmp)
+juv.new1 <- spread(tmp, YEAR, JuvColDen);head(juv.new1)
+colnames(juv.new1)[8:13] <- c("m2014","m2015","m2016","m2017","m2018","m2019")
 
-#Calculate difference in Juv density between years
-juv.new$DeltaDen<-NULL
-for (i in c(1:nrow(juv.new))){ #opening brace
-  if(juv.new$REGION[i] =="LINE"){ #c&p
-    juv.new$DeltaDen[i] = juv.new$a2018[i] - juv.new$a2015[i] #c&p
-  } #c&p
-  if(juv.new$REGION[i] =="PHOENIX"){ #c&p
-    juv.new$DeltaDen[i] = juv.new$a2018[i] - juv.new$a2015[i] #c&p
-  } #c&p
-  if(juv.new$REGION[i] =="SAMOA"){ #c&p
-    juv.new$DeltaDen[i] = juv.new$a2018[i] - juv.new$a2015[i] #c&p
-  } #c&p
-  if(juv.new$REGION[i] =="WAKE"){ #c&p
-    juv.new$DeltaDen[i] = juv.new$a2017[i] - juv.new$a2014[i] #c&p
-  } #c&p
-  if(juv.new$REGION[i] =="NMARIAN"){ #c&p
-    juv.new$DeltaDen[i] = juv.new$a2017[i] - juv.new$a2014[i] #c&p
-  } #c&p
-  if(juv.new$REGION[i] =="SMARIAN"){ #c&p
-    juv.new$DeltaDen[i] = juv.new$a2017[i] - juv.new$a2014[i] #c&p
-  } #c&p
-  if(juv.new$REGION[i] =="MHI"){ #c&p
-    juv.new$DeltaDen[i] = juv.new$a2019[i] - juv.new$a2016[i] #c&p
-  } #c&p
-  if(juv.new$REGION[i] =="NWHI"){ #c&p
-    juv.new$DeltaDen[i] = juv.new$a2017[i] - juv.new$a2015[i] #c&p
-  } #c&p
-} #closing curly brace for entire forloop
-head(juv.new)
+#n = number of sites/year
+tmp<-strat.data.new[,c("METHOD","REGION","ISLAND","SEC_NAME","YEAR","STRATANAME","DEPTH_BIN","n")];head(tmp)
+juv.new2 <- spread(tmp, YEAR,n);head(juv.new2)
+colnames(juv.new2)[7:12] <- c("n2014","n2015","n2016","n2017","n2018","n2019")
 
+#Variance
+tmp<-strat.data.new[,c("METHOD","REGION","ISLAND","SEC_NAME","YEAR","STRATANAME","DEPTH_BIN","Var_JuvColDen")];head(tmp)
+juv.new3 <- spread(tmp, YEAR, Var_JuvColDen);head(juv.new3)
+colnames(juv.new3)[7:12] <- c("v2014","v2015","v2016","v2017","v2018","v2019")
+
+#merge N and Var dfs together
+juv.new4<-left_join(juv.new2,juv.new3)
+
+
+#Calculate difference in MEAN Juv density between years
+juv.new1$DeltaDen<-NULL
+for (i in c(1:nrow(juv.new1))){ #opening brace
+  if(juv.new1$REGION[i] =="LINE"){ #c&p
+    juv.new1$DeltaDen[i] = juv.new1$m2018[i] - juv.new1$m2015[i] #c&p
+  } #c&p
+  if(juv.new1$REGION[i] =="PHOENIX"){ #c&p
+    juv.new1$DeltaDen[i] = juv.new1$m2018[i] - juv.new1$m2015[i] #c&p
+  } #c&p
+  if(juv.new1$REGION[i] =="SAMOA"){ #c&p
+    juv.new1$DeltaDen[i] = juv.new1$m2018[i] - juv.new1$m2015[i] #c&p
+  } #c&p
+  if(juv.new1$REGION[i] =="WAKE"){ #c&p
+    juv.new1$DeltaDen[i] = juv.new1$m2017[i] - juv.new1$m2014[i] #c&p
+  } #c&p
+  if(juv.new1$REGION[i] =="NMARIAN"){ #c&p
+    juv.new1$DeltaDen[i] = juv.new1$m2017[i] - juv.new1$m2014[i] #c&p
+  } #c&p
+  if(juv.new1$REGION[i] =="SMARIAN"){ #c&p
+    juv.new1$DeltaDen[i] = juv.new1$m2017[i] - juv.new1$m2014[i] #c&p
+  }  
+  if(juv.new1$REGION[i] =="MHI"){ #c&p
+      juv.new1$DeltaDen[i] = juv.new1$m2019[i] - juv.new1$m2016[i] #c&p
+    } #c&p
+  if(juv.new1$REGION[i] =="NWHI"){ #c&p
+      juv.new1$DeltaDen[i] = juv.new1$m2017[i] - juv.new1$m2015[i] #c&p
+    } #c&p
+  } #closing curly brace for entire forloop
+  head(juv.new1)
+  
+#Calculate difference in VARIANCE Juv density between years
+  #Calculate difference in MEAN Juv density between years
+juv.new4$VarDeltaDen<-NULL
+  for (i in c(1:nrow(juv.new4))){ #opening brace
+    if(juv.new4$REGION[i] =="LINE"){ #c&p
+      juv.new4$VarDeltaDen[i] = sqrt((juv.new4$v2018[i]/juv.new4$n2018[i]) + (juv.new4$v2015[i]/juv.new4$n2015[i])) #c&p
+    } #c&p
+    if(juv.new4$REGION[i] =="PHOENIX"){ #c&p
+      juv.new4$VarDeltaDen[i] =  sqrt((juv.new4$v2018[i]/juv.new4$n2018[i]) + (juv.new4$v2015[i]/juv.new4$n2015[i])) #c&p
+    } #c&p
+    if(juv.new4$REGION[i] =="SAMOA"){ #c&p
+      juv.new4$VarDeltaDen[i] =  sqrt((juv.new4$v2018[i]/juv.new4$n2018[i]) + (juv.new4$v2015[i]/juv.new4$n2015[i])) #c&p
+    } #c&p
+    if(juv.new4$REGION[i] =="WAKE"){ #c&p
+      juv.new4$VarDeltaDen[i] =  sqrt((juv.new4$v2017[i]/juv.new4$n2017[i]) + (juv.new4$v2014[i]/juv.new4$n2014[i])) #c&p
+    } #c&p
+    if(juv.new4$REGION[i] =="NMARIAN"){ #c&p
+      juv.new4$VarDeltaDen[i] = sqrt((juv.new4$v2017[i]/juv.new4$n2017[i]) + (juv.new4$v2014[i]/juv.new4$n2014[i])) #c&p
+    } #c&p
+    if(juv.new4$REGION[i] =="SMARIAN"){ #c&p
+      juv.new4$VarDeltaDen[i] = sqrt((juv.new4$v2017[i]/juv.new4$n2017[i]) + (juv.new4$v2014[i]/juv.new4$n2014[i])) #c&p
+    }  
+    if(juv.new4$REGION[i] =="MHI"){ #c&p
+        juv.new4$VarDeltaDen[i] = sqrt((juv.new4$v2019[i]/juv.new4$n2019[i]) + (juv.new4$v2016[i]/juv.new4$n2016[i])) #c&p
+      } #c&p
+    if(juv.new4$REGION[i] =="NWHI"){ #c&p
+        juv.new4$VarDeltaDen[i] = sqrt((juv.new4$v2017[i]/juv.new4$n2017[i]) + (juv.new4$v2015[i]/juv.new4$n2015[i])) #c&p
+      } #c&p
+    } #closing curly brace for entire forloop
+    head(juv.new4)
+  
+  
+  
 #Clean up date and juv datasets and merge & CALCULATE Delta density/year
 n.df<-n.df[,c("METHOD","REGION","ISLAND","STRATANAME","DEPTH_BIN","years")];head(n.df)
-juv.new<-juv.new[,c("METHOD","REGION","ISLAND","SEC_NAME","STRATANAME","DEPTH_BIN","DeltaDen")];head(juv.new)
-delta.df<-left_join(juv.new,n.df);head(delta.df)
+juv.new1<-juv.new1[,c("METHOD","REGION","ISLAND","SEC_NAME","STRATANAME","DEPTH_BIN","DeltaDen","Ntot")];head(juv.new1)
+juv.new4<-juv.new4[,c("METHOD","REGION","ISLAND","SEC_NAME","STRATANAME","DEPTH_BIN","VarDeltaDen")];head(juv.new4)
+
+df<-left_join(juv.new1,juv.new4);head(df)
+delta.df<-left_join(df,n.df);head(delta.df)
+
 delta.df$DeltaDen_yr<-delta.df$DeltaDen/delta.df$years
-View(delta.df)
+delta.df$VarDeltaDen_yr<-delta.df$VarDeltaDen/delta.df$years
 
+head(delta.df)
 
-#Speak with Mary about calculating weighted island and regional delta density
-#Calculating variance of delta density is tricky- delta var = sum of variances/sum of sample sizes?
+#Calcuate island and regional delta density
+delta.df$DOMAIN_SCHEMA<-delta.df$ISLAND
+delta.df$ANALYSIS_YEAR<-delta.df$OBS_YEAR
 
-#For now just calculate unweighted delta density
-delta.sumI<-ddply(delta.df,.(REGION,ISLAND),
-                  summarize,
-                  DeltaMEAN=mean(DeltaDen_yr,na.rm=T),
-                  DeltaSE=std.error(DeltaDen_yr,na.rm=T))
+delta_is<-Calc_DomainDelta(delta.df,"DeltaDen_yr","VarDeltaDen_yr")
+delta_is<-delta_is[,c("REGION","DOMAIN_SCHEMA","Mean_DeltaDen_yr","SE_VarDeltaDen_yr")]
+colnames(delta_is)<-c("REGION","ISLAND","Mean_DeltaDen_yr","SE_DeltaDen_yr")
 
-delta.sumR<-ddply(delta.df,.(REGION),
-                   summarize,
-                   DeltaMEAN=mean(DeltaDen_yr,na.rm=T),
-                   DeltaSE=std.error(DeltaDen_yr,na.rm=T))
+#Calculate Regional Estimates
+delta.df$DOMAIN_SCHEMA<-delta.df$REGION
 
+delta_r<-Calc_DomainDelta(delta.df,"DeltaDen_yr","VarDeltaDen_yr")
+delta_r<-delta_r[,c("REGION","Mean_DeltaDen_yr","SE_VarDeltaDen_yr")]
+colnames(delta_r)<-c("REGION","Mean_DeltaDen_yr","SE_DeltaDen_yr")
 
+head(delta_is)
+head(delta_r)
 
-
-#Identify median Latititude that surveys were conducted for each sector and year
+#Identify median Latitude that surveys were conducted for each sector and year
 lat.sum<-ddply(data.gen_tempS,.(REGION,ISLAND),
                summarize,
                LATITUDE=median(LATITUDE,na.rm=T))
@@ -568,6 +592,12 @@ delta.sumD<-ddply(delta.df,.(REGION,DEPTH_BIN),
 
 
 # Mixed models - slope method ---------------------------------------------
+# Trying to find a way to use the site level data
+# The idea is to extract the slope values from the mixed models with random slopes from the before/after bleaching 
+#This would allow me to incorporate the site-level varianace rather than losing it by pooling up to stratum level
+#Unfortunatley, this method doesn't work well. 1- having issues with assumptions of equal variance regardless of which probablity distrubiton I use
+#2- The mixed models are having issues with singularity- which means I need to simplify the random effects- which I can't
+
 head(data.gen_tempS)
 
 
@@ -592,8 +622,8 @@ op<-par(mfrow = c(2, 2))  # Split the plotting panel into a 2 x 2 grid
 plotNormalHistogram(data.gen_tempS$JuvColDen)
 mod<-lmer(JuvColDen~T1_T2+ (1+T1_T2|DB_RZ/SEC_NAME),data=data.gen_tempS,REML = FALSE, control = lmerControl(
   optimizer ='optimx', optCtrl=list(method='L-BFGS-B')))
-qqnorm(residuals(mod),ylab="Sample Quantiles for residuals")
-qqline(residuals(mod), col="red")
+# qqnorm(residuals(mod),ylab="Sample Quantiles for residuals")
+# qqline(residuals(mod), col="red")
 leveneTest(residuals(mod) ~ data.gen_tempS$T1_T2)
 E2<-resid(mod, type = "pearson") # extract normalized residuals
 F2<-fitted(mod) # extract the fitted data
@@ -616,15 +646,15 @@ F2<-fitted(mod) # extract the fitted data
 plot(F2, E2, xlab = "fitted values", ylab = "residuals",main="GLMM-Poisson") # plot the relationship
 
 
-#negative binomial
-mod<-glm.nb(JuvCount~T1_T2,data=data.gen_tempS)
-
-mod<-glmer.nb(JuvCount~T1_T2+ (1+T1_T2|DB_RZ/SEC_NAME),data=data.gen_tempS,verbose=TRUE)
-leveneTest(residuals(mod) ~ data.gen_tempS$T1_T2)
-E2<-resid(mod, type = "pearson") # extract normalized residuals
-F2<-fitted(mod) # extract the fitted data
-plot(F2, E2, xlab = "fitted values", ylab = "residuals",main="GLMM-Negative Binomial") # plot the relationship
-
+# #negative binomial
+# mod<-glm.nb(JuvCount~T1_T2,data=data.gen_tempS)
+# 
+# mod<-glmer.nb(JuvCount~T1_T2+ (1+T1_T2|DB_RZ/SEC_NAME),data=data.gen_tempS,verbose=TRUE)
+# leveneTest(residuals(mod) ~ data.gen_tempS$T1_T2)
+# E2<-resid(mod, type = "pearson") # extract normalized residuals
+# F2<-fitted(mod) # extract the fitted data
+# plot(F2, E2, xlab = "fitted values", ylab = "residuals",main="GLMM-Negative Binomial") # plot the relationship
+# 
 
 
 # #Transformed
@@ -644,12 +674,14 @@ plot(F2, E2, xlab = "fitted values", ylab = "residuals",main="GLMM-Negative Bino
 # 
 
 
-
-#Extract Slope values-SOMETHING'S NOT RIGHT. All of the slope values are the same.
-slopeden<-tibble::rownames_to_column(coef(mod)[["STRATANAME"]])
-slopeden<-slopeden[c(-2)];colnames(slopeden)<-c("STRATANAME","SlopeDen")
+slopeden<-tibble::rownames_to_column(coef(mod)[[c("SEC_NAME:DB_RZ")]])
+slopeden<-slopeden[c(-2)];colnames(slopeden)<-c("SEC_NAME:DB_RZ","SlopeDen")
+slopeden$`SEC_NAME:DB_RZ` <- str_replace_all(slopeden$`SEC_NAME:DB_RZ`, ":", "_")
+colnames(slopeden)<-c("STRATANAME2","SlopeDen")
+head(slopeden)
 
 #Merge with delta def
+delta.df$STRATANAME2<-paste(delta.df$SEC_NAME,delta.df$DEPTH_BIN,"Forereef",sep = "_")
 delta.df<-left_join(delta.df,slopeden);head(delta.df)
 delta.df$Diff<-delta.df$DeltaDen_yr-delta.df$SlopeDen
 delta.df[order(delta.df$Diff),]
@@ -673,7 +705,6 @@ abline(mod2)
 
 
 # MIXED MODELING -Delta density-------------------------------
-
 #Check for normality and equal variance
 plotNormalHistogram(jcdG_stWS$JuvDenW)
 mod<-lm(JuvDenW~ANALYSIS_YEAR,data=jcdG_stWS)
@@ -784,19 +815,20 @@ p8
 
 
 #Delta Density
+plotNormalHistogram(delta.dfW$DeltaDen_yr)
 
 
-# delta.df$Delta_trans<-sqrt(delta.df$DeltaDen_yr+2.7)
-# plotNormalHistogram(delta.df$Delta_trans)
-# mod<-lmer(Delta_trans~REGION +(1|SEC_NAME),data=delta.df)
-# qqnorm(residuals(mod),ylab="Sample Quantiles for residuals")
-# qqline(residuals(mod), col="red")
-# 
-# 
-# summary(mod)  # Report the results
-# par(mfrow = c(2, 2))  # Split the plotting panel into a 2 x 2 grid
-# plot(mod) 
-# leveneTest(Delta_trans~REGION,data=delta.df)
+delta.df$Delta_trans<-sqrt(delta.df$DeltaDen_yr+2.7)
+plotNormalHistogram(delta.df$Delta_trans)
+mod<-lmer(Delta_trans~REGION +(1|SEC_NAME),data=delta.df)
+qqnorm(residuals(mod),ylab="Sample Quantiles for residuals")
+qqline(residuals(mod), col="red")
+
+
+summary(mod)  # Report the results
+par(mfrow = c(2, 2))  # Split the plotting panel into a 2 x 2 grid
+plot(mod)
+leveneTest(Delta_trans~REGION,data=delta.df)
 
 
 #Can't transform- use non parametric
@@ -806,13 +838,13 @@ pairwise.wilcox.test(delta.df$Delta_trans, delta.df$REGION,
                      p.adjust.method = "BH")
 
 #Add Posthoc groupings from LMMs
-delta.sumR<- delta.sumR[order(delta.sumR$REGION),];delta.sumR
+delta_r<- delta_r[order(delta_r$REGION),];delta_r
 
-delta.sumR$REGION <- factor(delta.sumR$REGION, levels = c("NWHI","MHI","WAKE","PHOENIX","LINE","SAMOA","SMARIAN","NMARIAN"))
-delta.sumR$sig<-c("abc","a","abc","c","abc","ab","bc","abc")
-delta.sumR$years<-c("2017-2014","2019-2016","2017-2014","2018-2015","2018-2015","2018-2015","2017-2014","2017-2014")
+delta_r$REGION <- factor(delta_r$REGION, levels = c("NWHI","MHI","WAKE","PHOENIX","LINE","SAMOA","SMARIAN","NMARIAN"))
+delta_r$sig<-c("abc","a","abc","c","abc","ab","bc","abc")
+delta_r$years<-c("2017-2015","2019-2016","2017-2014","2018-2015","2018-2015","2018-2015","2017-2014","2017-2014")
 
-p9 <- ggplot(delta.sumR, aes(x=REGION, y=DeltaMEAN,fill=REGION)) +
+p9 <- ggplot(delta_r, aes(x=REGION, y=DeltaMEAN,fill=REGION)) +
   geom_bar(stat = "identity", position = position_dodge2(preserve='single'), width = 1, color="black") +
   geom_errorbar(aes(y=DeltaMEAN, x=REGION,ymin=DeltaMEAN-DeltaSE, ymax=DeltaMEAN+DeltaSE), width=.2)+
   theme_bw() +
