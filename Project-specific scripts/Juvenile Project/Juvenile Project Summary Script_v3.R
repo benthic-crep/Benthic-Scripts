@@ -315,10 +315,10 @@ data.gen_temp$DB_RZ<-paste(data.gen_temp$DEPTH_BIN,data.gen_temp$REEF_ZONE,sep="
 
 #Create a vector of columns to subset for strata estimates
 c.keep<-c("METHOD","REGION","ISLAND","DOMAIN_SCHEMA","ANALYSIS_YEAR","ANALYSIS_SCHEMA","REEF_ZONE","DB_RZ","GENUS_CODE",
-          "n_h","N_h","D._h","SE_D._h")
+          "n_h","N_h","D._h","varD._h","SE_D._h")
 
 jcdG_st<-Calc_Strata(data.gen_temp,"GENUS_CODE","JuvColDen","Juvpres.abs");jcdG_st=jcdG_st[,c.keep]
-colnames(jcdG_st)<-c("METHOD","REGION","ISLAND","SEC_NAME","ANALYSIS_YEAR","STRATANAME","REEF_ZONE","DB_RZ","GENUS_CODE","n","Ntot","JuvColDen","SE_JuvColDen")
+colnames(jcdG_st)<-c("METHOD","REGION","ISLAND","SEC_NAME","ANALYSIS_YEAR","STRATANAME","REEF_ZONE","DB_RZ","GENUS_CODE","n","Ntot","JuvColDen","Var_JuvColDen","SE_JuvColDen")
 jcdG_st$ANALYSIS_YEAR<-as.factor(jcdG_st$ANALYSIS_YEAR)
 head(jcdG_st)
 
@@ -394,8 +394,7 @@ jcdG_stWS<-subset(jcdG_stW,GENUS_CODE=="SSSS")
 
 #There are 2 ways I'm playing around with calculating weighted SE of delta density
 #Option 1-
-
-jcdst_delta<-jcdG_st 
+jcdst_delta<-jcdG_stS
 
 #French Frigate Mid FRF area isn't correct- temp fix
 jcdst_delta$Ntot<-ifelse(jcdst_delta$STRATANAME=="French Frigate_Forereef_Mid",4787.00,jcdst_delta$Ntot)
@@ -468,7 +467,7 @@ juv.new3 <- spread(tmp, YEAR, Var_JuvColDen);head(juv.new3)
 colnames(juv.new3)[7:12] <- c("v2014","v2015","v2016","v2017","v2018","v2019")
 
 #merge N and Var dfs together
-juv.new4<-left_join(juv.new2,juv.new3)
+juv.new4<-left_join(juv.new2,juv.new3);head(juv.new4)
 
 
 #Calculate difference in MEAN Juv density between years
@@ -549,21 +548,49 @@ head(delta.df)
 
 #Calcuate island and regional delta density
 delta.df$DOMAIN_SCHEMA<-delta.df$ISLAND
-delta.df$ANALYSIS_YEAR<-delta.df$OBS_YEAR
 
-delta_is<-Calc_DomainDelta(delta.df,"DeltaDen_yr","VarDeltaDen_yr")
-delta_is<-delta_is[,c("REGION","DOMAIN_SCHEMA","Mean_DeltaDen_yr","SE_VarDeltaDen_yr")]
-colnames(delta_is)<-c("REGION","ISLAND","Mean_DeltaDen_yr","SE_DeltaDen_yr")
+delta_is<-Calc_DomainDelta(delta.df,"DeltaDen_yr","VarDeltaDen_yr","SE_DeltaDen_yr")
+colnames(delta_is)[2]<-c("ISLAND")
 
 #Calculate Regional Estimates
 delta.df$DOMAIN_SCHEMA<-delta.df$REGION
+delta_r<-Calc_DomainDelta(delta.df,"DeltaDen_yr","VarDeltaDen_yr","SE_DeltaDen_yr")
 
-delta_r<-Calc_DomainDelta(delta.df,"DeltaDen_yr","VarDeltaDen_yr")
-delta_r<-delta_r[,c("REGION","Mean_DeltaDen_yr","SE_VarDeltaDen_yr")]
-colnames(delta_r)<-c("REGION","Mean_DeltaDen_yr","SE_DeltaDen_yr")
 
 head(delta_is)
 head(delta_r)
+
+
+# Calculate Weighted Strata Delta density for mixed models-------------------------------------------------
+
+#Set ANALYSIS_SCHEMA to STRATA and DOMAIN_SCHEMA to whatever the highest level you want estimates for (e.g. sector, island, region)
+delta.df$ANALYSIS_SCHEMA<-delta.df$STRATANAME
+delta.df$DOMAIN_SCHEMA<-delta.df$REGION 
+delta.df$ANALYSIS_YEAR<-delta.df$OBS_YEAR
+delta.df$DB_RZ<-paste(delta.df$DEPTH_BIN,"Forereef",sep="_")
+delta.df$GENUS_CODE<-"SSSS"
+
+#Create a vector of columns to subset for strata estimates
+c.keep<-c("METHOD","REGION","ISLAND","DOMAIN_SCHEMA","ANALYSIS_YEAR","ANALYSIS_SCHEMA","REEF_ZONE","DB_RZ","GENUS_CODE",
+          "n_h","N_h","D._h","SE_D._h")
+
+#ORGINAL text- eventually move to juv density LMM section
+jcdG_stW<-Calc_Strata_Weighted(delta.df,"GENUS_CODE","JuvColDen")
+colnames(jcdG_stW)<-c("REGION","ISLAND","ANALYSIS_YEAR","SEC_NAME","STRATANAME","REEF_ZONE","DB_RZ","GENUS_CODE","n","Ntot","JuvColDen","Var_JuvColDen","SE_JuvColDen","JuvDenW","SEJuvDenW")
+jcdG_stW$ANALYSIS_YEAR<-as.factor(jcdG_stW$ANALYSIS_YEAR)
+head(jcdG_stW)
+jcdG_stWS<-subset(jcdG_stW,GENUS_CODE=="SSSS")
+
+#Calculate weighting factor for strata with REGION as domain
+strat.temp<-ddply(delta.df,.(REGION,STRATANAME,Ntot),summarize,temp=sum(Ntot,na.rm=TRUE)) #calculate # of possible sites in a given stratum
+Strata_NH<-ddply(strat.temp,.(REGION,STRATANAME),summarize,N_h.as=sum(Ntot,na.rm=TRUE)) #calculate # of possible sites in a given stratum
+Dom_NH<-ddply(Strata_NH,.(REGION),summarize,Dom_N_h=sum(N_h.as,na.rm=TRUE))#calculate # of possible sites in a given domain, use this to calculate weighting factor
+Strata_NH_R<-left_join(Strata_NH,Dom_NH) #add Dom_N_h into Strata_NH df
+Strata_NH_R$w<-Strata_NH_R$N_h.as/Strata_NH_R$Dom_N_h # add schema weighting factor to schema dataframe
+
+delta.df<-left_join(delta.df,Strata_NH_R)
+delta.df$W_DeltaDen<-delta.df$DeltaDen_yr*delta.df$w
+
 
 #Identify median Latitude that surveys were conducted for each sector and year
 lat.sum<-ddply(data.gen_tempS,.(REGION,ISLAND),
@@ -814,39 +841,104 @@ p8 <- ggplot(jcdG_rS, aes(x=ANALYSIS_YEAR, y=Mean_JuvColDen,fill=REGION)) +
 p8
 
 
-#Delta Density
-plotNormalHistogram(delta.dfW$DeltaDen_yr)
+#Checking normality/equal variance for UNWEIGHTED Delta Density
+plotNormalHistogram(delta.df$DeltaDen_yr)
 
+par(mfrow = c(2, 2))  # Split the plotting panel into a 2 x 2 grid
+#delta.df$Delta_trans<-sqrt(delta.df$DeltaDen_yr+2.7) #sqrt
+delta.df$Delta_trans<-sign(delta.df$DeltaDen_yr+2.7) + abs(delta.df$DeltaDen_yr+2.7)^1/3 #cube root
 
-delta.df$Delta_trans<-sqrt(delta.df$DeltaDen_yr+2.7)
 plotNormalHistogram(delta.df$Delta_trans)
-mod<-lmer(Delta_trans~REGION +(1|SEC_NAME),data=delta.df)
+#mod<-lmer(Delta_trans~REGION +(1|SEC_NAME),data=delta.df)
+mod<-lm(Delta_trans~REGION,data=delta.df)
+
 qqnorm(residuals(mod),ylab="Sample Quantiles for residuals")
 qqline(residuals(mod), col="red")
-
-
-summary(mod)  # Report the results
-par(mfrow = c(2, 2))  # Split the plotting panel into a 2 x 2 grid
 plot(mod)
 leveneTest(Delta_trans~REGION,data=delta.df)
 
+#Cube root works best, but not perfect- tried power transformation too
 
-#Can't transform- use non parametric
-kruskal.test(Delta_trans~REGION,data=delta.df)
 
-pairwise.wilcox.test(delta.df$Delta_trans, delta.df$REGION,
+#Checking normality/equal variance for WEIGHTED Delta Density
+plotNormalHistogram(delta.df$W_DeltaDen)
+
+p<-par(mfrow = c(2, 2))  # Split the plotting panel into a 2 x 2 grid
+delta.df$Delta_trans<-sqrt(delta.df$W_DeltaDen+0.3) #sqrt
+delta.df$Delta_trans<-sign(delta.df$W_DeltaDen+0.3) + abs(delta.df$W_DeltaDen+0.3)^1/3 #cube root
+
+plotNormalHistogram(delta.df$Delta_trans)
+mod<-lmer(Delta_trans~REGION +(1|SEC_NAME),data=delta.df)
+mod<-lm(Delta_trans~REGION,data=delta.df)
+
+qqnorm(residuals(mod),ylab="Sample Quantiles for residuals")
+qqline(residuals(mod), col="red")
+summary(mod)  # Report the results
+plot(mod)
+leveneTest(Delta_trans~REGION,data=delta.df)
+
+#Power transformation
+library(rcompanion)
+
+delta.df$T_tuk = transformTukey(delta.df$W_DeltaDen +0.3, plotit=FALSE)
+plotNormalHistogram(T_tuk)
+
+mod<-lm(T_tuk~REGION,data=delta.df)
+
+qqnorm(residuals(mod),ylab="Sample Quantiles for residuals")
+qqline(residuals(mod), col="red")
+summary(mod)  # Report the results
+plot(mod)
+leveneTest(T_tuk~REGION,data=delta.df)
+
+
+#No transformations work!!
+#Use non parametric stats
+kruskal.test(delta.df$W_DeltaDen, delta.df$REGION)
+pairwise.wilcox.test(delta.df$W_DeltaDen, delta.df$REGION,
                      p.adjust.method = "BH")
 
 #Add Posthoc groupings from LMMs
 delta_r<- delta_r[order(delta_r$REGION),];delta_r
 
 delta_r$REGION <- factor(delta_r$REGION, levels = c("NWHI","MHI","WAKE","PHOENIX","LINE","SAMOA","SMARIAN","NMARIAN"))
-delta_r$sig<-c("abc","a","abc","c","abc","ab","bc","abc")
-delta_r$years<-c("2017-2015","2019-2016","2017-2014","2018-2015","2018-2015","2018-2015","2017-2014","2017-2014")
+delta_r$sig<-c("abcd","a","cd","d","abc","ab","ab","abcd")
+delta_r$years<-c("(2017-2015)","(2019-2016)","(2017-2014)","(2018-2015)","(2018-2015)","(2018-2015)","(2017-2014)","(2017-2014)")
 
-p9 <- ggplot(delta_r, aes(x=REGION, y=DeltaMEAN,fill=REGION)) +
+
+install.packages("remotes")
+remotes::install_github("clauswilke/colorblindr")
+library(colorblindr)
+p9 <- ggplot(delta_r, aes(x=REGION, y=DeltaDen_yr,fill=REGION)) +
   geom_bar(stat = "identity", position = position_dodge2(preserve='single'), width = 1, color="black") +
-  geom_errorbar(aes(y=DeltaMEAN, x=REGION,ymin=DeltaMEAN-DeltaSE, ymax=DeltaMEAN+DeltaSE), width=.2)+
+  geom_errorbar(aes(y=DeltaDen_yr, x=REGION,ymin=DeltaDen_yr-SE_DeltaDen_yr, ymax=DeltaDen_yr+SE_DeltaDen_yr), width=.2)+
+  theme_bw() +
+  theme(panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        panel.spacing = unit(0, "lines"),
+        strip.background = element_blank(),
+        strip.placement = "outside",
+        strip.text = element_text(size = 12),
+        legend.position = "none",
+        axis.line = element_line(color = "black"),
+        text = element_text(size = 12),
+        axis.text.y = element_text(colour="black"),
+        axis.text.x = element_text(angle = 90)) +
+  scale_fill_OkabeIto() +
+  xlab("Region") +
+  ylab(expression("Mean"~Delta~"Juvenile Density/Year"))+
+geom_text(data=delta_r,aes(x=REGION,y=DeltaDen_yr+SE_DeltaDen_yr,label=sig, group = REGION),position = position_dodge(),vjust = -0.5)+
+geom_text(data=delta_r,aes(x=REGION,y=-0.8,label=years, group = REGION),position = position_dodge(),vjust = -0.8,size=3,fontface="bold")
+  
+p9
+
+
+
+
+#with SE_2
+p9b <- ggplot(delta_r, aes(x=REGION, y=DeltaDen_yr,fill=REGION)) +
+  geom_bar(stat = "identity", position = position_dodge2(preserve='single'), width = 1, color="black") +
+  geom_errorbar(aes(y=DeltaDen_yr, x=REGION,ymin=DeltaDen_yr-SE_v2, ymax=DeltaDen_yr+SE_v2), width=.2)+
   theme_bw() +
   theme(panel.grid.major = element_blank(),
         panel.grid.minor = element_blank(),
@@ -862,19 +954,20 @@ p9 <- ggplot(delta_r, aes(x=REGION, y=DeltaMEAN,fill=REGION)) +
   scale_fill_viridis(discrete = TRUE) +
   xlab("Region") +
   ylab(expression("Mean"~Delta~"Juvenile Density/Year"))+
-geom_text(data=delta.sumR,aes(x=REGION,y=DeltaMEAN+DeltaSE,label=sig, group = REGION),position = position_dodge(),vjust = -0.5)+
-geom_text(data=delta.sumR,aes(x=REGION,y=-0.8,label=years, group = REGION),position = position_dodge(),vjust = -0.8,size=3.5,fontface="bold")
-  
-p9
+  geom_text(data=delta_r,aes(x=REGION,y=DeltaDen_yr+SE_DeltaDen_yr,label=sig, group = REGION),position = position_dodge(),vjust = -0.5)+
+  geom_text(data=delta_r,aes(x=REGION,y=-0.8,label=years, group = REGION),position = position_dodge(),vjust = -0.8,size=3,fontface="bold")
+
+p9b
+
 
 
 #Plotting Delta Density/Year- ISLAND
 
-delta.sumI$REGION <- factor(delta.sumI$REGION, levels = c("NWHI","MHI","WAKE","PHOENIX","LINE","SAMOA","SMARIAN","NMARIAN"))
+delta_is$REGION <- factor(delta_is$REGION, levels = c("NWHI","MHI","WAKE","PHOENIX","LINE","SAMOA","SMARIAN","NMARIAN"))
 
-p10 <- ggplot(delta.sumI, aes(x=reorder(ISLAND,-DeltaMEAN), y=DeltaMEAN,fill=REGION)) +
+p10 <- ggplot(delta_is, aes(x=reorder(ISLAND,-DeltaDen_yr), y=DeltaDen_yr,fill=REGION)) +
   geom_bar(stat = "identity", position = position_dodge2(preserve='single'), width = 1, color="black") +
-  geom_errorbar(data=delta.sumI,aes(y=DeltaMEAN, x=ISLAND,ymin=DeltaMEAN-DeltaSE, ymax=DeltaMEAN+DeltaSE), width=.2)+
+  geom_errorbar(data=delta_is,aes(y=DeltaDen_yr, x=ISLAND,ymin=DeltaDen_yr-SE_DeltaDen_yr, ymax=DeltaDen_yr+SE_DeltaDen_yr), width=.2)+
   theme_bw() +
   theme(panel.grid.major = element_blank(),
         panel.grid.minor = element_blank(),
@@ -887,7 +980,7 @@ p10 <- ggplot(delta.sumI, aes(x=reorder(ISLAND,-DeltaMEAN), y=DeltaMEAN,fill=REG
         text = element_text(size = 12),
         axis.text.y = element_text(colour="black"),
         axis.text.x = element_text(vjust=0,angle = 90)) +
-  scale_fill_viridis(discrete = TRUE) +
+  scale_fill_OkabeIto() +
   xlab("Island") +
   ylab(expression("Mean"~Delta~"Juvenile Density/Year"))
 
@@ -902,7 +995,7 @@ lat.sum<-ddply(data.gen_tempS,.(REGION,ISLAND),
                Y=median(LATITUDE,na.rm=T),
                X=median(LONGITUDE,na.rm = T))
 
-j.sum<-ddply(delta.df,.(REGION,ISLAND),
+j.sum<-ddply(delta_is,.(REGION,ISLAND),
              summarize,
              DeltaDen=mean(DeltaDen_yr,na.rm=T))
 deltaden_coords<-left_join(j.sum,lat.sum)
@@ -910,16 +1003,16 @@ head(deltaden_coords)
 
 
 
-#Use unweighted delta density ~ Latitiude
-plotNormalHistogram(delta.df$DeltaDen)
-
-plotNormalHistogram(sqrt(delta.df$DeltaDen+2.7))
-mod<-lm(DeltaDen~LATITUDE,data=deltaden_coords)
-qqnorm(residuals(mod),ylab="Sample Quanqqnorm(residuals(mod)")
-qqline(residuals(mod), col="red")
-
-mod1<-lm(DeltaDen~LATITUDE,data=deltaden_coords)
-anova(mod1);summary(mod1)
+# #Use unweighted delta density ~ Latitiude
+# plotNormalHistogram(delta.df$DeltaDen)
+# 
+# plotNormalHistogram(sqrt(delta.df$DeltaDen+2.7))
+# mod<-lm(DeltaDen~LATITUDE,data=deltaden_coords)
+# qqnorm(residuals(mod),ylab="Sample Quanqqnorm(residuals(mod)")
+# qqline(residuals(mod), col="red")
+# 
+# mod1<-lm(DeltaDen~LATITUDE,data=deltaden_coords)
+# anova(mod1);summary(mod1)
 
 
 
@@ -1061,8 +1154,8 @@ jvd
 
 
 #Save plots
-ggsave(plot=p8,file="C:/Users/Courtney.S.Couch/Documents/Courtney's Files/R Files/ESD/Juvenile Project/Figures/DensityRegionalTemporal.jpg",width=10,height=5)
-ggsave(plot=p9,file="C:/Users/Courtney.S.Couch/Documents/Courtney's Files/R Files/ESD/Juvenile Project/Figures/DeltaRegional.jpg",width=10,height=5)
-ggsave(plot=p10,file="C:/Users/Courtney.S.Couch/Documents/Courtney's Files/R Files/ESD/Juvenile Project/Figures/DeltaIsland.jpg",width=10,height=5)
-ggsave(plot=finalmap,file="C:/Users/Courtney.S.Couch/Documents/Courtney's Files/R Files/ESD/Juvenile Project/Figures/DeltaIslandmap.jpg",width=11,height=7)
+ggsave(plot=p8,file="T:/Benthic/Projects/Juvenile Project/Figures/DensityRegionalTemporal.jpg",width=10,height=5)
+ggsave(plot=p9,file="T:/Benthic/Projects/Juvenile Project/Figures/WeightedDeltaRegional.jpg",width=10,height=5)
+ggsave(plot=p10,file="T:/Benthic/Projects/Juvenile Project/Figures/WeightedDeltaIsland.jpg",width=10,height=5)
+ggsave(plot=finalmap,file="T:/Benthic/Projects/Juvenile Project/Figures/WeightedDeltaIslandmap.jpg",width=11,height=7)
 ggsave(plot=jvd,file="C:/Users/Courtney.S.Couch/Documents/Courtney's Files/R Files/ESD/Juvenile Project/Figures/DeltavDepth.jpg",width=10,height=5)

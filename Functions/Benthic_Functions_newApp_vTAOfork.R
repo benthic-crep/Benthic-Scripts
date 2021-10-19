@@ -1229,11 +1229,10 @@ Calc_Domain_Region=function(site_data,grouping_field="S_ORDER",metric_field,pres
 }
 
 #This function reads in strata (not site) level data so that you can calculate metrics such as weighted delta change at the domain level
-Calc_DomainDelta=function(Strata_data,mean_field,var_field){
+Calc_DomainDelta=function(Strata_data,mean_field,var_field,se_field){
   
-  Strata_data$MEAN_METRIC<-Strata_data[,mean_field]
-  Strata_data$VAR_METRIC<-Strata_data[,var_field]
-  
+  Strata_data$MEAN_METRIC<-subset(Strata_data,select=c(mean_field))
+  Strata_data$VAR_METRIC<-subset(Strata_data,select=c(var_field))
   
   DomainStr_NH=ddply(Strata_data,.(REGION,DOMAIN_SCHEMA),summarize,DomainSumN_h=sum(Ntot,na.rm=TRUE)) #total possible sites in a domain
   Strata_data<-left_join(Strata_data, DomainStr_NH)# add previous to strata data
@@ -1241,15 +1240,17 @@ Calc_DomainDelta=function(Strata_data,mean_field,var_field){
   
   Domain_roll=ddply(Strata_data,.(REGION,DOMAIN_SCHEMA),summarize,
                     D._st=sum(w_h*MEAN_METRIC,na.rm=TRUE), #Domain weighted estimate (sum of Weighted strata density)
-                    varD._st=sum(w_h^2*VAR_METRIC,na.rm=TRUE), #Domain weighted variance estimate
-                    SE_D._st=sqrt(varD._st)) #SE of domain metric estimate
+                    var_v1=sum(w_h^2*VAR_METRIC,na.rm=TRUE), #Domain weighted variance estimate using variance calculated from site-level means
+                    var_v2=var(w_h*MEAN_METRIC,na.rm=TRUE), #Domain weighted variance estimate using stratum as minimum sampling unit
+                    SE_v1=sqrt(var_v1), #SE of domain metric estimate
+                    SE_v2=sqrt(var_v2)) #SE of domain metric estimate
 
   
   Domain_roll=Domain_roll[,c("REGION","DOMAIN_SCHEMA",
-                             "D._st","SE_D._st")]
+                             "D._st","SE_v1","SE_v2")]
   
-  colnames(Domain_roll)[which(colnames(Domain_roll) == 'D._st')] <- paste0("Mean","_",mean_field)
-  colnames(Domain_roll)[which(colnames(Domain_roll) == 'SE_D._st')] <- paste0("SE","_",var_field)
+  colnames(Domain_roll)[which(colnames(Domain_roll) == 'D._st')] <- mean_field
+  colnames(Domain_roll)[which(colnames(Domain_roll) == 'SE_v1')] <- se_field
   
   return(Domain_roll)
 }
