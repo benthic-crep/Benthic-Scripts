@@ -21,6 +21,7 @@ T%3A%2FFish%2FGIS%2FProjects%2FGridding%2FR%20scripts%20to%20generate%20points%2
 ~%2FGitHub%2FBenthic-Scripts%2FPhotoquad%20Calibration%2FPhotoquad%20CNet%20Calibration.R="188B6E14"
 ~%2FGitHub%2FBenthic-Scripts%2FPhotoquad%20Calibration%2FPhotoquad%20CNet%20Calibration_v2.R="8C7D5ECA"
 ~%2FGitHub%2FBenthic-Scripts%2FProject-specific%20scripts%2FBenthic%20Cover_RawtoEstimates_Hannah_081821.R="4727A044"
+~%2FGitHub%2FBenthic-Scripts%2FProject-specific%20scripts%2FJuvenile%20Project%2FBleachingTimeLinePlot.R="704E81F6"
 ~%2FGitHub%2FBenthic-Scripts%2FProject-specific%20scripts%2FJuvenile%20Project%2FJuvenile%20Maps.R="5A1C0704"
 ~%2FGitHub%2FBenthic-Scripts%2FProject-specific%20scripts%2FJuvenile%20Project%2FJuvenile%20Project%20Community%20Analysis.R="494DA7FA"
 ~%2FGitHub%2FBenthic-Scripts%2FProject-specific%20scripts%2FJuvenile%20Project%2FJuvenile%20Project%20Correlative%20Analysis.R="F0B9A83E"
@@ -48,4 +49,5 @@ T%3A%2FFish%2FGIS%2FProjects%2FGridding%2FR%20scripts%20to%20generate%20points%2
 ~%2FGitHub%2Fenv_data_summary%2Fscripts%2F4_Extract_Timeseries.R="E1D309DD"
 ~%2FGitHub%2Ffish-paste%2Flib%2FIslandwide%20Mean%26Variance%20Functions.r="61982821"
 ~%2FGitHub%2Ffish-paste%2Flib%2Ffish_team_functions.R="2D753F7E"
+~%2FGitHub%2Fhawaii-coral-bleaching-2019%2Fcode%2F2019_bleaching_drivers_analysis.R="751B77A0"
 ~%2FGitHub%2Fhawaii-coral-bleaching-2019%2Fcode%2F2019_bleaching_temperature_time_series.R="822908D8"

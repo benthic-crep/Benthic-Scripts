@@ -26,14 +26,13 @@ library(dplyr)
 setwd("C:/Users/Courtney.S.Couch/Documents/Courtney's Files/R Files/ESD/Juvenile Project")
 
 #LOAD DATA
-jwd_strat<-read.csv("T:/Benthic/Projects/Juvenile Project/JuvProject_pb_STRATA.csv")#Post bleaching strata-level juvenile data
 jwd_site<-read.csv("T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Site/BenthicREA_sitedata_GENUS.csv")
 d_strat<-read.csv("T:/Benthic/Projects/Juvenile Project/JuvProject_deltadensity_STRATA.csv"); d_strat<-subset(d_strat,select= -c(X))
 
 
 tsdhw<-read.csv("T:/Benthic/Projects/Juvenile Project/Juvenile_TimeSinceDHW4_8.csv"); tsdhw<-subset(tsdhw,select= -c(X))
 wave<-read.csv("T:/Benthic/Projects/Juvenile Project/Pacific_WaveActionData.csv")
-SM<-read.csv("M:/Environmental Data Summary/Outputs/Survey_Master_Timeseries_2021-02-27.csv")
+load("C:/Users/Courtney.S.Couch/Documents/GitHub/env_data_summary/outputs/Survey_Master_Timeseries_2021-02-27.Rdata")
 sh<-read.csv("C:/Users/Courtney.S.Couch/Documents/Courtney's Files/R Files/ESD/Juvenile Project/Predictor Variables/ESD_Fish_Complexity.csv")#Substrate height from fish sites
 cover1<-read.csv("T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Site/BenthicCover_2010-2020_Tier1_SITE.csv")#Cover from all sites
 cover3<-read.csv("T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Site/BenthicCover_2010-2020_Tier3_SITE.csv")#Cover from all sites
@@ -114,8 +113,9 @@ jwd_siteS$STRATANAME<-paste(jwd_siteS$ANALYSIS_SEC,jwd_siteS$REEF_ZONE,jwd_siteS
 
 #Subset survey master and env columns of interest
 cols<-c("MISSIONID","DATE_","SITEVISITID", "OBS_YEAR", "REGION", "ISLAND","SEC_NAME", "SITE","HABITAT_CODE","REEF_ZONE",
-               "DEPTH_BIN", "LATITUDE_LOV", "LONGITUDE_LOV","new_MIN_DEPTH_M","new_MAX_DEPTH_M","DHW.MeanMax_Degree_Heating_Weeks_YR01","DHW.MeanMax_Degree_Heating_Weeks_YR05", "DHW.MeanMax_Degree_Heating_Weeks_YR10","DHW.MaxMax_Degree_Heating_Weeks_YR10",
-        "DHW.MeanDur_Major_Degree_Heating_Weeks_YR10","mean_annual_range_Chlorophyll_A_ESAOCCCI_8Day_YR10",
+               "DEPTH_BIN", "LATITUDE_LOV", "LONGITUDE_LOV","new_MIN_DEPTH_M","new_MAX_DEPTH_M","DHW.MeanMax_Degree_Heating_Weeks_YR01","DHW.MeanMax_Degree_Heating_Weeks_YR03", "DHW.MeanMax_Degree_Heating_Weeks_YR10",
+        "DHW.MaxMax_Degree_Heating_Weeks_YR03","DHW.MaxMax_Degree_Heating_Weeks_YR10",
+        "mean_monthly_range_SST_CRW_Daily_YR10","mean_biweekly_range_SST_CRW_Daily_YR10","mean_annual_range_Chlorophyll_A_ESAOCCCI_8Day_YR10","mean_Chlorophyll_A_VIIRS_Monthly_750m_YR05",
         "mean_annual_range_Kd490_ESAOCCCI_8Day_YR10","mean_kdPAR_VIIRS_Weekly_YR10")
 sm_env<-SM[,cols]
 
@@ -181,7 +181,14 @@ View(humans_sum)
 eds_sum<-sm_env %>%
   group_by(REGION,ISLAND,ANALYSIS_SEC,STRATANAME) %>%
   summarize(MeanMaxDHW10=mean(DHW.MeanMax_Degree_Heating_Weeks_YR10,na.rm=T),MaxMaxDHW10=mean(DHW.MaxMax_Degree_Heating_Weeks_YR10,na.rm=T),
+            MeanMaxDHW03=mean(DHW.MeanMax_Degree_Heating_Weeks_YR03,na.rm=T), MaxMaxDHW03=mean(DHW.MaxMax_Degree_Heating_Weeks_YR03,na.rm=T),
+            Mean_Mon_SST_Range=mean(mean_monthly_range_SST_CRW_Daily_YR10, na.rm=T),Mean_BW_SST_Range=mean(mean_biweekly_range_SST_CRW_Daily_YR10,na.rm=T),
             Meankd490=mean(mean_annual_range_Kd490_ESAOCCCI_8Day_YR10,na.rm=T),meankdPAR=mean(mean_kdPAR_VIIRS_Weekly_YR10,na.rm=T))
+
+# eds_sum<-SM2 %>%
+#   group_by(REGION,ISLAND,ANALYSIS_SEC,STRATANAME) %>%
+#   summarize(MaxMaxDHW10=mean(DHW.MaxMax_Degree_Heating_Weeks_YR10,na.rm=T))
+
 
 
 # WAVE POWER --------------------------------------------------------
@@ -217,8 +224,9 @@ head(wave_sum)
 
 # SUBSTRATE HEIGHT --------------------------------------------------------
 #ONly include years where sites were most recently surveyed for each region
-sh.new<-sh%>%dplyr::filter(OBS_YEAR>=2017)
+# sh.new<-sh%>%dplyr::filter(OBS_YEAR>=2017)
 
+sh.new<-sh
 
 SURVEY_SITE<-c("DATE_","SITEVISITID", "ANALYSIS_YEAR","REGION", "ISLAND","SEC_NAME", "SITE","HABITAT_CODE","REEF_ZONE",
                "DEPTH_BIN", "LATITUDE", "LONGITUDE","MEAN_SH","SD_SH_DIFF")
@@ -339,8 +347,8 @@ depth_sum<-jwd_siteS %>%
 #Use"weighted mean" (i.e, latitudinal gravity center) instead of the arithmetic mean.
 
 #Convert unprojected to projected coordinates
-islands = unique(jwd_siteS$ISLAND)#Create vector of island names from your dataframe
-
+islands = na.omit(unique(jwd_siteS$ISLAND))#Create vector of island names from your dataframe
+islands
 df_utm = NULL #create empty dataframe
 
 for (isl in 1:length(islands)) {
@@ -358,7 +366,7 @@ for (isl in 1:length(islands)) {
 
 #df=jwd_siteS
 df=df_utm
-
+View(df)
 # df_sub = as.data.frame(str_match(df$STRATANAME, "^(.*)_(.*)$")[,-1])[2]
 # colnames(df_sub) = "depth_strata"
 # df = cbind(df, df_sub)
@@ -372,8 +380,8 @@ df=df_utm
 lat_sum = df %>%
   group_by(REGION,ISLAND,ANALYSIS_SEC,STRATANAME)%>%
   mutate(depth_strata_sum = n())%>%
-  summarize(utmlat_strata_weighted_mean = weighted.mean(X, depth_strata_sum),
-            lat_strata_weighted_mean = weighted.mean(LATITUDE, depth_strata_sum))
+  summarize(utmlat_strata_weighted_mean = weighted.mean(X, depth_strata_sum,na.rm=T),
+            lat_strata_weighted_mean = weighted.mean(LATITUDE, depth_strata_sum,na.rm=T))
 View(lat_sum)
 
 
@@ -485,7 +493,7 @@ CalcDeltaCover<-function(data,data.col,metric_name="DeltaCCA"){
     dplyr::select(REGION,ISLAND,ANALYSIS_YEAR,ANALYSIS_SEC,STRATANAME,DEPTH_BIN,D_COL) %>%
     pivot_wider(names_from = ANALYSIS_YEAR,values_from = D_COL)
   
-  colnames(wide)[6:11] <- paste("t", colnames(wide[,c(6:11)]), sep = "") #add "t" to year column
+  colnames(wide)[6:ncol(wide)] <- paste("t", colnames(wide[,c(6:ncol(wide))]), sep = "") #add "t" to year column
   
   wide$DeltaCover<-NULL
   for (i in c(1:nrow(wide))){ #opening brace
@@ -504,7 +512,7 @@ CalcDeltaCover<-function(data,data.col,metric_name="DeltaCCA"){
   } #closing curly brace for entire forloop
   colnames(wide)[which(colnames(wide) == 'DeltaCover')] <- metric_name #change group to whatever your grouping field is.
   
-  wide<- dplyr::select(wide,-c(t2014:t2019))
+  wide<- dplyr::select(wide,-c(t2010:t2019))
   return(wide)
 }
 #Calc Delta CCA and Coral cover

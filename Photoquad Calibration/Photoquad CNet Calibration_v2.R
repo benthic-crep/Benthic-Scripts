@@ -1,12 +1,12 @@
 rm(list=ls())
 
-setwd("C:/Users/Courtney.S.Couch/Documents/Courtney's Files/R Files/ESD/BIA")
+setwd("C:/Users/Courtney.S.Couch/Documents/GitHub/Benthic-Scripts/Photoquad Calibration")
 
 library(gdata)             # needed for drop_levels()
 library(reshape)           # reshape library inclues the cast() function used below
 library(splitstackshape)
-library(dplyr)
 library(plyr)
+library(dplyr)
 library(tidyr)
 
 #LOAD LIBRARY FUNCTIONS ... 
@@ -15,7 +15,7 @@ source("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/lib/core_functions
 source("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/lib/fish_team_functions.R")
 source("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/lib/Islandwide Mean&Variance Functions.R")
 
-cnet<-read.csv("ASRAMP2018_CalibrationTest.csv")
+cnet<-read.csv("OSBORNE_CalibrationTest.csv")
 lu<-read.csv("T:/Benthic/Data/Lookup Tables/All_Photoquad_codes.csv")
 cnet$SHORT_CODE<-cnet$Cnet_SHORT_CODE
 
@@ -73,14 +73,13 @@ length(unique(ab$SITE))
 
 
 #Sum up all tier 1 points by ANNOTATOR. You need to use dcast to insert zero values where there was no coral at a site (for example)
-photoT1<-as.data.frame(ab %>% group_by(Annotator, IMAGE,TIER_1) %>% 
-        summarise(n_points = sum(POINTS, na.rm=TRUE)) %>% 
-        spread(TIER_1, n_points,fill=0)) 
+photoT1<-as.data.frame(ab %>% dplyr::group_by(Annotator, IMAGE,TIER_1) %>% 
+                         dplyr::summarise(n_points = sum(POINTS, na.rm=TRUE)) %>% 
+                         spread(TIER_1, n_points,fill=0)) 
 
-
-photoT3<-as.data.frame(ab %>% group_by(Annotator, IMAGE,TIER_3) %>% 
-        summarise(n_points = sum(POINTS, na.rm=TRUE)) %>% 
-        spread(TIER_3, n_points,fill=0)) 
+photoT3<-as.data.frame(ab %>% dplyr::group_by(Annotator, IMAGE,TIER_3) %>% 
+                         dplyr::summarise(n_points = sum(POINTS, na.rm=TRUE)) %>% 
+                         spread(TIER_3, n_points,fill=0)) 
 
 r_levelsT1<-c(unique(as.character(ab$TIER_1)))
 photoT1$N<-rowSums(photoT1[,r_levelsT1])

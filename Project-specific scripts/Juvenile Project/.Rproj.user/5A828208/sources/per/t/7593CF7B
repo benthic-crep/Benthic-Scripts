@@ -1,0 +1,26 @@
+{
+    "id": "7593CF7B",
+    "path": "~/GitHub/Benthic-Scripts/Project-specific scripts/Juvenile Project/Juvenile Project Correlative Analysis.R",
+    "project_path": "Juvenile Project Correlative Analysis.R",
+    "type": "r_source",
+    "hash": "2171055859",
+    "contents": "",
+    "dirty": false,
+    "created": 1634944240197.0,
+    "source_on_save": false,
+    "relative_order": 9,
+    "properties": {
+        "source_window_id": "",
+        "Source": "Source",
+        "cursorPosition": "212,24",
+        "scrollLine": "0"
+    },
+    "folds": "",
+    "lastKnownWriteTime": 1636400305,
+    "encoding": "UTF-8",
+    "collab_server": "",
+    "source_window": "",
+    "last_content_update": 1636400305312,
+    "read_only": false,
+    "read_only_alternatives": []
+}
