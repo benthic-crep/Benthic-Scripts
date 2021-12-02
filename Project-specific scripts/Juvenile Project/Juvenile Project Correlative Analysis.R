@@ -22,12 +22,14 @@ library(see)
 library(patchwork)
 library(emmeans)
 library(rcompanion)
+library(survey)
 
 setwd("T:/Benthic/Projects/Juvenile Project")
 
 
 #LOAD DATA
 df<-read.csv("T:/Benthic/Projects/Juvenile Project/JuvDeltaDen_Pred.csv")#Combined juvenile delta density and all predictors
+jcdG_st<-read.csv("T:/Benthic/Projects/Juvenile Project/JuvProject_STRATA_WITHOUT_MHI2013.csv")
 
 #remove columns
 df<-subset(df,select=-c(GENUS_CODE,N_h.as,Dom_N_h, w, ANALYSIS_SEC,ANALYSIS_YEAR, r_y, RUBBLE,SAND,MA,MeanMaxDepth,Carbonate_HC,Sand_Rubble_HC,utmlat_strata_weighted_mean,HUMANS200_mean,SE_MEAN_SH,meankdPAR,MaxMaxDHW10))
@@ -36,6 +38,22 @@ df<-subset(df,select=-c(Delta_CORAL,Delta_CCA,Delta_SAND_RUB,Delta_TURF,Basalt_H
 ##Mannually adding in substrate height for Tut_aunuu_a (used all years rather than just most recent survey since no fish surveys were done in this sector in 2018)
 df$MEAN_SH<-ifelse(df$STRATANAME=="TUT_AUNUU_A_Forereef_Deep",0.3850,df$MEAN_SH)
 df$MEAN_SH<-ifelse(df$STRATANAME=="TUT_AUNUU_A_Forereef_Mid",0.31,df$MEAN_SH)
+
+
+#Set up the strata-level data and add survey weights
+jcdG_stS<-subset(jcdG_st,GENUS_CODE=="SSSS")
+REGION_YEAR<-c("MHI_2019","NWHI_2017","NMARIAN_2017","SMARIAN_2017","PHOENIX_2018","LINE_2018","SAMOA_2018","WAKE_2017")
+jcdG_stS<-as.data.frame(jcdG_stS)
+
+jcdG_stS$REGION_YEAR<-paste(jcdG_stS$REGION,jcdG_stS$ANALYSIS_YEAR,sep="_")
+jcdG_stS_last<-jcdG_stS[jcdG_stS$REGION_YEAR %in% REGION_YEAR,]
+head(jcdG_stS_last)
+jcdG_stS_last$sw<-jcdG_stS_last$Ntot/jcdG_stS_last$n
+
+#Extract predictors and merge with new survey weights dataset
+pcols<-c("STRATANAME","CORAL", "CCA","TURF","SAND_RUB","MeanDepth","lat_strata_weighted_mean","MeanMaxDHW10",
+         "MeanMaxDHW03","MaxMaxDHW03","Mean_Mon_SST_Range","Mean_BW_SST_Range","Meankd490","MEAN_SH",
+         "HUMANS20_mean", "MeanWavePower")
 
 # 
 # jwd_site<-read.csv("C:/Users/Courtney.S.Couch/Documents/Courtney's Files/R Files/ESD/Juvenile Project/JuvProject_pb_SITE.csv")#Post bleaching strata-level juvenile data
@@ -176,22 +194,30 @@ ggplot(aes(x=MaxMaxDHW10,y=fit), data=predicts) +
 
 #Density from the most recent survey time point -Gamma distribution
 
-df$JuvColDen_pos<-df$T2_JuvColDen +0.5 #Make positive to use Gamma distribution
+# df$JuvColDen_pos<-df$T2_JuvColDen +0.5 #Make positive to use Gamma distribution
+# 
+# #Option 1 for predictors
+# den_mod1<-glm(JuvColDen_pos~ CORAL + CCA + SAND_RUB + MeanDepth + MeanMaxDHW10 + MaxMaxDHW03 + MEAN_SH + HUMANS20_mean + MeanWavePower,
+#               family = "Gamma",data= df)
+# 
+# #Option 2 for predictors
+# den_mod2<-glm(JuvColDen_pos~ CORAL + CCA + SAND_RUB + MeanDepth + MaxMaxDHW03 + Mean_Mon_SST_Range + MEAN_SH + HUMANS20_mean + MeanWavePower,
+#               family = "Gamma",data= df)
+# 
+# # run model first with no interactions to assess VIF
+# step_mod_bic <- stepAIC(den_mod1, k = log(nrow(df)))
+# summary(step_mod_bic)
+# 
+# step_mod_bic <- stepAIC(den_mod2, k = log(nrow(df)))
+# summary(step_mod_bic)
 
-#Option 1 for predictors
-den_mod1<-glm(JuvColDen_pos~ CORAL + CCA + SAND_RUB + MeanDepth + MeanMaxDHW10 + MaxMaxDHW03 + MEAN_SH + HUMANS20_mean + MeanWavePower,
-              family = "Gamma",data= df)
+des<-svydesign(id=~1, strata=~ANALYSIS_YEAR+REGION+ISLAND+SEC_NAME+DB_RZ, weights=~sw,data=site.swS)
 
-#Option 2 for predictors
-den_mod2<-glm(JuvColDen_pos~ CORAL + CCA + SAND_RUB + MeanDepth + MaxMaxDHW03 + Mean_Mon_SST_Range + MEAN_SH + HUMANS20_mean + MeanWavePower,
-              family = "Gamma",data= df)
+#Calculate regional mean and SE
+sw_Rmean<-svyby(~JuvColDen,~ANALYSIS_YEAR+REGION,des,svymean)
 
-# run model first with no interactions to assess VIF
-step_mod_bic <- stepAIC(den_mod1, k = log(nrow(df)))
-summary(step_mod_bic)
-
-step_mod_bic <- stepAIC(den_mod2, k = log(nrow(df)))
-summary(step_mod_bic)
+#Test fixed effects of region and year
+modR<-svyglm(JuvColCount ~ REGION*ANALYSIS_YEAR, design=des,offset= TRANSECTAREA_j, family="quasipoisson")
 
 
 
