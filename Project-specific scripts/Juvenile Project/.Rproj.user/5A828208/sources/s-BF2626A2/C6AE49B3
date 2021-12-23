@@ -1,0 +1,26 @@
+{
+    "id": "C6AE49B3",
+    "path": "~/GitHub/Benthic-Scripts/REA_CoralDemography/Generate REA data/REA Coral Demography_CalcSite.R",
+    "project_path": null,
+    "type": "r_source",
+    "hash": "2497026846",
+    "contents": "",
+    "dirty": false,
+    "created": 1639096267012.0,
+    "source_on_save": false,
+    "relative_order": 6,
+    "properties": {
+        "source_window_id": "",
+        "Source": "Source",
+        "cursorPosition": "149,0",
+        "scrollLine": "127"
+    },
+    "folds": "",
+    "lastKnownWriteTime": 1640216751,
+    "encoding": "UTF-8",
+    "collab_server": "",
+    "source_window": "",
+    "last_content_update": 1640216751940,
+    "read_only": false,
+    "read_only_alternatives": []
+}

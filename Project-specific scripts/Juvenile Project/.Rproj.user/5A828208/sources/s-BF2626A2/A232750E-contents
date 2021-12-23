@@ -1,0 +1,19 @@
+df<-read.csv("T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Stratum/BenthicCover_2010-2019_Tier1_STRATA.csv")
+sm<-read.csv("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/data/SURVEY MASTER.csv")
+
+
+
+#Create vector of column names to include then exclude unwanted columns from dataframe
+DATA_COLS<-c("REGION_NAME","ISLAND","ISLANDCODE")
+
+
+#remove extraneous columns
+head(df[,DATA_COLS])
+df<-df[,DATA_COLS]
+sort(colnames(df))
+
+df=unique(df[,c("REGION_NAME","ISLAND","ISLANDCODE")])
+head(df)
+
+
+write.csv(df,"T:/Benthic/Data/Lookup Tables/NCRMP_Regions_Islands.csv")

@@ -2,7 +2,7 @@
 # This script will clean the raw benthic REA data using method E that comes directly from the new data base application.
 #Note- these data represent the revised data structure instituted in November 2018 and 2019. Several recent dead and condition columns were added
 #These data only include surveys conducted between 2013-2020
-#NOTE: Depth should not be used the in the raw data because the column was deprecated in Oracale and is inconsistent.
+#NOTE: Depth should not be used the in the raw data because the column was depricated in Oracale and is inconsistent.
 #Use depth data from SURVEY MASTER
 rm(list=ls())
 
@@ -13,8 +13,6 @@ DEBUG=TRUE
 source("C:/Users/Courtney.S.Couch/Documents/GitHub/Benthic-Scripts/Functions/Benthic_Functions_newApp_vTAOfork.R")
 source("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/lib/core_functions.R")
 source("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/lib/GIS_functions.R")
-
-library(lubridate)
 
 ## LOAD benthic data
 setwd("C:/Users/Courtney.S.Couch/Documents/Courtney's Files/R Files/ESD/Benthic REA")
@@ -36,34 +34,6 @@ tail(x)
 table(x$REGION, x$OBS_YEAR) #review years and regions in dataframe
 
 
-#Temporary script to integrate 2017 NWHI data- waiting for orcale to work
-nw<-read.csv("T:/Benthic/Data/REA Coral Demography & Cover/Raw from Oracle/PMNM2017_ADULTCOLONY_QCd.csv");nw<-subset(nw,select=-c(X))
-nw$SITE<-gsub("-","-0",nw$SITE) #add 0 before site number 
-nw$DATE_ <- ymd(nw$DATE_)
-head(nw)
-
-nw$REGION_NAME<-"Northwestern Hawaiian Islands"
-nw$OBS_YEAR<-nw$YEAR
-nw$NO_SURVEY_YN<-NA
-nw$EXCLUDE_FLAG<-NA
-nw$COLONYID<-c((1:nrow(nw)+633568))
-nw$TAXONCODE<-nw$SPCODE
-nw$MORPHOLOGY<-NA
-nw$RECENT_GENERAL_CAUSE_CODE_2<-NA
-nw$RECENT_SPECIFIC_CAUSE_CODE_2<-NA
-nw$RECENTDEAD_2<-NA
-nw$RECENT_GENERAL_CAUSE_CODE_3<-NA
-nw$RECENT_SPECIFIC_CAUSE_CODE_3<-NA
-nw$RECENTDEAD_3<-NA
-nw$COND<-nw$CONDITION_1
-nw$CONDITION_2<-NA
-nw$CONDITION_3<-NA
-nw$EXTENT_2<-NA
-nw$EXTENT_3<-NA
-nw$SEVERITY_2<-NA
-nw$SEVERITY_3<-NA
-nw$S_ORDER<-ifelse(nw$SPCODE=="AAAA",NA,"Scleractinia")
-
 #Create vector of column names to include then exclude unwanted columns from dataframe
 DATA_COLS<-c("MISSIONID","REGION","REGION_NAME","ISLAND","ISLANDCODE","SITE","LATITUDE",	"LONGITUDE","REEF_ZONE","DEPTH_BIN","OBS_YEAR",
              "DATE_","NO_SURVEY_YN","EXCLUDE_FLAG","SITEVISITID","HABITAT_CODE","DIVER","TRANSECTNUM","SEGMENT","SEGWIDTH","SEGLENGTH","FRAGMENT_YN",
@@ -78,9 +48,11 @@ DATA_COLS<-c("MISSIONID","REGION","REGION_NAME","ISLAND","ISLANDCODE","SITE","LA
 #remove extraneous columns
 head(x[,DATA_COLS])
 x<-x[,DATA_COLS]
-nw<-nw[,DATA_COLS]
+sort(colnames(x))
 
-x<-rbind(x,nw) #combine x and 2017 NWHI data
+x<-rbind(x,nw)
+
+
 
 
 #Double check level and class of variables to make sure there aren't any errors
@@ -157,7 +129,7 @@ x<-subset(x,NO_SURVEY_YN==0)
 x<-subset(x,SEGLENGTH!="NA") #Remove segments that were not surveyed for coral demography (no SEGLENGTH=0 in db)
 
 
-#Change NAs in RecentDead extent to 0  - note, NWHI 2014,2015 and 2017 only one recent dead and condition category were recorded
+#Change NAs in RecentDead extent to 0
 head(subset(x,S_ORDER=="Scleractinia" & is.na(x$RDEXTENT1))) #identify columns that have NAs
 x$RDEXTENT1<-ifelse(x$S_ORDER=="Scleractinia"& is.na(x$RDEXTENT1),0,x$RDEXTENT1)
 

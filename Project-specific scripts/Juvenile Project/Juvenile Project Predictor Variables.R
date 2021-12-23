@@ -61,6 +61,7 @@ cover1$REGION<-Convert_Region(cover1)
 cover3$REGION<-Convert_Region(cover3)
 sectors$REGION<-Convert_Region(sectors)
 jwd_site$REGION<-Convert_Region(jwd_site)
+SM$STRATANAME<-paste(SM$SEC_NAME,SM$REEF_ZONE,SM$DEPTH_BIN,sep="_")
 
 
 #Remove spaces in island and sec names
@@ -124,7 +125,7 @@ head(jwd_site)
 
 #Subset survey master and env columns of interest
 cols<-c("MISSIONID","DATE_","SITEVISITID", "OBS_YEAR", "REGION", "ISLAND","SEC_NAME", "SITE","REEF_ZONE",
-               "DEPTH_BIN", "LATITUDE_LOV", "LONGITUDE_LOV","DHW.MeanMax_Degree_Heating_Weeks_YR01","DHW.MeanMax_Degree_Heating_Weeks_YR03", "DHW.MeanMax_Degree_Heating_Weeks_YR10",
+               "DEPTH_BIN","STRATANAME", "LATITUDE_LOV", "LONGITUDE_LOV","DHW.MeanMax_Degree_Heating_Weeks_YR01","DHW.MeanMax_Degree_Heating_Weeks_YR03", "DHW.MeanMax_Degree_Heating_Weeks_YR10",
         "DHW.MaxMax_Degree_Heating_Weeks_YR03","DHW.MaxMax_Degree_Heating_Weeks_YR10",
         "mean_monthly_range_SST_CRW_Daily_YR10","mean_biweekly_range_SST_CRW_Daily_YR10","mean_annual_range_Chlorophyll_A_ESAOCCCI_8Day_YR10","mean_Chlorophyll_A_VIIRS_Monthly_750m_YR05",
         "mean_annual_range_Kd490_ESAOCCCI_8Day_YR10","mean_kdPAR_VIIRS_Weekly_YR10")
@@ -148,7 +149,6 @@ sm_env<-sm_env[sm_env$SITEVISITID %in% c(jwd_site$SITEVISITID),]
 table(sm_env$REGION,sm_env$OBS_YEAR)
 
 sm_env$SEC_NAME<-sm_env$SEC_NAME
-sm_env$STRATANAME<-paste(sm_env$SEC_NAME,sm_env$REEF_ZONE,sm_env$DEPTH_BIN,sep="_")
 
 
 #Combine Tier 1 and 3 cover
@@ -186,12 +186,9 @@ View(all_pred_site)
 #data is definitley not merging properly, work on this. 
 
 
-
-
-
 # Time Since DHW ----------------------------------------------------------
 tsdhw<-tsdhw %>% drop_na(ISLAND) #drop rows that have NA values in ISLAND
-tsdhw_meta<-left_join(SM,tsdhw)
+tsdhw_meta<-left_join(SM,tsdhw) # We don't have 2017 cover data from NWHI so we have to merge this with SM not sm_env
 ts_sum<-tsdhw_meta %>%
   group_by(REGION,ISLAND,SEC_NAME,STRATANAME) %>%
   summarize(YearSinceDHW4=mean(YearSinceDHW4,na.rm=T),
