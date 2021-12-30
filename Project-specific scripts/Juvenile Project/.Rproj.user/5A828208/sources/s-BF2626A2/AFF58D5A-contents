@@ -882,12 +882,12 @@ PoolSecStrat=function(site_data){
   #site_data$BEN_SEC<-ifelse(site_data$OBS_YEAR=="2015"&site_data$BEN_SEC %in% c("TUT_SW_OPEN","TUT_FAGALUA"),"TUT_SW",as.character(site_data$BEN_SEC))
   site_data$BEN_SEC<-ifelse(site_data$OBS_YEAR=="2015"&site_data$BEN_SEC %in% c("TUT_FAGALUA","TUT_FAGATELE"),"TUT_FAGALUA_FAGATELE",as.character(site_data$BEN_SEC))
 
-  #Changing sector pooling PRIA - remove PRIA backreef for 2019
+  #Changing sector pooling PRIA - remove PRIA backreef for 2018
   site_data <- site_data[!(site_data$OBS_YEAR == "2018" & site_data$ISLAND=="Kingman" & site_data$REEF_ZONE=="Backreef"),]
 
 
   #Changing sector pooling structure for GUAM & CNMI
-  site_data <- site_data[!(site_data$ISLAND=="Maug" & site_data$REEF_ZONE=="Lagoon"),]
+  site_data <- site_data[!(site_data$ISLAND=="Maug" & site_data$REEF_ZONE=="Lagoon"),] #remove Maug Lagoon
   site_data$BEN_SEC<-ifelse(site_data$SEC_NAME %in% c("GUA_ACHANG","GUA_EAST_OPEN","GUA_PATI_POINT"),"GUAEAALL",as.character(site_data$BEN_SEC))
   site_data$BEN_SEC<-ifelse(site_data$SEC_NAME %in% c("GUA_HARBOR","GUA_WEST_OPEN","GUA_PITI_BOMB","GUA_SASA_BAY","GUA_TUMON"),"GUAWEALL",as.character(site_data$BEN_SEC))
   site_data$BEN_SEC<-ifelse(site_data$SEC_NAME %in% c("Guguan", "Alamagan", "Sarigan"),"AGS",as.character(site_data$BEN_SEC))

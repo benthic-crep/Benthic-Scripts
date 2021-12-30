@@ -16,8 +16,8 @@ source("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/lib/GIS_functions.
 awd<-read.csv("T:/Benthic/Data/REA Coral Demography & Cover/Analysis Ready Raw data/CoralBelt_Adults_raw_CLEANED.csv")
 jwd<-read.csv("T:/Benthic/Data/REA Coral Demography & Cover/Analysis Ready Raw data/CoralBelt_Juveniles_raw_CLEANED.csv")
 
-awd=subset(awd,ISLAND=="Tau")
-jwd=subset(jwd,ISLAND=="Tau")
+# awd=subset(awd,ISLAND=="Tau")
+# jwd=subset(jwd,ISLAND=="Tau")
 
 #Final Tweaks before calculating site-level data-------------------------------------------------
 #Colony fragments will be removed when you generate the site level data
@@ -144,13 +144,20 @@ is.nan.data.frame <- function(x)
 
 data.gen[is.nan(data.gen)] <- NA
 
+#There will be some NAs when you merge the juvenile and adult dataframes together because there may be some juvenile taxa that weren't observed as adults or juveniles
+#This code identifies which transects adult and juvenile colonies were recorded at and then converts NAs to 0s if needed
+ssss<-subset(data.gen,GENUS_CODE=="SSSS")
+ssss$Ad_pres<-ifelse(is.na(ssss$AdColCount),"0","-1")
+ssss$Juv_pres<-ifelse(is.na(ssss$JuvColCount),"0","-1")
+head(ssss)
 
-ad_ssss<-subset(data.gen,GENUS_CODE=="SSSS" & AdColCount >=0)
+ssss<-subset(ssss,select = c(SITE,SITEVISITID,TRANSECT,Ad_pres,Juv_pres,TRANSECTAREA_ad,TRANSECTAREA_j)) 
+head(ssss)
 
-#NOTE: Prior to 10/15/20- we included the following code to change NAs for abunanance and density metrics to 0.
-#This is incorrect- the CalcColDen functions are already including the 0s for taxa where surveys were conducted, but no colonies of a given taxon were found.
-data.gen$JuvColCount[is.na(data.gen$JuvColCount)]<-0;data.gen$JuvColDen[is.na(data.gen$JuvColDen)]<-0
-# data.gen$AdColCount[is.na(data.gen$AdColCount)]<-0;data.gen$AdColDen[is.na(data.gen$AdColDen)]<-0
+data.gen<-left_join(subset(data.gen,select = -c(TRANSECTAREA_ad,TRANSECTAREA_j)),ssss) #use transect area from ssss because transectareas for some taxa were NA after merging adults and juvs
+
+data.gen$JuvColCount[is.na(data.gen$JuvColCount) & data.gen$Juv_pres==-1]<-0;data.gen$JuvColDen[is.na(data.gen$JuvColDen) & data.gen$Juv_pres==-1]<-0
+data.gen$AdColCount[is.na(data.gen$AdColCount) & data.gen$Ad_pres==-1]<-0;data.gen$AdColDen[is.na(data.gen$AdColDen) & data.gen$Ad_pres==-1]<-0
 
 #Calculate transect level prevalence for acute dz, chronic dz and bleaching
 data.gen$DZGN_prev<-(data.gen$DZGN_den*data.gen$TRANSECTAREA_ad)/data.gen$AdColCount*100
@@ -218,10 +225,21 @@ head(data.sp)
 
 data.sp$METHOD<-"DIVER"
 
-#NOTE: Prior to 10/15/20- we included the following code to change NAs for abunanance and density metrics to 0.
-#This is incorrect- the CalcColDen functions are already including the 0s for taxa where surveys were conducted, but no colonies of a given taxon were found.
-# data.sp$JuvColCount[is.na(data.sp$JuvColCount)]<-0;data.sp$JuvColDen[is.na(data.sp$JuvColDen)]<-0
-# data.sp$AdColCount[is.na(data.sp$AdColCount)]<-0;data.sp$AdColDen[is.na(data.sp$AdColDen)]<-0
+#There will be some NAs when you merge the juvenile and adult dataframes together because there may be some juvenile taxa that weren't observed as adults or juveniles
+#This code identifies which transects adult and juvenile colonies were recorded at and then converts NAs to 0s if needed
+ssss<-subset(data.sp,GENUS_CODE=="SSSS")
+ssss$Ad_pres<-ifelse(is.na(ssss$AdColCount),"0","-1")
+ssss$Juv_pres<-ifelse(is.na(ssss$JuvColCount),"0","-1")
+head(ssss)
+
+ssss<-subset(ssss,select = c(SITE,SITEVISITID,TRANSECT,Ad_pres,Juv_pres,TRANSECTAREA_ad,TRANSECTAREA_j)) 
+head(ssss)
+
+data.sp<-left_join(subset(data.sp,select = -c(TRANSECTAREA_ad,TRANSECTAREA_j)),ssss) #use transect area from ssss because transectareas for some taxa were NA after merging adults and juvs
+
+
+data.sp$JuvColCount[is.na(data.sp$JuvColCount) & data.sp$Juv_pres==-1]<-0;data.sp$JuvColDen[is.na(data.sp$JuvColDen) & data.sp$Juv_pres==-1]<-0
+data.sp$AdColCount[is.na(data.sp$AdColCount) & data.sp$Ad_pres==-1]<-0;data.sp$AdColDen[is.na(data.sp$AdColDen) & data.sp$Ad_pres==-1]<-0
 
 #Calculate transect level prevalence for acute dz, chronic dz and bleaching
 data.sp$DZGN_prev<-(data.sp$DZGN_den*data.sp$TRANSECTAREA_ad)/data.sp$AdColCount*100
@@ -288,9 +306,20 @@ head(data.tax)
 
 data.tax$METHOD<-"DIVER"
 
-#Change NAs for abunanance and density metrics to 0. Don't change NAs in the partial mortality columns to 0
-# data.tax$JuvColCount[is.na(data.tax$JuvColCount)]<-0;data.tax$JuvColDen[is.na(data.tax$JuvColDen)]<-0
-# data.tax$AdColCount[is.na(data.tax$AdColCount)]<-0;data.tax$AdColDen[is.na(data.tax$AdColDen)]<-0
+#There will be some NAs when you merge the juvenile and adult dataframes together because there may be some juvenile taxa that weren't observed as adults or juveniles
+#This code identifies which transects adult and juvenile colonies were recorded at and then converts NAs to 0s if needed
+ssss<-subset(data.tax,GENUS_CODE=="SSSS")
+ssss$Ad_pres<-ifelse(is.na(ssss$AdColCount),"0","-1")
+ssss$Juv_pres<-ifelse(is.na(ssss$JuvColCount),"0","-1")
+head(ssss)
+
+ssss<-subset(ssss,select = c(SITE,SITEVISITID,TRANSECT,Ad_pres,Juv_pres,TRANSECTAREA_ad,TRANSECTAREA_j)) 
+head(ssss)
+
+data.tax<-left_join(subset(data.tax,select = -c(TRANSECTAREA_ad,TRANSECTAREA_j)),ssss) #use transect area from ssss because transectareas for some taxa were NA after merging adults and juvs
+
+data.tax$JuvColCount[is.na(data.tax$JuvColCount) & data.tax$Juv_pres==-1]<-0;data.tax$JuvColDen[is.na(data.tax$JuvColDen) & data.tax$Juv_pres==-1]<-0
+data.tax$AdColCount[is.na(data.tax$AdColCount) & data.tax$Ad_pres==-1]<-0;data.tax$AdColDen[is.na(data.tax$AdColDen) & data.tax$Ad_pres==-1]<-0
 
 #Calculate transect level prevalence for acute dz, chronic dz and bleaching
 data.tax$DZGN_prev<-(data.tax$DZGN_den*data.tax$TRANSECTAREA_ad)/data.tax$AdColCount*100
