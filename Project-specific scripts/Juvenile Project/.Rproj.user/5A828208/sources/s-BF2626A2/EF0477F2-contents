@@ -1,0 +1,51 @@
+#Set ANALYSIS_SCHEMA to STRATA and DOMAIN_SCHEMA to whatever the highest level you want estimates for (e.g. sector, island, region)
+site.data.tax2$ANALYSIS_SCHEMA<-site.data.tax2$STRATANAME
+site.data.tax2$DOMAIN_SCHEMA<-site.data.tax2$BEN_SEC
+
+
+#Calculate metrics at Strata-level-We need to work on combining metrics into 1 function
+
+#Create a vector of columns to subset for strata estimates
+c.keep<-c("METHOD","REGION","ISLAND","ANALYSIS_YEAR","DOMAIN_SCHEMA","ANALYSIS_SCHEMA","REEF_ZONE","DB_RZ","TAXONCODE",
+          "n_h","N_h","D._h","SE_D._h","avp","SEprop","Y._h","SE_Y._h","CV_Y._h")
+c.keep2<-c("METHOD","REGION","ISLAND","ANALYSIS_YEAR","DOMAIN_SCHEMA","ANALYSIS_SCHEMA","REEF_ZONE","DB_RZ","TAXONCODE",
+           "n_h","N_h","D._h","SE_D._h")
+c.keep3<-c("METHOD","REGION","ISLAND","ANALYSIS_YEAR","DOMAIN_SCHEMA","ANALYSIS_SCHEMA","REEF_ZONE","DB_RZ","TAXONCODE",
+           "n_h","N_h","D._h","SE_D._h","avp","SEprop","Y._h","SE_Y._h","CV_Y._h")
+c.keep4<-c("METHOD","REGION","ISLAND","ANALYSIS_YEAR","DOMAIN_SCHEMA","ANALYSIS_SCHEMA","REEF_ZONE","DB_RZ","TAXONCODE",
+           "n_h","N_h","prev","SEprev")
+
+acdTAX_st<-Calc_Strata(site.data.tax2,"TAXONCODE","AdColDen","Adpres.abs");acdTAX_st=acdTAX_st[,c.keep]
+colnames(acdTAX_st)<-c("METHOD","REGION","ISLAND","ANALYSIS_YEAR","SECTOR","Stratum","REEF_ZONE","DB_RZ","TAXONCODE","n","Ntot","AdColDen","SE_AdColDen","Adult_avp","Adult_seprop","Adult_Abun","Adult_SE_Abun","Adult_CV")
+
+jcdTAX_st<-Calc_Strata(site.data.tax2,"TAXONCODE","JuvColDen","Juvpres.abs");jcdTAX_st=jcdTAX_st[,c.keep]
+colnames(jcdTAX_st)<-c("METHOD","REGION","ISLAND","ANALYSIS_YEAR","SECTOR","Stratum","REEF_ZONE","DB_RZ","TAXONCODE","n","Ntot","JuvColDen","SE_JuvColDen","Juv_avp","Juv_seprop","Juv_Abun","Juv_SE_Abun","Juv_CV")
+
+odTAX_st<-Calc_Strata(site.data.tax2,"TAXONCODE","Ave.od");odTAX_st=odTAX_st[,c.keep2]
+colnames(odTAX_st)<-c("METHOD","REGION","ISLAND","ANALYSIS_YEAR","SECTOR","Stratum","REEF_ZONE","DB_RZ","TAXONCODE","n","Ntot","Ave.od","SE_Ave.od")
+
+rdTAX_st<-Calc_Strata(site.data.tax2,"TAXONCODE","Ave.rd");rdTAX_st=rdTAX_st[,c.keep2]
+colnames(rdTAX_st)<-c("METHOD","REGION","ISLAND","ANALYSIS_YEAR","SECTOR","Stratum","REEF_ZONE","DB_RZ","TAXONCODE","n","Ntot","Ave.rd","SE_Ave.rd")
+
+clTAX_st<-Calc_Strata(site.data.tax2,"TAXONCODE","Ave.size");clTAX_st=clTAX_st[,c.keep2]
+colnames(clTAX_st)<-c("METHOD","REGION","ISLAND","ANALYSIS_YEAR","SECTOR","Stratum","REEF_ZONE","DB_RZ","TAXONCODE","n","Ntot","Ave.size","SE_Ave.size")
+
+BLETAX_st<-Calc_Strata_Prevalence(site.data.tax2,"TAXONCODE","BLE");BLETAX_st=BLETAX_st[,c.keep4]
+colnames(BLETAX_st)<-c("METHOD","REGION","ISLAND","ANALYSIS_YEAR","SECTOR","Stratum","REEF_ZONE","DB_RZ","TAXONCODE","n","Ntot","BLE","SE_BLE")
+
+AcuteDZTAX_st<-Calc_Strata_Prevalence(site.data.tax2,"TAXONCODE","AcuteDZ");AcuteDZTAX_st=AcuteDZTAX_st[,c.keep4]
+colnames(AcuteDZTAX_st)<-c("METHOD","REGION","ISLAND","ANALYSIS_YEAR","SECTOR","Stratum","REEF_ZONE","DB_RZ","TAXONCODE","n","Ntot","AcuteDZ","SE_AcuteDZ")
+
+ChronicDZTAX_st<-Calc_Strata_Prevalence(site.data.tax2,"TAXONCODE","ChronicDZ");ChronicDZTAX_st=ChronicDZTAX_st[,c.keep4]
+colnames(ChronicDZTAX_st)<-c("METHOD","REGION","ISLAND","ANALYSIS_YEAR","SECTOR","Stratum","REEF_ZONE","DB_RZ","TAXONCODE","n","Ntot","ChronicDZ","SE_ChronicDZ")
+
+
+#Double Check that revised pooling is adding up NH (total sites) correctly
+View(acdTAX_st)
+View(sectors)
+
+
+#Set ANALYSIS_SCHEMA to STRATA and DOMAIN_SCHEMA to whatever the highest level you want estimates for (e.g. sector, island, region)
+site.data.tax2$ANALYSIS_SCHEMA<-site.data.tax2$STRATANAME
+site.data.tax2$DOMAIN_SCHEMA<-site.data.tax2$ISLAND
+
