@@ -5,13 +5,31 @@
 
 
 rm(list=ls())
-library(RODBC)            # to connect to oracle
+library(RODBC) # to connect to oracle
+library(DBI)
+library(ROracle)
 setwd("C:/Users/Courtney.S.Couch/Documents/Courtney's Files/R Files/ESD/Benthic REA")
+
+
+ora <- dbDriver("Oracle")
+
+con <- dbConnect(ora, username = "CCOUCH", password = "vnq+3!dHgz$Xjdc2", dbname = "GIS")
+
+dbListTables(con)
+
+res <- dbSendQuery(con, "select table_name from user_tables")
+dbFetch(res)
+print(res)
+dbClearResult(res)
+
+dbDisconnect(con)
+
+
 
 Sys.setenv(ODBCINI = "/library/ODBC/odbc.ini")
 
 ##*******## jump down to Benthic REA WORKINGS if already saved as a .rfile
-ch <- odbcConnect("CRED_Oracle", uid = "ccouch", pwd = "")
+ch <- odbcConnect("CRED_Oracle", uid = "ccouch", pwd = "vnq+3!dHgz$Xjdc2")
 ##
 ## #list available tables
 tv<-sqlTables(ch, tableType = "VIEW")

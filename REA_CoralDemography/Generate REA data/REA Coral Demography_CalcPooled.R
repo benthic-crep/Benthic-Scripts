@@ -186,11 +186,11 @@ ChronicDZG_sec<-ChronicDZG_sec[,c("METHOD","REGION","ANALYSIS_YEAR","ISLAND","DO
 
 
 MyMerge <- function(x, y){
-  df <- merge(x, y, by= c("METHOD","REGION","ISLAND","ANALYSIS_YEAR","Stratum","REEF_ZONE","DB_RZ","GENUS_CODE","n","Ntot"), all.x= TRUE, all.y= TRUE)
+  df <- merge(x, y, by= c("METHOD","REGION","ISLAND","ANALYSIS_YEAR","SECTOR","Stratum","REEF_ZONE","DB_RZ","GENUS_CODE","n","Ntot"), all.x= TRUE, all.y= TRUE)
   return(df)
 }
 st.data.gen<-Reduce(MyMerge, list(acdG_st,jcdG_st,odG_st,rdG_st,clG_st,BLEG_st,AcuteDZG_st,ChronicDZG_st))
-colnames(st.data.gen)[colnames(st.data.gen)=="ANALYSIS_SCHEMA"]<-"Stratum"
+#colnames(st.data.gen)[colnames(st.data.gen)=="ANALYSIS_SCHEMA"]<-"Stratum"
 
 
 MyMerge <- function(x, y){
