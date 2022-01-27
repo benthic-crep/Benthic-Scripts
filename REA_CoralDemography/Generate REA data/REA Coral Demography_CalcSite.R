@@ -16,8 +16,8 @@ source("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/lib/GIS_functions.
 awd<-read.csv("T:/Benthic/Data/REA Coral Demography & Cover/Analysis Ready Raw data/CoralBelt_Adults_raw_CLEANED.csv")
 jwd<-read.csv("T:/Benthic/Data/REA Coral Demography & Cover/Analysis Ready Raw data/CoralBelt_Juveniles_raw_CLEANED.csv")
 
-# awd=subset(awd,ISLAND=="Tau")
-# jwd=subset(jwd,ISLAND=="Tau")
+# awd=subset(awd,ISLAND=="Maro")
+# jwd=subset(jwd,ISLAND=="Maro")
 
 #Final Tweaks before calculating site-level data-------------------------------------------------
 #Colony fragments will be removed when you generate the site level data
@@ -133,6 +133,9 @@ MyMerge <- function(x, y){
 }
 data.gen<-Reduce(MyMerge, list(acd.gen,jcd.gen,cl.gen,od.gen,rd.gen,acutedz.gen,chronicdz.gen,ble.gen));
 
+#Add column for the total disease density
+data.gen$TotDZ_den<-data.gen$DZGN_den + data.gen$CHRO_den
+
 #Add METHOD back in
 data.gen$METHOD<-"DIVER"
 
@@ -160,9 +163,18 @@ data.gen$JuvColCount[is.na(data.gen$JuvColCount) & data.gen$Juv_pres==-1]<-0;dat
 data.gen$AdColCount[is.na(data.gen$AdColCount) & data.gen$Ad_pres==-1]<-0;data.gen$AdColDen[is.na(data.gen$AdColDen) & data.gen$Ad_pres==-1]<-0
 
 #Calculate transect level prevalence for acute dz, chronic dz and bleaching
+data.gen$TotDZ_prev<-(data.gen$TotDZ_den*data.gen$TRANSECTAREA_ad)/data.gen$AdColCount*100
 data.gen$DZGN_prev<-(data.gen$DZGN_den*data.gen$TRANSECTAREA_ad)/data.gen$AdColCount*100
 data.gen$BLE_prev<-(data.gen$BLE_den*data.gen$TRANSECTAREA_ad)/data.gen$AdColCount*100
 data.gen$CHRO_prev<-(data.gen$CHRO_den*data.gen$TRANSECTAREA_ad)/data.gen$AdColCount*100
+
+#There will be some NAs when you merge the DZ and other dataframes together because there may be some taxa that didn't have disease
+#Convert NA to 0 ONLY for disease density NOT for prevalence
+data.gen$TotDZ_den<-ifelse(is.na(data.gen$TotDZ_den),0,data.gen$TotDZ_den)
+data.gen$DZGN_den<-ifelse(is.na(data.gen$DZGN_den),0,data.gen$DZGN_den)
+data.gen$CHRO_den<-ifelse(is.na(data.gen$CHRO_den),0,data.gen$CHRO_den)
+data.gen$BLE_den<-ifelse(is.na(data.gen$BLE_den),0,data.gen$BLE_den)
+
 
 #Remove data from transects with less than 5m surveyed for adults and 1m for juvs.
 data.gen$TRANSECTAREA_ad<-ifelse(data.gen$TRANSECTAREA_ad<5,NA,data.gen$TRANSECTAREA_ad);data.gen[data.gen$TRANSECTAREA_ad<5,]
@@ -175,8 +187,8 @@ site.data.gen<-ddply(data.gen, .(SITE,SITEVISITID,GENUS_CODE), #calc total colon
                      summarise,
                      AdColCount=mean(AdColCount,na.rm=T),AdColDen=mean(AdColDen,na.rm = T),Ave.od=mean(Ave.od,na.rm = T),
                      Ave.rd=mean(Ave.rd,na.rm = T),Ave.size=mean(Ave.cl,na.rm=T),JuvColCount=mean(JuvColCount,na.rm=T),
-                     JuvColDen=mean(JuvColDen,na.rm=T),BLE=mean(BLE_den,na.rm=T),AcuteDZ=mean(DZGN_den,na.rm=T),ChronicDZ=mean(CHRO_den,na.rm=T),
-                     BLE_prev=mean(BLE_prev,na.rm=T),AcuteDZ_prev=mean(DZGN_prev,na.rm=T),ChronicDZ_prev=mean(CHRO_prev,na.rm=T))
+                     JuvColDen=mean(JuvColDen,na.rm=T),BLE=mean(BLE_den,na.rm=T),TotDZ=mean(TotDZ_den,na.rm=T), AcuteDZ=mean(DZGN_den,na.rm=T),ChronicDZ=mean(CHRO_den,na.rm=T),
+                     BLE_prev=mean(BLE_prev,na.rm=T),TotDZ_prev=mean(TotDZ_prev,na.rm=T), AcuteDZ_prev=mean(DZGN_prev,na.rm=T),ChronicDZ_prev=mean(CHRO_prev,na.rm=T))
 
 #Duplicate dataframe because the ddply step above takes a while to create. Allows you to tweak code below without having to rerun the ddply step above
 site.data.gen2<-site.data.gen

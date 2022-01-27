@@ -766,7 +766,7 @@ Calc_RDden_Transect<-function(data, survey_colony_f=survey_colony, grouping_fiel
   new_DF <- sum(rowSums(is.na(ab.tr))) # should be 0
   if(new_DF > 0) {cat("WARNING:NAs in dataframe")}
 
-  #calcualte density of each condition, for output
+  #Calculate density of each condition, for output
   out<-ab.tr
   out[ ,which(names(out)==DATAcol[1]):ncol(out)]=out[ ,which(names(out)==DATAcol[1]):ncol(out)]/out$TRANSECTAREA # selects every row and 2nd to last columns
 
@@ -1418,6 +1418,7 @@ Calc_Strata_Prevalence=function(site_data,grouping_field,metric_field){
 
   return(Strata_roll)
 }
+
 
 
 #DOMAIN ROLL UP FUNCTION-This function calculates mean, var, SE and CV at the DOMAIN level. I've built in flexilbity to use either genus or taxoncode as well as other metrics (size class, morph)

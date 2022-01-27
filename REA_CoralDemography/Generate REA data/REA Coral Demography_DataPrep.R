@@ -23,6 +23,8 @@ load("T:/Benthic/Data/REA Coral Demography & Cover/Raw from Oracle/ALL_REA_ADULT
 
 x<-df #leave this as df
 
+#This function isn't working- remove SITE from adult data for now - it will cause merging issues with the survey_master file later on
+x$SITE<- as.factor(x$SITE)
 x$SITE<-SiteNumLeadingZeros(x$SITE) # Change site number such as MAR-22 to MAR-0022
 
 #Convert date formats
@@ -36,37 +38,38 @@ tail(x)
 table(x$REGION, x$OBS_YEAR) #review years and regions in dataframe
 
 
-#Temporary script to integrate 2017 NWHI data- waiting for orcale to work
-nw<-read.csv("T:/Benthic/Data/REA Coral Demography & Cover/Raw from Oracle/PMNM2017_ADULTCOLONY_QCd.csv");nw<-subset(nw,select=-c(X))
-nw$SITE<-gsub("-","-0",nw$SITE) #add 0 before site number 
-nw$DATE_ <- ymd(nw$DATE_)
-head(nw)
-
-nw$REGION_NAME<-"Northwestern Hawaiian Islands"
-nw$OBS_YEAR<-nw$YEAR
-nw$NO_SURVEY_YN<-NA
-nw$EXCLUDE_FLAG<-NA
-nw$COLONYID<-c((1:nrow(nw)+633568))
-nw$TAXONCODE<-nw$SPCODE
-nw$MORPHOLOGY<-NA
-nw$RECENT_GENERAL_CAUSE_CODE_2<-NA
-nw$RECENT_SPECIFIC_CAUSE_CODE_2<-NA
-nw$RECENTDEAD_2<-NA
-nw$RECENT_GENERAL_CAUSE_CODE_3<-NA
-nw$RECENT_SPECIFIC_CAUSE_CODE_3<-NA
-nw$RECENTDEAD_3<-NA
-nw$COND<-nw$CONDITION_1
-nw$CONDITION_2<-NA
-nw$CONDITION_3<-NA
-nw$EXTENT_2<-NA
-nw$EXTENT_3<-NA
-nw$SEVERITY_2<-NA
-nw$SEVERITY_3<-NA
-nw$S_ORDER<-ifelse(nw$SPCODE=="AAAA",NA,"Scleractinia")
+# 
+# #Temporary script to integrate 2017 NWHI data- waiting for orcale to work
+# nw<-read.csv("T:/Benthic/Data/REA Coral Demography & Cover/Raw from Oracle/PMNM2017_ADULTCOLONY_QCd.csv");nw<-subset(nw,select=-c(X))
+# nw$SITE<-gsub("-","-0",nw$SITE) #add 0 before site number 
+# nw$DATE_ <- ymd(nw$DATE_)
+# head(nw)
+# 
+# nw$REGION_NAME<-"Northwestern Hawaiian Islands"
+# nw$OBS_YEAR<-nw$YEAR
+# nw$NO_SURVEY_YN<-NA
+# nw$EXCLUDE_FLAG<-NA
+# nw$COLONYID<-c((1:nrow(nw)+633568))
+# nw$TAXONCODE<-nw$SPCODE
+# nw$MORPHOLOGY<-NA
+# nw$RECENT_GENERAL_CAUSE_CODE_2<-NA
+# nw$RECENT_SPECIFIC_CAUSE_CODE_2<-NA
+# nw$RECENTDEAD_2<-NA
+# nw$RECENT_GENERAL_CAUSE_CODE_3<-NA
+# nw$RECENT_SPECIFIC_CAUSE_CODE_3<-NA
+# nw$RECENTDEAD_3<-NA
+# nw$COND<-nw$CONDITION_1
+# nw$CONDITION_2<-NA
+# nw$CONDITION_3<-NA
+# nw$EXTENT_2<-NA
+# nw$EXTENT_3<-NA
+# nw$SEVERITY_2<-NA
+# nw$SEVERITY_3<-NA
+# nw$S_ORDER<-ifelse(nw$SPCODE=="AAAA",NA,"Scleractinia")
 
 #Create vector of column names to include then exclude unwanted columns from dataframe
-DATA_COLS<-c("MISSIONID","REGION","REGION_NAME","ISLAND","ISLANDCODE","SITE","LATITUDE",	"LONGITUDE","REEF_ZONE","DEPTH_BIN","OBS_YEAR",
-             "DATE_","NO_SURVEY_YN","EXCLUDE_FLAG","SITEVISITID","HABITAT_CODE","DIVER","TRANSECTNUM","SEGMENT","SEGWIDTH","SEGLENGTH","FRAGMENT_YN",
+DATA_COLS<-c("MISSIONID","REGION","REGION_NAME","ISLAND","ISLANDCODE","LATITUDE",	"LONGITUDE","REEF_ZONE","DEPTH_BIN","OBS_YEAR",
+             "DATE_","NO_SURVEY_YN","EXCLUDE_FLAG","SITEVISITID", "SITE","HABITAT_CODE","DIVER","TRANSECTNUM","SEGMENT","SEGWIDTH","SEGLENGTH","FRAGMENT_YN",
              "COLONYID","TAXONCODE","MORPH_CODE","MORPHOLOGY","COLONYLENGTH","OLDDEAD",
              "RECENTDEAD_1","RECENT_GENERAL_CAUSE_CODE_1","RECENT_SPECIFIC_CAUSE_CODE_1",
              "RECENTDEAD_2",	"RECENT_GENERAL_CAUSE_CODE_2","RECENT_SPECIFIC_CAUSE_CODE_2",
@@ -78,9 +81,9 @@ DATA_COLS<-c("MISSIONID","REGION","REGION_NAME","ISLAND","ISLANDCODE","SITE","LA
 #remove extraneous columns
 head(x[,DATA_COLS])
 x<-x[,DATA_COLS]
-nw<-nw[,DATA_COLS]
-
-x<-rbind(x,nw) #combine x and 2017 NWHI data
+# nw<-nw[,DATA_COLS]
+# 
+# x<-rbind(x,nw) #combine x and 2017 NWHI data
 
 
 #Double check level and class of variables to make sure there aren't any errors
@@ -235,7 +238,7 @@ nrow(x)
 
 
 ## CLEAN UP NAs ##
-NegNineCheckCols=c("RDEXTENT1","GENRD1","RD1","RDEXTENT2","GENRD2","RD2","GENRD3","RD3",
+NegNineCheckCols=c("OLDDEAD","RDEXTENT1","GENRD1","RD1","RDEXTENT2","GENRD2","RD2","GENRD3","RD3",
                    "RDEXTENT3","CONDITION_1","CONDITION_2","CONDITION_3","EXTENT_1","EXTENT_2","EXTENT_3","SEVERITY_1",
                    "SEVERITY_2","SEVERITY_3","GENUS_CODE","S_ORDER")
 x[,NegNineCheckCols][x[,NegNineCheckCols]==-9] <- NA #Convert missing numeric values to NA (they are entered as -9 in Oracle)
@@ -293,7 +296,7 @@ class(x$DATE_)
 x$DATE_ <- as.Date(x$DATE_, format = "%Y-%m-%d")
 
 #Create vector of column names to include then exclude unwanted columns from dataframe
-DATA_COLS<-c("MISSIONID","REGION","REGION_NAME","ISLAND","ISLANDCODE","SITE","LATITUDE",	"LONGITUDE","REEF_ZONE","DEPTH_BIN","OBS_YEAR",
+DATA_COLS<-c("MISSIONID","REGION","REGION_NAME","ISLAND","ISLANDCODE","SITE","LATITUDE","LONGITUDE","REEF_ZONE","DEPTH_BIN","OBS_YEAR",
              "DATE_","NO_SURVEY_YN","EXCLUDE_FLAG","SITEVISITID","HABITAT_CODE","DIVER","TRANSECTNUM","SEGMENT","SEGWIDTH","SEGLENGTH",
              "COLONYID","TAXONCODE","MORPH_CODE","MORPHOLOGY","COLONYLENGTH","GENUS_CODE","S_ORDER","TAXONNAME")
 
@@ -303,21 +306,21 @@ head(x[,DATA_COLS])
 x<-x[,DATA_COLS]
 
 #Cleanup 2017 NWHI data to merge with the rest of the juvenile data -temporary workaround until data team migrates data to Oracle
-nw<-read.csv("T:/Benthic/Data/REA Coral Demography & Cover/Raw from Oracle/PMNM2017_JUVENILECOLONY_QCd.csv")
+#nw<-read.csv("T:/Benthic/Data/REA Coral Demography & Cover/Raw from Oracle/PMNM2017_JUVENILECOLONY_QCd.csv")
 
-head(nw[,DATA_COLS])
-nw<-nw[,DATA_COLS]
-
-nw$COLONYID<-nrow(x)+1:length(nw$SITEVISITID)
-nw$COLONYID<-ifelse(nw$TAXONCODE=="AAAA",NA,nw$COLONYID)
+# head(nw[,DATA_COLS])
+# nw<-nw[,DATA_COLS]
+# 
+# nw$COLONYID<-nrow(x)+1:length(nw$SITEVISITID)
+# nw$COLONYID<-ifelse(nw$TAXONCODE=="AAAA",NA,nw$COLONYID)
 
 #Convert date formats
-class(nw$DATE_)
-nw$DATE_ <- dmy(nw$DATE_)
-nw$DATE_ <- as.Date(nw$DATE_, format = "%Y-%m-%d")
+# class(nw$DATE_)
+# nw$DATE_ <- dmy(nw$DATE_)
+# nw$DATE_ <- as.Date(nw$DATE_, format = "%Y-%m-%d")
 
-x<-rbind(x,nw)
-
+# x<-rbind(x,nw)
+x$SITE<- as.factor(x$SITE)
 x$SITE<-SiteNumLeadingZeros(x$SITE) # Change site number such as MAR-22 to MAR-0022
 
 
@@ -364,7 +367,7 @@ test<-x[is.na(x$SEC_NAME),]
 miss.sites<-ddply(test,.(OBS_YEAR,SITEVISITID,SITE,MISSIONID,REGION,REGION_NAME,ISLAND,LATITUDE,LONGITUDE,
                          REEF_ZONE,DEPTH_BIN,DATE_,EXCLUDE_FLAG,HABITAT_CODE),
                   summarize,temp=median(SITEVISITID))
-head(miss.sites,20)
+head(miss.sites,20) #should be empty
 
 
 # CLEAN UP ----------------------------------------------------------------

@@ -10,12 +10,9 @@ source("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/lib/GIS_functions.
 ## LOAD benthic data
 setwd("C:/Users/Courtney.S.Couch/Documents/Courtney's Files/R Files/ESD/Benthic REA")
 
-
-
 site.data.gen2<-read.csv("T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Site/BenthicREA_sitedata_GENUS.csv")
 site.data.sp2<-read.csv("T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Site/BenthicREA_sitedata_SPCODE.csv")
 site.data.tax2<-read.csv("T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Site/BenthicREA_sitedata_TAXONCODE.csv")
-
 
 # Remove special missions -------------------------------------------------
 
@@ -53,13 +50,17 @@ head(subset(site.data.sp2,EXCLUDE_FLAG==-1))
 # POOLING DATA from Site to Strata and Domain at GENUS-level---------------------------------------------------
 survey_master<-read.csv("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/data/SURVEY MASTER.csv")
 sectors<-read.csv("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/data/Sectors-Strata-Areas.csv", stringsAsFactors=FALSE)
-
+seclu<-read.csv("T:/Benthic/Data/Lookup Tables/PacificNCRMP_CoralDemographic_Sectors_Lookup_v2.csv")
 #This function will pool data at Sector scale according to predetermined groups. Protected reef slope is converted to Forereef here
-site.data.gen2<-PoolSecStrat(site.data.gen2)
-# rich.data<-PoolSecStrat(rich.data.gen)
+#site.data.gen2<-PoolSecStrat(site.data.gen2)
+
+#Merge site data with Sector look up table. This table indicates how sectors should be pooled or not
+#For NCRMP viztool data- Keep pooling scheme the same across years
+site.data.gen2<-left_join(site.data.gen2,seclu)
+
 
 #QC CHECK to make sure the sectors and strata pooled correctly
-data.test<-ddply(subset(site.data.gen2,GENUS_CODE=="SSSS"),.(REGION,BEN_SEC,OBS_YEAR,STRATANAME),summarize,n=length(SITE))
+data.test<-ddply(subset(site.data.gen2,GENUS_CODE=="SSSS"),.(REGION,PooledSector,OBS_YEAR,STRATANAME),summarize,n=length(SITE))
 sm.test<-ddply(subset(survey_master,Benthic=="1"&EXCLUDE_FLAG=="0"&OBS_YEAR>=2013),.(REGION,ISLAND,SEC_NAME,OBS_YEAR,REEF_ZONE,DEPTH_BIN),summarize,n=length(SITE))
 
 write.csv(data.test,"tmp_sitedataQC.csv")
@@ -74,11 +75,16 @@ write.csv(sm.test,"tmp_sitemasterQC.csv")
 # table(site.data.gen2$REEF_ZONE,site.data.gen2$GENUS_CODE)
 # table(rich.data$REEF_ZONE)
 
+site.data.gen2$STRATANAME<-paste(site.data.gen2$PooledSector,site.data.gen2$REEF_ZONE,site.data.gen2$DEPTH_BIN,sep="_")
+site.data.gen2$DB_RZ<-paste(substring(site.data.gen2$REEF_ZONE,1,1), substring(site.data.gen2$DEPTH_BIN,1,1), sep="")
+
 
 #Set ANALYSIS_SCHEMA to STRATA and DOMAIN_SCHEMA to whatever the highest level you want estimates for (e.g. sector, island, region)
 site.data.gen2$ANALYSIS_SCHEMA<-site.data.gen2$STRATANAME
-site.data.gen2$DOMAIN_SCHEMA<-site.data.gen2$BEN_SEC
+site.data.gen2$DOMAIN_SCHEMA<-site.data.gen2$PooledSector
 
+site.data.gen2$DOMAIN_SCHEMA<-site.data.gen2$PooledSector
+site.data.gen2$ANALYSIS_SCHEMA<-paste(site.data.gen2$PooledSector,site.data.gen2$DB_RZ,sep = "_")
 
 #Calculate metrics at Strata-level-We need to work on combining metrics into 1 function
 
@@ -109,6 +115,9 @@ colnames(clG_st)<-c("METHOD","REGION","ISLAND","ANALYSIS_YEAR","SECTOR","Stratum
 
 BLEG_st<-Calc_Strata_Prevalence(site.data.gen2,"GENUS_CODE","BLE");BLEG_st=BLEG_st[,c.keep4]
 colnames(BLEG_st)<-c("METHOD","REGION","ISLAND","ANALYSIS_YEAR","SECTOR","Stratum","REEF_ZONE","DB_RZ","GENUS_CODE","n","Ntot","BLE","SE_BLE")
+
+TotDZG_st<-Calc_Strata_Prevalence(site.data.gen2,"GENUS_CODE","AcuteDZ");TotDZG_st=TotDZG_st[,c.keep4]
+colnames(TotDZG_st)<-c("METHOD","REGION","ISLAND","ANALYSIS_YEAR","SECTOR","Stratum","REEF_ZONE","DB_RZ","GENUS_CODE","n","Ntot","TotDZG_st","SE_TotDZ")
 
 AcuteDZG_st<-Calc_Strata_Prevalence(site.data.gen2,"GENUS_CODE","AcuteDZ");AcuteDZG_st=AcuteDZG_st[,c.keep4]
 colnames(AcuteDZG_st)<-c("METHOD","REGION","ISLAND","ANALYSIS_YEAR","SECTOR","Stratum","REEF_ZONE","DB_RZ","GENUS_CODE","n","Ntot","AcuteDZ","SE_AcuteDZ")
@@ -148,6 +157,9 @@ clG_is<-Calc_Domain(site.data.gen2,"GENUS_CODE","Ave.size")
 clG_is<-clG_is[,c("METHOD","REGION","ANALYSIS_YEAR","DOMAIN_SCHEMA","GENUS_CODE","n","Ntot","Mean_Ave.size","SE_Ave.size")]
 bleG_is<-Calc_Domain_Prevalence(site.data.gen2,"GENUS_CODE","BLE")
 bleG_is<-bleG_is[,c("METHOD","REGION","ANALYSIS_YEAR","DOMAIN_SCHEMA","GENUS_CODE","n","Ntot","Mean_BLE_Prev","SE_BLE_Prev")]
+
+TotDZG_is<-Calc_Domain_Prevalence(site.data.gen2,"GENUS_CODE","TotDZ")
+TotDZG_is<-TotDZG_is[,c("METHOD","REGION","ANALYSIS_YEAR","DOMAIN_SCHEMA","GENUS_CODE","n","Ntot","Mean_TotDZ_Prev","SE_TotDZ_Prev")]
 AcuteDZG_is<-Calc_Domain_Prevalence(site.data.gen2,"GENUS_CODE","AcuteDZ")
 AcuteDZG_is<-AcuteDZG_is[,c("METHOD","REGION","ANALYSIS_YEAR","DOMAIN_SCHEMA","GENUS_CODE","n","Ntot","Mean_AcuteDZ_Prev","SE_AcuteDZ_Prev")]
 ChronicDZG_is<-Calc_Domain_Prevalence(site.data.gen2,"GENUS_CODE","ChronicDZ")
@@ -156,7 +168,7 @@ ChronicDZG_is<-ChronicDZG_is[,c("METHOD","REGION","ANALYSIS_YEAR","DOMAIN_SCHEMA
 
 #Calculate Sector Estimates
 site.data.gen2$ANALYSIS_SCHEMA<-site.data.gen2$STRATANAME
-site.data.gen2$DOMAIN_SCHEMA<-site.data.gen2$BEN_SEC
+site.data.gen2$DOMAIN_SCHEMA<-site.data.gen2$PooledSector
 
 
 acdG_sec<-Calc_Domain(site.data.gen2,"GENUS_CODE","AdColDen","Adpres.abs")
@@ -177,6 +189,9 @@ clG_sec<-Calc_Domain(site.data.gen2,"GENUS_CODE","Ave.size")
 clG_sec<-clG_sec[,c("METHOD","REGION","ANALYSIS_YEAR","ISLAND","DOMAIN_SCHEMA","GENUS_CODE","n","Ntot","Mean_Ave.size","SE_Ave.size")]
 bleG_sec<-Calc_Domain_Prevalence(site.data.gen2,"GENUS_CODE","BLE")
 bleG_sec<-bleG_sec[,c("METHOD","REGION","ANALYSIS_YEAR","ISLAND","DOMAIN_SCHEMA","GENUS_CODE","n","Ntot","Mean_BLE_Prev","SE_BLE_Prev")]
+
+TotDZG_sec<-Calc_Domain_Prevalence(site.data.gen2,"GENUS_CODE","TotDZ")
+TotDZG_sec<-TotDZG_sec[,c("METHOD","REGION","ANALYSIS_YEAR","ISLAND","DOMAIN_SCHEMA","GENUS_CODE","n","Ntot","Mean_TotDZ_Prev","SE_TotDZ_Prev")]
 AcuteDZG_sec<-Calc_Domain_Prevalence(site.data.gen2,"GENUS_CODE","AcuteDZ")
 AcuteDZG_sec<-AcuteDZG_sec[,c("METHOD","REGION","ANALYSIS_YEAR","ISLAND","DOMAIN_SCHEMA","GENUS_CODE","n","Ntot","Mean_AcuteDZ_Prev","SE_AcuteDZ_Prev")]
 ChronicDZG_sec<-Calc_Domain_Prevalence(site.data.gen2,"GENUS_CODE","ChronicDZ")
@@ -189,7 +204,7 @@ MyMerge <- function(x, y){
   df <- merge(x, y, by= c("METHOD","REGION","ISLAND","ANALYSIS_YEAR","SECTOR","Stratum","REEF_ZONE","DB_RZ","GENUS_CODE","n","Ntot"), all.x= TRUE, all.y= TRUE)
   return(df)
 }
-st.data.gen<-Reduce(MyMerge, list(acdG_st,jcdG_st,odG_st,rdG_st,clG_st,BLEG_st,AcuteDZG_st,ChronicDZG_st))
+st.data.gen<-Reduce(MyMerge, list(acdG_st,jcdG_st,odG_st,rdG_st,clG_st,BLEG_st,TotDZG_st,AcuteDZG_st,ChronicDZG_st))
 #colnames(st.data.gen)[colnames(st.data.gen)=="ANALYSIS_SCHEMA"]<-"Stratum"
 
 
@@ -197,7 +212,7 @@ MyMerge <- function(x, y){
   df <- merge(x, y, by= c("METHOD","REGION","ANALYSIS_YEAR","DOMAIN_SCHEMA","GENUS_CODE","n","Ntot"), all.x= TRUE, all.y= TRUE)
   return(df)
 }
-is.data.gen<-Reduce(MyMerge, list(acdG_is,jcdG_is,odG_is,rdG_is,clG_is,bleG_is,AcuteDZG_is,ChronicDZG_is))
+is.data.gen<-Reduce(MyMerge, list(acdG_is,jcdG_is,odG_is,rdG_is,clG_is,bleG_is,TotDZG_is,AcuteDZG_is,ChronicDZG_is))
 colnames(is.data.gen)[colnames(is.data.gen)=="DOMAIN_SCHEMA"]<-"Island"
 
 
@@ -206,7 +221,7 @@ MyMerge <- function(x, y){
   df <- merge(x, y, by= c("METHOD","REGION","ANALYSIS_YEAR","ISLAND","DOMAIN_SCHEMA","GENUS_CODE","n","Ntot"), all.x= TRUE, all.y= TRUE)
   return(df)
 }
-sec.data.gen<-Reduce(MyMerge, list(acdG_sec,jcdG_sec,odG_sec,rdG_sec,clG_sec,bleG_sec,AcuteDZG_sec,ChronicDZG_sec))
+sec.data.gen<-Reduce(MyMerge, list(acdG_sec,jcdG_sec,odG_sec,rdG_sec,clG_sec,bleG_sec,TotDZG_sec,AcuteDZG_sec,ChronicDZG_sec))
 colnames(sec.data.gen)[colnames(sec.data.gen)=="DOMAIN_SCHEMA"]<-"Sector"
 
 write.csv(st.data.gen,file="T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Stratum/BenthicREA_stratadata_GENUS.csv")
@@ -219,11 +234,14 @@ survey_master<-read.csv("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/d
 sectors<-read.csv("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/data/Sectors-Strata-Areas.csv", stringsAsFactors=FALSE)
 
 #This function will pool data at Sector scale according to predetermined groups. Protected reef slope is converted to Forereef here
-site.data.sp2<-PoolSecStrat(site.data.sp2)
+#site.data.sp2<-PoolSecStrat(site.data.sp2)
 # rich.data<-PoolSecStrat(rich.data.gen)
 
+site.data.sp2<-left_join(site.data.sp2,seclu)
+
+
 #QC CHECK to make sure the sectors and strata pooled correctly
-data.test<-ddply(subset(site.data.sp2,SPCODE=="SSSS"),.(REGION,BEN_SEC,OBS_YEAR,STRATANAME),summarize,n=length(SITE))
+data.test<-ddply(subset(site.data.sp2,SPCODE=="SSSS"),.(REGION,PooledSector,OBS_YEAR,STRATANAME),summarize,n=length(SITE))
 sm.test<-ddply(subset(survey_master,Benthic=="1"&EXCLUDE_FLAG=="0"&OBS_YEAR>=2013),.(REGION,ISLAND,SEC_NAME,OBS_YEAR,REEF_ZONE,DEPTH_BIN),summarize,n=length(SITE))
 
 write.csv(data.test,"tmp_sitedataQC.csv")
@@ -237,10 +255,12 @@ write.csv(sm.test,"tmp_sitemasterQC.csv")
 # table(site.data.sp2$REEF_ZONE,site.data.sp2$SPCODE)
 # table(rich.data$REEF_ZONE)
 
+site.data.sp2$STRATANAME<-paste(site.data.sp2$PooledSector,site.data.sp2$REEF_ZONE,site.data.sp2$DEPTH_BIN,sep="_")
+site.data.sp2$DB_RZ<-paste(substring(site.data.sp2$REEF_ZONE,1,1), substring(site.data.sp2$DEPTH_BIN,1,1), sep="")
 
 #Set ANALYSIS_SCHEMA to STRATA and DOMAIN_SCHEMA to whatever the highest level you want estimates for (e.g. sector, island, region)
 site.data.sp2$ANALYSIS_SCHEMA<-site.data.sp2$STRATANAME
-site.data.sp2$DOMAIN_SCHEMA<-site.data.sp2$BEN_SEC
+site.data.sp2$DOMAIN_SCHEMA<-site.data.sp2$PooledSector
 
 
 #Calculate metrics at Strata-level-We need to work on combining metrics into 1 function
@@ -272,6 +292,9 @@ colnames(clSP_st)<-c("METHOD","REGION","ISLAND","ANALYSIS_YEAR","SECTOR","Stratu
 
 BLESP_st<-Calc_Strata_Prevalence(site.data.sp2,"SPCODE","BLE");BLESP_st=BLESP_st[,c.keep4]
 colnames(BLESP_st)<-c("METHOD","REGION","ISLAND","ANALYSIS_YEAR","SECTOR","Stratum","REEF_ZONE","DB_RZ","SPCODE","n","Ntot","BLE","SE_BLE")
+
+TotDZSP_st<-Calc_Strata_Prevalence(site.data.sp2,"SPCODE","AcuteDZ");TotDZSP_st=TotDZSP_st[,c.keep4]
+colnames(TotDZSP_st)<-c("METHOD","REGION","ISLAND","ANALYSIS_YEAR","SECTOR","Stratum","REEF_ZONE","DB_RZ","SPCODE","n","Ntot","TotDZ","SE_TotDZ")
 
 AcuteDZSP_st<-Calc_Strata_Prevalence(site.data.sp2,"SPCODE","AcuteDZ");AcuteDZSP_st=AcuteDZSP_st[,c.keep4]
 colnames(AcuteDZSP_st)<-c("METHOD","REGION","ISLAND","ANALYSIS_YEAR","SECTOR","Stratum","REEF_ZONE","DB_RZ","SPCODE","n","Ntot","AcuteDZ","SE_AcuteDZ")
@@ -311,6 +334,9 @@ clSP_is<-Calc_Domain(site.data.sp2,"SPCODE","Ave.size")
 clSP_is<-clSP_is[,c("METHOD","REGION","ANALYSIS_YEAR","DOMAIN_SCHEMA","SPCODE","n","Ntot","Mean_Ave.size","SE_Ave.size")]
 bleSP_is<-Calc_Domain_Prevalence(site.data.sp2,"SPCODE","BLE")
 bleSP_is<-bleSP_is[,c("METHOD","REGION","ANALYSIS_YEAR","DOMAIN_SCHEMA","SPCODE","n","Ntot","Mean_BLE_Prev","SE_BLE_Prev")]
+
+TotDZSP_is<-Calc_Domain_Prevalence(site.data.sp2,"SPCODE","TotDZ")
+TotDZSP_is<-TotDZSP_is[,c("METHOD","REGION","ANALYSIS_YEAR","DOMAIN_SCHEMA","SPCODE","n","Ntot","Mean_TotDZ_Prev","SE_TotDZ_Prev")]
 AcuteDZSP_is<-Calc_Domain_Prevalence(site.data.sp2,"SPCODE","AcuteDZ")
 AcuteDZSP_is<-AcuteDZSP_is[,c("METHOD","REGION","ANALYSIS_YEAR","DOMAIN_SCHEMA","SPCODE","n","Ntot","Mean_AcuteDZ_Prev","SE_AcuteDZ_Prev")]
 ChronicDZSP_is<-Calc_Domain_Prevalence(site.data.sp2,"SPCODE","ChronicDZ")
@@ -319,7 +345,7 @@ ChronicDZSP_is<-ChronicDZSP_is[,c("METHOD","REGION","ANALYSIS_YEAR","DOMAIN_SCHE
 
 #Calculate Sector Estimates
 site.data.sp2$ANALYSIS_SCHEMA<-site.data.sp2$STRATANAME
-site.data.sp2$DOMAIN_SCHEMA<-site.data.sp2$BEN_SEC
+site.data.sp2$DOMAIN_SCHEMA<-site.data.sp2$PooledSector
 
 
 acdSP_sec<-Calc_Domain(site.data.sp2,"SPCODE","AdColDen","Adpres.abs")
@@ -341,6 +367,9 @@ clSP_sec<-Calc_Domain(site.data.sp2,"SPCODE","Ave.size")
 clSP_sec<-clSP_sec[,c("METHOD","REGION","ANALYSIS_YEAR","ISLAND","DOMAIN_SCHEMA","SPCODE","n","Ntot","Mean_Ave.size","SE_Ave.size")]
 bleSP_sec<-Calc_Domain_Prevalence(site.data.sp2,"SPCODE","BLE")
 bleSP_sec<-bleSP_sec[,c("METHOD","REGION","ANALYSIS_YEAR","ISLAND","DOMAIN_SCHEMA","SPCODE","n","Ntot","Mean_BLE_Prev","SE_BLE_Prev")]
+
+TotDZSP_sec<-Calc_Domain_Prevalence(site.data.sp2,"SPCODE","TotDZ")
+TotDZSP_sec<-TotDZSP_sec[,c("METHOD","REGION","ANALYSIS_YEAR","DOMAIN_SCHEMA","SPCODE","n","Ntot","Mean_TotDZ_Prev","SE_TotDZ_Prev")]
 AcuteDZSP_sec<-Calc_Domain_Prevalence(site.data.sp2,"SPCODE","AcuteDZ")
 AcuteDZSP_sec<-AcuteDZSP_sec[,c("METHOD","REGION","ANALYSIS_YEAR","ISLAND","DOMAIN_SCHEMA","SPCODE","n","Ntot","Mean_AcuteDZ_Prev","SE_AcuteDZ_Prev")]
 ChronicDZSP_sec<-Calc_Domain_Prevalence(site.data.sp2,"SPCODE","ChronicDZ")
@@ -352,7 +381,7 @@ MyMerge <- function(x, y){
   df <- merge(x, y, by= c("METHOD","REGION","ISLAND","ANALYSIS_YEAR","Stratum","REEF_ZONE","DB_RZ","SPCODE","n","Ntot"), all.x= TRUE, all.y= TRUE)
   return(df)
 }
-st.data.sp<-Reduce(MyMerge, list(acdSP_st,jcdSP_st,odSP_st,rdSP_st,clSP_st,BLESP_st,AcuteDZSP_st,ChronicDZSP_st))
+st.data.sp<-Reduce(MyMerge, list(acdSP_st,jcdSP_st,odSP_st,rdSP_st,clSP_st,BLESP_st,TotDZSP_st,AcuteDZSP_st,ChronicDZSP_st))
 colnames(st.data.sp)[colnames(st.data.sp)=="ANALYSIS_SCHEMA"]<-"Stratum"
 
 write.csv(st.data.sp,file="T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Stratum/BenthicREA_stratadata_SPCODE.csv")
@@ -363,7 +392,7 @@ MyMerge <- function(x, y){
   df <- merge(x, y, by= c("METHOD","REGION","ANALYSIS_YEAR","DOMAIN_SCHEMA","SPCODE","n","Ntot"), all.x= TRUE, all.y= TRUE)
   return(df)
 }
-is.data.sp<-Reduce(MyMerge, list(acdSP_is,jcdSP_is,odSP_is,rdSP_is,clSP_is,bleSP_is,AcuteDZSP_is,ChronicDZSP_is))
+is.data.sp<-Reduce(MyMerge, list(acdSP_is,jcdSP_is,odSP_is,rdSP_is,clSP_is,bleSP_is,TotDZSP_is,AcuteDZSP_is,ChronicDZSP_is))
 colnames(is.data.sp)[colnames(is.data.sp)=="DOMAIN_SCHEMA"]<-"Island"
 
 write.csv(is.data.sp,file="T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Island/BenthicREA_islanddata_SPCODE.csv")
@@ -373,7 +402,7 @@ MyMerge <- function(x, y){
   df <- merge(x, y, by= c("METHOD","REGION","ANALYSIS_YEAR","ISLAND","DOMAIN_SCHEMA","SPCODE","n","Ntot"), all.x= TRUE, all.y= TRUE)
   return(df)
 }
-sec.data.sp<-Reduce(MyMerge, list(acdSP_sec,jcdSP_sec,odSP_sec,rdSP_sec,clSP_sec,bleSP_sec,AcuteDZSP_sec,ChronicDZSP_sec))
+sec.data.sp<-Reduce(MyMerge, list(acdSP_sec,jcdSP_sec,odSP_sec,rdSP_sec,clSP_sec,bleSP_sec,TotDZSP_sec,AcuteDZSP_sec,ChronicDZSP_sec))
 colnames(sec.data.sp)[colnames(sec.data.sp)=="DOMAIN_SCHEMA"]<-"Sector"
 
 write.csv(sec.data.sp,file="T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Sector/BenthicREA_sectordata_SPCODE.csv")
@@ -384,11 +413,13 @@ survey_master<-read.csv("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/d
 sectors<-read.csv("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/data/Sectors-Strata-Areas.csv", stringsAsFactors=FALSE)
 
 #This function will pool data at Sector scale according to predetermined groups. Protected reef slope is converted to Forereef here
-site.data.tax2<-PoolSecStrat(site.data.tax2)
+#site.data.tax2<-PoolSecStrat(site.data.tax2)
 # rich.data<-PoolSecStrat(rich.data.gen)
 
+site.data.tax2<-left_join(site.data.tax2,seclu)
+
 #QC CHECK to make sure the sectors and strata pooled correctly
-data.test<-ddply(subset(site.data.tax2,TAXONCODE=="SSSS"),.(REGION,BEN_SEC,OBS_YEAR,STRATANAME),summarize,n=length(SITE))
+data.test<-ddply(subset(site.data.tax2,TAXONCODE=="SSSS"),.(REGION,PooledSector,OBS_YEAR,STRATANAME),summarize,n=length(SITE))
 sm.test<-ddply(subset(survey_master,Benthic=="1"&EXCLUDE_FLAG=="0"&OBS_YEAR>=2013),.(REGION,ISLAND,SEC_NAME,OBS_YEAR,REEF_ZONE,DEPTH_BIN),summarize,n=length(SITE))
 
 
@@ -400,10 +431,12 @@ sm.test<-ddply(subset(survey_master,Benthic=="1"&EXCLUDE_FLAG=="0"&OBS_YEAR>=201
 # table(site.data.tax2$REEF_ZONE,site.data.tax2$TAXONCODE)
 # table(rich.data$REEF_ZONE)
 
+site.data.tax2$STRATANAME<-paste(site.data.tax2$PooledSector,site.data.tax2$REEF_ZONE,site.data.tax2$DEPTH_BIN,sep="_")
+site.data.sp2$site.data.tax2<-paste(substring(site.data.tax2$REEF_ZONE,1,1), substring(site.data.tax2$DEPTH_BIN,1,1), sep="")
 
 #Set ANALYSIS_SCHEMA to STRATA and DOMAIN_SCHEMA to whatever the highest level you want estimates for (e.g. sector, island, region)
 site.data.tax2$ANALYSIS_SCHEMA<-site.data.tax2$STRATANAME
-site.data.tax2$DOMAIN_SCHEMA<-site.data.tax2$BEN_SEC
+site.data.tax2$DOMAIN_SCHEMA<-site.data.tax2$PooledSector
 
 
 #Calculate metrics at Strata-level-We need to work on combining metrics into 1 function
@@ -435,6 +468,9 @@ colnames(clTAX_st)<-c("METHOD","REGION","ISLAND","ANALYSIS_YEAR","SECTOR","Strat
 
 BLETAX_st<-Calc_Strata_Prevalence(site.data.tax2,"TAXONCODE","BLE");BLETAX_st=BLETAX_st[,c.keep4]
 colnames(BLETAX_st)<-c("METHOD","REGION","ISLAND","ANALYSIS_YEAR","SECTOR","Stratum","REEF_ZONE","DB_RZ","TAXONCODE","n","Ntot","BLE","SE_BLE")
+
+TotDZTAX_st<-Calc_Strata_Prevalence(site.data.tax2,"TAXONCODE","AcuteDZ");TotDZTAX_st=TotDZTAX_st[,c.keep4]
+colnames(TotDZTAX_st)<-c("METHOD","REGION","ISLAND","ANALYSIS_YEAR","SECTOR","Stratum","REEF_ZONE","DB_RZ","TAXONCODE","n","Ntot","TotDZ","SE_TotDZ")
 
 AcuteDZTAX_st<-Calc_Strata_Prevalence(site.data.tax2,"TAXONCODE","AcuteDZ");AcuteDZTAX_st=AcuteDZTAX_st[,c.keep4]
 colnames(AcuteDZTAX_st)<-c("METHOD","REGION","ISLAND","ANALYSIS_YEAR","SECTOR","Stratum","REEF_ZONE","DB_RZ","TAXONCODE","n","Ntot","AcuteDZ","SE_AcuteDZ")
@@ -474,6 +510,9 @@ clTAX_is<-Calc_Domain(site.data.tax2,"TAXONCODE","Ave.size")
 clTAX_is<-clTAX_is[,c("METHOD","REGION","ANALYSIS_YEAR","DOMAIN_SCHEMA","TAXONCODE","n","Ntot","Mean_Ave.size","SE_Ave.size")]
 bleTAX_is<-Calc_Domain_Prevalence(site.data.tax2,"TAXONCODE","BLE")
 bleTAX_is<-bleTAX_is[,c("METHOD","REGION","ANALYSIS_YEAR","DOMAIN_SCHEMA","TAXONCODE","n","Ntot","Mean_BLE_Prev","SE_BLE_Prev")]
+
+TotDZTAX_is<-Calc_Domain_Prevalence(site.data.tax2,"TAXONCODE","TotDZ")
+TotDZTAX_is<-TotDZTAX_is[,c("METHOD","REGION","ANALYSIS_YEAR","DOMAIN_SCHEMA","TAXONCODE","n","Ntot","Mean_TotDZ_Prev","SE_TotDZ_Prev")]
 AcuteDZTAX_is<-Calc_Domain_Prevalence(site.data.tax2,"TAXONCODE","AcuteDZ")
 AcuteDZTAX_is<-AcuteDZTAX_is[,c("METHOD","REGION","ANALYSIS_YEAR","DOMAIN_SCHEMA","TAXONCODE","n","Ntot","Mean_AcuteDZ_Prev","SE_AcuteDZ_Prev")]
 ChronicDZTAX_is<-Calc_Domain_Prevalence(site.data.tax2,"TAXONCODE","ChronicDZ")
@@ -482,7 +521,7 @@ ChronicDZTAX_is<-ChronicDZTAX_is[,c("METHOD","REGION","ANALYSIS_YEAR","DOMAIN_SC
 
 #Calculate Sector Estimates
 site.data.tax2$ANALYSIS_SCHEMA<-site.data.tax2$STRATANAME
-site.data.tax2$DOMAIN_SCHEMA<-site.data.tax2$BEN_SEC
+site.data.tax2$DOMAIN_SCHEMA<-site.data.tax2$PooledSector
 
 
 acdTAX_sec<-Calc_Domain(site.data.tax2,"TAXONCODE","AdColDen","Adpres.abs")
@@ -504,6 +543,9 @@ clTAX_sec<-Calc_Domain(site.data.tax2,"TAXONCODE","Ave.size")
 clTAX_sec<-clTAX_sec[,c("METHOD","REGION","ANALYSIS_YEAR","ISLAND","DOMAIN_SCHEMA","TAXONCODE","n","Ntot","Mean_Ave.size","SE_Ave.size")]
 bleTAX_sec<-Calc_Domain_Prevalence(site.data.tax2,"TAXONCODE","BLE")
 bleTAX_sec<-bleTAX_sec[,c("METHOD","REGION","ANALYSIS_YEAR","ISLAND","DOMAIN_SCHEMA","TAXONCODE","n","Ntot","Mean_BLE_Prev","SE_BLE_Prev")]
+
+TotDZTAX_sec<-Calc_Domain_Prevalence(site.data.tax2,"TAXONCODE","TotDZ")
+TotDZTAX_sec<-TotDZTAX_sec[,c("METHOD","REGION","ANALYSIS_YEAR","DOMAIN_SCHEMA","TAXONCODE","n","Ntot","Mean_TotDZ_Prev","SE_TotDZ_Prev")]
 AcuteDZTAX_sec<-Calc_Domain_Prevalence(site.data.tax2,"TAXONCODE","AcuteDZ")
 AcuteDZTAX_sec<-AcuteDZTAX_sec[,c("METHOD","REGION","ANALYSIS_YEAR","ISLAND","DOMAIN_SCHEMA","TAXONCODE","n","Ntot","Mean_AcuteDZ_Prev","SE_AcuteDZ_Prev")]
 ChronicDZTAX_sec<-Calc_Domain_Prevalence(site.data.tax2,"TAXONCODE","ChronicDZ")
@@ -515,7 +557,7 @@ MyMerge <- function(x, y){
   df <- merge(x, y, by= c("METHOD","REGION","ISLAND","ANALYSIS_YEAR","Stratum","REEF_ZONE","DB_RZ","TAXONCODE","n","Ntot"), all.x= TRUE, all.y= TRUE)
   return(df)
 }
-st.data.tax<-Reduce(MyMerge, list(acdTAX_st,jcdTAX_st,odTAX_st,rdTAX_st,clTAX_st,BLETAX_st,AcuteDZTAX_st,ChronicDZTAX_st))
+st.data.tax<-Reduce(MyMerge, list(acdTAX_st,jcdTAX_st,odTAX_st,rdTAX_st,clTAX_st,BLETAX_st,TotDZTAX_st,AcuteDZTAX_st,ChronicDZTAX_st))
 colnames(st.data.tax)[colnames(st.data.tax)=="ANALYSIS_SCHEMA"]<-"Stratum"
 
 write.csv(st.data.tax,file="T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Stratum/BenthicREA_stratadata_TAXONCODE.csv")
@@ -526,7 +568,7 @@ MyMerge <- function(x, y){
   df <- merge(x, y, by= c("METHOD","REGION","ANALYSIS_YEAR","DOMAIN_SCHEMA","TAXONCODE","n","Ntot"), all.x= TRUE, all.y= TRUE)
   return(df)
 }
-is.data.tax<-Reduce(MyMerge, list(acdTAX_is,jcdTAX_is,odTAX_is,rdTAX_is,clTAX_is,bleTAX_is,AcuteDZTAX_is,ChronicDZTAX_is))
+is.data.tax<-Reduce(MyMerge, list(acdTAX_is,jcdTAX_is,odTAX_is,rdTAX_is,clTAX_is,bleTAX_is,TotDZTAX_is,AcuteDZTAX_is,ChronicDZTAX_is))
 colnames(is.data.tax)[colnames(is.data.tax)=="DOMAIN_SCHEMA"]<-"Island"
 
 write.csv(is.data.tax,file="T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Island/BenthicREA_islanddata_TAXONCODE.csv")
@@ -536,7 +578,7 @@ MyMerge <- function(x, y){
   df <- merge(x, y, by= c("METHOD","REGION","ANALYSIS_YEAR","ISLAND","DOMAIN_SCHEMA","TAXONCODE","n","Ntot"), all.x= TRUE, all.y= TRUE)
   return(df)
 }
-sec.data.tax<-Reduce(MyMerge, list(acdTAX_sec,jcdTAX_sec,odTAX_sec,rdTAX_sec,clTAX_sec,bleTAX_sec,AcuteDZTAX_sec,ChronicDZTAX_sec))
+sec.data.tax<-Reduce(MyMerge, list(acdTAX_sec,jcdTAX_sec,odTAX_sec,rdTAX_sec,clTAX_sec,bleTAX_sec,TotDZTAX_sec,AcuteDZTAX_sec,ChronicDZTAX_sec))
 colnames(sec.data.tax)[colnames(sec.data.tax)=="DOMAIN_SCHEMA"]<-"Sector"
 
 write.csv(sec.data.tax,file="T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Sector/BenthicREA_sectordata_TAXONCODE.csv")
