@@ -1486,50 +1486,51 @@ Calc_Strata_Metrics<-function(site_data,grouping_field="GENUS_CODE",a_schema = "
   #Calculate metrics at Strata-level-We need to work on combining metrics into 1 function
   
   #Create a vector of columns to subset for strata estimates
-  c.keep<-c("METHOD","REGION","ISLAND","ANALYSIS_YEAR","DOMAIN_SCHEMA","ANALYSIS_SCHEMA","REEF_ZONE","DB_RZ","TAXONCODE",
+  c.keep<-c("METHOD","REGION","ISLAND","ANALYSIS_YEAR","DOMAIN_SCHEMA","ANALYSIS_SCHEMA","REEF_ZONE","DB_RZ","GROUP",
             "n_h","N_h","D._h","SE_D._h","avp","SEprop","Y._h","SE_Y._h","CV_Y._h")
-  c.keep2<-c("METHOD","REGION","ISLAND","ANALYSIS_YEAR","DOMAIN_SCHEMA","ANALYSIS_SCHEMA","REEF_ZONE","DB_RZ","TAXONCODE",
+  c.keep2<-c("METHOD","REGION","ISLAND","ANALYSIS_YEAR","DOMAIN_SCHEMA","ANALYSIS_SCHEMA","REEF_ZONE","DB_RZ","GROUP",
              "n_h","N_h","D._h","SE_D._h")
-  c.keep3<-c("METHOD","REGION","ISLAND","ANALYSIS_YEAR","DOMAIN_SCHEMA","ANALYSIS_SCHEMA","REEF_ZONE","DB_RZ","TAXONCODE",
+  c.keep3<-c("METHOD","REGION","ISLAND","ANALYSIS_YEAR","DOMAIN_SCHEMA","ANALYSIS_SCHEMA","REEF_ZONE","DB_RZ","GROUP",
              "n_h","N_h","D._h","SE_D._h","avp","SEprop","Y._h","SE_Y._h","CV_Y._h")
-  c.keep4<-c("METHOD","REGION","ISLAND","ANALYSIS_YEAR","DOMAIN_SCHEMA","ANALYSIS_SCHEMA","REEF_ZONE","DB_RZ","TAXONCODE",
+  c.keep4<-c("METHOD","REGION","ISLAND","ANALYSIS_YEAR","DOMAIN_SCHEMA","ANALYSIS_SCHEMA","REEF_ZONE","DB_RZ","GROUP",
              "n_h","N_h","prev","SEprev")
   
-  acdTAX_st<-Calc_Strata(site.data.tax2,"TAXONCODE","AdColDen","Adpres.abs");acdTAX_st=acdTAX_st[,c.keep]
-  colnames(acdTAX_st)<-c("METHOD","REGION","ISLAND","ANALYSIS_YEAR","SECTOR","Stratum","REEF_ZONE","DB_RZ","TAXONCODE","n","Ntot","AdColDen","SE_AdColDen","Adult_avp","Adult_seprop","Adult_Abun","Adult_SE_Abun","Adult_CV")
+  acdTAX_st<-Calc_Strata(site.data.tax2,"GROUP","AdColDen","Adpres.abs");acdTAX_st=acdTAX_st[,c.keep]
+  colnames(acdTAX_st)<-c("METHOD","REGION","ISLAND","ANALYSIS_YEAR","SECTOR","Stratum","REEF_ZONE","DB_RZ","GROUP","n","Ntot","AdColDen","SE_AdColDen","Adult_avp","Adult_seprop","Adult_Abun","Adult_SE_Abun","Adult_CV")
   
-  jcdTAX_st<-Calc_Strata(site.data.tax2,"TAXONCODE","JuvColDen","Juvpres.abs");jcdTAX_st=jcdTAX_st[,c.keep]
-  colnames(jcdTAX_st)<-c("METHOD","REGION","ISLAND","ANALYSIS_YEAR","SECTOR","Stratum","REEF_ZONE","DB_RZ","TAXONCODE","n","Ntot","JuvColDen","SE_JuvColDen","Juv_avp","Juv_seprop","Juv_Abun","Juv_SE_Abun","Juv_CV")
+  jcdTAX_st<-Calc_Strata(site.data.tax2,"GROUP","JuvColDen","Juvpres.abs");jcdTAX_st=jcdTAX_st[,c.keep]
+  colnames(jcdTAX_st)<-c("METHOD","REGION","ISLAND","ANALYSIS_YEAR","SECTOR","Stratum","REEF_ZONE","DB_RZ","GROUP","n","Ntot","JuvColDen","SE_JuvColDen","Juv_avp","Juv_seprop","Juv_Abun","Juv_SE_Abun","Juv_CV")
   
-  odTAX_st<-Calc_Strata(site.data.tax2,"TAXONCODE","Ave.od");odTAX_st=odTAX_st[,c.keep2]
-  colnames(odTAX_st)<-c("METHOD","REGION","ISLAND","ANALYSIS_YEAR","SECTOR","Stratum","REEF_ZONE","DB_RZ","TAXONCODE","n","Ntot","Ave.od","SE_Ave.od")
+  odTAX_st<-Calc_Strata(site.data.tax2,"GROUP","Ave.od");odTAX_st=odTAX_st[,c.keep2]
+  colnames(odTAX_st)<-c("METHOD","REGION","ISLAND","ANALYSIS_YEAR","SECTOR","Stratum","REEF_ZONE","DB_RZ","GROUP","n","Ntot","Ave.od","SE_Ave.od")
   
-  rdTAX_st<-Calc_Strata(site.data.tax2,"TAXONCODE","Ave.rd");rdTAX_st=rdTAX_st[,c.keep2]
-  colnames(rdTAX_st)<-c("METHOD","REGION","ISLAND","ANALYSIS_YEAR","SECTOR","Stratum","REEF_ZONE","DB_RZ","TAXONCODE","n","Ntot","Ave.rd","SE_Ave.rd")
+  rdTAX_st<-Calc_Strata(site.data.tax2,"GROUP","Ave.rd");rdTAX_st=rdTAX_st[,c.keep2]
+  colnames(rdTAX_st)<-c("METHOD","REGION","ISLAND","ANALYSIS_YEAR","SECTOR","Stratum","REEF_ZONE","DB_RZ","GROUP","n","Ntot","Ave.rd","SE_Ave.rd")
   
-  clTAX_st<-Calc_Strata(site.data.tax2,"TAXONCODE","Ave.size");clTAX_st=clTAX_st[,c.keep2]
-  colnames(clTAX_st)<-c("METHOD","REGION","ISLAND","ANALYSIS_YEAR","SECTOR","Stratum","REEF_ZONE","DB_RZ","TAXONCODE","n","Ntot","Ave.size","SE_Ave.size")
+  clTAX_st<-Calc_Strata(site.data.tax2,"GROUP","Ave.size");clTAX_st=clTAX_st[,c.keep2]
+  colnames(clTAX_st)<-c("METHOD","REGION","ISLAND","ANALYSIS_YEAR","SECTOR","Stratum","REEF_ZONE","DB_RZ","GROUP","n","Ntot","Ave.size","SE_Ave.size")
   
-  BLETAX_st<-Calc_Strata_Prevalence(site.data.tax2,"TAXONCODE","BLE");BLETAX_st=BLETAX_st[,c.keep4]
-  colnames(BLETAX_st)<-c("METHOD","REGION","ISLAND","ANALYSIS_YEAR","SECTOR","Stratum","REEF_ZONE","DB_RZ","TAXONCODE","n","Ntot","Mean_BLE_Prev","SE_BLE_Prev")
+  BLETAX_st<-Calc_Strata_Prevalence(site.data.tax2,"GROUP","BLE");BLETAX_st=BLETAX_st[,c.keep4]
+  colnames(BLETAX_st)<-c("METHOD","REGION","ISLAND","ANALYSIS_YEAR","SECTOR","Stratum","REEF_ZONE","DB_RZ","GROUP","n","Ntot","Mean_BLE_Prev","SE_BLE_Prev")
   
-  TotDZTAX_st<-Calc_Strata_Prevalence(site.data.tax2,"TAXONCODE","TotDZ");TotDZTAX_st=TotDZTAX_st[,c.keep4]
-  colnames(TotDZTAX_st)<-c("METHOD","REGION","ISLAND","ANALYSIS_YEAR","SECTOR","Stratum","REEF_ZONE","DB_RZ","TAXONCODE","n","Ntot","Mean_TotDZ_Prev","SE_TotDZ_Prev")
+  TotDZTAX_st<-Calc_Strata_Prevalence(site.data.tax2,"GROUP","TotDZ");TotDZTAX_st=TotDZTAX_st[,c.keep4]
+  colnames(TotDZTAX_st)<-c("METHOD","REGION","ISLAND","ANALYSIS_YEAR","SECTOR","Stratum","REEF_ZONE","DB_RZ","GROUP","n","Ntot","Mean_TotDZ_Prev","SE_TotDZ_Prev")
   
-  AcuteDZTAX_st<-Calc_Strata_Prevalence(site.data.tax2,"TAXONCODE","AcuteDZ");AcuteDZTAX_st=AcuteDZTAX_st[,c.keep4]
-  colnames(AcuteDZTAX_st)<-c("METHOD","REGION","ISLAND","ANALYSIS_YEAR","SECTOR","Stratum","REEF_ZONE","DB_RZ","TAXONCODE","n","Ntot","Mean_AcuteDZ_Prev","SE_AcuteDZ_Prev")
+  AcuteDZTAX_st<-Calc_Strata_Prevalence(site.data.tax2,"GROUP","AcuteDZ");AcuteDZTAX_st=AcuteDZTAX_st[,c.keep4]
+  colnames(AcuteDZTAX_st)<-c("METHOD","REGION","ISLAND","ANALYSIS_YEAR","SECTOR","Stratum","REEF_ZONE","DB_RZ","GROUP","n","Ntot","Mean_AcuteDZ_Prev","SE_AcuteDZ_Prev")
   
-  ChronicDZTAX_st<-Calc_Strata_Prevalence(site.data.tax2,"TAXONCODE","ChronicDZ");ChronicDZTAX_st=ChronicDZTAX_st[,c.keep4]
-  colnames(ChronicDZTAX_st)<-c("METHOD","REGION","ISLAND","ANALYSIS_YEAR","SECTOR","Stratum","REEF_ZONE","DB_RZ","TAXONCODE","n","Ntot","Mean_ChronicDZ_Prev","SE_ChronicDZ_Prev")
+  ChronicDZTAX_st<-Calc_Strata_Prevalence(site.data.tax2,"GROUP","ChronicDZ");ChronicDZTAX_st=ChronicDZTAX_st[,c.keep4]
+  colnames(ChronicDZTAX_st)<-c("METHOD","REGION","ISLAND","ANALYSIS_YEAR","SECTOR","Stratum","REEF_ZONE","DB_RZ","GROUP","n","Ntot","Mean_ChronicDZ_Prev","SE_ChronicDZ_Prev")
   
   
   MyMerge <- function(x, y){
-    df <- merge(x, y, by= c("METHOD","REGION","ISLAND","ANALYSIS_YEAR","SECTOR","Stratum","REEF_ZONE","DB_RZ","TAXONCODE","n","Ntot"), all.x= TRUE, all.y= TRUE)
+    df <- merge(x, y, by= c("METHOD","REGION","ISLAND","ANALYSIS_YEAR","SECTOR","Stratum","REEF_ZONE","DB_RZ","GROUP","n","Ntot"), all.x= TRUE, all.y= TRUE)
     return(df)
   }
   st.data.tax<-Reduce(MyMerge, list(acdTAX_st,jcdTAX_st,odTAX_st,rdTAX_st,clTAX_st,BLETAX_st,TotDZTAX_st,AcuteDZTAX_st,ChronicDZTAX_st))
   
   colnames(st.data.tax)[colnames(st.data.tax)=="ANALYSIS_SCHEMA"]<-"Stratum"
+  colnames(st.data.tax)[which(colnames(st.data.tax) == 'GROUP')] <- grouping_field #change group to whatever your grouping field is.
   
   
   return(st.data.tax)
@@ -1583,6 +1584,7 @@ Calc_IslandorSector_Metrics<-function(site_data,grouping_field="GENUS_CODE",a_sc
   is.data.tax<-Reduce(MyMerge, list(acdTAX_is,jcdTAX_is,odTAX_is,rdTAX_is,clTAX_is,bleTAX_is,TotDZTAX_is,AcuteDZTAX_is,ChronicDZTAX_is))
   
   colnames(is.data.tax)[which(colnames(is.data.tax) == 'DOMAIN_SCHEMA')] <- d_schema #change group to whatever your grouping field is.
+  colnames(is.data.tax)[which(colnames(is.data.tax) == 'GROUP')] <- grouping_field #change group to whatever your grouping field is.
   
   
   return(is.data.tax)
@@ -1645,6 +1647,7 @@ Calc_Region_Metrics<-function(site_data,grouping_field="GENUS_CODE",a_schema = "
     return(df)
   }
   r.data.tax<-Reduce(MyMerge, list(acdTAX_r,jcdTAX_r,odTAX_r,rdTAX_r,clTAX_r,bleTAX_r,TotDZTAX_r,AcuteDZTAX_r,ChronicDZTAX_r))
+  colnames(r.data.tax)[which(colnames(r.data.tax) == 'GROUP')] <- grouping_field #change group to whatever your grouping field is.
   
   
   

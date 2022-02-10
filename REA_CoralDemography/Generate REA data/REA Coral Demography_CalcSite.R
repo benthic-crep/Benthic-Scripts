@@ -16,8 +16,8 @@ source("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/lib/GIS_functions.
 awd<-read.csv("T:/Benthic/Data/REA Coral Demography & Cover/Analysis Ready Raw data/CoralBelt_Adults_raw_CLEANED.csv")
 jwd<-read.csv("T:/Benthic/Data/REA Coral Demography & Cover/Analysis Ready Raw data/CoralBelt_Juveniles_raw_CLEANED.csv")
 
-awd=subset(awd,ISLAND=="Laysan")
-jwd=subset(jwd,ISLAND=="Laysan")
+# awd=subset(awd,ISLAND=="Laysan")
+# jwd=subset(jwd,ISLAND=="Laysan")
 
 #Final Tweaks before calculating site-level data-------------------------------------------------
 #Colony fragments will be removed when you generate the site level data
@@ -80,7 +80,7 @@ survey_siteJ<-unique(jwd[,SURVEY_SITE])
 write.csv(survey_siteAd,"surveysite.csv")
 
 #We did juvenile only surveys in 2017 in PRIA, this will make sure the SV table has both adult and juv sites.
-survey_site<-left_join(survey_siteJ,survey_siteAd);nrow(survey_site)
+survey_site<-full_join(survey_siteJ,survey_siteAd);nrow(survey_site)
 
 #TEMPORARY WORK AROUND-ASK MICHAEL TO FIX
 survey_site$REEF_ZONE<-ifelse(survey_site$SITE=="HAW-04285","Forereef",as.character(survey_site$REEF_ZONE))
@@ -397,6 +397,7 @@ head(site.data.tax2)
 
 # Merge Site level data with sectors file and export site data ------------
 sectors<-read.csv("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/data/Sectors-Strata-Areas.csv", stringsAsFactors=FALSE)
+sectors<-sectors[,c("REGION","ISLAND","SEC_NAME","REEF_ZONE","DEPTH_BIN","AREA_HA","NH")]
 
 #Merge together survey meta data and sector area files and check for missmatches
 meta<-left_join(survey_site,sectors)
