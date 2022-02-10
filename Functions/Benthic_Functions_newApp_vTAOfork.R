@@ -1084,7 +1084,7 @@ Calc_Strata_Weighted=function(site_data,grouping_field,metric_field,M_hi=250){
 
 #This function is very similar to Calc_Strata, but calculates the Domain NH by adding up all possible strata in a domain rather than just the ones that were sampled to calculate
 #total domain area and strata weights
-#This is an older function so make sure it's up to date with changes that have been made to rest of script
+#This is an older function that isn't used anymore so make sure it's up to date with changes that have been made to rest of script
 
 # Calc_Analysis_Strata=function(site_data,sec,grouping_field,metric_field,pres.abs_field="Adpres.abs",M_hi=250){
 #
@@ -1211,7 +1211,7 @@ Calc_Domain_Region=function(site_data,grouping_field="S_ORDER",metric_field,pres
                     SE_D._st=sqrt(varD._st), #SE of domain metric estimate
                     CV_D._st=(SE_D._st/D._st)*100, #CV of domain metric estimate
                     SE_Y._st=sqrt(varY._st),#SE of domain abundance estimate
-                    CV_Y._st=(SE_Y._st/Y._st)*100,#CV of domain abundnace estimate
+                    CV_Y._st=(SE_Y._st/Y._st)*100,#CV of domain abundance estimate
                     po._st=sum(w_h*avp,na.rm=TRUE), #Domain weighted estimate
                     varpo._st=sum(w_h^2*var_prop,na.rm=TRUE), #Domain weighted variance estimate
                     SE_po._st=sqrt(varpo._st), #SE of domain metric estimate
@@ -1256,41 +1256,7 @@ Calc_DomainDelta=function(Strata_data,mean_field,var_field,se_field){
 }
 
 
-# Calc_Analysis_Domain=function(site_data,sec,grouping_field="S_ORDER",metric_field,pres.abs_field="Adpres.abs"){
-#
-#   Strata_data=Calc_Analysis_Strata(site_data,sec,grouping_field,metric_field,pres.abs_field)
-#
-#   #Build in flexibility to look at genus or taxon level
-#   Strata_data$GROUP<-Strata_data[,grouping_field]
-#
-#   Domain_roll=ddply(Strata_data,.(ANALYSIS_YEAR,DOMAIN_SCHEMA,GROUP),summarize,
-#                     D._st=sum(w_h*D._h,na.rm=TRUE), #Domain weighted estimate (sum of Weighted strata density)
-#                     varD._st=sum(w_h^2*varD._h,na.rm=TRUE), #Domain weighted variance estimate
-#                     Y._st=sum(Y._h,na.rm=TRUE), #Domain total abundance (sum of extrapolated strata abundance)
-#                     varY._st=sum(varY._h,na.rm=TRUE),#Domain variance total abundance (sum of extrapolated strata varaiance abundance)
-#                     n=sum(n_h,na.rm=TRUE), #total sites surveyed in domain
-#                     Ntot=median(Dom_N_h),
-#                     SE_D._st=sqrt(varD._st), #SE of domain metric estimate
-#                     CV_D._st=(SE_D._st/D._st)*100, #CV of domain metric estimate
-#                     SE_Y._st=sqrt(varY._st),#SE of domain abundance estimate
-#                     CV_Y._st=(SE_Y._st/Y._st)*100,#CV of domain abundnace estimate
-#                     po._st=sum(w_h*avp,na.rm=TRUE), #Domain weighted estimate
-#                     varpo._st=sum(w_h^2*var_prop,na.rm=TRUE), #Domain weighted variance estimate
-#                     SE_po._st=sqrt(varpo._st), #SE of domain metric estimate
-#                     CV_po._st=SE_po._st/po._st) #CV of domain metric estimate
-#
-#   #need to double check calculations with Dione
-#   # Domain_roll=Domain_roll[,c("REGION","ISLAND","ANALYSIS_YEAR","DOMAIN_SCHEMA","GROUP",
-#   #                            "n","Ntot","D._st","SE_D._st")]
-#   #
-#   colnames(Domain_roll)[which(colnames(Domain_roll) == 'D._st')] <- paste0("Mean","_",metric_field)
-#   colnames(Domain_roll)[which(colnames(Domain_roll) == 'SE_D._st')] <- paste0("SE","_",metric_field)
-#   colnames(Domain_roll)[which(colnames(Domain_roll) == 'GROUP')] <- grouping_field #change group to whatever your grouping field is.
-#
-#
-#   return(Domain_roll)
-# }
-#
+
 
 ###POOLING FUNCTIONS FOR COVER and Richness DATA- these are older functions----
 #need to eventually modify this code to summarize tier 2 and 3 data
@@ -1430,11 +1396,12 @@ Calc_Domain_Prevalence=function(site_data,grouping_field="S_ORDER",metric_field)
 
   #Build in flexibility to look at genus or taxon level
   Strata_data$GROUP<-Strata_data[,grouping_field]
-
-  DomainStr_NH=ddply(subset(Strata_data,GROUP=="SSSS"),.(METHOD,REGION,ANALYSIS_YEAR,DOMAIN_SCHEMA),summarize,DomainSumN_h=sum(N_h,na.rm=TRUE)) #total possible sites in a domain
+  
+  DomainStr_NH=ddply(subset(Strata_data,GROUP=="SSSS"),.(METHOD,REGION,ANALYSIS_YEAR),summarize,DomainSumN_h=sum(N_h,na.rm=TRUE)) #total possible sites in a domain
   Strata_data<-left_join(Strata_data, DomainStr_NH)# add previous to strata data
   Strata_data$w_h=Strata_data$N_h/Strata_data$DomainSumN_h
-
+  
+  
   Domain_roll=ddply(Strata_data,.(METHOD,REGION,ISLAND,ANALYSIS_YEAR,DOMAIN_SCHEMA,GROUP),summarize,
                     C_st=sum(w_h*C_h,na.rm=TRUE), #Domain weighted estimate (sum of Weighted strata density)
                     varC_st=sum(w_h^2*varC_h,na.rm=TRUE), #Domain weighted variance estimate
@@ -1462,8 +1429,228 @@ Calc_Domain_Prevalence=function(site_data,grouping_field="S_ORDER",metric_field)
   return(Domain_roll)
 }
 
+#DOMAIN ROLL UP FUNCTION-This function calculates mean, var, SE and CV at the DOMAIN level. I've built in flexilbity to use either genus or taxoncode as well as other metrics (size class, morph)
+# You can input any metric you would like (eg. adult density, mean % old dead,etc). Note that for any metric that does not involve density of colonies,
+# Y._h (total colony abundance in stratum),varY._h (variance in total abundance), SE_Y._h and CV_Y._h are meaningless-DO NOT USE
+Calc_Domain_Region_Prevalence=function(site_data,grouping_field="S_ORDER",metric_field){
+  
+  Strata_data=Calc_Strata_Prevalence(site_data,grouping_field,metric_field)
+
+  #Build in flexibility to look at genus or taxon level
+  Strata_data$GROUP<-Strata_data[,grouping_field]
+  
+  DomainStr_NH=ddply(subset(Strata_data,GROUP=="SSSS"),.(METHOD,REGION,ANALYSIS_YEAR),summarize,DomainSumN_h=sum(N_h,na.rm=TRUE)) #total possible sites in a domain
+  Strata_data<-left_join(Strata_data, DomainStr_NH)# add previous to strata data
+  Strata_data$w_h=Strata_data$N_h/Strata_data$DomainSumN_h
+  
+  Domain_roll=ddply(Strata_data,.(METHOD,REGION,ANALYSIS_YEAR,GROUP),summarize,
+                    C_st=sum(w_h*C_h,na.rm=TRUE), #Domain weighted estimate (sum of Weighted strata density)
+                    varC_st=sum(w_h^2*varC_h,na.rm=TRUE), #Domain weighted variance estimate
+                    C_abun_st=sum(C_abun_h,na.rm=TRUE), #Domain total abundance of colonies with a given condition (sum of extrapolated strata abundance)
+                    varC_abun_st=sum(varC_abun_h,na.rm=TRUE),#Domain variance total abundance of colonies with a given condition (sum of extrapolated strata varaiance abundance)
+                    n=sum(n_h,na.rm=TRUE), #total sites surveyed in domain
+                    Ntot=sum(N_h,na.rm=TRUE), #total possible sites in domain
+                    SE_varC_st=sqrt(varC_st), #SE of domain metric estimate
+                    CV_varC_st=SE_varC_st/C_st, #CV of domain metric estimate
+                    SE_varC_abun_st=sqrt(varC_abun_st),#SE of domain abundance estimate
+                    CV_varC_abun_st=SE_varC_abun_st/C_abun_st,#CV of domain abundnace estimate
+                    acd_st=sum(w_h*acd_h,na.rm=TRUE), # sum of all colony densities across all strata in a given domain
+                    acd_abun_st=sum(acd_abun_h,na.rm=TRUE), #domain abundnace of all colonies
+                    prev=(C_abun_st/acd_abun_st)*100, # prevalence of condition at domain level
+                    SEprev=(SE_varC_abun_st/acd_abun_st)*100,#SE of condition at domain level
+                    CVprev=SEprev/prev) #CV of prevalence
+  
+  # Domain_roll=Domain_roll[,c("METHOD","REGION","ANALYSIS_YEAR","DOMAIN_SCHEMA","GROUP",
+  #                            "n","Ntot","prev","SEprev")]
+  
+  colnames(Domain_roll)[which(colnames(Domain_roll) == 'D._st')] <- paste0("Mean","_",metric_field)
+  colnames(Domain_roll)[which(colnames(Domain_roll) == 'SE_D._st')] <- paste0("SE","_",metric_field)
+  colnames(Domain_roll)[which(colnames(Domain_roll) == 'GROUP')] <- grouping_field #change group to whatever your grouping field is.
+  
+  return(Domain_roll)
+}
 
 
+
+# Calculating Strata, Sec, Isl and Regional Metrics -----------------------
+#These functions all you to combine all the metrics together into 1 dataframe for the different spatial schemes and taxa of interest
+
+Calc_Strata_Metrics<-function(site_data,grouping_field="GENUS_CODE",a_schema = "STRATANAME",d_schema="ISLAND"){
+  
+  site_data$GROUP<-site_data[,grouping_field]
+  
+  #Set ANALYSIS_SCHEMA to STRATA and DOMAIN_SCHEMA to whatever the highest level you want estimates for (e.g. sector, island, region)
+  site.data.tax2$ANALYSIS_SCHEMA<-site.data.tax2$STRATANAME
+  site.data.tax2$DOMAIN_SCHEMA<-site.data.tax2$PooledSector
+  
+  #Calculate metrics at Strata-level-We need to work on combining metrics into 1 function
+  
+  #Create a vector of columns to subset for strata estimates
+  c.keep<-c("METHOD","REGION","ISLAND","ANALYSIS_YEAR","DOMAIN_SCHEMA","ANALYSIS_SCHEMA","REEF_ZONE","DB_RZ","TAXONCODE",
+            "n_h","N_h","D._h","SE_D._h","avp","SEprop","Y._h","SE_Y._h","CV_Y._h")
+  c.keep2<-c("METHOD","REGION","ISLAND","ANALYSIS_YEAR","DOMAIN_SCHEMA","ANALYSIS_SCHEMA","REEF_ZONE","DB_RZ","TAXONCODE",
+             "n_h","N_h","D._h","SE_D._h")
+  c.keep3<-c("METHOD","REGION","ISLAND","ANALYSIS_YEAR","DOMAIN_SCHEMA","ANALYSIS_SCHEMA","REEF_ZONE","DB_RZ","TAXONCODE",
+             "n_h","N_h","D._h","SE_D._h","avp","SEprop","Y._h","SE_Y._h","CV_Y._h")
+  c.keep4<-c("METHOD","REGION","ISLAND","ANALYSIS_YEAR","DOMAIN_SCHEMA","ANALYSIS_SCHEMA","REEF_ZONE","DB_RZ","TAXONCODE",
+             "n_h","N_h","prev","SEprev")
+  
+  acdTAX_st<-Calc_Strata(site.data.tax2,"TAXONCODE","AdColDen","Adpres.abs");acdTAX_st=acdTAX_st[,c.keep]
+  colnames(acdTAX_st)<-c("METHOD","REGION","ISLAND","ANALYSIS_YEAR","SECTOR","Stratum","REEF_ZONE","DB_RZ","TAXONCODE","n","Ntot","AdColDen","SE_AdColDen","Adult_avp","Adult_seprop","Adult_Abun","Adult_SE_Abun","Adult_CV")
+  
+  jcdTAX_st<-Calc_Strata(site.data.tax2,"TAXONCODE","JuvColDen","Juvpres.abs");jcdTAX_st=jcdTAX_st[,c.keep]
+  colnames(jcdTAX_st)<-c("METHOD","REGION","ISLAND","ANALYSIS_YEAR","SECTOR","Stratum","REEF_ZONE","DB_RZ","TAXONCODE","n","Ntot","JuvColDen","SE_JuvColDen","Juv_avp","Juv_seprop","Juv_Abun","Juv_SE_Abun","Juv_CV")
+  
+  odTAX_st<-Calc_Strata(site.data.tax2,"TAXONCODE","Ave.od");odTAX_st=odTAX_st[,c.keep2]
+  colnames(odTAX_st)<-c("METHOD","REGION","ISLAND","ANALYSIS_YEAR","SECTOR","Stratum","REEF_ZONE","DB_RZ","TAXONCODE","n","Ntot","Ave.od","SE_Ave.od")
+  
+  rdTAX_st<-Calc_Strata(site.data.tax2,"TAXONCODE","Ave.rd");rdTAX_st=rdTAX_st[,c.keep2]
+  colnames(rdTAX_st)<-c("METHOD","REGION","ISLAND","ANALYSIS_YEAR","SECTOR","Stratum","REEF_ZONE","DB_RZ","TAXONCODE","n","Ntot","Ave.rd","SE_Ave.rd")
+  
+  clTAX_st<-Calc_Strata(site.data.tax2,"TAXONCODE","Ave.size");clTAX_st=clTAX_st[,c.keep2]
+  colnames(clTAX_st)<-c("METHOD","REGION","ISLAND","ANALYSIS_YEAR","SECTOR","Stratum","REEF_ZONE","DB_RZ","TAXONCODE","n","Ntot","Ave.size","SE_Ave.size")
+  
+  BLETAX_st<-Calc_Strata_Prevalence(site.data.tax2,"TAXONCODE","BLE");BLETAX_st=BLETAX_st[,c.keep4]
+  colnames(BLETAX_st)<-c("METHOD","REGION","ISLAND","ANALYSIS_YEAR","SECTOR","Stratum","REEF_ZONE","DB_RZ","TAXONCODE","n","Ntot","Mean_BLE_Prev","SE_BLE_Prev")
+  
+  TotDZTAX_st<-Calc_Strata_Prevalence(site.data.tax2,"TAXONCODE","TotDZ");TotDZTAX_st=TotDZTAX_st[,c.keep4]
+  colnames(TotDZTAX_st)<-c("METHOD","REGION","ISLAND","ANALYSIS_YEAR","SECTOR","Stratum","REEF_ZONE","DB_RZ","TAXONCODE","n","Ntot","Mean_TotDZ_Prev","SE_TotDZ_Prev")
+  
+  AcuteDZTAX_st<-Calc_Strata_Prevalence(site.data.tax2,"TAXONCODE","AcuteDZ");AcuteDZTAX_st=AcuteDZTAX_st[,c.keep4]
+  colnames(AcuteDZTAX_st)<-c("METHOD","REGION","ISLAND","ANALYSIS_YEAR","SECTOR","Stratum","REEF_ZONE","DB_RZ","TAXONCODE","n","Ntot","Mean_AcuteDZ_Prev","SE_AcuteDZ_Prev")
+  
+  ChronicDZTAX_st<-Calc_Strata_Prevalence(site.data.tax2,"TAXONCODE","ChronicDZ");ChronicDZTAX_st=ChronicDZTAX_st[,c.keep4]
+  colnames(ChronicDZTAX_st)<-c("METHOD","REGION","ISLAND","ANALYSIS_YEAR","SECTOR","Stratum","REEF_ZONE","DB_RZ","TAXONCODE","n","Ntot","Mean_ChronicDZ_Prev","SE_ChronicDZ_Prev")
+  
+  
+  MyMerge <- function(x, y){
+    df <- merge(x, y, by= c("METHOD","REGION","ISLAND","ANALYSIS_YEAR","SECTOR","Stratum","REEF_ZONE","DB_RZ","TAXONCODE","n","Ntot"), all.x= TRUE, all.y= TRUE)
+    return(df)
+  }
+  st.data.tax<-Reduce(MyMerge, list(acdTAX_st,jcdTAX_st,odTAX_st,rdTAX_st,clTAX_st,BLETAX_st,TotDZTAX_st,AcuteDZTAX_st,ChronicDZTAX_st))
+  
+  colnames(st.data.tax)[colnames(st.data.tax)=="ANALYSIS_SCHEMA"]<-"Stratum"
+  
+  
+  return(st.data.tax)
+  
+}
+
+
+Calc_IslandorSector_Metrics<-function(site_data,grouping_field="GENUS_CODE",a_schema = "STRATANAME",d_schema="ISLAND"){
+  
+  site_data$GROUP<-site_data[,grouping_field]
+  
+  #Set ANALYSIS_SCHEMA to STRATA and DOMAIN_SCHEMA to whatever the highest level you want estimates for (e.g. sector, island, region)
+  site_data$ANALYSIS_SCHEMA<-site_data[,a_schema]
+  site_data$DOMAIN_SCHEMA<-site_data[,d_schema]
+  
+  
+  #Calculate Island Estimates
+  acdTAX_is<-Calc_Domain(site_data,"GROUP","AdColDen","Adpres.abs")
+  acdTAX_is<-acdTAX_is[,c("METHOD","REGION","ANALYSIS_YEAR","DOMAIN_SCHEMA","GROUP","n","Ntot","Mean_AdColDen","SE_AdColDen","CV_D._st","Y._st","SE_Y._st")]
+  colnames(acdTAX_is)[colnames(acdTAX_is)=="CV_D._st"]<-"Adult_CV"
+  colnames(acdTAX_is)[colnames(acdTAX_is)=="Y._st"]<-"Adult_Abun"
+  colnames(acdTAX_is)[colnames(acdTAX_is)=="SE_Y._st"]<-"Adult_SE_Abun"
+  
+  jcdTAX_is<-Calc_Domain(site_data,"GROUP","JuvColDen","Juvpres.abs")
+  jcdTAX_is<-jcdTAX_is[,c("METHOD","REGION","ANALYSIS_YEAR","DOMAIN_SCHEMA","GROUP","n","Ntot","Mean_JuvColDen","SE_JuvColDen","CV_D._st")]
+  colnames(jcdTAX_is)[colnames(jcdTAX_is)=="CV_D._st"]<-"Juv_CV"
+  colnames(jcdTAX_is)[colnames(jcdTAX_is)=="Y._st"]<-"Juv_Abun"
+  colnames(jcdTAX_is)[colnames(jcdTAX_is)=="SE_Y._st"]<-"Juv_SE_Abun"
+  
+  odTAX_is<-Calc_Domain(site_data,"GROUP","Ave.od")
+  odTAX_is<-odTAX_is[,c("METHOD","REGION","ANALYSIS_YEAR","DOMAIN_SCHEMA","GROUP","n","Ntot","Mean_Ave.od","SE_Ave.od")]
+  rdTAX_is<-Calc_Domain(site_data,"GROUP","Ave.rd")
+  rdTAX_is<-rdTAX_is[,c("METHOD","REGION","ANALYSIS_YEAR","DOMAIN_SCHEMA","GROUP","n","Ntot","Mean_Ave.rd","SE_Ave.rd")]
+  clTAX_is<-Calc_Domain(site_data,"GROUP","Ave.size")
+  clTAX_is<-clTAX_is[,c("METHOD","REGION","ANALYSIS_YEAR","DOMAIN_SCHEMA","GROUP","n","Ntot","Mean_Ave.size","SE_Ave.size")]
+  bleTAX_is<-Calc_Domain_Prevalence(site_data,"GROUP","BLE")
+  bleTAX_is<-bleTAX_is[,c("METHOD","REGION","ANALYSIS_YEAR","DOMAIN_SCHEMA","GROUP","n","Ntot","Mean_BLE_Prev","SE_BLE_Prev")]
+  
+  TotDZTAX_is<-Calc_Domain_Prevalence(site_data,"GROUP","TotDZ")
+  TotDZTAX_is<-TotDZTAX_is[,c("METHOD","REGION","ANALYSIS_YEAR","DOMAIN_SCHEMA","GROUP","n","Ntot","Mean_TotDZ_Prev","SE_TotDZ_Prev")]
+  AcuteDZTAX_is<-Calc_Domain_Prevalence(site_data,"GROUP","AcuteDZ")
+  AcuteDZTAX_is<-AcuteDZTAX_is[,c("METHOD","REGION","ANALYSIS_YEAR","DOMAIN_SCHEMA","GROUP","n","Ntot","Mean_AcuteDZ_Prev","SE_AcuteDZ_Prev")]
+  ChronicDZTAX_is<-Calc_Domain_Prevalence(site_data,"GROUP","ChronicDZ")
+  ChronicDZTAX_is<-ChronicDZTAX_is[,c("METHOD","REGION","ANALYSIS_YEAR","DOMAIN_SCHEMA","GROUP","n","Ntot","Mean_ChronicDZ_Prev","SE_ChronicDZ_Prev")]
+  
+  
+  MyMerge <- function(x, y){
+    df <- merge(x, y, by= c("METHOD","REGION","ANALYSIS_YEAR","DOMAIN_SCHEMA","GROUP","n","Ntot"), all.x= TRUE, all.y= TRUE)
+    return(df)
+  }
+  is.data.tax<-Reduce(MyMerge, list(acdTAX_is,jcdTAX_is,odTAX_is,rdTAX_is,clTAX_is,bleTAX_is,TotDZTAX_is,AcuteDZTAX_is,ChronicDZTAX_is))
+  
+  colnames(is.data.tax)[which(colnames(is.data.tax) == 'DOMAIN_SCHEMA')] <- d_schema #change group to whatever your grouping field is.
+  
+  
+  return(is.data.tax)
+  
+}
+
+
+
+Calc_Region_Metrics<-function(site_data,grouping_field="GENUS_CODE",a_schema = "STRATANAME",d_schema="REGION"){
+  
+  site_data$GROUP<-site_data[,grouping_field]
+  
+  #Set ANALYSIS_SCHEMA to STRATA and DOMAIN_SCHEMA to whatever the highest level you want estimates for (e.g. sector, island, region)
+  site_data$ANALYSIS_SCHEMA<-site_data[,a_schema]
+  site_data$DOMAIN_SCHEMA<-site_data[,d_schema]
+  
+  #Calculate Island Estimates
+  acdTAX_r<-Calc_Domain_Region(site_data,"GROUP","AdColDen","Adpres.abs")
+  acdTAX_r<-acdTAX_r[,c("METHOD","REGION","ANALYSIS_YEAR","GROUP","n","Ntot","Mean_AdColDen","SE_AdColDen")]
+  colnames(acdTAX_r)[colnames(acdTAX_r)=="CV_D._st"]<-"Adult_CV"
+  colnames(acdTAX_r)[colnames(acdTAX_r)=="Y._st"]<-"Adult_Abun"
+  colnames(acdTAX_r)[colnames(acdTAX_r)=="SE_Y._st"]<-"Adult_SE_Abun"
+  
+  jcdTAX_r<-Calc_Domain_Region(site_data,"GROUP","JuvColDen","Juvpres.abs")
+  jcdTAX_r<-jcdTAX_r[,c("METHOD","REGION","ANALYSIS_YEAR","GROUP","n","Ntot","Mean_JuvColDen","SE_JuvColDen")]
+  colnames(jcdTAX_r)[colnames(jcdTAX_r)=="CV_D._st"]<-"Juv_CV"
+  colnames(jcdTAX_r)[colnames(jcdTAX_r)=="Y._st"]<-"Juv_Abun"
+  colnames(jcdTAX_r)[colnames(jcdTAX_r)=="SE_Y._st"]<-"Juv_SE_Abun"
+  
+  odTAX_r<-Calc_Domain_Region(site_data,"GROUP","Ave.od")
+  odTAX_r<-odTAX_r[,c("METHOD","REGION","ANALYSIS_YEAR","GROUP","n","Ntot","Mean_Ave.od","SE_Ave.od")]
+  rdTAX_r<-Calc_Domain_Region(site_data,"GROUP","Ave.rd")
+  rdTAX_r<-rdTAX_r[,c("METHOD","REGION","ANALYSIS_YEAR","GROUP","n","Ntot","Mean_Ave.rd","SE_Ave.rd")]
+  clTAX_r<-Calc_Domain_Region(site_data,"GROUP","Ave.size")
+  clTAX_r<-clTAX_r[,c("METHOD","REGION","ANALYSIS_YEAR","GROUP","n","Ntot","Mean_Ave.size","SE_Ave.size")]
+  
+  bleTAX_r<-Calc_Domain_Region_Prevalence(site_data,"GROUP","BLE")
+  bleTAX_r<-bleTAX_r[,c("METHOD","REGION","ANALYSIS_YEAR","GROUP","n","Ntot","prev","SEprev")]
+  colnames(bleTAX_r)[colnames(bleTAX_r)=="prev"]<-"Mean_BLE_Prev"
+  colnames(bleTAX_r)[colnames(bleTAX_r)=="SEprev"]<-"SE_BLE_Prev"
+  
+  TotDZTAX_r<-Calc_Domain_Region_Prevalence(site_data,"GROUP","TotDZ")
+  TotDZTAX_r<-TotDZTAX_r[,c("METHOD","REGION","ANALYSIS_YEAR","GROUP","n","Ntot","prev","SEprev")]
+  colnames(TotDZTAX_r)[colnames(TotDZTAX_r)=="prev"]<-"Mean_TotDZ_Prev"
+  colnames(TotDZTAX_r)[colnames(TotDZTAX_r)=="SEprev"]<-"SE_TotDZ_Prev"
+  
+  AcuteDZTAX_r<-Calc_Domain_Region_Prevalence(site_data,"GROUP","AcuteDZ")
+  AcuteDZTAX_r<-AcuteDZTAX_r[,c("METHOD","REGION","ANALYSIS_YEAR","GROUP","n","Ntot","prev","SEprev")]
+  colnames(AcuteDZTAX_r)[colnames(AcuteDZTAX_r)=="prev"]<-"Mean_AcuteDZ_Prev"
+  colnames(AcuteDZTAX_r)[colnames(AcuteDZTAX_r)=="SEprev"]<-"SE_AcuteDZ_Prev"
+  
+  ChronicDZTAX_r<-Calc_Domain_Region_Prevalence(site_data,"GROUP","ChronicDZ")
+  ChronicDZTAX_r<-ChronicDZTAX_r[,c("METHOD","REGION","ANALYSIS_YEAR","GROUP","n","Ntot","prev","SEprev")]
+  colnames(ChronicDZTAX_r)[colnames(ChronicDZTAX_r)=="prev"]<-"Mean_ChronicDZ_Prev"
+  colnames(ChronicDZTAX_r)[colnames(ChronicDZTAX_r)=="SEprev"]<-"SE_ChronicDZ_Prev"
+  
+  
+  MyMerge <- function(x, y){
+    df <- merge(x, y, by= c("METHOD","REGION","ANALYSIS_YEAR","GROUP","n","Ntot"), all.x= TRUE, all.y= TRUE)
+    return(df)
+  }
+  r.data.tax<-Reduce(MyMerge, list(acdTAX_r,jcdTAX_r,odTAX_r,rdTAX_r,clTAX_r,bleTAX_r,TotDZTAX_r,AcuteDZTAX_r,ChronicDZTAX_r))
+  
+  
+  
+  return(r.data.tax)
+  
+}
 
 
 ####

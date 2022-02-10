@@ -16,8 +16,8 @@ source("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/lib/GIS_functions.
 awd<-read.csv("T:/Benthic/Data/REA Coral Demography & Cover/Analysis Ready Raw data/CoralBelt_Adults_raw_CLEANED.csv")
 jwd<-read.csv("T:/Benthic/Data/REA Coral Demography & Cover/Analysis Ready Raw data/CoralBelt_Juveniles_raw_CLEANED.csv")
 
-# awd=subset(awd,ISLAND=="Maro")
-# jwd=subset(jwd,ISLAND=="Maro")
+awd=subset(awd,ISLAND=="Laysan")
+jwd=subset(jwd,ISLAND=="Laysan")
 
 #Final Tweaks before calculating site-level data-------------------------------------------------
 #Colony fragments will be removed when you generate the site level data
@@ -90,6 +90,7 @@ awd$TR_YEAR<-paste(awd$TRANSECT,awd$OBS_YEAR,sep="_")
 jwd$TR_YEAR<-paste(jwd$TRANSECT,jwd$OBS_YEAR,sep="_")
 awd<-subset(awd,TR_YEAR!="2_2019")
 jwd<-subset(jwd,TR_YEAR!="2_2019")
+
 
 
 # GENERATE SUMMARY METRICS at the transect-leveL BY GENUS--------------------------------------------------
@@ -235,11 +236,15 @@ MyMerge <- function(x, y){
 data.sp<-Reduce(MyMerge, list(acd.sp,jcd.sp,cl.sp,od.sp,rd.sp,acutedz.sp,chronicdz.sp,ble.sp));
 head(data.sp)
 
+#Add column for the total disease density
+data.sp$TotDZ_den<-data.sp$DZGN_den + data.sp$CHRO_den
+
+
 data.sp$METHOD<-"DIVER"
 
 #There will be some NAs when you merge the juvenile and adult dataframes together because there may be some juvenile taxa that weren't observed as adults or juveniles
 #This code identifies which transects adult and juvenile colonies were recorded at and then converts NAs to 0s if needed
-ssss<-subset(data.sp,GENUS_CODE=="SSSS")
+ssss<-subset(data.sp,SPCODE=="SSSS")
 ssss$Ad_pres<-ifelse(is.na(ssss$AdColCount),"0","-1")
 ssss$Juv_pres<-ifelse(is.na(ssss$JuvColCount),"0","-1")
 head(ssss)
@@ -254,9 +259,18 @@ data.sp$JuvColCount[is.na(data.sp$JuvColCount) & data.sp$Juv_pres==-1]<-0;data.s
 data.sp$AdColCount[is.na(data.sp$AdColCount) & data.sp$Ad_pres==-1]<-0;data.sp$AdColDen[is.na(data.sp$AdColDen) & data.sp$Ad_pres==-1]<-0
 
 #Calculate transect level prevalence for acute dz, chronic dz and bleaching
+data.sp$TotDZ_prev<-(data.sp$TotDZ_den*data.sp$TRANSECTAREA_ad)/data.sp$AdColCount*100
 data.sp$DZGN_prev<-(data.sp$DZGN_den*data.sp$TRANSECTAREA_ad)/data.sp$AdColCount*100
 data.sp$BLE_prev<-(data.sp$BLE_den*data.sp$TRANSECTAREA_ad)/data.sp$AdColCount*100
 data.sp$CHRO_prev<-(data.sp$CHRO_den*data.sp$TRANSECTAREA_ad)/data.sp$AdColCount*100
+
+#There will be some NAs when you merge the DZ and other dataframes together because there may be some taxa that didn't have disease
+#Convert NA to 0 ONLY for disease density NOT for prevalence
+data.sp$TotDZ_den<-ifelse(is.na(data.sp$TotDZ_den),0,data.sp$TotDZ_den)
+data.sp$DZGN_den<-ifelse(is.na(data.sp$DZGN_den),0,data.sp$DZGN_den)
+data.sp$CHRO_den<-ifelse(is.na(data.sp$CHRO_den),0,data.sp$CHRO_den)
+data.sp$BLE_den<-ifelse(is.na(data.sp$BLE_den),0,data.sp$BLE_den)
+
 
 #Remove data from transects with less than 5m surveyed for adults and 1m for juvs.
 data.sp$TRANSECTAREA_ad<-ifelse(data.sp$TRANSECTAREA_ad<5,NA,data.sp$TRANSECTAREA_ad);data.sp[data.sp$TRANSECTAREA_ad<5,]
@@ -269,15 +283,16 @@ site.data.sp<-ddply(data.sp, .(SITE,SITEVISITID,SPCODE), #calc total colonies by
                     summarise,
                     AdColCount=sum(AdColCount,na.rm=T),AdColDen=mean(AdColDen,na.rm = T),Ave.od=mean(Ave.od,na.rm = T),
                     Ave.rd=mean(Ave.rd,na.rm = T),Ave.size=mean(Ave.cl,na.rm=T),JuvColDen=mean(JuvColDen,na.rm=T),
-                    BLE=mean(BLE_den,na.rm=T),AcuteDZ=mean(DZGN_den,na.rm=T),ChronicDZ=mean(CHRO_den,na.rm=T),
-                    BLE_prev=mean(BLE_prev,na.rm=T),AcuteDZ_prev=mean(DZGN_prev,na.rm=T),ChronicDZ_prev=mean(CHRO_prev,na.rm=T))
+                    BLE=mean(BLE_den,na.rm=T),TotDZ=mean(TotDZ_den), AcuteDZ=mean(DZGN_den,na.rm=T),ChronicDZ=mean(CHRO_den,na.rm=T),
+                    BLE_prev=mean(BLE_prev,na.rm=T),TotDZ_prev= mean(TotDZ_prev,na.rm=T), AcuteDZ_prev=mean(DZGN_prev,na.rm=T),ChronicDZ_prev=mean(CHRO_prev,na.rm=T))
 
 #Duplicate dataframe because the ddply step above takes a while to create. Allows you to tweak code below without having to rerun the ddply step above
 site.data.sp2<-site.data.sp
 
+head(site.data.sp2)
 
 
-# GENERATE SUMMARY METRICS at the transect-leveL BY TAXONCODE (finest resolution)--------------------------------------------------
+# GENERATE SUMMARY METRICS at the transect-leveL BY TAXONCODE--------------------------------------------------
 #Calc_ColDen_Transect
 acd.tax<-Calc_ColDen_Transect(data = awd,grouping_field = "TAXONCODE");colnames(acd.tax)[colnames(acd.tax)=="ColCount"]<-"AdColCount";colnames(acd.tax)[colnames(acd.tax)=="ColDen"]<-"AdColDen";colnames(acd.tax)[colnames(acd.tax)=="TRANSECTAREA"]<-"TRANSECTAREA_ad"# calculate density at genus level as well as total
 jcd.tax<-Calc_ColDen_Transect(jwd,"TAXONCODE"); colnames(jcd.tax)[colnames(jcd.tax)=="ColCount"]<-"JuvColCount";colnames(jcd.tax)[colnames(jcd.tax)=="ColDen"]<-"JuvColDen";colnames(jcd.tax)[colnames(jcd.tax)=="TRANSECTAREA"]<-"TRANSECTAREA_j"
@@ -296,6 +311,8 @@ condden.tax<-Calc_CONDden_Transect(awd,survey_colony,"TAXONCODE")# Density of co
 ble.tax<-subset(condden.tax,select = c(SITEVISITID,SITE,TRANSECT,TAXONCODE,BLE));colnames(ble.tax)[colnames(ble.tax)=="BLE"]<-"BLE_den" #subset just bleached colonies
 chronicdz.tax<-subset(condden.tax,select = c(SITEVISITID,SITE,TRANSECT,TAXONCODE,CHRO));colnames(chronicdz.tax)[colnames(chronicdz.tax)=="CHRO"]<-"CHRO_den" #subset just chronic diseased colonies
 
+#Calc_Richness_Transect
+#rich.tax<-Calc_Richness_Transect(awd,"TAXONCODE")
 
 #ADD CODE TO CHANGE TRANSECT NUMBERS FOR JUVENILES
 jcd.tax$TRANSECT[jcd.tax$TRANSECT==3]<-1
@@ -308,19 +325,31 @@ cl.tax<-subset(cl.tax,select=-c(METHOD))
 od.tax<-subset(od.tax,select=-c(METHOD))
 rd.tax<-subset(rd.tax,select=-c(METHOD))
 
+
 #Merge density and partial moratlity data together.You will need to replace the DUMMY field with the one you want
 MyMerge <- function(x, y){
   df <- merge(x, y, by= c("SITE","SITEVISITID","TRANSECT","TAXONCODE"), all.x= TRUE, all.y= TRUE)
   return(df)
 }
 data.tax<-Reduce(MyMerge, list(acd.tax,jcd.tax,cl.tax,od.tax,rd.tax,acutedz.tax,chronicdz.tax,ble.tax));
+
+#Add column for the total disease density
+data.tax$TotDZ_den<-data.tax$DZGN_den + data.tax$CHRO_den
+
+#Add METHOD back in
+data.tax$METHOD<-"DIVER"
+
 head(data.tax)
 
-data.tax$METHOD<-"DIVER"
+#Change NaN to NA
+is.nan.data.frame <- function(x)
+  do.call(cbind, lapply(x, is.nan))
+
+data.tax[is.nan(data.tax)] <- NA
 
 #There will be some NAs when you merge the juvenile and adult dataframes together because there may be some juvenile taxa that weren't observed as adults or juveniles
 #This code identifies which transects adult and juvenile colonies were recorded at and then converts NAs to 0s if needed
-ssss<-subset(data.tax,GENUS_CODE=="SSSS")
+ssss<-subset(data.tax,TAXONCODE=="SSSS")
 ssss$Ad_pres<-ifelse(is.na(ssss$AdColCount),"0","-1")
 ssss$Juv_pres<-ifelse(is.na(ssss$JuvColCount),"0","-1")
 head(ssss)
@@ -334,9 +363,18 @@ data.tax$JuvColCount[is.na(data.tax$JuvColCount) & data.tax$Juv_pres==-1]<-0;dat
 data.tax$AdColCount[is.na(data.tax$AdColCount) & data.tax$Ad_pres==-1]<-0;data.tax$AdColDen[is.na(data.tax$AdColDen) & data.tax$Ad_pres==-1]<-0
 
 #Calculate transect level prevalence for acute dz, chronic dz and bleaching
+data.tax$TotDZ_prev<-(data.tax$TotDZ_den*data.tax$TRANSECTAREA_ad)/data.tax$AdColCount*100
 data.tax$DZGN_prev<-(data.tax$DZGN_den*data.tax$TRANSECTAREA_ad)/data.tax$AdColCount*100
 data.tax$BLE_prev<-(data.tax$BLE_den*data.tax$TRANSECTAREA_ad)/data.tax$AdColCount*100
 data.tax$CHRO_prev<-(data.tax$CHRO_den*data.tax$TRANSECTAREA_ad)/data.tax$AdColCount*100
+
+#There will be some NAs when you merge the DZ and other dataframes together because there may be some taxa that didn't have disease
+#Convert NA to 0 ONLY for disease density NOT for prevalence
+data.tax$TotDZ_den<-ifelse(is.na(data.tax$TotDZ_den),0,data.tax$TotDZ_den)
+data.tax$DZGN_den<-ifelse(is.na(data.tax$DZGN_den),0,data.tax$DZGN_den)
+data.tax$CHRO_den<-ifelse(is.na(data.tax$CHRO_den),0,data.tax$CHRO_den)
+data.tax$BLE_den<-ifelse(is.na(data.tax$BLE_den),0,data.tax$BLE_den)
+
 
 #Remove data from transects with less than 5m surveyed for adults and 1m for juvs.
 data.tax$TRANSECTAREA_ad<-ifelse(data.tax$TRANSECTAREA_ad<5,NA,data.tax$TRANSECTAREA_ad);data.tax[data.tax$TRANSECTAREA_ad<5,]
@@ -347,15 +385,15 @@ data.tax$TRANSECTAREA_j<-ifelse(data.tax$TRANSECTAREA_j<1,NA,data.tax$TRANSECTAR
 
 site.data.tax<-ddply(data.tax, .(SITE,SITEVISITID,TAXONCODE), #calc total colonies by condition
                      summarise,
-                     AdColCount=sum(AdColCount,na.rm=T),AdColDen=mean(AdColDen,na.rm = T),Ave.od=mean(Ave.od,na.rm = T),
-                     Ave.rd=mean(Ave.rd,na.rm = T),Ave.size=mean(Ave.cl,na.rm=T),JuvColDen=mean(JuvColDen,na.rm=T),
-                     BLE=mean(BLE_den,na.rm=T),AcuteDZ=mean(DZGN_den,na.rm=T),ChronicDZ=mean(CHRO_den,na.rm=T),
-                     BLE_prev=mean(BLE_prev,na.rm=T),AcuteDZ_prev=mean(DZGN_prev,na.rm=T),ChronicDZ_prev=mean(CHRO_prev,na.rm=T))
+                     AdColCount=mean(AdColCount,na.rm=T),AdColDen=mean(AdColDen,na.rm = T),Ave.od=mean(Ave.od,na.rm = T),
+                     Ave.rd=mean(Ave.rd,na.rm = T),Ave.size=mean(Ave.cl,na.rm=T),JuvColCount=mean(JuvColCount,na.rm=T),
+                     JuvColDen=mean(JuvColDen,na.rm=T),BLE=mean(BLE_den,na.rm=T),TotDZ=mean(TotDZ_den,na.rm=T), AcuteDZ=mean(DZGN_den,na.rm=T),ChronicDZ=mean(CHRO_den,na.rm=T),
+                     BLE_prev=mean(BLE_prev,na.rm=T),TotDZ_prev=mean(TotDZ_prev,na.rm=T), AcuteDZ_prev=mean(DZGN_prev,na.rm=T),ChronicDZ_prev=mean(CHRO_prev,na.rm=T))
 
 #Duplicate dataframe because the ddply step above takes a while to create. Allows you to tweak code below without having to rerun the ddply step above
 site.data.tax2<-site.data.tax
 
-
+head(site.data.tax2)
 
 # Merge Site level data with sectors file and export site data ------------
 sectors<-read.csv("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/data/Sectors-Strata-Areas.csv", stringsAsFactors=FALSE)
