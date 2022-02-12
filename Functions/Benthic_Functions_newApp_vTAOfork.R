@@ -710,6 +710,46 @@ Calc_ColMetric_Transect<-function(data, grouping_field="S_ORDER",pool_fields=c("
   return(rd_long)
 }
 
+#Calculate density of total disease
+Calc_TotDZden_Transect<-function(data, survey_colony_f=survey_colony, grouping_field="S_ORDER"){
+  
+  data$GROUP<-data[,grouping_field]
+  
+  scl<-subset(data,Fragment==0&S_ORDER=="Scleractinia" & GROUP!="TUSP") #excludes fragments and anything that isn't a hard coral
+  
+  #Add new column for any colony that has either acute or chronic disease
+  rd_con<-c("DZGN","SGA","PTR","FUG")
+  
+  scl$DZ<-ifelse(scl$GENRD1 %in% rd_con|scl$GENRD2 %in% rd_con|scl$GENRD3 %in% rd_con|scl$CONDITION_1 %in% rd_con
+                 |scl$CONDITION_2 %in% rd_con|scl$CONDITION_3 %in% rd_con,1,0)
+  
+  #calc total colonies by taxon that have at least 1 disease lesion
+  dz_sum<-ddply(scl, .(METHOD,SITE,SITEVISITID,TRANSECT,GROUP), 
+                     summarise,
+                     DZsum=sum(DZ))
+  dzSSSS_sum<-ddply(dz_sum, .(METHOD,SITE,SITEVISITID,TRANSECT), #calc total colonies by condition
+              summarise,
+              DZsum=sum(DZsum,na.rm=T))
+  dzSSSS_sum$GROUP<-"SSSS"; dzSSSS_sum <- dzSSSS_sum[c(1,2,3,4,6,5)] #add total colony code
+  a<-rbind(dz_sum,dzSSSS_sum)
+  
+  #trarea<-Calc_SurveyArea_By_Transect(data) #calculate survey area/site
+  uTA=unique(scl[,c("METHOD","SITEVISITID","SITE","TRANSECT","TRANSECTAREA")])
+  ab.tr<-left_join(a, uTA)
+  ab.tr[is.na(ab.tr),]<-0
+  
+  #Check NAs - Should be empty...
+  new_DF <- sum(rowSums(is.na(ab.tr))) # should be 0
+  if(new_DF > 0) {cat("WARNING:NAs in dataframe")}
+  
+  #Calculate density of TotDZ
+  out<-ab.tr
+  out$TotDZ_den<-out$DZsum/out$TRANSECTAREA
+
+  colnames(out)[which(colnames(out) == 'GROUP')] <- grouping_field #change group to whatever your grouping field is.
+  
+  return(out)
+}
 
 
 #Calculate density of recent dead causes
@@ -1480,8 +1520,8 @@ Calc_Strata_Metrics<-function(site_data,grouping_field="GENUS_CODE",a_schema = "
   site_data$GROUP<-site_data[,grouping_field]
   
   #Set ANALYSIS_SCHEMA to STRATA and DOMAIN_SCHEMA to whatever the highest level you want estimates for (e.g. sector, island, region)
-  site.data.tax2$ANALYSIS_SCHEMA<-site.data.tax2$STRATANAME
-  site.data.tax2$DOMAIN_SCHEMA<-site.data.tax2$PooledSector
+  site_data$ANALYSIS_SCHEMA<-site_data[,a_schema]
+  site_data$DOMAIN_SCHEMA<-site_data[,d_schema]
   
   #Calculate metrics at Strata-level-We need to work on combining metrics into 1 function
   
@@ -1495,31 +1535,31 @@ Calc_Strata_Metrics<-function(site_data,grouping_field="GENUS_CODE",a_schema = "
   c.keep4<-c("METHOD","REGION","ISLAND","ANALYSIS_YEAR","DOMAIN_SCHEMA","ANALYSIS_SCHEMA","REEF_ZONE","DB_RZ","GROUP",
              "n_h","N_h","prev","SEprev")
   
-  acdTAX_st<-Calc_Strata(site.data.tax2,"GROUP","AdColDen","Adpres.abs");acdTAX_st=acdTAX_st[,c.keep]
+  acdTAX_st<-Calc_Strata(site_data,"GROUP","AdColDen","Adpres.abs");acdTAX_st=acdTAX_st[,c.keep]
   colnames(acdTAX_st)<-c("METHOD","REGION","ISLAND","ANALYSIS_YEAR","SECTOR","Stratum","REEF_ZONE","DB_RZ","GROUP","n","Ntot","AdColDen","SE_AdColDen","Adult_avp","Adult_seprop","Adult_Abun","Adult_SE_Abun","Adult_CV")
   
-  jcdTAX_st<-Calc_Strata(site.data.tax2,"GROUP","JuvColDen","Juvpres.abs");jcdTAX_st=jcdTAX_st[,c.keep]
+  jcdTAX_st<-Calc_Strata(site_data,"GROUP","JuvColDen","Juvpres.abs");jcdTAX_st=jcdTAX_st[,c.keep]
   colnames(jcdTAX_st)<-c("METHOD","REGION","ISLAND","ANALYSIS_YEAR","SECTOR","Stratum","REEF_ZONE","DB_RZ","GROUP","n","Ntot","JuvColDen","SE_JuvColDen","Juv_avp","Juv_seprop","Juv_Abun","Juv_SE_Abun","Juv_CV")
   
-  odTAX_st<-Calc_Strata(site.data.tax2,"GROUP","Ave.od");odTAX_st=odTAX_st[,c.keep2]
+  odTAX_st<-Calc_Strata(site_data,"GROUP","Ave.od");odTAX_st=odTAX_st[,c.keep2]
   colnames(odTAX_st)<-c("METHOD","REGION","ISLAND","ANALYSIS_YEAR","SECTOR","Stratum","REEF_ZONE","DB_RZ","GROUP","n","Ntot","Ave.od","SE_Ave.od")
   
-  rdTAX_st<-Calc_Strata(site.data.tax2,"GROUP","Ave.rd");rdTAX_st=rdTAX_st[,c.keep2]
+  rdTAX_st<-Calc_Strata(site_data,"GROUP","Ave.rd");rdTAX_st=rdTAX_st[,c.keep2]
   colnames(rdTAX_st)<-c("METHOD","REGION","ISLAND","ANALYSIS_YEAR","SECTOR","Stratum","REEF_ZONE","DB_RZ","GROUP","n","Ntot","Ave.rd","SE_Ave.rd")
   
-  clTAX_st<-Calc_Strata(site.data.tax2,"GROUP","Ave.size");clTAX_st=clTAX_st[,c.keep2]
+  clTAX_st<-Calc_Strata(site_data,"GROUP","Ave.size");clTAX_st=clTAX_st[,c.keep2]
   colnames(clTAX_st)<-c("METHOD","REGION","ISLAND","ANALYSIS_YEAR","SECTOR","Stratum","REEF_ZONE","DB_RZ","GROUP","n","Ntot","Ave.size","SE_Ave.size")
   
-  BLETAX_st<-Calc_Strata_Prevalence(site.data.tax2,"GROUP","BLE");BLETAX_st=BLETAX_st[,c.keep4]
+  BLETAX_st<-Calc_Strata_Prevalence(site_data,"GROUP","BLE");BLETAX_st=BLETAX_st[,c.keep4]
   colnames(BLETAX_st)<-c("METHOD","REGION","ISLAND","ANALYSIS_YEAR","SECTOR","Stratum","REEF_ZONE","DB_RZ","GROUP","n","Ntot","Mean_BLE_Prev","SE_BLE_Prev")
   
-  TotDZTAX_st<-Calc_Strata_Prevalence(site.data.tax2,"GROUP","TotDZ");TotDZTAX_st=TotDZTAX_st[,c.keep4]
+  TotDZTAX_st<-Calc_Strata_Prevalence(site_data,"GROUP","TotDZ");TotDZTAX_st=TotDZTAX_st[,c.keep4]
   colnames(TotDZTAX_st)<-c("METHOD","REGION","ISLAND","ANALYSIS_YEAR","SECTOR","Stratum","REEF_ZONE","DB_RZ","GROUP","n","Ntot","Mean_TotDZ_Prev","SE_TotDZ_Prev")
   
-  AcuteDZTAX_st<-Calc_Strata_Prevalence(site.data.tax2,"GROUP","AcuteDZ");AcuteDZTAX_st=AcuteDZTAX_st[,c.keep4]
+  AcuteDZTAX_st<-Calc_Strata_Prevalence(site_data,"GROUP","AcuteDZ");AcuteDZTAX_st=AcuteDZTAX_st[,c.keep4]
   colnames(AcuteDZTAX_st)<-c("METHOD","REGION","ISLAND","ANALYSIS_YEAR","SECTOR","Stratum","REEF_ZONE","DB_RZ","GROUP","n","Ntot","Mean_AcuteDZ_Prev","SE_AcuteDZ_Prev")
   
-  ChronicDZTAX_st<-Calc_Strata_Prevalence(site.data.tax2,"GROUP","ChronicDZ");ChronicDZTAX_st=ChronicDZTAX_st[,c.keep4]
+  ChronicDZTAX_st<-Calc_Strata_Prevalence(site_data,"GROUP","ChronicDZ");ChronicDZTAX_st=ChronicDZTAX_st[,c.keep4]
   colnames(ChronicDZTAX_st)<-c("METHOD","REGION","ISLAND","ANALYSIS_YEAR","SECTOR","Stratum","REEF_ZONE","DB_RZ","GROUP","n","Ntot","Mean_ChronicDZ_Prev","SE_ChronicDZ_Prev")
   
   

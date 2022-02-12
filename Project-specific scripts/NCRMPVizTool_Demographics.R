@@ -12,7 +12,6 @@ source("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/lib/GIS_functions.
 
 
 #Read in data
-tax<-read.csv("T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Stratum/BenthicREA_stratadata_TAXONCODE.csv")
 gen<-read.csv("T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Stratum/BenthicREA_stratadata_GENUS.csv")
 
 #Read in look up tables
@@ -21,30 +20,6 @@ taxlu<-read.csv("T:/Benthic/Data/Lookup Tables/2013-20_Taxa_MASTER.csv")
 
 seclu<-unique(seclu[,c("REGIONNAME","REGION","ISLAND","ISLANDCODE","SECTORNAME","SECTOR")])
 
-#Merge juvenile genus level data and adult taxoncode data
-#I think this is going to be confusing for people they will see 0 in the adult genus data, but this isn't accurate- it's just because there are recorded species within a genus
-#I've decided to just provide genus-level data
-# data.cols<-c("REGION","ISLAND","SECTOR","ANALYSIS_YEAR","DB_RZ","TAXONCODE","n","AdColDen","SE_AdColDen",
-#              "AcuteDZ", "SE_AcuteDZ","ChronicDZ", "SE_ChronicDZ","BLE","SE_BLE")
-# 
-# tax<-tax %>% dplyr::select(data.cols)
-# 
-# data.cols<-c("REGION","ISLAND","SECTOR","ANALYSIS_YEAR","DB_RZ","GENUS_CODE","JuvColDen","SE_JuvColDen")
-# 
-# gen<-gen %>% dplyr::select(data.cols)
-# 
-# #Change GENUS_CODE to TAXONCODE so we can merge gen and tax together
-# colnames(gen)[which(names(gen)=="GENUS_CODE")]<-"TAXONCODE"
-# 
-# df<-full_join(gen,tax)
-# df$SPCODE<-df$TAXONCODE
-# 
-# #merge with taxa look up table and remove taxa that aren't found in a given region
-# taxlu$sry<-paste(taxlu$SPCODE,taxlu$REGION,taxlu$OBS_YEAR,sep="_")
-# df$sry<-paste(df$SPCODE,df$REGION,df$ANALYSIS_YEAR,sep="_")
-# 
-# test<-df %>%
-#     dplyr::filter(sry %in% taxlu$sry)
 
 #Prep genus-level data
 data.cols<-c("REGION","ISLAND","SECTOR","ANALYSIS_YEAR","DB_RZ","GENUS_CODE","n","AdColDen","SE_AdColDen","JuvColDen","SE_JuvColDen",
@@ -52,6 +27,7 @@ data.cols<-c("REGION","ISLAND","SECTOR","ANALYSIS_YEAR","DB_RZ","GENUS_CODE","n"
 
 gen<-gen %>% dplyr::select(data.cols)
 gen$SPCODE<-gen$GENUS_CODE
+
 
 #merge with taxa look up table and remove taxa that aren't found in a given region
 taxlu$sry<-paste(taxlu$SPCODE,taxlu$REGION,taxlu$OBS_YEAR,sep="_")
@@ -77,6 +53,34 @@ df$REGIONNAME<-ifelse(df$SECTOR=="AGS","Mariana Archipelago",df$REGIONNAME)
 df$ISLAND<-ifelse(df$SECTOR=="AGS","Alamagan, Guguan, Sarigan",df$ISLAND)
 df$ISLANDCODE<-ifelse(df$SECTOR=="AGS","AGS",df$ISLANDCODE)
 df$SECTORNAME<-ifelse(df$SECTOR=="AGS","Alamagan, Guguan, Sarigan",df$SECTORNAME)
+
+#Change Stata names to match AOI Naming Convention
+df<-df %>% mutate(STRATAcode=recode(DB_RZ,
+                                           `FD`="FRF_D",
+                                           `FM`="FRF_M",
+                                           `FS`="FRF_S",
+                                           `BD`="BRF_D",
+                                           `BM`="BRF_M",
+                                           `BS`="BRF_S",
+                                           `LD`="LAG_D",
+                                           `LM`="LAG_M",
+                                           `LS`="LAG_S",
+                                           `PD`="PRS_D",
+                                           `PM`="PRS_M",
+                                           `PS`="PRS_S"))
+                                    
+
+
+
+#Change Column names to match AOI Naming convention 
+colnames(df)[colnames(df)=="REGIONNAME"]<-"JURISDICTIONname" #subset just acute diseased colonies
+colnames(df)[colnames(df)=="REGION"]<-"JURISDICTIONcode" #subset just acute diseased colonies
+colnames(df)[colnames(df)=="ISLAND"]<-"SUBREGIONname" #subset just acute diseased colonies
+colnames(df)[colnames(df)=="ISLANDCODE"]<-"SUBREGIONcode" #subset just acute diseased colonies
+colnames(df)[colnames(df)=="SECTOR"]<-"SECTORcode" #subset just acute diseased colonies
+colnames(df)[colnames(df)=="SECTORNAME"]<-"SECTORname" #subset just acute diseased colonies
+colnames(df)[colnames(df)=="STRATANAME"]<-"STRATAname" #subset just acute diseased colonies
+colnames(df)[colnames(df)=="STRATACODE"]<-"STRATAcode" #subset just acute diseased colonies
 
 
 write.csv(df,file="T:/Benthic/Data/Data Requests/NCRMPviztool_genus_demographics.csv",row.names = F)

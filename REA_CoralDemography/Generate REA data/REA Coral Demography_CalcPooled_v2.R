@@ -23,9 +23,9 @@ site.data.sp2<-read.csv("T:/Benthic/Data/REA Coral Demography & Cover/Summary Da
 site.data.tax2<-read.csv("T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Site/BenthicREA_sitedata_TAXONCODE.csv")
 
 
-# site.data.gen2<-subset(site.data.gen2,ISLAND=="Maro")
-# site.data.sp2<-subset(site.data.sp2,ISLAND=="Maro")
-# site.data.tax2<-subset(site.data.tax2,ISLAND=="Maro")
+# site.data.gen2<-subset(site.data.gen,ISLAND=="Maro")
+# site.data.sp2<-subset(site.data.sp,ISLAND=="Maro")
+# site.data.tax2<-subset(site.data.tax,ISLAND=="Maro")
 
 # Remove special missions -------------------------------------------------
 
@@ -63,7 +63,7 @@ head(subset(site.data.sp2,EXCLUDE_FLAG==-1))
 
 # POOLING DATA from Site to Strata and Domain at GENUS-level---------------------------------------------------
 survey_master<-read.csv("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/data/SURVEY MASTER.csv") #list of all sites
-seclu<-read.csv("T:/Benthic/Data/Lookup Tables/PacificNCRMP_CoralDemographic_Sectors_Lookup_v3.csv") #list of SEC_NAME (smallest sector) and corresponding pooled sector scheme
+seclu<-read.csv("T:/Benthic/Data/Lookup Tables/PacificNCRMP_Benthic_Sectors_Lookup_v3.csv") #list of SEC_NAME (smallest sector) and corresponding pooled sector scheme
 
 #For older data requests (pre 2022) This function pools data at Sector scale according to predetermined groups. Protected reef slope is converted to Forereef here
 #site.data.gen2<-PoolSecStrat(site.data.gen2)
@@ -77,40 +77,51 @@ site.data.sp2<-left_join(site.data.sp2,seclu)
 site.data.tax2<-left_join(site.data.tax2,seclu)
 
 #Create columns for Stata name (combo of Sector, reef zone and depth bin) & DB_RZ (depth bin/reef zone)
-site.data.gen2$STRATANAME<-paste(site.data.gen2$PooledSector,site.data.gen2$REEF_ZONE,site.data.gen2$DEPTH_BIN,sep="_")
+site.data.gen2$STRATANAME<-paste(site.data.gen2$PooledSector_Demo_Viztool,site.data.gen2$REEF_ZONE,site.data.gen2$DEPTH_BIN,sep="_")
 site.data.gen2$DB_RZ<-paste(substring(site.data.gen2$REEF_ZONE,1,1), substring(site.data.gen2$DEPTH_BIN,1,1), sep="")
 
-site.data.tax2$STRATANAME<-paste(site.data.tax2$PooledSector,site.data.tax2$REEF_ZONE,site.data.tax2$DEPTH_BIN,sep="_")
+site.data.tax2$STRATANAME<-paste(site.data.tax2$PooledSector_Demo_Viztool,site.data.tax2$REEF_ZONE,site.data.tax2$DEPTH_BIN,sep="_")
 site.data.tax2$DB_RZ<-paste(substring(site.data.tax2$REEF_ZONE,1,1), substring(site.data.tax2$DEPTH_BIN,1,1), sep="")
 
-site.data.sp2$STRATANAME<-paste(site.data.sp2$PooledSector,site.data.sp2$REEF_ZONE,site.data.sp2$DEPTH_BIN,sep="_")
+site.data.sp2$STRATANAME<-paste(site.data.sp2$PooledSector_Demo_Viztool,site.data.sp2$REEF_ZONE,site.data.sp2$DEPTH_BIN,sep="_")
 site.data.sp2$DB_RZ<-paste(substring(site.data.sp2$REEF_ZONE,1,1), substring(site.data.sp2$DEPTH_BIN,1,1), sep="")
 
 
 
 # Final clean up before pooling -------------------------------------------
 
-#Change island name for Alamagan, Guguan and Sarigan to AGS- small islands never sampled adequately enough 
-site.data.gen2$ISLAND<-ifelse(site.data.gen2$ISLAND %in% c("Alamagan","Guguan","Sarigan"),"AGS",as.character(site.data.gen2$ISLAND)) #Combine islands
-site.data.sp2$ISLAND<-ifelse(site.data.sp2$ISLAND %in% c("Alamagan","Guguan","Sarigan"),"AGS",as.character(site.data.sp2$ISLAND)) #Combine islands
-site.data.tax2$ISLAND<-ifelse(site.data.tax2$ISLAND %in% c("Alamagan","Guguan","Sarigan"),"AGS",as.character(site.data.tax2$ISLAND)) #Combine islands
+#Change island name for Alamagan, Guguan and Sarigan to SGA- small islands never sampled adequately enough 
+site.data.gen2$ISLAND<-ifelse(site.data.gen2$ISLAND %in% c("Alamagan","Guguan","Sarigan"),"SGA",as.character(site.data.gen2$ISLAND)) #Combine islands
+site.data.sp2$ISLAND<-ifelse(site.data.sp2$ISLAND %in% c("Alamagan","Guguan","Sarigan"),"SGA",as.character(site.data.sp2$ISLAND)) #Combine islands
+site.data.tax2$ISLAND<-ifelse(site.data.tax2$ISLAND %in% c("Alamagan","Guguan","Sarigan"),"SGA",as.character(site.data.tax2$ISLAND)) #Combine islands
 
 
-#Remove NWHI islands only surveyed by PMNM and GUA_MP (sampling too low and patchy in 2014 and 2017)
-remove<-c("Laysan","Maro","Midway","GUA_MP")
-site.data.gen2<-dplyr::filter(site.data.gen2, !PooledSector %in% remove)
-site.data.sp2<-dplyr::filter(site.data.sp2, !PooledSector %in% remove)
-site.data.tax2<-dplyr::filter(site.data.tax2, !PooledSector %in% remove)
+#Remove NWHI islands only surveyed by PMNM
+remove<-c("Laysan","Maro","Midway")
+site.data.gen2<-dplyr::filter(site.data.gen2, !PooledSector_Demo_Viztool %in% remove)
+site.data.sp2<-dplyr::filter(site.data.sp2, !PooledSector_Demo_Viztool %in% remove)
+site.data.tax2<-dplyr::filter(site.data.tax2, !PooledSector_Demo_Viztool %in% remove)
 
-#Remove PRIA 2016 and 2017 surveys- done off cycle for the bleaching response, and do not have all metrics
+#Remove PRIA 2016 and 2017 surveys- done off cycle for the bleaching response, and do not have all metrics, but keep Wake
 site.data.gen2$REGION_YEAR<-paste(site.data.gen2$REGION,site.data.gen2$ANALYSIS_YEAR,sep = "_")
 site.data.sp2$REGION_YEAR<-paste(site.data.sp2$REGION,site.data.sp2$ANALYSIS_YEAR,sep = "_")
 site.data.tax2$REGION_YEAR<-paste(site.data.tax2$REGION,site.data.tax2$ANALYSIS_YEAR,sep = "_")
+
+site.data.gen2$REGION_YEAR<-ifelse((site.data.gen2$ISLAND=="Wake" & site.data.gen2$ANALYSIS_YEAR=="2017"),"PRIAs_2017w",site.data.gen2$REGION_YEAR) #This will help you keep wake 2017 data
+site.data.sp2$REGION_YEAR<-ifelse((site.data.sp2$ISLAND=="Wake" & site.data.sp2$ANALYSIS_YEAR=="2017"),"PRIAs_2017w",site.data.sp2$REGION_YEAR)
+site.data.tax2$REGION_YEAR<-ifelse((site.data.tax2$ISLAND=="Wake" & site.data.tax2$ANALYSIS_YEAR=="2017"),"PRIAs_2017w",site.data.tax2$REGION_YEAR)
+
 
 remove<-c("PRIAs_2016","PRIAs_2017")
 site.data.gen2<-dplyr::filter(site.data.gen2, !REGION_YEAR %in% remove)
 site.data.sp2<-dplyr::filter(site.data.sp2, !REGION_YEAR %in% remove)
 site.data.tax2<-dplyr::filter(site.data.tax2, !REGION_YEAR %in% remove)
+
+#remove Guam MPA 2017 data
+site.data.gen2<-dplyr::filter(site.data.gen2, !(PooledSector_Demo_Viztool == "GUA_MP" & ANALYSIS_YEAR == "2017"))
+site.data.sp2<-dplyr::filter(site.data.sp2, !(PooledSector_Demo_Viztool == "GUA_MP" & ANALYSIS_YEAR == "2017"))
+site.data.tax2<-dplyr::filter(site.data.tax2, !(PooledSector_Demo_Viztool == "GUA_MP" & ANALYSIS_YEAR == "2017"))
+
 
 #Change Analysis year for PRIAs- you will need to do this for regional estiamtes that include both wake (2014,2017) and other PRIAs (2015 and 2018)
 site.data.gen2$ANALYSIS_YEAR<-ifelse(site.data.gen2$REGION_YEAR %in% c("PRIAs_2014","PRIAs_2015"),"2014-15",site.data.gen2$ANALYSIS_YEAR)
@@ -132,7 +143,7 @@ head(site.data.tax2)
 
 
 #QC CHECK to make sure the sectors and strata pooled correctly
-data.test<-ddply(subset(site.data.gen2,GENUS_CODE=="SSSS"),.(REGION,PooledSector,OBS_YEAR,STRATANAME),summarize,n=length(SITE))
+data.test<-ddply(subset(site.data.gen2,GENUS_CODE=="SSSS"),.(REGION,PooledSector_Demo_Viztool,OBS_YEAR,STRATANAME),summarize,n=length(SITE))
 sm.test<-ddply(subset(survey_master,Benthic=="1"&EXCLUDE_FLAG=="0"&OBS_YEAR>=2013),.(REGION,ISLAND,SEC_NAME,OBS_YEAR,REEF_ZONE,DEPTH_BIN),summarize,n=length(SITE))
 
 write.csv(data.test,"tmp_sitedataQC.csv")
@@ -148,8 +159,8 @@ write.csv(sm.test,"tmp_sitemasterQC.csv")
 
 # Genus-Level Metrics -----------------------------------------------------
 
-st.data.gen<-Calc_Strata_Metrics(site.data.gen2,grouping_field="GENUS_CODE",a_schema ="STRATANAME",d_schema="PooledSector")
-sec.data.gen<-Calc_IslandorSector_Metrics(site.data.gen2,grouping_field="GENUS_CODE",a_schema ="STRATANAME",d_schema="PooledSector")
+st.data.gen<-Calc_Strata_Metrics(site.data.gen2,grouping_field="GENUS_CODE",a_schema ="STRATANAME",d_schema="PooledSector_Demo_Viztool")
+sec.data.gen<-Calc_IslandorSector_Metrics(site.data.gen2,grouping_field="GENUS_CODE",a_schema ="STRATANAME",d_schema="PooledSector_Demo_Viztool")
 is.data.gen<-Calc_IslandorSector_Metrics(site.data.gen2,grouping_field="GENUS_CODE",a_schema ="STRATANAME",d_schema="ISLAND")
 r.data.gen<-Calc_Region_Metrics(site.data.gen2,grouping_field="GENUS_CODE",a_schema ="STRATANAME",d_schema = "REGION")
 
@@ -161,8 +172,8 @@ write.csv(r.data.gen,file="T:/Benthic/Data/REA Coral Demography & Cover/Summary 
 
 # SPCODE-Level Metrics -----------------------------------------------------
 
-st.data.sp<-Calc_Strata_Metrics(site.data.sp2,grouping_field="SPCODE",a_schema ="STRATANAME",d_schema="PooledSector")
-sec.data.sp<-Calc_IslandorSector_Metrics(site.data.sp2,grouping_field="SPCODE",a_schema ="STRATANAME",d_schema="PooledSector")
+st.data.sp<-Calc_Strata_Metrics(site.data.sp2,grouping_field="SPCODE",a_schema ="STRATANAME",d_schema="PooledSector_Demo_Viztool")
+sec.data.sp<-Calc_IslandorSector_Metrics(site.data.sp2,grouping_field="SPCODE",a_schema ="STRATANAME",d_schema="PooledSector_Demo_Viztool")
 is.data.sp<-Calc_IslandorSector_Metrics(site.data.sp2,grouping_field="SPCODE",a_schema ="STRATANAME",d_schema="ISLAND")
 r.data.sp<-Calc_Region_Metrics(site.data.sp2,grouping_field="SPCODE",a_schema ="STRATANAME",d_schema = "REGION")
 
@@ -174,8 +185,8 @@ write.csv(r.data.sp,file="T:/Benthic/Data/REA Coral Demography & Cover/Summary D
 
 # TAXONCODE-Level Metrics -----------------------------------------------------
 
-st.data.tax<-Calc_Strata_Metrics(site.data.tax2,grouping_field="TAXONCODE",a_schema ="STRATANAME",d_schema="PooledSector")
-sec.data.tax<-Calc_IslandorSector_Metrics(site.data.tax2,grouping_field="TAXONCODE",a_schema ="STRATANAME",d_schema="PooledSector")
+st.data.tax<-Calc_Strata_Metrics(site.data.tax2,grouping_field="TAXONCODE",a_schema ="STRATANAME",d_schema="PooledSector_Demo_Viztool")
+sec.data.tax<-Calc_IslandorSector_Metrics(site.data.tax2,grouping_field="TAXONCODE",a_schema ="STRATANAME",d_schema="PooledSector_Demo_Viztool")
 is.data.tax<-Calc_IslandorSector_Metrics(site.data.tax2,grouping_field="TAXONCODE",a_schema ="STRATANAME",d_schema="ISLAND")
 r.data.tax<-Calc_Region_Metrics(site.data.tax2,grouping_field="TAXONCODE",a_schema ="STRATANAME",d_schema = "REGION")
 

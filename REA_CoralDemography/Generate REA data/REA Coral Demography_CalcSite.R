@@ -2,6 +2,9 @@
 #C:\Users\Courtney.S.Couch\Documents\GitHub\Benthic-Scripts\REA_CoralDemography\Generate REA data\REA Coral Demography_DataPrep.R
 #The script does some final tweaks to the data then generates Site-level data
 #These data only include surveys conducted between 2013-2019
+
+#Tot dz = rd den or cond.
+
 rm(list=ls())
 
 #Set Run Flags
@@ -80,7 +83,10 @@ survey_siteJ<-unique(jwd[,SURVEY_SITE])
 write.csv(survey_siteAd,"surveysite.csv")
 
 #We did juvenile only surveys in 2017 in PRIA, this will make sure the SV table has both adult and juv sites.
-survey_site<-full_join(survey_siteJ,survey_siteAd);nrow(survey_site)
+survey_site<-full_join(survey_siteJ,survey_siteAd,by = c("METHOD","MISSIONID","DATE_","SITEVISITID", "ANALYSIS_YEAR","OBS_YEAR", "REGION", "REGION_NAME", "ISLAND","ISLANDCODE","SEC_NAME", "SITE", "REEF_ZONE",
+                                                         "DEPTH_BIN", "LATITUDE", "LONGITUDE","MIN_DEPTH_M","MAX_DEPTH_M","HABITAT_CODE"));nrow(survey_site)
+
+survey_site<-survey_site[!duplicated(survey_site[,4]),]
 
 #TEMPORARY WORK AROUND-ASK MICHAEL TO FIX
 survey_site$REEF_ZONE<-ifelse(survey_site$SITE=="HAW-04285","Forereef",as.character(survey_site$REEF_ZONE))
@@ -102,6 +108,11 @@ jcd.gen<-Calc_ColDen_Transect(jwd,"GENUS_CODE"); colnames(jcd.gen)[colnames(jcd.
 cl.gen<-Calc_ColMetric_Transect(data = awd,grouping_field = "GENUS_CODE",pool_fields = "COLONYLENGTH"); colnames(cl.gen)[colnames(cl.gen)=="Ave.y"]<-"Ave.cl" #Average % old dead
 od.gen<-Calc_ColMetric_Transect(data = awd,grouping_field = "GENUS_CODE",pool_fields = "OLDDEAD"); colnames(od.gen)[colnames(od.gen)=="Ave.y"]<-"Ave.od" #Average % old dead
 rd.gen<-Calc_ColMetric_Transect(data = awd,grouping_field = "GENUS_CODE",pool_fields = c("RDEXTENT1", "RDEXTENT2","RDEXTENT3")); colnames(rd.gen)[colnames(rd.gen)=="Ave.y"]<-"Ave.rd" #Average % recent dead
+
+#Calc_TotDZden_Transect
+totdzden.gen<-Calc_TotDZden_Transect(awd,survey_colony,"GENUS_CODE") # Density of recent dead colonies by condition, you will need to subset which ever condition you want. The codes ending in "S" are the general categories
+totdzden.gen<-subset(totdzden.gen,select = c(SITEVISITID,SITE,TRANSECT,GENUS_CODE,TotDZ_den))
+
 
 #Calc_RDden_Transect
 rdden.gen<-Calc_RDden_Transect(awd,survey_colony,"GENUS_CODE") # Density of recent dead colonies by condition, you will need to subset which ever condition you want. The codes ending in "S" are the general categories
@@ -132,10 +143,8 @@ MyMerge <- function(x, y){
   df <- merge(x, y, by= c("SITE","SITEVISITID","TRANSECT","GENUS_CODE"), all.x= TRUE, all.y= TRUE)
   return(df)
 }
-data.gen<-Reduce(MyMerge, list(acd.gen,jcd.gen,cl.gen,od.gen,rd.gen,acutedz.gen,chronicdz.gen,ble.gen));
+data.gen<-Reduce(MyMerge, list(acd.gen,jcd.gen,cl.gen,od.gen,rd.gen,totdzden.gen,acutedz.gen,chronicdz.gen,ble.gen));
 
-#Add column for the total disease density
-data.gen$TotDZ_den<-data.gen$DZGN_den + data.gen$CHRO_den
 
 #Add METHOD back in
 data.gen$METHOD<-"DIVER"
@@ -206,6 +215,11 @@ cl.sp<-Calc_ColMetric_Transect(data = awd,grouping_field = "SPCODE",pool_fields 
 od.sp<-Calc_ColMetric_Transect(data = awd,grouping_field = "SPCODE",pool_fields = "OLDDEAD"); colnames(od.sp)[colnames(od.sp)=="Ave.y"]<-"Ave.od" #Average % old dead
 rd.sp<-Calc_ColMetric_Transect(data = awd,grouping_field = "SPCODE",pool_fields = c("RDEXTENT1", "RDEXTENT2","RDEXTENT3")); colnames(rd.sp)[colnames(rd.sp)=="Ave.y"]<-"Ave.rd" #Average % recent dead
 
+#Calc_TotDZden_Transect
+totdzden.sp<-Calc_TotDZden_Transect(awd,survey_colony,"SPCODE") # Density of recent dead colonies by condition, you will need to subset which ever condition you want. The codes ending in "S" are the general categories
+totdzden.sp<-subset(totdzden.sp,select = c(SITEVISITID,SITE,TRANSECT,SPCODE,TotDZ_den))
+
+
 #Calc_RDden_Transect
 rdden.sp<-Calc_RDden_Transect(awd,survey_colony,"SPCODE") # Density of recent dead colonies by condition, you will need to subset which ever condition you want. The codes ending in "S" are the general categories
 acutedz.sp<-subset(rdden.sp,select = c(SITEVISITID,SITE,TRANSECT,SPCODE,DZGN_G));colnames(acutedz.sp)[colnames(acutedz.sp)=="DZGN_G"]<-"DZGN_den" #subset just acute diseased colonies
@@ -233,12 +247,8 @@ MyMerge <- function(x, y){
   df <- merge(x, y, by= c("SITE","SITEVISITID","TRANSECT","SPCODE"), all.x= TRUE, all.y= TRUE)
   return(df)
 }
-data.sp<-Reduce(MyMerge, list(acd.sp,jcd.sp,cl.sp,od.sp,rd.sp,acutedz.sp,chronicdz.sp,ble.sp));
+data.sp<-Reduce(MyMerge, list(acd.sp,jcd.sp,cl.sp,od.sp,rd.sp,totdzden.sp,acutedz.sp,chronicdz.sp,ble.sp));
 head(data.sp)
-
-#Add column for the total disease density
-data.sp$TotDZ_den<-data.sp$DZGN_den + data.sp$CHRO_den
-
 
 data.sp$METHOD<-"DIVER"
 
@@ -302,6 +312,11 @@ cl.tax<-Calc_ColMetric_Transect(data = awd,grouping_field = "TAXONCODE",pool_fie
 od.tax<-Calc_ColMetric_Transect(data = awd,grouping_field = "TAXONCODE",pool_fields = "OLDDEAD"); colnames(od.tax)[colnames(od.tax)=="Ave.y"]<-"Ave.od" #Average % old dead
 rd.tax<-Calc_ColMetric_Transect(data = awd,grouping_field = "TAXONCODE",pool_fields = c("RDEXTENT1", "RDEXTENT2","RDEXTENT3")); colnames(rd.tax)[colnames(rd.tax)=="Ave.y"]<-"Ave.rd" #Average % recent dead
 
+#Calc_TotDZden_Transect
+totdzden.tax<-Calc_TotDZden_Transect(awd,survey_colony,"TAXONCODE") # Density of recent dead colonies by condition, you will need to subset which ever condition you want. The codes ending in "S" are the general categories
+totdzden.tax<-subset(totdzden.tax,select = c(SITEVISITID,SITE,TRANSECT,TAXONCODE,TotDZ_den))
+
+
 #Calc_RDden_Transect
 rdden.tax<-Calc_RDden_Transect(awd,survey_colony,"TAXONCODE") # Density of recent dead colonies by condition, you will need to subset which ever condition you want. The codes ending in "S" are the general categories
 acutedz.tax<-subset(rdden.tax,select = c(SITEVISITID,SITE,TRANSECT,TAXONCODE,DZGN_G));colnames(acutedz.tax)[colnames(acutedz.tax)=="DZGN_G"]<-"DZGN_den" #subset just acute diseased colonies
@@ -331,10 +346,8 @@ MyMerge <- function(x, y){
   df <- merge(x, y, by= c("SITE","SITEVISITID","TRANSECT","TAXONCODE"), all.x= TRUE, all.y= TRUE)
   return(df)
 }
-data.tax<-Reduce(MyMerge, list(acd.tax,jcd.tax,cl.tax,od.tax,rd.tax,acutedz.tax,chronicdz.tax,ble.tax));
+data.tax<-Reduce(MyMerge, list(acd.tax,jcd.tax,cl.tax,od.tax,rd.tax,totdzden.tax,acutedz.tax,chronicdz.tax,ble.tax));
 
-#Add column for the total disease density
-data.tax$TotDZ_den<-data.tax$DZGN_den + data.tax$CHRO_den
 
 #Add METHOD back in
 data.tax$METHOD<-"DIVER"
