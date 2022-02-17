@@ -11,12 +11,15 @@
 rm(list=ls())
 
 #LOAD LIBRARY FUNCTIONS ...
-source("C:/Users/Courtney.S.Couch/Documents/GitHub/Benthic-Scripts/Functions/Benthic_Functions_newApp_vTAOfork.R")
-source("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/lib/core_functions.R")
-source("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/lib/GIS_functions.R")
+# source("C:/Users/Courtney.S.Couch/Documents/GitHub/Benthic-Scripts/Functions/Benthic_Functions_newApp_vTAOfork.R")
+# source("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/lib/core_functions.R")
+# source("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/lib/GIS_functions.R")
+
+source("M:/Benthic Scripts_LEA/Benthic_Functions_newApp_vTAOfork.R")
+source("M:/Benthic Scripts_LEA/core_functions.R")
+
 
 ## LOAD benthic data
-setwd("C:/Users/Courtney.S.Couch/Documents/Courtney's Files/R Files/ESD/Benthic REA")
 
 site.data.gen2<-read.csv("T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Site/BenthicREA_sitedata_GENUS.csv")
 site.data.sp2<-read.csv("T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Site/BenthicREA_sitedata_SPCODE.csv")
@@ -62,8 +65,10 @@ head(subset(site.data.sp2,EXCLUDE_FLAG==-1))
 
 
 # POOLING DATA from Site to Strata and Domain at GENUS-level---------------------------------------------------
-survey_master<-read.csv("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/data/SURVEY MASTER.csv") #list of all sites
-seclu<-read.csv("T:/Benthic/Data/Lookup Tables/PacificNCRMP_Benthic_Sectors_Lookup_v3.csv") #list of SEC_NAME (smallest sector) and corresponding pooled sector scheme
+#survey_master<-read.csv("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/data/SURVEY MASTER.csv") #list of all sites
+survey_master<-read.csv("M:/Benthic Scripts_LEA/SURVEY MASTER.csv") #list of all sites
+
+seclu<-read.csv("T:/Benthic/Data/Lookup Tables/PacificNCRMP_Benthic_Sectors_Lookup_v4.csv") #list of SEC_NAME (smallest sector) and corresponding pooled sector scheme
 
 #For older data requests (pre 2022) This function pools data at Sector scale according to predetermined groups. Protected reef slope is converted to Forereef here
 #site.data.gen2<-PoolSecStrat(site.data.gen2)
@@ -124,12 +129,12 @@ site.data.tax2<-dplyr::filter(site.data.tax2, !(PooledSector_Demo_Viztool == "GU
 
 
 #Change Analysis year for PRIAs- you will need to do this for regional estiamtes that include both wake (2014,2017) and other PRIAs (2015 and 2018)
-site.data.gen2$ANALYSIS_YEAR<-ifelse(site.data.gen2$REGION_YEAR %in% c("PRIAs_2014","PRIAs_2015"),"2014-15",site.data.gen2$ANALYSIS_YEAR)
-site.data.gen2$ANALYSIS_YEAR<-ifelse(site.data.gen2$REGION_YEAR %in% c("PRIAs_2017","PRIAs_2018"),"2017-18",site.data.gen2$ANALYSIS_YEAR)
-site.data.sp2$ANALYSIS_YEAR<-ifelse(site.data.sp2$REGION_YEAR %in% c("PRIAs_2014","PRIAs_2015"),"2014-15",site.data.sp2$ANALYSIS_YEAR)
-site.data.sp2$ANALYSIS_YEAR<-ifelse(site.data.sp2$REGION_YEAR %in% c("PRIAs_2017","PRIAs_2018"),"2017-18",site.data.sp2$ANALYSIS_YEAR)
-site.data.tax2$ANALYSIS_YEAR<-ifelse(site.data.tax2$REGION_YEAR %in% c("PRIAs_2014","PRIAs_2015"),"2014-15",site.data.tax2$ANALYSIS_YEAR)
-site.data.tax2$ANALYSIS_YEAR<-ifelse(site.data.tax2$REGION_YEAR %in% c("PRIAs_2017","PRIAs_2018"),"2017-18",site.data.tax2$ANALYSIS_YEAR)
+site.data.gen2$ANALYSIS_YEAR<-ifelse(site.data.gen2$REGION_YEAR %in% c("PRIAs_2014","PRIAs_2015"),"2014-15",as.character(site.data.gen2$ANALYSIS_YEAR))
+site.data.gen2$ANALYSIS_YEAR<-ifelse(site.data.gen2$REGION_YEAR %in% c("PRIAs_2017w","PRIAs_2017","PRIAs_2018"),"2017-18",as.character(site.data.gen2$ANALYSIS_YEAR))
+site.data.sp2$ANALYSIS_YEAR<-ifelse(site.data.sp2$REGION_YEAR %in% c("PRIAs_2014","PRIAs_2015"),"2014-15",as.character(site.data.sp2$ANALYSIS_YEAR))
+site.data.sp2$ANALYSIS_YEAR<-ifelse(site.data.sp2$REGION_YEAR %in% c("PRIAs_2017w","PRIAs_2017","PRIAs_2018"),"2017-18",as.character(site.data.sp2$ANALYSIS_YEAR))
+site.data.tax2$ANALYSIS_YEAR<-ifelse(site.data.tax2$REGION_YEAR %in% c("PRIAs_2014","PRIAs_2015"),"2014-15",as.character(site.data.tax2$ANALYSIS_YEAR))
+site.data.tax2$ANALYSIS_YEAR<-ifelse(site.data.tax2$REGION_YEAR %in% c("PRIAs_2017w","PRIAs_2017","PRIAs_2018"),"2017-18",as.character(site.data.tax2$ANALYSIS_YEAR))
 
 
 ##Change Protected Reef Slope to Forereef- we do this for some data requests
@@ -196,4 +201,9 @@ write.csv(sec.data.tax,file="T:/Benthic/Data/REA Coral Demography & Cover/Summar
 write.csv(r.data.tax,file="T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Region/BenthicREA_regiondata_TAXONCODE.csv",row.names=F)
 
 
+#QC Checks
+summary(st.data.gen)
+Change 
+levels(as.factor(st.data.gen$ANALYSIS_YEAR))
+levels(as.factor(st.data.gen$SECTOR))
 

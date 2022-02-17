@@ -9,16 +9,16 @@
 rm(list=ls())
 
 setwd("C:/Users/Courtney.S.Couch/Documents/Courtney's Files/R Files/ESD/BIA")
-
-library(gdata)             # needed for drop_levels()
-library(reshape)           # reshape library inclues the cast() function used below
-library(RODBC)            # to connect to oracle
+# 
+# library(gdata)             # needed for drop_levels()
+# library(reshape)           # reshape library inclues the cast() function used below
+# library(RODBC)            # to connect to oracle
 
 #LOAD LIBRARY FUNCTIONS ... 
-source("C:/Users/Courtney.S.Couch/Documents/GitHub/Benthic-Scripts/Functions/Benthic_Functions_newApp.R")
-source("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/lib/core_functions.R")
-source("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/lib/fish_team_functions.R")
-source("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/lib/Islandwide Mean&Variance Functions.R")
+source("M:/Benthic Scripts_LEA/Benthic_Functions_newApp_vTAOfork.R")
+source("M:/Benthic Scripts_LEA/core_functions.R")
+source("M:/Benthic Scripts_LEA/fish_team_functions.R")
+source("M:/Benthic Scripts_LEA/Islandwide Mean&Variance Functions.R")
 
 #Climate data - this is from CPCE
 load("T:/Benthic/Data/REA Coral Demography & Cover/Raw from Oracle/ALL_BIA_CLIMATE_PERM.rdata")   #bia
@@ -37,7 +37,7 @@ bia$SITE<-SiteNumLeadingZeros(bia$SITE)
 load("T:/Benthic/Data/REA Coral Demography & Cover/Raw from Oracle/ALL_BIA_STR_CNET.rdata") #load data
 
 cnet$SITE<-SiteNumLeadingZeros(cnet$SITE)
-table(cnet$REGION,cnet$OBS_YEAR)
+table(cnet$ISLAND,cnet$OBS_YEAR)
 
 
 ##Generate Table of all the bia categories to review
@@ -52,7 +52,7 @@ head(cnet)
 cnet_tab<-ddply(cnet,.(CATEGORY_CODE,CATEGORY_NAME,SUBCATEGORY_CODE,SUBCATEGORY_NAME,GENERA_CODE,GENERA_NAME,FUNCTIONAL_GROUP),summarize,count=length(ROUNDID))
 #write.csv(cnet_tab, file="CNET categories.csv")
 
-sm<-read.csv("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/data/SURVEY MASTER.csv")
+sm<-read.csv("M:/Benthic Scripts_LEA/SURVEY MASTER.csv")
 sm$SITE<-SiteNumLeadingZeros(sm$SITE)
 
 test<-subset(sm,OBS_YEAR=="2019",TRANSECT_PHOTOS=="-1");nrow(test)
@@ -143,6 +143,7 @@ ab[ab$GENERA_NAME %in% c("Lobophora sp","Peyssonnelia sp", "Encrusting macroalga
 ab$GENERA_NAME<-as.character(ab$GENERA_NAME)
 ab$TIER_1<-as.character(ab$TIER_1)
 
+ab$TIER_3<-ifelse(ab$TIER_3=="HALI","HAL",ab$TIER_3)
 ab$TIER_1<-ifelse(ab$TIER_3=="HAL","HAL",ab$TIER_1)
 ab$CATEGORY_NAME<-ifelse(ab$TIER_3=="HAL","Halimeda sp",ab$CATEGORY_NAME)
 
@@ -227,7 +228,7 @@ full_join(test1,oracle.site)
 #Remember this will have all the sites ever surveyed not just StRS sites
 #You will need TRANSECT_PHOTOS, EXCLUDE FLAG and Oceanography from the SM file to be able to filter out OCC and Special Project sites
 
-sm<-read.csv("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/data/SURVEY MASTER.csv")
+#sm<-read.csv("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/data/SURVEY MASTER.csv")
 
 #Convert date formats
 sm$DATE_<-mdy(sm$DATE_)
@@ -281,12 +282,14 @@ setdiff(unique(wsd$ISLAND),unique(sectors$ISLAND))
 
 
 # Final clean up before pooling -------------------------------------------
-sectors<-read.csv("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/data/Sectors-Strata-Areas_Cover.csv")
+sectors<-read.csv("M:/Benthic Scripts_LEA/Sectors-Strata-Areas.csv")
 seclu<-read.csv("T:/Benthic/Data/Lookup Tables/PacificNCRMP_Benthic_Sectors_Lookup_v3.csv") #list of SEC_NAME (smallest sector) and corresponding pooled sector scheme
 
 #Merge site data with Sector look up table. This table indicates how sectors should be pooled or not
 #For NCRMP viztool data- Keep pooling scheme the same across years
 wsd<-left_join(wsd,seclu)
+wsd<-left_join(wsd,sectors)
+
 
 #Create Stata column
 wsd$STRATA<-paste(substring(wsd$REEF_ZONE,1,1), substring(wsd$DEPTH_BIN,1,1), sep="")
@@ -296,10 +299,10 @@ sectors$STRATA<-paste(substring(sectors$REEF_ZONE,1,1), substring(sectors$DEPTH_
 
 ## TREAT GUGUAN, ALAMAGAN, SARIGAN AS ONE ISLAND  (REALLY ONE BASE REPORTING UNIT .. BUT SIMPLER TO STICK TO 'ISLAND')
 SGA<-c("Guguan", "Alamagan", "Sarigan")
-levels(wsd$ISLAND)<-c(levels(wsd$ISLAND), "SGA")
-levels(sectors$ISLAND)<-c(levels(sectors$ISLAND), "SGA")
-wsd[wsd$ISLAND %in% SGA,]$ISLAND<-"SGA"
-sectors[sectors$ISLAND %in% SGA,]$ISLAND<-"SGA"
+levels(wsd$ISLAND)<-c(levels(wsd$ISLAND), "Sarigan, Alamagan, Guguan")
+levels(sectors$ISLAND)<-c(levels(sectors$ISLAND), "Sarigan, Alamagan, Guguan")
+wsd[wsd$ISLAND %in% SGA,]$ISLAND<-"Sarigan, Alamagan, Guguan"
+sectors[sectors$ISLAND %in% SGA,]$ISLAND<-"Sarigan, Alamagan, Guguan"
 # 
 # SGA<-c("Guguan", "Alamagan", "Sarigan")
 # levels(wsd$SEC_NAME)<-c(levels(wsd$SEC_NAME), "SGA")
@@ -314,13 +317,15 @@ wsd<-dplyr::filter(wsd, !PooledSector_Cover_Viztool %in% remove)
 
 #Remove PRIA 2016 and 2017 surveys- done off cycle for the bleaching response, and do not have all metrics
 wsd$REGION_YEAR<-paste(wsd$REGION,wsd$ANALYSIS_YEAR,sep = "_")
+wsd$REGION_YEAR<-ifelse((wsd$ISLAND=="Wake" & wsd$ANALYSIS_YEAR=="2017"),"PRIAs_2017w",wsd$REGION_YEAR) #This will help you keep wake 2017 data
+
 remove<-c("PRIAs_2016","PRIAs_2017")
 wsd<-dplyr::filter(wsd, !REGION_YEAR %in% remove)
 
 
 #Change Analysis year according to desired pooling
 wsd[is.na(wsd$ANALYSIS_YEAR),]
-levels(wsd$ANALYSIS_YEAR)<-c(levels(wsd$ANALYSIS_YEAR),"2015-16")
+levels(wsd$ANALYSIS_YEAR)<-c(levels(wsd$ANALYSIS_YEAR),"2015-16","2014-15","2017-18")
 wsd[wsd$REGION %in% c("MHI", "NWHI") & wsd$OBS_YEAR %in% seq(2010,2012),]$ANALYSIS_YEAR<-"2010-12"
 wsd[wsd$REGION %in% c("MHI", "NWHI") & wsd$OBS_YEAR %in% seq(2013,2015),]$ANALYSIS_YEAR<-"2013-15"
 wsd[wsd$REGION %in% c("SAMOA") & wsd$OBS_YEAR %in% seq(2015,2016),]$ANALYSIS_YEAR<-"2015-16"
@@ -332,37 +337,6 @@ wsd$ANALYSIS_SEC<-wsd$PooledSector_Cover_Viztool
 
 sectors$AREA_HA<-as.numeric(sectors$AREA_HA)
 
-# ## generate a complete list of all ANALYSIS STRATA and their size
-# SCHEMES<-c("RAMP_CURRENT","MARI2011","MARI2014","TUT10_12")
-# for(i in 1:length(SCHEMES)){
-#   tmp2<-sectors[,c("SEC_NAME", SCHEMES[i])]
-#   tmp2$SCHEME<-SCHEMES[i]
-#   names(tmp2)<- c("SEC_NAME", "ANALYSIS_SEC", "ANALYSIS_SCHEME")
-#   
-#   tmp<-aggregate(sectors$AREA_HA, sectors[,c(SCHEMES[i], "STRATA")], sum)
-#   tmp$SCHEME<-SCHEMES[i]
-#   names(tmp)<-c("ANALYSIS_SEC", "STRATA", "AREA_HA", "ANALYSIS_SCHEME")
-#   if(i==1){
-#     st<-tmp
-#     as<-tmp2
-#   } else {
-#     st<-rbind(st, tmp)
-#     as<-rbind(as, tmp2)
-#   }	
-# }
-# 
-# as$TMP<-1
-# as<-aggregate(as$TMP, by=as[,c("SEC_NAME", "ANALYSIS_SCHEME", "ANALYSIS_SEC")], length) 
-# as$x<-NULL
-# 
-# wsd<-merge(wsd, as, by=c("SEC_NAME", "ANALYSIS_SCHEME"), all.x=T)  # add ANALYSIS_SCHEME for this sector and sceheme combination
-# unique(wsd[is.na(wsd$ANALYSIS_SCHEME), c("ISLAND", "ANALYSIS_SEC", "SEC_NAME", "OBS_YEAR", "ANALYSIS_SCHEME", "STRATA")])
-# 
-# dcast(st, ANALYSIS_SEC ~ ANALYSIS_SCHEME, value.var="AREA_HA", sum)
-# wsd<-merge(wsd, st, by=c("ANALYSIS_SCHEME", "ANALYSIS_SEC", "STRATA"), all.x=T)
-# #check if some are missing an AREA_HA .. which means that they didnt get into the stratification scheme properly
-# unique(wsd[is.na(wsd$AREA_HA), c("ISLAND", "ANALYSIS_SEC", "SEC_NAME", "OBS_YEAR", "ANALYSIS_SCHEME", "STRATA")])
-
 #NOW CHECK HOW MANY REPS WE HAVE PER STRATA
 a<-dcast(wsd, ISLAND + ANALYSIS_SEC + OBS_YEAR ~ STRATA, value.var="AREA_HA", length); a
 
@@ -371,7 +345,15 @@ a<-dcast(wsd, ISLAND + ANALYSIS_SEC + OBS_YEAR ~ STRATA, value.var="AREA_HA", le
 #     POOL WSD (WORKING SITE DATA TO STRATA THEN TO HIGHER LEVELS
 ##
 ###################################################################################################################################################################
+#Save site level data - need to send site, lat and long to Viztool
+write.csv(wsd,"T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Site/2022ViztoolSites_Cover.csv")
 
+
+#Some sectors are pooled together, this will ensure that strata area is pooled correctly
+area.tmp<-ddply(wsd,.(REGION,ISLAND,ANALYSIS_YEAR,ANALYSIS_SEC,STRATA,AREA_HA),summarize,temp=sum(AREA_HA,na.rm=TRUE)) #calculate # of possible sites in a given stratum
+new.area<-ddply(area.tmp,.(REGION,ISLAND,ANALYSIS_YEAR,ANALYSIS_SEC,STRATA),summarize,AREA_HA_correct=sum(AREA_HA,na.rm=TRUE)) #calculate # of possible sites in a given stratum
+
+wsd<-left_join(wsd,new.area)
 
 ### CALCULATE MEAN AND VARIANCE WITHIN STRATA ###
 SPATIAL_POOLING_BASE<-c("REGION","ISLAND", "ANALYSIS_SEC", "REEF_ZONE", "STRATA")    
@@ -392,26 +374,44 @@ colnames(dpst$Mean)[9:ncol(dpst$Mean)] <- paste("Mean.", colnames(dpst$Mean[,9:n
 colnames(dpst$SampleSE)[9:ncol(dpst$SampleSE)] <- paste("SE.", colnames(dpst$SampleSE[,9:ncol(dpst$SampleSE)]), sep = "")
 
 dpst<-left_join(dpst$Mean,dpst$SampleSE)
-ri<-read.csv("T:/Benthic/Data/Lookup Tables/NCRMP_Regions_Islands.csv"); ri<-subset(ri,select = -c(X))
+ri<-read.csv("T:/Benthic/Data/Lookup Tables/NCRMP_Regions_Islands.csv")
 dpst<-left_join(dpst,ri)
 write.csv(dpst, file="T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Stratum/BenthicCover_2010-2019_Tier1_STRATA_v2.csv",row.names = F)
 
 #SAVE BY SECTOR PER YEAR
 OUTPUT_LEVEL<-c("REGION","ISLAND","ANALYSIS_SEC","ANALYSIS_YEAR") 
 dpsec<-Calc_Pooled_Simple(dps$Mean, dps$SampleVar, data.cols, OUTPUT_LEVEL, "AREA_HA")
+colnames(dpsec$Mean)[6:ncol(dpsec$Mean)] <- paste("Mean.", colnames(dpsec$Mean[,6:ncol(dpsec$Mean)]), sep = "")
+colnames(dpsec$PooledSE)[6:ncol(dpsec$PooledSE)] <- paste("SE.", colnames(dpsec$PooledSE[,6:ncol(dpsec$PooledSE)]), sep = "")
+
+
+dpsec<-left_join(dpsec$Mean,dpsec$PooledSE)
+dpsec<-left_join(dpsec,ri)
+
 write.csv(dpsec, file="T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Sector/BenthicCover_2010-2019_Tier1_SECTOR_v2.csv",row.names = F)
 
 
 # e.g. SAVE BY ISLAND PER YEAR
 OUTPUT_LEVEL<-c("REGION","ISLAND","ANALYSIS_YEAR") 
 dpis<-Calc_Pooled_Simple(dps$Mean, dps$SampleVar, data.cols, OUTPUT_LEVEL, "AREA_HA")
+colnames(dpis$Mean)[5:ncol(dpis$Mean)] <- paste("Mean.", colnames(dpis$Mean[,5:ncol(dpis$Mean)]), sep = "")
+colnames(dpis$PooledSE)[5:ncol(dpis$PooledSE)] <- paste("SE.", colnames(dpis$PooledSE[,5:ncol(dpis$PooledSE)]), sep = "")
+
+
+dpis<-left_join(dpis$Mean,dpis$PooledSE)
+dpis<-left_join(dpis,ri)
+
 write.csv(dpis, file="T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Island/BenthicCover_2010-2019_Tier1_ISLAND_v2.csv",row.names = F)
 
 
 # e.g. SAVE BY REGION PER YEAR
 OUTPUT_LEVEL<-c("REGION","ANALYSIS_YEAR") 
-dpis<-Calc_Pooled_Simple(dps$Mean, dps$SampleVar, data.cols, OUTPUT_LEVEL, "AREA_HA")
-write.csv(dpis, file="T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Region/BenthicCover_2010-2019_Tier1_Region_v2.csv",row.names = F)
+dpr<-Calc_Pooled_Simple(dps$Mean, dps$SampleVar, data.cols, OUTPUT_LEVEL, "AREA_HA")
+colnames(dpr$Mean)[4:ncol(dpr$Mean)] <- paste("Mean.", colnames(dpr$Mean[,4:ncol(dpr$Mean)]), sep = "")
+colnames(dpr$PooledSE)[4:ncol(dpr$PooledSE)] <- paste("SE.", colnames(dpr$PooledSE[,4:ncol(dpr$PooledSE)]), sep = "")
+
+dpr<-left_join(dpr$Mean,dpr$PooledSE)
+write.csv(dpr, file="T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Region/BenthicCover_2010-2019_Tier1_Region_v2.csv",row.names = F)
 
 
 

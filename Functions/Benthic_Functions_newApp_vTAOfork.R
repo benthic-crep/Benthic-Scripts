@@ -1567,13 +1567,13 @@ Calc_Strata_Metrics<-function(site_data,grouping_field="GENUS_CODE",a_schema = "
     df <- merge(x, y, by= c("METHOD","REGION","ISLAND","ANALYSIS_YEAR","SECTOR","Stratum","REEF_ZONE","DB_RZ","GROUP","n","Ntot"), all.x= TRUE, all.y= TRUE)
     return(df)
   }
-  st.data.tax<-Reduce(MyMerge, list(acdTAX_st,jcdTAX_st,odTAX_st,rdTAX_st,clTAX_st,BLETAX_st,TotDZTAX_st,AcuteDZTAX_st,ChronicDZTAX_st))
+  st.data<-Reduce(MyMerge, list(acdTAX_st,jcdTAX_st,odTAX_st,rdTAX_st,clTAX_st,BLETAX_st,TotDZTAX_st,AcuteDZTAX_st,ChronicDZTAX_st))
   
-  colnames(st.data.tax)[colnames(st.data.tax)=="ANALYSIS_SCHEMA"]<-"Stratum"
-  colnames(st.data.tax)[which(colnames(st.data.tax) == 'GROUP')] <- grouping_field #change group to whatever your grouping field is.
+  colnames(st.data)[colnames(st.data)=="ANALYSIS_SCHEMA"]<-"Stratum"
+  colnames(st.data)[which(colnames(st.data) == 'GROUP')] <- grouping_field #change group to whatever your grouping field is.
   
   
-  return(st.data.tax)
+  return(st.data)
   
 }
 
