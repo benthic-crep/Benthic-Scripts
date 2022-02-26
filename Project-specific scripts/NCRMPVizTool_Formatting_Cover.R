@@ -23,7 +23,7 @@ r<-read.csv("T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Region/Be
 r<-r[,c("REGION","ANALYSIS_YEAR","N","Mean.CORAL","Mean.CCA","Mean.MA","SE.CORAL","SE.CCA","SE.MA")]
 
 site<-read.csv("T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Site/2022ViztoolSites_Cover.csv")
-site<-site[,c("REGION","ISLAND", "PooledSector_Cover_Viztool","STRATAcode","ANALYSIS_YEAR","SITEVISITID","SITE","LATITUDE","LONGITUDE")]
+site<-site[,c("REGION","PooledSector_Cover_Viztool","STRATAcode","ANALYSIS_YEAR","SITEVISITID","SITE","LATITUDE","LONGITUDE")]
 
 #Read in look up table of all possible strata and sector names ####
 seclu<-read.csv("T:/Benthic/Data/Lookup Tables/PacificNCRMP_Benthic_Sectors_Lookup_v4.csv") #Look up for pooling scheme and table of strata names
@@ -38,13 +38,13 @@ colnames(site)[colnames(site)=="PooledSector_Cover_Viztool"]<-"ANALYSIS_SEC" #su
 
 #Change sarigan, alamagan and guguan's island name
 seclu$ISLAND<-ifelse(seclu$ISLAND %in% c("Sarigan","Alamagan","Guguan"),"Sarigan, Alamagan, Guguan",seclu$ISLAND)
-seclu$ISLANDCODE<-ifelse(seclu$ISLAND %in% c("Sarigan","Alamagan","Guguan"),"SGA",seclu$ISLANDCODE)
+seclu$ISLANDCODE<-ifelse(seclu$ISLAND %in% c("Sarigan, Alamagan, Guguan"),"SGA",seclu$ISLANDCODE)
 
 #Remove Maro, Midway and Laysan since they aren't part of the NCRMP islands
 remove<-c("Maro","Midway","Laysan")
 seclu<-filter(seclu,! ISLAND %in% remove)
+site<-filter(site,! ANALYSIS_SEC %in% remove)
 
-#####START HERE, SITES AREN'T MERGING PROPOERLY
 
 #Merge sector and strata names to SITE data
 st.lu<-unique(seclu[,c("REGION_NAME","REGION","ISLAND","ISLANDCODE","ANALYSIS_SEC","STRATAname","STRATA")]) #make sure to use unique because we are pooling certain sectors together (e.g. Tut_aunuu)
@@ -237,6 +237,7 @@ ColumnNameChange<-function(data){
   colnames(data)[colnames(data)=="ANALYSIS_SEC"]<-"SECTORcode" #subset just acute diseased colonies
   colnames(data)[colnames(data)=="SECTORNAME"]<-"SECTORname" #subset just acute diseased colonies
   colnames(data)[colnames(data)=="ANALYSIS_YEAR_new"]<-"AnalysisYear" #subset just acute diseased colonies
+  colnames(data)[colnames(data)=="SITEVISITID"]<-"SiteID" #subset just acute diseased colonies
   data$TaxonomicResolution<-"NA"
   data$TaxonomicCode<-"NA"
   data$ScientificName<-"NA"
@@ -261,7 +262,7 @@ cover.isl<-cover.isl[,c("JURISDICTIONname","JURISDICTIONcode","SUBREGIONname","S
                         "TaxonomicResolution","TaxonomicCode","ScientificName","CoralCover_Pct","CrustoseCoralineAlgaeCover_Pct","MacroalgaeCover_Pct","CoralCover_error","CrustoseCoralineAlgaeCover_error","MacroalgaeCover_error")]
 cover.r<-cover.r[,c("JURISDICTIONname","JURISDICTIONcode","SurveyYearStart","SurveyYearEnd","AnalysisYear","N",
                     "TaxonomicResolution","TaxonomicCode","ScientificName","CoralCover_Pct","CrustoseCoralineAlgaeCover_Pct","MacroalgaeCover_Pct","CoralCover_error","CrustoseCoralineAlgaeCover_error","MacroalgaeCover_error")]
-site<-site[,c("JURISDICTIONname","JURISDICTIONcode","SUBREGIONname","SUBREGIONcode", "SECTORname","SECTORcode","STRATAname","STRATAcode","SurveyYearStart","SurveyYearEnd","AnalysisYear","SITEVISITID","SITE",
+site<-site[,c("JURISDICTIONname","JURISDICTIONcode","SUBREGIONname","SUBREGIONcode", "SECTORname","SECTORcode","STRATAname","STRATAcode","SurveyYearStart","SurveyYearEnd","AnalysisYear","SiteID",
               "LATITUDE","LONGITUDE")]
 
 write.csv(cover.st,file="T:/Benthic/Data/Data Requests/NCRMPViztool/2022/PacificNCRMPviztool2022_STRATA_Cover.csv",row.names = F)

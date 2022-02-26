@@ -283,7 +283,7 @@ setdiff(unique(wsd$ISLAND),unique(sectors$ISLAND))
 
 # Final clean up before pooling -------------------------------------------
 sectors<-read.csv("M:/Benthic Scripts_LEA/Sectors-Strata-Areas.csv")
-seclu<-read.csv("T:/Benthic/Data/Lookup Tables/PacificNCRMP_Benthic_Sectors_Lookup_v3.csv") #list of SEC_NAME (smallest sector) and corresponding pooled sector scheme
+seclu<-read.csv("T:/Benthic/Data/Lookup Tables/PacificNCRMP_Benthic_Sectors_Lookup_v4.csv") #list of SEC_NAME (smallest sector) and corresponding pooled sector scheme
 
 #Merge site data with Sector look up table. This table indicates how sectors should be pooled or not
 #For NCRMP viztool data- Keep pooling scheme the same across years
@@ -313,7 +313,20 @@ sectors[sectors$ISLAND %in% SGA,]$ISLAND<-"Sarigan, Alamagan, Guguan"
 
 #Remove NWHI islands only surveyed by PMNM
 remove<-c("Laysan","Maro","Midway")
-wsd<-dplyr::filter(wsd, !PooledSector_Cover_Viztool %in% remove)
+wsd<-dplyr::filter(wsd, !PooledSector_Demo_Viztool %in% remove)
+
+#Separating Guam and CNMI in MARIAN for Viztool
+wsd <- wsd %>% mutate(wsd,
+                          REGION= case_when(
+                          ISLAND =="Guam" ~ "GUA",
+                          REGION == "MARIAN" & ISLAND !="Guam" ~ "CNMI",
+                          TRUE ~ REGION))
+
+wsd <- wsd %>% mutate(wsd,
+                          REGION_NAME= case_when(
+                            ISLAND =="Guam" ~ "Guam",
+                            REGION == "CNMI"~ "Commonwealth of the Northern Mariana Islands",
+                            TRUE ~ REGION_NAME))
 
 #Remove PRIA 2016 and 2017 surveys- done off cycle for the bleaching response, and do not have all metrics
 wsd$REGION_YEAR<-paste(wsd$REGION,wsd$ANALYSIS_YEAR,sep = "_")
@@ -332,8 +345,8 @@ wsd[wsd$REGION %in% c("SAMOA") & wsd$OBS_YEAR %in% seq(2015,2016),]$ANALYSIS_YEA
 wsd[wsd$REGION %in% c("PRIAs") & wsd$OBS_YEAR %in% seq(2014,2015),]$ANALYSIS_YEAR<-"2014-15"
 wsd[wsd$REGION %in% c("PRIAs") & wsd$OBS_YEAR %in% seq(2017,2018),]$ANALYSIS_YEAR<-"2017-18"
 
-#Define Analysis Sector-some sectors are pooled together
-wsd$ANALYSIS_SEC<-wsd$PooledSector_Cover_Viztool
+#Define Analysis Sector-some sectors are pooled together - we are using the demographic pooled sectors because the cover and demographic data will need to be merged into 1 file
+wsd$ANALYSIS_SEC<-wsd$PooledSector_Demo_Viztool
 
 sectors$AREA_HA<-as.numeric(sectors$AREA_HA)
 
@@ -375,8 +388,14 @@ colnames(dpst$SampleSE)[9:ncol(dpst$SampleSE)] <- paste("SE.", colnames(dpst$Sam
 
 dpst<-left_join(dpst$Mean,dpst$SampleSE)
 ri<-read.csv("T:/Benthic/Data/Lookup Tables/NCRMP_Regions_Islands.csv")
+ri <- ri %>% mutate(ri,
+                      REGION_NAME= case_when(
+                        ISLAND =="Guam" ~ "Guam",
+                        REGION_NAME == "Mariana Archipelago"~ "Commonwealth of the Northern Mariana Islands",
+                        TRUE ~ REGION_NAME))
+
 dpst<-left_join(dpst,ri)
-write.csv(dpst, file="T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Stratum/BenthicCover_2010-2019_Tier1_STRATA_v2.csv",row.names = F)
+write.csv(dpst, file="T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Stratum/BenthicCover_2010-2019_Tier1_STRATA_v3.csv",row.names = F)
 
 #SAVE BY SECTOR PER YEAR
 OUTPUT_LEVEL<-c("REGION","ISLAND","ANALYSIS_SEC","ANALYSIS_YEAR") 
@@ -388,7 +407,7 @@ colnames(dpsec$PooledSE)[6:ncol(dpsec$PooledSE)] <- paste("SE.", colnames(dpsec$
 dpsec<-left_join(dpsec$Mean,dpsec$PooledSE)
 dpsec<-left_join(dpsec,ri)
 
-write.csv(dpsec, file="T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Sector/BenthicCover_2010-2019_Tier1_SECTOR_v2.csv",row.names = F)
+write.csv(dpsec, file="T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Sector/BenthicCover_2010-2019_Tier1_SECTOR_v3.csv",row.names = F)
 
 
 # e.g. SAVE BY ISLAND PER YEAR
@@ -401,7 +420,7 @@ colnames(dpis$PooledSE)[5:ncol(dpis$PooledSE)] <- paste("SE.", colnames(dpis$Poo
 dpis<-left_join(dpis$Mean,dpis$PooledSE)
 dpis<-left_join(dpis,ri)
 
-write.csv(dpis, file="T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Island/BenthicCover_2010-2019_Tier1_ISLAND_v2.csv",row.names = F)
+write.csv(dpis, file="T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Island/BenthicCover_2010-2019_Tier1_ISLAND_v3.csv",row.names = F)
 
 
 # e.g. SAVE BY REGION PER YEAR
@@ -411,7 +430,7 @@ colnames(dpr$Mean)[4:ncol(dpr$Mean)] <- paste("Mean.", colnames(dpr$Mean[,4:ncol
 colnames(dpr$PooledSE)[4:ncol(dpr$PooledSE)] <- paste("SE.", colnames(dpr$PooledSE[,4:ncol(dpr$PooledSE)]), sep = "")
 
 dpr<-left_join(dpr$Mean,dpr$PooledSE)
-write.csv(dpr, file="T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Region/BenthicCover_2010-2019_Tier1_Region_v2.csv",row.names = F)
+write.csv(dpr, file="T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Region/BenthicCover_2010-2019_Tier1_Region_v3.csv",row.names = F)
 
 
 
