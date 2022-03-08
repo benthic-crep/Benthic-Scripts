@@ -8,55 +8,54 @@ source("C:/Users/Courtney.S.Couch/Documents/GitHub/Benthic-Scripts/Functions/Ben
 source("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/lib/core_functions.R")
 source("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/lib/GIS_functions.R")
 
-
 #Read in DEMOGRAPHIC data ####
-st.demo<-read.csv("T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Stratum/BenthicREA_stratadata_GENUS.csv")
+st.demo<-read.csv("T:/Benthic/Data/Data Requests/NCRMPViztool/2022/unformatted/BenthicREA_STRATA_Demo_Viztool.csv")
 st.demo<-st.demo[,c("REGION","ISLAND", "SECTOR","DB_RZ","ANALYSIS_YEAR","n","GENUS_CODE","AdColDen","JuvColDen","Mean_BLE_Prev","Mean_TotDZ_Prev","SE_AdColDen","SE_JuvColDen","SE_BLE_Prev","SE_TotDZ_Prev")]
 colnames(st.demo)[colnames(st.demo)=="DB_RZ"]<-"STRATA"
 colnames(st.demo)[colnames(st.demo)=="n"]<-"N_Demo"
 
 
-sec.demo<-read.csv("T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Sector/BenthicREA_sectordata_GENUS.csv")
-sec.demo<-sec.demo[,c("REGION","PooledSector_Demo_Viztool","ANALYSIS_YEAR","n","GENUS_CODE","Mean_AdColDen","Mean_JuvColDen","Mean_BLE_Prev","Mean_TotDZ_Prev","SE_AdColDen","SE_JuvColDen","SE_BLE_Prev","SE_TotDZ_Prev")]
+sec.demo<-read.csv("T:/Benthic/Data/Data Requests/NCRMPViztool/2022/unformatted/BenthicREA_SECTOR_Demo_Viztool.csv")
+sec.demo<-sec.demo[,c("REGION","PooledSector_Viztool","ANALYSIS_YEAR","n","GENUS_CODE","Mean_AdColDen","Mean_JuvColDen","Mean_BLE_Prev","Mean_TotDZ_Prev","SE_AdColDen","SE_JuvColDen","SE_BLE_Prev","SE_TotDZ_Prev")]
 colnames(sec.demo)[colnames(sec.demo)=="PooledSector_Demo_Viztool"]<-"SECTOR"
 colnames(sec.demo)[colnames(sec.demo)=="n"]<-"N_Demo"
 
-isl.demo<-read.csv("T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Island/BenthicREA_islanddata_GENUS.csv")
+isl.demo<-read.csv("T:/Benthic/Data/Data Requests/NCRMPViztool/2022/unformatted/BenthicREA_ISLAND_Demo_Viztool.csv")
 isl.demo<-isl.demo[,c("REGION","ISLAND","ANALYSIS_YEAR","n","GENUS_CODE","Mean_AdColDen","Mean_JuvColDen","Mean_BLE_Prev","Mean_TotDZ_Prev","SE_AdColDen","SE_JuvColDen","SE_BLE_Prev","SE_TotDZ_Prev")]
 colnames(isl.demo)[colnames(isl.demo)=="n"]<-"N_Demo"
 
-r.demo<-read.csv("T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Region/BenthicREA_regiondata_GENUS.csv")
+r.demo<-read.csv("T:/Benthic/Data/Data Requests/NCRMPViztool/2022/unformatted/BenthicREA_REGION_Demo_Viztool.csv")
 r.demo<-r.demo[,c("REGION","ANALYSIS_YEAR","n","GENUS_CODE","Mean_AdColDen","Mean_JuvColDen","Mean_BLE_Prev","Mean_TotDZ_Prev","SE_AdColDen","SE_JuvColDen","SE_BLE_Prev","SE_TotDZ_Prev")]
 colnames(r.demo)[colnames(r.demo)=="n"]<-"N_Demo"
 
 site.demo<-read.csv("T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Site/2022ViztoolSites_Demo.csv")
-site.demo<-unique(site.demo[,c("REGION","PooledSector_Demo_Viztool","DB_RZ","ANALYSIS_YEAR","SITEVISITID","SITE","LATITUDE","LONGITUDE")])
+site.demo<-unique(site.demo[,c("REGION","PooledSector_Viztool","DB_RZ","ANALYSIS_YEAR","SITEVISITID","SITE","LATITUDE","LONGITUDE")])
 head(site.demo)
 
 
 #Read in COVER dat3
-st.cover<-read.csv("T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Stratum/BenthicCover_2010-2019_Tier1_STRATA_v3.csv")
+st.cover<-read.csv("T:/Benthic/Data/Data Requests/NCRMPViztool/2022/unformatted/BenthicCover_2010-2019_Tier1_STRATA_Viztool.csv")
 st.cover<-st.cover[,c("REGION_NAME","REGION","ISLAND","ISLANDCODE", "ANALYSIS_SEC","STRATA","ANALYSIS_YEAR","N","Mean.CORAL","Mean.CCA","Mean.MA","SE.CORAL","SE.CCA","SE.MA")]
 st.cover$GENUS_CODE<-"SSSS"
 colnames(st.cover)[colnames(st.cover)=="N"]<-"N_Cover"
 
-sec.cover<-read.csv("T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Sector/BenthicCover_2010-2019_Tier1_SECTOR_v3.csv")
+sec.cover<-read.csv("T:/Benthic/Data/Data Requests/NCRMPViztool/2022/unformatted/BenthicCover_2010-2019_Tier1_SECTOR_Viztool.csv")
 sec.cover<-sec.cover[,c("REGION_NAME","REGION","ISLAND","ISLANDCODE", "ANALYSIS_SEC","ANALYSIS_YEAR","N","Mean.CORAL","Mean.CCA","Mean.MA","SE.CORAL","SE.CCA","SE.MA")]
 sec.cover$GENUS_CODE<-"SSSS"
 colnames(sec.cover)[colnames(sec.cover)=="N"]<-"N_Cover"
 
-isl.cover<-read.csv("T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Island/BenthicCover_2010-2019_Tier1_ISLAND_v3.csv")
+isl.cover<-read.csv("T:/Benthic/Data/Data Requests/NCRMPViztool/2022/unformatted/BenthicCover_2010-2019_Tier1_ISLAND_Viztool.csv")
 isl.cover<-isl.cover[,c("REGION_NAME","REGION","ISLAND","ISLANDCODE","ANALYSIS_YEAR","N","Mean.CORAL","Mean.CCA","Mean.MA","SE.CORAL","SE.CCA","SE.MA")]
 isl.cover$GENUS_CODE<-"SSSS"
 colnames(isl.cover)[colnames(isl.cover)=="N"]<-"N_Cover"
 
-r.cover<-read.csv("T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Region/BenthicCover_2010-2019_Tier1_REGION_v3.csv")
+r.cover<-read.csv("T:/Benthic/Data/Data Requests/NCRMPViztool/2022/unformatted/BenthicCover_2010-2019_Tier1_REGION_Viztool.csv")
 r.cover<-r.cover[,c("REGION","ANALYSIS_YEAR","N","Mean.CORAL","Mean.CCA","Mean.MA","SE.CORAL","SE.CCA","SE.MA")]
 r.cover$GENUS_CODE<-"SSSS"
 colnames(r.cover)[colnames(r.cover)=="N"]<-"N_Cover"
 
 site.cover<-read.csv("T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Site/2022ViztoolSites_Cover.csv")
-site.cover<-site.cover[,c("REGION","PooledSector_Demo_Viztool","STRATAcode","ANALYSIS_YEAR","SITEVISITID","SITE","LATITUDE","LONGITUDE")]
+site.cover<-site.cover[,c("REGION","PooledSector_Viztool","STRATAcode","ANALYSIS_YEAR","SITEVISITID","SITE","LATITUDE","LONGITUDE")]
 site.cover$GENUS_CODE<-"SSSS"
 
 
@@ -113,10 +112,12 @@ secname <- secname %>% mutate(secname,
                                 TRUE ~ REGION_NAME))
 #Change column names to match data
 colnames(secname)[colnames(secname)=="SECTOR"]<-"SECTOR" 
-colnames(seclu)[colnames(seclu)=="PooledSector_Demo_Viztool"]<-"SECTOR" #subset just acute diseased colonies
+colnames(seclu)[colnames(seclu)=="PooledSector_Viztool"]<-"SECTOR" #subset just acute diseased colonies
 colnames(seclu)[colnames(seclu)=="STRATAcode"]<-"STRATA" #subset just acute diseased colonies
-colnames(site)[colnames(site)=="PooledSector_Demo_Viztool"]<-"SECTOR" #subset just acute diseased colonies
-colnames(site)[colnames(site)=="DB_RZ"]<-"STRATA" #subset just acute diseased colonies
+colnames(site.demo)[colnames(site.demo)=="PooledSector_Viztool"]<-"SECTOR" #subset just acute diseased colonies
+colnames(site.demo)[colnames(site.demo)=="DB_RZ"]<-"STRATA" #subset just acute diseased colonies
+colnames(site.cover)[colnames(site.cover)=="PooledSector_Viztool"]<-"SECTOR" #subset just acute diseased colonies
+colnames(site.cover)[colnames(site.cover)=="DB_RZ"]<-"STRATA" #subset just acute diseased colonies
 
 #Change sarigan, alamagan and guguan's island name
 seclu$ISLAND<-ifelse(seclu$ISLAND %in% c("Sarigan","Alamagan","Guguan"),"Sarigan, Alamagan, Guguan",seclu$ISLAND)
@@ -125,19 +126,28 @@ seclu$ISLANDCODE<-ifelse(seclu$ISLAND %in% c("Sarigan, Alamagan, Guguan"),"SGA",
 #Remove Maro, Midway and Laysan since they aren't part of the NCRMP islands
 remove<-c("Maro","Midway","Laysan")
 seclu<-filter(seclu,! ISLAND %in% remove)
-site<-filter(site,! SECTOR %in% remove)
+site.cover<-filter(site.cover,! SECTOR %in% remove)
+site.demo<-filter(site.demo,! SECTOR %in% remove)
 
 
 
 #Merge sector and strata names to SITE data
 st.lu<-unique(seclu[,c("REGION_NAME","REGION","ISLAND","ISLANDCODE","SECTOR","STRATAname","STRATA")]) #make sure to use unique because we are pooling certain sectors together (e.g. Tut_aunuu)
 
-nrow(site)
+
+nrow(site.demo)
 #add Strataname
-site<-left_join(site,st.lu) 
-site<-left_join(site,secname)
-nrow(site)
-View(site)
+site.demo<-left_join(site.demo,st.lu) 
+site.demo<-left_join(site.demo,secname)
+nrow(site.demo)
+View(site.demo)
+
+nrow(site.cover)
+#add Strataname
+site.cover<-left_join(site.cover,st.lu) 
+site.cover<-left_join(site.cover,secname)
+nrow(site.cover)
+View(site.cover)
 
 
 #Include all possible STRATA and add NA values for the strata that weren't sampled each year ####
@@ -152,8 +162,9 @@ st.lu_years <- st.lu %>% left_join(st %>% distinct(REGION, ANALYSIS_YEAR,GENUS_C
 
 demo.st<-full_join(st,st.lu_years) %>%
   left_join(secname) %>%
-  mutate(N = replace_na(N,0))
-
+  mutate(N_Demo = replace_na(N_Demo,0)) %>%
+  mutate(N_Cover = replace_na(N_Cover,0))
+  
 demo.st<-filter(demo.st, !ISLANDCODE %in% c("SAR","GUG","ALA"))
 View(demo.st)
 
@@ -177,7 +188,8 @@ sec.lu_years <- sec.lu %>% left_join(sec %>% distinct(REGION, ANALYSIS_YEAR,GENU
 
 demo.sec<-full_join(sec,sec.lu_years) %>%
   left_join(secname) %>%
-  mutate(N = replace_na(N,0))
+  mutate(N_Demo = replace_na(N_Demo,0)) %>%
+  mutate(N_Cover = replace_na(N_Cover,0))
 
 demo.sec<-filter(demo.sec, !ISLANDCODE %in% c("SAR","GUG","ALA"))
 View(demo.sec)
@@ -193,11 +205,20 @@ isl<-left_join(isl,isl.lu)
 isl.lu_years <- isl.lu %>% left_join(isl %>% distinct(REGION, ANALYSIS_YEAR,GENUS_CODE), by = c("REGION"))
 
 demo.isl<-full_join(isl,isl.lu_years) %>%
-  mutate(N = replace_na(N,0))
+  mutate(N_Demo = replace_na(N_Demo,0)) %>%
+  mutate(N_Cover = replace_na(N_Cover,0))
 
 demo.isl<-filter(demo.isl, !ISLANDCODE %in% c("SAR","GUG","ALA"))
 View(demo.isl)
 
+#Add region names to the regional dataframe
+demo.r<-r %>% mutate(REGION_NAME=recode(REGION,
+                                        `GUA`="Guam",
+                                        `CNMI`="Commonwealth of the Northern Mariana Islands",
+                                        `MHI`="Main Hawaiian Islands",
+                                        `NWHI`="Northwestern Hawaiian Islands",
+                                        `SAMOA`="American Samoa",
+                                        `PRIAs`="Pacific Remote Island Areas"))
 
 #Final formatting tweaks ####
 
@@ -212,17 +233,6 @@ demo.sec<-left_join(demo.sec,genlu)
 demo.isl<-left_join(demo.isl,genlu)
 demo.r<-left_join(demo.r,genlu)
 
-#Add region names to the regional dataframe
-demo.r<-r %>% mutate(REGION_NAME=recode(REGION,
-                                        `GUA`="Guam",
-                                        `CNMI`="Commonwealth of the Northern Mariana Islands",
-                                        `MHI`="Main Hawaiian Islands",
-                                        `NWHI`="Northwestern Hawaiian Islands",
-                                        `SAMOA`="American Samoa",
-                                        `PRIAs`="Pacific Remote Island Areas"))
-
-
-
 
 #remove years before 2013
 years<-c("2013","2013-15","2014-15","2014","2015","2016","2015-16","2017-18","2017","2018","2019")
@@ -231,7 +241,8 @@ demo.st<-subset(demo.st,ANALYSIS_YEAR %in% years);View(demo.st)
 demo.sec<-subset(demo.sec,ANALYSIS_YEAR %in% years);View(demo.sec)
 demo.isl<-subset(demo.isl,ANALYSIS_YEAR %in% years);View(demo.isl)
 demo.r<-subset(demo.r,ANALYSIS_YEAR %in% years);View(demo.r)
-site<-subset(site,ANALYSIS_YEAR %in% years);View(site)
+site.demo<-subset(site.demo,ANALYSIS_YEAR %in% years);View(site.demo)
+site.cover<-subset(site.cover,ANALYSIS_YEAR %in% years);View(site.cover)
 
 
 #Add Columns for year start and end based on analysis year
@@ -302,9 +313,13 @@ demo.r$SurveyYearStart<-CalcStartYr(demo.r)
 demo.r$SurveyYearEnd<-CalcEndYr(demo.r)
 demo.r$ANALYSIS_YEAR_new<-CalcNewAnalysisYear(demo.r)
 
-site$SurveyYearStart<-CalcStartYr(site)
-site$SurveyYearEnd<-CalcEndYr(site)
-site$ANALYSIS_YEAR_new<-CalcNewAnalysisYear(site)
+site.cover$SurveyYearStart<-CalcStartYr(site.cover)
+site.cover$SurveyYearEnd<-CalcEndYr(site.cover)
+site.cover$ANALYSIS_YEAR_new<-CalcNewAnalysisYear(site.cover)
+
+site.demo$SurveyYearStart<-CalcStartYr(site.demo)
+site.demo$SurveyYearEnd<-CalcEndYr(site.demo)
+site.demo$ANALYSIS_YEAR_new<-CalcNewAnalysisYear(site.demo)
 
 #Change Stata names to match AOI Naming Convention
 ChangeStrataCode<-function(data){
@@ -357,33 +372,59 @@ ColumnNameChange<-function(data){
 }
 
 demo.st<-ChangeStrataCode(demo.st)
-site<-ChangeStrataCode(site)
+site.demo<-ChangeStrataCode(site.demo)
+site.cover<-ChangeStrataCode(site.cover)
 
 demo.st<-ColumnNameChange(demo.st)
 demo.sec<-ColumnNameChange(demo.sec)
 demo.isl<-ColumnNameChange(demo.isl)
 demo.r<-ColumnNameChange(demo.r)
-site<-ColumnNameChange(site)
+site.demo<-ColumnNameChange(site.demo)
+site.cover<-ColumnNameChange(site.cover)
 
 
-demo.st<-demo.st[,c("JURISDICTIONname","JURISDICTIONcode","SUBJURISDICTIONname","SUBJURISDICTIONcode", "SECTORname","SECTORcode","STRATAname","STRATAcode","SurveyYearStart","SurveyYearEnd","AnalysisYear","N","TaxonomicResolution","TaxonomicCode","ScientificName",
+demo.st<-demo.st[,c("JURISDICTIONname","JURISDICTIONcode","SUBJURISDICTIONname","SUBJURISDICTIONcode", "SECTORname","SECTORcode","STRATAname","STRATAcode","SurveyYearStart","SurveyYearEnd","AnalysisYear","N_Demo","N_Cover","TaxonomicResolution","TaxonomicCode","ScientificName",
                     "AdultDensity_colperm2","JuvenileDensity_colperm2","BleachingPrevalence_Pct","DiseasePrevalence_Pct","AdultDensity_SE",         
                     "JuvenileDensity_SE","BleachingPrevalence_SE","DiseasePrevalence_SE")]
-demo.sec<-demo.sec[,c("JURISDICTIONname","JURISDICTIONcode","SUBJURISDICTIONname","SUBJURISDICTIONcode", "SECTORname","SECTORcode","SurveyYearStart","SurveyYearEnd","AnalysisYear","N",
+demo.sec<-demo.sec[,c("JURISDICTIONname","JURISDICTIONcode","SUBJURISDICTIONname","SUBJURISDICTIONcode", "SECTORname","SECTORcode","SurveyYearStart","SurveyYearEnd","AnalysisYear","N_Demo","N_Cover",
                       "TaxonomicResolution","TaxonomicCode","ScientificName","AdultDensity_colperm2","JuvenileDensity_colperm2","BleachingPrevalence_Pct","DiseasePrevalence_Pct","AdultDensity_SE",         
                       "JuvenileDensity_SE","BleachingPrevalence_SE","DiseasePrevalence_SE")]
-demo.isl<-demo.isl[,c("JURISDICTIONname","JURISDICTIONcode","SUBJURISDICTIONname","SUBJURISDICTIONcode","SurveyYearStart","SurveyYearEnd","AnalysisYear","N",
+demo.isl<-demo.isl[,c("JURISDICTIONname","JURISDICTIONcode","SUBJURISDICTIONname","SUBJURISDICTIONcode","SurveyYearStart","SurveyYearEnd","AnalysisYear","N_Demo","N_Cover",
                       "TaxonomicResolution","TaxonomicCode","ScientificName","AdultDensity_colperm2","JuvenileDensity_colperm2","BleachingPrevalence_Pct","DiseasePrevalence_Pct","AdultDensity_SE",         
                       "JuvenileDensity_SE","BleachingPrevalence_SE","DiseasePrevalence_SE")]
-demo.r<-demo.r[,c("JURISDICTIONname","JURISDICTIONcode","SurveyYearStart","SurveyYearEnd","AnalysisYear","N",
+demo.r<-demo.r[,c("JURISDICTIONname","JURISDICTIONcode","SurveyYearStart","SurveyYearEnd","AnalysisYear","N_Demo","N_Cover",
                   "TaxonomicResolution","TaxonomicCode","ScientificName","AdultDensity_colperm2","JuvenileDensity_colperm2","BleachingPrevalence_Pct","DiseasePrevalence_Pct","AdultDensity_SE",         
                   "JuvenileDensity_SE","BleachingPrevalence_SE","DiseasePrevalence_SE")]
-site<-site[,c("JURISDICTIONname","JURISDICTIONcode","SUBJURISDICTIONname","SUBJURISDICTIONcode", "SECTORname","SECTORcode","STRATAname","STRATAcode","SurveyYearStart","SurveyYearEnd","AnalysisYear","SiteID",
+site.cover<-site.cover[,c("JURISDICTIONname","JURISDICTIONcode","SUBJURISDICTIONname","SUBJURISDICTIONcode", "SECTORname","SECTORcode","STRATAname","STRATAcode","SurveyYearStart","SurveyYearEnd","AnalysisYear","SiteID",
               "LATITUDE","LONGITUDE")]
+
+site.demo<-site.demo[,c("JURISDICTIONname","JURISDICTIONcode","SUBJURISDICTIONname","SUBJURISDICTIONcode", "SECTORname","SECTORcode","STRATAname","STRATAcode","SurveyYearStart","SurveyYearEnd","AnalysisYear","SiteID",
+              "LATITUDE","LONGITUDE")]
+
+#Separate all hard coral taxa and functional cover into 1 set of csv files
+st.all<-filter(demo.st,TaxonomicCode =="SSSS")
+sec.all<-filter(demo.sec,TaxonomicCode =="SSSS")
+isl.all<-filter(demo.isl,TaxonomicCode =="SSSS")
+r.all<-filter(demo.r,TaxonomicCode =="SSSS")
+
+#and genera into another set
+st.gen<-filter(demo.st,TaxonomicCode !="SSSS")
+sec.gen<-filter(demo.sec,TaxonomicCode !="SSSS")
+isl.gen<-filter(demo.isl,TaxonomicCode !="SSSS")
+r.gen<-filter(demo.r,TaxonomicCode !="SSSS")
+
+
 # 
-write.csv(demo.st,file="T:/Benthic/Data/Data Requests/NCRMPViztool/2022/PacificNCRMPviztool2022_STRATA_demo_v2.csv",row.names = F)
-write.csv(demo.sec,file="T:/Benthic/Data/Data Requests/NCRMPViztool/2022/PacificNCRMPviztool2022_SECTOR_demo_v2.csv",row.names = F)
-write.csv(demo.isl,file="T:/Benthic/Data/Data Requests/NCRMPViztool/2022/PacificNCRMPviztool2022_ISLAND_demo_v2.csv",row.names = F)
-write.csv(demo.r,file="T:/Benthic/Data/Data Requests/NCRMPViztool/2022/PacificNCRMPviztool2022_REGION_demo_v2.csv",row.names = F)
-write.csv(site,file="T:/Benthic/Data/Data Requests/NCRMPViztool/2022/PacificNCRMPviztool2022_SITE_demo_v2.csv",row.names = F)
+write.csv(st.all,file="T:/Benthic/Data/Data Requests/NCRMPViztool/2022/formatted/PacificNCRMPviztool2022_STRATA_All_Taxa.csv",row.names = F)
+write.csv(sec.all,file="T:/Benthic/Data/Data Requests/NCRMPViztool/2022/formatted/PacificNCRMPviztool2022_SECTOR_All_Taxa.csv",row.names = F)
+write.csv(isl.all,file="T:/Benthic/Data/Data Requests/NCRMPViztool/2022/formatted/PacificNCRMPviztool2022_ISLAND_All_Taxa.csv",row.names = F)
+write.csv(r.all,file="T:/Benthic/Data/Data Requests/NCRMPViztool/2022/formatted/PacificNCRMPviztool2022_REGION_All_Taxa.csv",row.names = F)
+
+write.csv(st.gen,file="T:/Benthic/Data/Data Requests/NCRMPViztool/2022/formatted/PacificNCRMPviztool2022_STRATA_By_Genus.csv",row.names = F)
+write.csv(sec.gen,file="T:/Benthic/Data/Data Requests/NCRMPViztool/2022/formatted/PacificNCRMPviztool2022_SECTOR_By_Genus.csv",row.names = F)
+write.csv(isl.gen,file="T:/Benthic/Data/Data Requests/NCRMPViztool/2022/formatted/PacificNCRMPviztool2022_ISLAND_By_Genus.csv",row.names = F)
+write.csv(r.gen,file="T:/Benthic/Data/Data Requests/NCRMPViztool/2022/formatted/PacificNCRMPviztool2022_REGION_By_Genus.csv",row.names = F)
+
+write.csv(site.demo,file="T:/Benthic/Data/Data Requests/NCRMPViztool/2022/formatted/PacificNCRMPviztool2022_SITE_demo.csv",row.names = F)
+write.csv(site.cover,file="T:/Benthic/Data/Data Requests/NCRMPViztool/2022/formatted/PacificNCRMPviztool2022_SITE_cover.csv",row.names = F)
 

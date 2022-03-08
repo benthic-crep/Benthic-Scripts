@@ -82,12 +82,12 @@ site<-filter(site,! SECTOR %in% remove)
 #Merge sector and strata names to SITE data
 st.lu<-unique(seclu[,c("REGION_NAME","REGION","ISLAND","ISLANDCODE","SECTOR","STRATAname","STRATA")]) #make sure to use unique because we are pooling certain sectors together (e.g. Tut_aunuu)
 
-nrow(site)
+nrow(site.demo)
 #add Strataname
-site<-left_join(site,st.lu) 
-site<-left_join(site,secname)
-nrow(site)
-View(site)
+site.demo<-left_join(site.demo,st.lu) 
+site.demo<-left_join(site.demo,secname)
+nrow(site.demo)
+View(site.demo)
 
 
 #Include all possible STRATA and add NA values for the strata that weren't sampled each year ####

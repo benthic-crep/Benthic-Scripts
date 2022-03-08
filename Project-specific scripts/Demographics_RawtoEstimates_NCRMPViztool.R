@@ -50,7 +50,7 @@ seclu<-read.csv("T:/Benthic/Data/Lookup Tables/PacificNCRMP_Benthic_Sectors_Look
 site.data.gen2<-left_join(site.data.gen2,seclu)
 
 #Create columns for Stata name (combo of Sector, reef zone and depth bin) & DB_RZ (depth bin/reef zone)
-site.data.gen2$STRATANAME<-paste(site.data.gen2$PooledSector_Demo_Viztool,site.data.gen2$REEF_ZONE,site.data.gen2$DEPTH_BIN,sep="_")
+site.data.gen2$STRATANAME<-paste(site.data.gen2$PooledSector_Viztool,site.data.gen2$REEF_ZONE,site.data.gen2$DEPTH_BIN,sep="_")
 site.data.gen2$DB_RZ<-paste(substring(site.data.gen2$REEF_ZONE,1,1), substring(site.data.gen2$DEPTH_BIN,1,1), sep="")
 
 write.csv(site.data.gen2,"T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Site/2022ViztoolSites_Demo.csv")
@@ -75,7 +75,7 @@ site.data.gen2 <- site.data.gen2 %>% mutate(site.data.gen2,
 
 #Remove NWHI islands only surveyed by PMNM
 remove<-c("Laysan","Maro","Midway")
-site.data.gen2<-dplyr::filter(site.data.gen2, !PooledSector_Demo_Viztool %in% remove)
+site.data.gen2<-dplyr::filter(site.data.gen2, !PooledSector_Viztool %in% remove)
 
 #Remove PRIA 2016 and 2017 surveys- done off cycle for the bleaching response, and do not have all metrics, but keep Wake
 site.data.gen2$REGION_YEAR<-paste(site.data.gen2$REGION,site.data.gen2$ANALYSIS_YEAR,sep = "_")
@@ -86,7 +86,7 @@ remove<-c("PRIAs_2016","PRIAs_2017")
 site.data.gen2<-dplyr::filter(site.data.gen2, !REGION_YEAR %in% remove)
 
 #remove Guam MPA 2017 data
-site.data.gen2<-dplyr::filter(site.data.gen2, !(PooledSector_Demo_Viztool == "GUA_MP" & ANALYSIS_YEAR == "2017"))
+site.data.gen2<-dplyr::filter(site.data.gen2, !(PooledSector_Viztool == "GUA_MP" & ANALYSIS_YEAR == "2017"))
 
 
 #Change Analysis year for PRIAs- you will need to do this for regional estiamtes that include both wake (2014,2017) and other PRIAs (2015 and 2018)
@@ -101,7 +101,7 @@ head(site.data.gen2)
 
 
 #QC CHECK to make sure the sectors and strata pooled correctly
-data.test<-ddply(subset(site.data.gen2,GENUS_CODE=="SSSS"),.(REGION,PooledSector_Demo_Viztool,OBS_YEAR,STRATANAME),summarize,n=length(SITE))
+data.test<-ddply(subset(site.data.gen2,GENUS_CODE=="SSSS"),.(REGION,PooledSector_Viztool,OBS_YEAR,STRATANAME),summarize,n=length(SITE))
 sm.test<-ddply(subset(survey_master,Benthic=="1"&EXCLUDE_FLAG=="0"&OBS_YEAR>=2013),.(REGION,ISLAND,SEC_NAME,OBS_YEAR,REEF_ZONE,DEPTH_BIN),summarize,n=length(SITE))
 
 write.csv(data.test,"tmp_sitedataQC.csv")
@@ -117,15 +117,15 @@ write.csv(sm.test,"tmp_sitemasterQC.csv")
 
 # Genus-Level Metrics -----------------------------------------------------
 
-st.data.gen<-Calc_Strata_Metrics(site.data.gen2,grouping_field="GENUS_CODE",a_schema ="STRATANAME",d_schema="PooledSector_Demo_Viztool")
-sec.data.gen<-Calc_IslandorSector_Metrics(site.data.gen2,grouping_field="GENUS_CODE",a_schema ="STRATANAME",d_schema="PooledSector_Demo_Viztool")
+st.data.gen<-Calc_Strata_Metrics(site.data.gen2,grouping_field="GENUS_CODE",a_schema ="STRATANAME",d_schema="PooledSector_Viztool")
+sec.data.gen<-Calc_IslandorSector_Metrics(site.data.gen2,grouping_field="GENUS_CODE",a_schema ="STRATANAME",d_schema="PooledSector_Viztool")
 is.data.gen<-Calc_IslandorSector_Metrics(site.data.gen2,grouping_field="GENUS_CODE",a_schema ="STRATANAME",d_schema="ISLAND")
 r.data.gen<-Calc_Region_Metrics(site.data.gen2,grouping_field="GENUS_CODE",a_schema ="STRATANAME",d_schema = "REGION")
 
-write.csv(st.data.gen,file="T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Stratum/BenthicREA_stratadata_GENUS.csv",row.names=F)
-write.csv(is.data.gen,file="T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Island/BenthicREA_islanddata_GENUS.csv",row.names=F)
-write.csv(sec.data.gen,file="T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Sector/BenthicREA_sectordata_GENUS.csv",row.names=F)
-write.csv(r.data.gen,file="T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Region/BenthicREA_regiondata_GENUS.csv",row.names=F)
+write.csv(st.data.gen,file="T:/Benthic/Data/Data Requests/NCRMPViztool/2022/unformatted/BenthicREA_STRATA_Demo_Viztool.csv",row.names=F)
+write.csv(is.data.gen,file="T:/Benthic/Data/Data Requests/NCRMPViztool/2022/unformatted/BenthicREA_ISLAND_Demo_Viztool.csv",row.names=F)
+write.csv(sec.data.gen,file="T:/Benthic/Data/Data Requests/NCRMPViztool/2022/unformatted/BenthicREA_SECTOR_Demo_Viztool.csv",row.names=F)
+write.csv(r.data.gen,file="T:/Benthic/Data/Data Requests/NCRMPViztool/2022/unformatted/BenthicREA_REGION_Demo_Viztool.csv",row.names=F)
 
 
 #QC Checks
