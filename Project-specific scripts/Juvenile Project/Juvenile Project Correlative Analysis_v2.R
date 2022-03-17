@@ -26,6 +26,8 @@ library(survey)
 library(gridExtra)
 library(ggpubr)
 library(lemon)
+library(MuMIn)
+library(arm)
 
 setwd("T:/Benthic/Projects/Juvenile Project")
 
@@ -125,7 +127,7 @@ mod9<-svyglm(JuvColDen ~ scaled_MaxMaxDHW03
 
 summary(mod1);summary(mod2);summary(mod3);summary(mod4);summary(mod5);summary(mod6);summary(mod7);summary(mod8)
 psrsq(mod1);psrsq(mod9)
-AIC(modgaus)
+AIC(mod1)
 
 
 options(scipen=999) #prevents scientific notation
@@ -200,7 +202,71 @@ RED.MOD7 <- update(RED.MOD6, .~. -scaled_CCA) #drop 2-way interaction term
 anova(RED.MOD6, RED.MOD7) #LRT --> move forward w/ whichever model keeps/removes term
 
 #With backwards selection- nothing is signficant
+mod1<-svyglm(JuvColDen ~  scaled_CCA + scaled_SAND_RUB + scaled_MeanDepth + scaled_MaxMaxDHW03+
+               scaled_Mean_Mon_SST_Range + scaled_MeanWavePower + scaled_meanChla05,design=des, family="quasipoisson")
+mod2<-svyglm(JuvColDen ~  scaled_CCA + scaled_Mean_Mon_SST_Range + scaled_MeanWavePower + scaled_meanChla05,design=des, family="quasipoisson")
 
+mod3<-svyglm(JuvColDen ~  scaled_CCA,design=des, family="quasipoisson")
+
+AIC(mod1)
+AIC(mod2)
+AIC(mod3)
+
+#Model Averaging using MuMin
+global.model<-svyglm(JuvColDen ~  scaled_CCA + scaled_SAND_RUB + scaled_MeanDepth + scaled_MaxMaxDHW03+
+                       scaled_Mean_Mon_SST_Range + scaled_MeanWavePower + scaled_meanChla05+scaled_CORAL,design=des, family="quasipoisson")
+
+#Can't standarize with svyglm
+stz.model<-standardize(global.model,standardize.y=F)
+
+model.set<-dredge(global.model)
+
+
+#Generate a list of all possible models since I can't use dredge
+vars <- c("scaled_CCA","scaled_SAND_RUB", "scaled_MeanDepth", "scaled_MaxMaxDHW03",
+            "scaled_MeanWavePower","scaled_meanChla05","scaled_CORAL")
+
+
+models <- list()
+
+for (i in 1:7){
+  vc <- combn(vars,i)
+  for (j in 1:ncol(vc)){
+    model <- as.formula(paste0("JuvColDen ~", paste0(vc[,j], collapse = "+")))
+    models <- c(models, model)
+  }
+}
+
+mods<-lapply(models, function(x) svyglm(x,design=des,family="quasipoisson"))
+aics<-lapply(models, function(x) as.data.frame(AIC(svyglm(x,design=des,family="quasipoisson")))[2,]) #calcaulte AIC values for each model and consolidate them into a list
+minAIC<- Reduce(min,aics) #smallest AIC values of all models
+
+delAIC<-lapply(aics, function(x, minval) x- minval, minval = minAIC) #calculate deltaAIC values
+
+ll<-lapply(delAIC, function(x) exp(-0.5*x))
+sum_ll<-Reduce(sum,ll)
+AICw<-lapply(ll, function(x,sl) exp(-0.5*x)/sl,sl=sum_ll)
+
+top.mod<-Filter(function(x) x <2, delAIC) #subset top models (del AIC <2)
+mod.w<-unlist(top.mod, use.names = FALSE)
+
+#Top models- need to figure out how to more easily identify top models in the code above without manually digging through previous lists
+#This is a temporary workaround for now
+m1<-svyglm(JuvColDen ~ scaled_CCA + scaled_MaxMaxDHW03,design=des, family="quasipoisson")
+m2<-svyglm(JuvColDen ~ scaled_MaxMaxDHW03,design=des, family="quasipoisson")
+
+#extract coefficents and se 
+coeff<-c(m1$coefficients,m2$coefficients)
+coeff<-as.numeric(as.character(coeff))
+SEcoeff<-c(SE(m1),SE(m2))
+SEcoeff<-as.numeric(as.character(SEcoeff))
+df.mod<-as.numeric(as.character(m1$df.residual))
+test<-par.avg(x=coeff,se=SEcoeff,df=df.mod,weight=mod.w)
+
+
+
+
+#Partial Regression Plots
 m.all$Variable_plot <- factor(c("Coral Cover",
                                  "5 yr Mean Chla",
                                  "Mean Wave Power",

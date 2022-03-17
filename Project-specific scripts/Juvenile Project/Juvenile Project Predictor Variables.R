@@ -126,7 +126,7 @@ head(jwd_site)
 #Subset survey master and env columns of interest
 cols<-c("MISSIONID","DATE_","SITEVISITID", "OBS_YEAR", "REGION", "ISLAND","SEC_NAME", "SITE","REEF_ZONE",
                "DEPTH_BIN","STRATANAME", "LATITUDE_LOV", "LONGITUDE_LOV","DHW.MeanMax_Degree_Heating_Weeks_YR01","DHW.MeanMax_Degree_Heating_Weeks_YR03", "DHW.MeanMax_Degree_Heating_Weeks_YR10",
-        "DHW.MaxMax_Degree_Heating_Weeks_YR03","DHW.MaxMax_Degree_Heating_Weeks_YR10",
+        "DHW.MaxMax_Degree_Heating_Weeks_YR03","DHW.MaxMax_Degree_Heating_Weeks_YR10","DHW.Np10y_Major_Degree_Heating_Weeks_YR10",
         "mean_monthly_range_SST_CRW_Daily_YR10","mean_biweekly_range_SST_CRW_Daily_YR10","mean_annual_range_Chlorophyll_A_ESAOCCCI_8Day_YR10","mean_Chlorophyll_A_VIIRS_Monthly_750m_YR05",
         "mean_annual_range_Kd490_ESAOCCCI_8Day_YR10","mean_kdPAR_VIIRS_Weekly_YR10")
 sm_env<-SM[,cols]
@@ -224,6 +224,7 @@ View(humans_sum)
 eds_sum<-sm_env %>%
   group_by(REGION,ISLAND,SEC_NAME,STRATANAME) %>%
   summarize(MeanMaxDHW10=mean(DHW.MeanMax_Degree_Heating_Weeks_YR10,na.rm=T),MaxMaxDHW10=mean(DHW.MaxMax_Degree_Heating_Weeks_YR10,na.rm=T),
+            FreqDHW10=mean(DHW.Np10y_Major_Degree_Heating_Weeks_YR10,na.rm=T),
             MeanMaxDHW03=mean(DHW.MeanMax_Degree_Heating_Weeks_YR03,na.rm=T), MaxMaxDHW03=mean(DHW.MaxMax_Degree_Heating_Weeks_YR03,na.rm=T),
             Mean_Mon_SST_Range=mean(mean_monthly_range_SST_CRW_Daily_YR10, na.rm=T),Mean_BW_SST_Range=mean(mean_biweekly_range_SST_CRW_Daily_YR10,na.rm=T),
             Meankd490=mean(mean_annual_range_Kd490_ESAOCCCI_8Day_YR10,na.rm=T),meanChla05=mean(mean_Chlorophyll_A_VIIRS_Monthly_750m_YR05,na.rm=T))

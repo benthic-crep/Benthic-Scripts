@@ -181,7 +181,7 @@ site.data.gen3<-site.data.gen2[!site.data.gen2$REGION_YEAR %in% c("NWHI_2014","M
 table(site.data.gen2$REGION,site.data.gen2$OBS_YEAR)
 table(site.data.gen3$REGION,site.data.gen3$OBS_YEAR)
 
-
+length(unique(site.data.gen2$SITE))
 
 
 # CALCULATE DeltaDensity/Year for Correlative Analysis --------------------

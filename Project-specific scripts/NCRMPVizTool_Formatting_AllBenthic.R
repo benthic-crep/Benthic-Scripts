@@ -17,7 +17,7 @@ colnames(st.demo)[colnames(st.demo)=="n"]<-"N_Demo"
 
 sec.demo<-read.csv("T:/Benthic/Data/Data Requests/NCRMPViztool/2022/unformatted/BenthicREA_SECTOR_Demo_Viztool.csv")
 sec.demo<-sec.demo[,c("REGION","PooledSector_Viztool","ANALYSIS_YEAR","n","GENUS_CODE","Mean_AdColDen","Mean_JuvColDen","Mean_BLE_Prev","Mean_TotDZ_Prev","SE_AdColDen","SE_JuvColDen","SE_BLE_Prev","SE_TotDZ_Prev")]
-colnames(sec.demo)[colnames(sec.demo)=="PooledSector_Demo_Viztool"]<-"SECTOR"
+colnames(sec.demo)[colnames(sec.demo)=="PooledSector_Viztool"]<-"SECTOR"
 colnames(sec.demo)[colnames(sec.demo)=="n"]<-"N_Demo"
 
 isl.demo<-read.csv("T:/Benthic/Data/Data Requests/NCRMPViztool/2022/unformatted/BenthicREA_ISLAND_Demo_Viztool.csv")
@@ -35,17 +35,19 @@ head(site.demo)
 
 #Read in COVER dat3
 st.cover<-read.csv("T:/Benthic/Data/Data Requests/NCRMPViztool/2022/unformatted/BenthicCover_2010-2019_Tier1_STRATA_Viztool.csv")
-st.cover<-st.cover[,c("REGION_NAME","REGION","ISLAND","ISLANDCODE", "ANALYSIS_SEC","STRATA","ANALYSIS_YEAR","N","Mean.CORAL","Mean.CCA","Mean.MA","SE.CORAL","SE.CCA","SE.MA")]
+st.cover<-st.cover[,c("REGION","ISLAND", "ANALYSIS_SEC","STRATA","ANALYSIS_YEAR","N","Mean.CORAL","Mean.CCA","Mean.MA","SE.CORAL","SE.CCA","SE.MA")]
 st.cover$GENUS_CODE<-"SSSS"
 colnames(st.cover)[colnames(st.cover)=="N"]<-"N_Cover"
+colnames(st.cover)[colnames(st.cover)=="ANALYSIS_SEC"]<-"SECTOR"
 
 sec.cover<-read.csv("T:/Benthic/Data/Data Requests/NCRMPViztool/2022/unformatted/BenthicCover_2010-2019_Tier1_SECTOR_Viztool.csv")
-sec.cover<-sec.cover[,c("REGION_NAME","REGION","ISLAND","ISLANDCODE", "ANALYSIS_SEC","ANALYSIS_YEAR","N","Mean.CORAL","Mean.CCA","Mean.MA","SE.CORAL","SE.CCA","SE.MA")]
+sec.cover<-sec.cover[,c("REGION","ANALYSIS_SEC","ANALYSIS_YEAR","N","Mean.CORAL","Mean.CCA","Mean.MA","SE.CORAL","SE.CCA","SE.MA")]
 sec.cover$GENUS_CODE<-"SSSS"
 colnames(sec.cover)[colnames(sec.cover)=="N"]<-"N_Cover"
+colnames(sec.cover)[colnames(sec.cover)=="ANALYSIS_SEC"]<-"SECTOR"
 
 isl.cover<-read.csv("T:/Benthic/Data/Data Requests/NCRMPViztool/2022/unformatted/BenthicCover_2010-2019_Tier1_ISLAND_Viztool.csv")
-isl.cover<-isl.cover[,c("REGION_NAME","REGION","ISLAND","ISLANDCODE","ANALYSIS_YEAR","N","Mean.CORAL","Mean.CCA","Mean.MA","SE.CORAL","SE.CCA","SE.MA")]
+isl.cover<-isl.cover[,c("REGION","ISLAND","ANALYSIS_YEAR","N","Mean.CORAL","Mean.CCA","Mean.MA","SE.CORAL","SE.CCA","SE.MA")]
 isl.cover$GENUS_CODE<-"SSSS"
 colnames(isl.cover)[colnames(isl.cover)=="N"]<-"N_Cover"
 
@@ -73,43 +75,32 @@ sec.demo$ANALYSIS_YEAR<-ChangeAnalysisYear(sec.demo)
 isl.demo$ANALYSIS_YEAR<-ChangeAnalysisYear(isl.demo)
 r.demo$ANALYSIS_YEAR<-ChangeAnalysisYear(r.demo)
 
+#Change island from SGA to Sarigan, Alamagan, Guguan
+st.demo <- st.demo %>% mutate(st.demo,
+                        ISLAND= case_when(
+                          SECTOR %in% c("Guguan", "Alamagan", "Sarigan") ~ "Sarigan, Alamagan, Guguan",
+                          TRUE ~ ISLAND))
+isl.demo <- isl.demo %>% mutate(isl.demo,
+                              ISLAND= case_when(
+                                ISLAND == "SGA" ~ "Sarigan, Alamagan, Guguan",
+                                TRUE ~ ISLAND))
+
+
 #Merge demographic and cover data
 st<-full_join(st.demo,st.cover)
 sec<-full_join(sec.demo,sec.cover)
 isl<-full_join(isl.demo,isl.cover)
 r<-full_join(r.demo, r.cover)
 
-View(st)
-View(sec)
-View(isl)
-View(r)
+# View(st)
+# View(sec)
+# View(isl)
+# View(r)
 
 #Read in look up table of all possible strata and sector names ####
 seclu<-read.csv("T:/Benthic/Data/Lookup Tables/PacificNCRMP_Benthic_Sectors_Lookup_v4.csv") #Look up for pooling scheme and table of strata names
 secname<-read.csv("T:/Benthic/Data/Lookup Tables/SectorNamelookup.csv") #list of all sectors (both SEC_NAME and different pooled sectors)-look up table of sector names
 
-#Change REGION and REGION_NAME for MARIAN for Viztool
-seclu <- seclu %>% mutate(seclu,
-                          REGION= case_when(
-                            ISLAND =="Guam" ~ "GUA",
-                            REGION == "MARIAN" & ISLAND !="Guam" ~ "CNMI",
-                            TRUE ~ REGION))
-seclu <- seclu %>% mutate(seclu,
-                          REGION_NAME= case_when(
-                            ISLAND =="Guam" ~ "Guam",
-                            REGION == "CNMI"~ "Commonwealth of the Northern Mariana Islands",
-                            TRUE ~ REGION_NAME))
-
-secname <- secname %>% mutate(secname,
-                              REGION= case_when(
-                                ISLAND =="Guam" ~ "GUA",
-                                REGION == "MARIAN" & ISLAND !="Guam" ~ "CNMI",
-                                TRUE ~ REGION))
-secname <- secname %>% mutate(secname,
-                              REGION_NAME= case_when(
-                                ISLAND =="Guam" ~ "Guam",
-                                REGION == "CNMI"~ "Commonwealth of the Northern Mariana Islands",
-                                TRUE ~ REGION_NAME))
 #Change column names to match data
 colnames(secname)[colnames(secname)=="SECTOR"]<-"SECTOR" 
 colnames(seclu)[colnames(seclu)=="PooledSector_Viztool"]<-"SECTOR" #subset just acute diseased colonies
@@ -130,6 +121,26 @@ site.cover<-filter(site.cover,! SECTOR %in% remove)
 site.demo<-filter(site.demo,! SECTOR %in% remove)
 
 
+secname <- secname %>% mutate(secname,
+                              REGION= case_when(
+                                ISLAND =="Guam" ~ "GUA",
+                                REGION == "MARIAN" & ISLAND !="Guam" ~ "CNMI",
+                                TRUE ~ REGION))
+seclu <- seclu %>% mutate(seclu,
+                          REGION= case_when(
+                            ISLAND =="Guam" ~ "GUA",
+                            REGION == "MARIAN" & ISLAND !="Guam" ~ "CNMI",
+                            TRUE ~ REGION))
+secname <- secname %>% mutate(secname,
+                          REGION_NAME= case_when(
+                          ISLAND =="Guam" ~ "Guam",
+                          REGION == "CNMI"~ "Commonwealth of the Northern Mariana Islands",
+                          TRUE ~ REGION_NAME))
+seclu <- seclu %>% mutate(seclu,
+                          REGION_NAME= case_when(
+                            ISLAND =="Guam" ~ "Guam",
+                            REGION == "CNMI"~ "Commonwealth of the Northern Mariana Islands",
+                            TRUE ~ REGION_NAME))
 
 #Merge sector and strata names to SITE data
 st.lu<-unique(seclu[,c("REGION_NAME","REGION","ISLAND","ISLANDCODE","SECTOR","STRATAname","STRATA")]) #make sure to use unique because we are pooling certain sectors together (e.g. Tut_aunuu)
@@ -140,19 +151,19 @@ nrow(site.demo)
 site.demo<-left_join(site.demo,st.lu) 
 site.demo<-left_join(site.demo,secname)
 nrow(site.demo)
-View(site.demo)
+#View(site.demo)
 
 nrow(site.cover)
 #add Strataname
 site.cover<-left_join(site.cover,st.lu) 
 site.cover<-left_join(site.cover,secname)
 nrow(site.cover)
-View(site.cover)
+#View(site.cover)
 
 
 #Include all possible STRATA and add NA values for the strata that weren't sampled each year ####
 
-st.lu<-unique(seclu[,c("REGION_NAME","REGION","ISLAND","ISLANDCODE","SECTOR","STRATAname","STRATA")]) #make sure to use unique because we are pooling certain sectors together (e.g. Tut_aunuu)
+st.lu<-unique(seclu[,c("REGION","ISLAND","SECTOR","STRATAname","STRATA")]) #make sure to use unique because we are pooling certain sectors together (e.g. Tut_aunuu)
 
 #add Strataname
 st<-left_join(st,st.lu) 
@@ -161,7 +172,7 @@ st<-left_join(st,st.lu)
 st.lu_years <- st.lu %>% left_join(st %>% distinct(REGION, ANALYSIS_YEAR,GENUS_CODE), by = c("REGION"))
 
 demo.st<-full_join(st,st.lu_years) %>%
-  left_join(secname) %>%
+  left_join(secname,by=c("REGION","SECTOR","ISLAND")) %>%
   mutate(N_Demo = replace_na(N_Demo,0)) %>%
   mutate(N_Cover = replace_na(N_Cover,0))
   
@@ -169,17 +180,9 @@ demo.st<-filter(demo.st, !ISLANDCODE %in% c("SAR","GUG","ALA"))
 View(demo.st)
 
 
-demo.st <- demo.st %>% mutate(demo.st,
-                              STRATAname= case_when(
-                                STRATA =="FS" ~ "Forereef Shallow",
-                                STRATA =="FM" ~ "Forereef Mid",
-                                STRATA =="FD" ~ "Forereef Deep",
-                                TRUE ~ STRATAname))
-
-
 #Include all possible SECTORS and add NA values for the sectors that weren't sampled each year ####
 
-sec.lu<-unique(seclu[,c("REGION_NAME","REGION","ISLAND","ISLANDCODE","SECTOR")]) #make sure to use unique because we are pooling certain sectors together (e.g. Tut_aunuu)
+sec.lu<-unique(seclu[,c("REGION","ISLAND","SECTOR")]) #make sure to use unique because we are pooling certain sectors together (e.g. Tut_aunuu)
 
 sec<-left_join(sec,sec.lu) 
 
@@ -187,7 +190,7 @@ sec<-left_join(sec,sec.lu)
 sec.lu_years <- sec.lu %>% left_join(sec %>% distinct(REGION, ANALYSIS_YEAR,GENUS_CODE), by = c("REGION"))
 
 demo.sec<-full_join(sec,sec.lu_years) %>%
-  left_join(secname) %>%
+  left_join(secname,by=c("REGION","SECTOR","ISLAND")) %>%
   mutate(N_Demo = replace_na(N_Demo,0)) %>%
   mutate(N_Cover = replace_na(N_Cover,0))
 
@@ -211,7 +214,6 @@ demo.isl<-full_join(isl,isl.lu_years) %>%
 demo.isl<-filter(demo.isl, !ISLANDCODE %in% c("SAR","GUG","ALA"))
 View(demo.isl)
 
-#Add region names to the regional dataframe
 demo.r<-r %>% mutate(REGION_NAME=recode(REGION,
                                         `GUA`="Guam",
                                         `CNMI`="Commonwealth of the Northern Mariana Islands",
@@ -383,18 +385,31 @@ site.demo<-ColumnNameChange(site.demo)
 site.cover<-ColumnNameChange(site.cover)
 
 
-demo.st<-demo.st[,c("JURISDICTIONname","JURISDICTIONcode","SUBJURISDICTIONname","SUBJURISDICTIONcode", "SECTORname","SECTORcode","STRATAname","STRATAcode","SurveyYearStart","SurveyYearEnd","AnalysisYear","N_Demo","N_Cover","TaxonomicResolution","TaxonomicCode","ScientificName",
-                    "AdultDensity_colperm2","JuvenileDensity_colperm2","BleachingPrevalence_Pct","DiseasePrevalence_Pct","AdultDensity_SE",         
-                    "JuvenileDensity_SE","BleachingPrevalence_SE","DiseasePrevalence_SE")]
+demo.st<-demo.st[,c("JURISDICTIONname","JURISDICTIONcode","SUBJURISDICTIONname","SUBJURISDICTIONcode", "SECTORname","SECTORcode","STRATAname","STRATAcode","SurveyYearStart","SurveyYearEnd","AnalysisYear","N_Demo","N_Cover",
+                    "TaxonomicResolution","TaxonomicCode","ScientificName",
+                    "CoralCover_Pct","CoralCover_error","CrustoseCoralineAlgaeCover_Pct","CrustoseCoralineAlgaeCover_error","MacroalgaeCover_Pct",
+                    "MacroalgaeCover_error","AdultDensity_colperm2","AdultDensity_SE","JuvenileDensity_colperm2","JuvenileDensity_SE","DiseasePrevalence_Pct",
+                    "DiseasePrevalence_SE","BleachingPrevalence_Pct","BleachingPrevalence_SE")]
+
 demo.sec<-demo.sec[,c("JURISDICTIONname","JURISDICTIONcode","SUBJURISDICTIONname","SUBJURISDICTIONcode", "SECTORname","SECTORcode","SurveyYearStart","SurveyYearEnd","AnalysisYear","N_Demo","N_Cover",
-                      "TaxonomicResolution","TaxonomicCode","ScientificName","AdultDensity_colperm2","JuvenileDensity_colperm2","BleachingPrevalence_Pct","DiseasePrevalence_Pct","AdultDensity_SE",         
-                      "JuvenileDensity_SE","BleachingPrevalence_SE","DiseasePrevalence_SE")]
+                      "TaxonomicResolution","TaxonomicCode","ScientificName",
+                      "CoralCover_Pct","CoralCover_error","CrustoseCoralineAlgaeCover_Pct","CrustoseCoralineAlgaeCover_error","MacroalgaeCover_Pct",
+                      "MacroalgaeCover_error","AdultDensity_colperm2","AdultDensity_SE","JuvenileDensity_colperm2","JuvenileDensity_SE","DiseasePrevalence_Pct",
+                      "DiseasePrevalence_SE","BleachingPrevalence_Pct","BleachingPrevalence_SE")]
+
+
 demo.isl<-demo.isl[,c("JURISDICTIONname","JURISDICTIONcode","SUBJURISDICTIONname","SUBJURISDICTIONcode","SurveyYearStart","SurveyYearEnd","AnalysisYear","N_Demo","N_Cover",
-                      "TaxonomicResolution","TaxonomicCode","ScientificName","AdultDensity_colperm2","JuvenileDensity_colperm2","BleachingPrevalence_Pct","DiseasePrevalence_Pct","AdultDensity_SE",         
-                      "JuvenileDensity_SE","BleachingPrevalence_SE","DiseasePrevalence_SE")]
+                      "TaxonomicResolution","TaxonomicCode","ScientificName",
+                      "CoralCover_Pct","CoralCover_error","CrustoseCoralineAlgaeCover_Pct","CrustoseCoralineAlgaeCover_error","MacroalgaeCover_Pct",
+                      "MacroalgaeCover_error","AdultDensity_colperm2","AdultDensity_SE","JuvenileDensity_colperm2","JuvenileDensity_SE","DiseasePrevalence_Pct",
+                      "DiseasePrevalence_SE","BleachingPrevalence_Pct","BleachingPrevalence_SE")]
+
 demo.r<-demo.r[,c("JURISDICTIONname","JURISDICTIONcode","SurveyYearStart","SurveyYearEnd","AnalysisYear","N_Demo","N_Cover",
-                  "TaxonomicResolution","TaxonomicCode","ScientificName","AdultDensity_colperm2","JuvenileDensity_colperm2","BleachingPrevalence_Pct","DiseasePrevalence_Pct","AdultDensity_SE",         
-                  "JuvenileDensity_SE","BleachingPrevalence_SE","DiseasePrevalence_SE")]
+                  "TaxonomicResolution","TaxonomicCode","ScientificName",
+                  "CoralCover_Pct","CoralCover_error","CrustoseCoralineAlgaeCover_Pct","CrustoseCoralineAlgaeCover_error","MacroalgaeCover_Pct",
+                  "MacroalgaeCover_error","AdultDensity_colperm2","AdultDensity_SE","JuvenileDensity_colperm2","JuvenileDensity_SE","DiseasePrevalence_Pct",
+                  "DiseasePrevalence_SE","BleachingPrevalence_Pct","BleachingPrevalence_SE")]
+
 site.cover<-site.cover[,c("JURISDICTIONname","JURISDICTIONcode","SUBJURISDICTIONname","SUBJURISDICTIONcode", "SECTORname","SECTORcode","STRATAname","STRATAcode","SurveyYearStart","SurveyYearEnd","AnalysisYear","SiteID",
               "LATITUDE","LONGITUDE")]
 
@@ -407,11 +422,56 @@ sec.all<-filter(demo.sec,TaxonomicCode =="SSSS")
 isl.all<-filter(demo.isl,TaxonomicCode =="SSSS")
 r.all<-filter(demo.r,TaxonomicCode =="SSSS")
 
+st.all[c("TaxonomicResolution","TaxonomicCode","ScientificName")]<-NA
+sec.all[c("TaxonomicResolution","TaxonomicCode","ScientificName")]<-NA
+isl.all[c("TaxonomicResolution","TaxonomicCode","ScientificName")]<-NA
+r.all[c("TaxonomicResolution","TaxonomicCode","ScientificName")]<-NA
+
 #and genera into another set
 st.gen<-filter(demo.st,TaxonomicCode !="SSSS")
 sec.gen<-filter(demo.sec,TaxonomicCode !="SSSS")
 isl.gen<-filter(demo.isl,TaxonomicCode !="SSSS")
 r.gen<-filter(demo.r,TaxonomicCode !="SSSS")
+
+
+
+#QC Checks
+
+QCcheck<-function(data){
+  data %>% 
+    dplyr::select(meta.cols) %>%
+    summarise(across(everything(), ~ sum(is.na(.x))))
+  
+  data[,meta.cols] <- lapply(st.all[,meta.cols], as.factor)
+  
+  m<-sapply(data[,meta.cols],levels) #Make sure levels of variables are correct
+  d<-sapply(data[,data.cols],summary) #make sure range of data is appropriate
+  
+  return(list(m,d))
+}
+
+#strata
+meta.cols<-c("JURISDICTIONname","JURISDICTIONcode","SUBJURISDICTIONname","SUBJURISDICTIONcode", "SECTORname","SECTORcode",
+             "STRATAname","STRATAcode","SurveyYearStart","SurveyYearEnd","AnalysisYear","N_Demo","N_Cover")
+data.cols<-c("CoralCover_Pct","CrustoseCoralineAlgaeCover_Pct","MacroalgaeCover_Pct","CoralCover_error","CrustoseCoralineAlgaeCover_error",
+             "MacroalgaeCover_error","AdultDensity_colperm2","JuvenileDensity_colperm2","BleachingPrevalence_Pct","DiseasePrevalence_Pct","AdultDensity_SE",         
+             "JuvenileDensity_SE","BleachingPrevalence_SE","DiseasePrevalence_SE")
+QCcheck(st.all)
+
+#sector
+meta.cols<-c("JURISDICTIONname","JURISDICTIONcode","SUBJURISDICTIONname","SUBJURISDICTIONcode", "SECTORname","SECTORcode",
+             "SurveyYearStart","SurveyYearEnd","AnalysisYear","N_Demo","N_Cover")
+QCcheck(sec.all)
+
+#island
+meta.cols<-c("JURISDICTIONname","JURISDICTIONcode","SUBJURISDICTIONname","SUBJURISDICTIONcode",
+             "SurveyYearStart","SurveyYearEnd","AnalysisYear","N_Demo","N_Cover")
+QCcheck(isl.all)
+
+#region
+meta.cols<-c("JURISDICTIONname","JURISDICTIONcode","SurveyYearStart","SurveyYearEnd","AnalysisYear","N_Demo","N_Cover")
+QCcheck(r.all)
+
 
 
 # 
