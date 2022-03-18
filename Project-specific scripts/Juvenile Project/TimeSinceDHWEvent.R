@@ -22,7 +22,7 @@ setwd("M:/Environmental Data Summary/DataDownload/Degree_Heating_Weeks/RAW")
 # #file_list<- subset(file_list, !(file_list %in% file.bad))
 # #file_list<-file_list[c(34:38)]
 file_list<-("Lisianski_raw_Degree_Heating_Weeks.RData")
-load("M:/Environmental Data Summary/DataDownload/Degree_Heating_Weeks/RAW/Lisianski_raw_Degree_Heating_Weeks.RData")
+load("M:/Environmental Data Summary/DataDownload/Degree_Heating_Weeks/RAW/Palmyra_raw_Degree_Heating_Weeks.RData")
 
 #Read in raw juvenile data (this file is used to identify which sites you want to extract DHW for- the file needs to have a date column)
 juvdata<-read.csv("T:/Benthic/Data/REA Coral Demography & Cover/Analysis Ready Raw data/CoralBelt_Juveniles_raw_CLEANED.csv")
@@ -51,12 +51,12 @@ TimeSinceDHW8<-function(data,jwd){
   dhw$DATE_<-as.Date(dhw$DATE_, format = "%Y-%m-%d")
   head(dhw)
   
-  dhw4<-as.data.frame(dplyr::filter(dhw,DHW >="4"))
+  dhw4<-as.data.frame(dplyr::filter(dhw,DHW >=4))
   class(dhw4$DATE_)
   class(dhw4$DHW4_DATE)
   head(dhw4)
 
-  dhw8<-as.data.frame(dplyr::filter(dhw,DHW >="8"));dhw8<-subset(dhw8,select= -c(LATITUDE_LOV,LONGITUDE_LOV))
+  dhw8<-as.data.frame(dplyr::filter(dhw,DHW >=8));dhw8<-subset(dhw8,select= -c(LATITUDE_LOV,LONGITUDE_LOV))
   class(dhw8$DATE_)
   head(dhw8)
   
@@ -117,7 +117,7 @@ View(df.all)
 
 #df.all3<-rbind(df.all,df.all2)
 
-write.csv(df.all,file="T:/Benthic/Projects/Juvenile Project/Juvenile_TimeSinceDHW4_8.csv")
+#write.csv(df.all,file="T:/Benthic/Projects/Juvenile Project/Juvenile_TimeSinceDHW4_8_v2.csv")
 
 
 #Issues to address:

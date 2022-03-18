@@ -1,5 +1,5 @@
 # WAVE ACTION CALCULATOR #
-## this code assigns wave action per juv site using two data files
+## this code assigns wave action per juvenile coral site using two wave data files
 
 library(dplyr)
 library(sp)
@@ -7,18 +7,17 @@ library(sf)
 library(raster)
 library(ncf) # for gcdist()
 library(ggsn)
-library("rnaturalearth")
-library("rnaturalearthdata")
 library(ggspatial)
+library(ggrepel)
 
 setwd("M:/Environmental Data Summary/DataDownload/WaveEnergySwath")
 list.files()
 
 ### read in wave data
-cont <- read.csv("15m_contours.csv") # 15m contour data
-fish <- read.csv("FISH_waves_1979_2010.csv") # fish site data
+cont <- read.csv("15m_contours.csv") # wave data generated from the 15m depth contour to help fill in the gaps from where the fish sites weren't surveyed
+fish <- read.csv("FISH_waves_1979_2010.csv") # wave data from historical fish sites 
 
-# modify data
+#Data cleanup
 head(cont)
 colnames(cont)
 cont <- cont[ which(cont$BAD_FLAG == 0),] # remove the bad flags
@@ -28,8 +27,9 @@ cont$BAD_FLAG <- NULL
 
 head(fish)
 colnames(fish)
-fish<-subset(fish,Site!="GUA-01310") #remove this site because it doesn't have a lat and long
-fish <- fish[ which(fish$BAD_FLAG == 0),]
+fish<-fish%>% dplyr::filter(Site!="GUA-01310") #remove this site because it doesn't have a lat and long
+fish<-fish%>% dplyr::filter(fish$BAD_FLAG == 0) #remove this site because it doesn't have a lat and long
+
 fish$Wave.Power..kwhr.m. <- NULL
 fish$ISL <- substr(fish$Site, 1, 3)
 fish$Site <- NULL
@@ -41,116 +41,183 @@ nrow(fish)
 nrow(cont)
 
 
-# calculate mean per coordinate across all years
-all_2 <- all %>%
+# calculate mean and median per coordinate across all years- Tom has concerns about using mean as a summary statistic
+all_2<-all %>% 
   rowwise() %>%
-  mutate(means=mean(X1979:X2010, na.rm=T))
+  dplyr::mutate(means = mean(c_across(X1979:X2010), na.rm=T),medians = median(c_across(X1979:X2010), na.rm=T))
 
 head(as.data.frame(all_2))
 
 # save full wave action dataframe as a new data set
-setwd("C:/Users/Courtney.S.Couch/Desktop")
-write.csv(all_2, "WaveActionHawaii_1997_2010.csv")
+write.csv(all_2, "WaveActionPacific_1997_2010.csv")
 
-# run pairwise gcdist() function to view distance matrix between all of the points
-wave_dist <- gcdist(all_2$x, all_2$y)
-wave_dist_f <- gcdist(cont$x, cont$y)
-
-dim(wave_dist)
-dim(all_2)
-
-# look at the histogram of that -- focus on smallest size to see how close the points are to one another
-hist(wave_dist)
-min(wave_dist[ which(wave_dist>0)])
-plot(table(round(wave_dist[ which(wave_dist>0 & wave_dist<1)],3)))
-plot(table(round(wave_dist_f[ which(wave_dist_f>0 & wave_dist_f<10)],3)))
+# # run pairwise gcdist() function to view distance matrix between all of the points
+# wave_dist <- gcdist(all_2$x, all_2$y)
+# wave_dist_f <- gcdist(cont$x, cont$y)
+# 
+# dim(wave_dist)
+# dim(all_2)
+# 
+# # look at the histogram of that -- focus on smallest size to see how close the points are to one another
+# hist(wave_dist)
+# min(wave_dist[ which(wave_dist>0)])
+# plot(table(round(wave_dist[ which(wave_dist>0 & wave_dist<1)],3)))
+# plot(table(round(wave_dist_f[ which(wave_dist_f>0 & wave_dist_f<10)],3)))
 
 # convert to spatial points data frame
 xy <- all_2[,c(1,2)]
 all_sp <- SpatialPointsDataFrame(coords = xy, data = all_2,
                                proj4string = CRS("+proj=longlat +datum=WGS84 +ellps=WGS84 +towgs84=0,0,0"))
 
-
-
 ### read in juvenile data
-setwd("T:/Benthic/Projects/Juvenile Project") # set working directory 
-juv <- read.csv("JuvProject_temporal_SITE.csv")
-juv <- subset(juv,select=c(ISLAND,SITE,LATITUDE,LONGITUDE)) # remove extra columns -- only need site name + coords
-colnames(juv)
+juv<-read.csv("T:/Benthic/Projects/Juvenile Project/JuvProject_SITE_weights.csv")
+
+#Clean up juvenile site data
+juv<-juv%>%dplyr::filter(OBS_YEAR >2013)
+levels(juv$MISSIONID)
+juv<-juv[!juv$MISSIONID %in% c("MP1410","MP1512","MP1602","SE1602","MP2006"),]
+juv$Year_Island<-paste(juv$OBS_YEAR,juv$ISLAND,sep="_")
+juv$Year_Region<-paste(juv$OBS_YEAR,juv$REGION,sep="_")
+juv<-juv[!juv$Year_Island %in% c("2017_Baker","2017_Jarvis","2017_Howland"),] 
+juv<-droplevels(juv);levels(juv$MISSIONID)
+View(juv)
+
+juvS<-subset(juv,GENUS_CODE=="SSSS")
+juvS <- subset(juvS,select=c(ISLAND,SITE,LATITUDE,LONGITUDE)) # remove extra columns -- only need site name + coords
+colnames(juvS)
 
 
-# #Read in islands shapefile
-# islands<-st_read("U:/GIS/Data/Pacific/islands.shp")
-# 
-# #Plotting the wave and juvenile data for a subset of islands to check overlap 
-# ggplot(data = islands) +
-#   geom_sf() +
-#   geom_point(data = subset(all_2,ISL=="OAH"), aes(x = x, y = y), size = 2, shape = 21, fill = "slateblue3") +
-#   geom_point(data = subset(juv,ISLAND=="Oahu"),aes(x = LONGITUDE, y = LATITUDE), size = 2, shape = 8, color = "darkorange1") +
-#  coord_sf(xlim = c(-158.5, -157.5), ylim = c(21.2, 21.8), expand = FALSE)+
-#   theme(panel.grid.major = element_line(color = gray(0.5), linetype = "dashed", 
-#                                         size = 0.5), panel.background = element_rect(fill = "aliceblue"))+
-#   annotation_scale(location = "bl", width_hint = 0.4)
-#   
-# extent(subset(all_2,ISL=="MAU"))
-# 
-# ggplot(data = islands) +
-#   geom_sf() +
-#   geom_point(data = subset(all_2,ISL=="MAU"), aes(x = x, y = y), size = 2, shape = 21, fill = "slateblue3") +
-#   geom_point(data = subset(juv,ISLAND=="Maug"),aes(x = LONGITUDE, y = LATITUDE), size = 2, shape = 8, color = "darkorange1") +
-#   coord_sf(xlim = c(145.2, 145.25), ylim = c(20, 20.05), expand = FALSE)+
-#   theme(panel.grid.major = element_line(color = gray(0.5), linetype = "dashed", 
-#                                         size = 0.5), panel.background = element_rect(fill = "aliceblue"))+
-#   annotation_scale(location = "bl", width_hint = 0.4)
+#Read in islands shapefile
+islands<-st_read("U:/GIS/Data/Pacific/islands.shp")
 
+#Plotting the wave and juvenile data for a subset of islands to check overlap
+#Helpful website for plotting maps with ggplot https://r-spatial.org/r/2018/10/25/ggplot2-sf-2.html
+Plot_WaveJuv<-function(d1,d2,d3,waveISL="OAH",juvISL="Oahu",xlim1,xlim2,ylim1,ylim2){
+  ggplot(data = d1) +
+    geom_sf() +
+    geom_point(data = subset(d2,ISL==waveISL), aes(x = x, y = y), size = 2, shape = 21, fill = "slateblue3") +
+    geom_point(data = subset(d3,ISLAND==juvISL),aes(x = LONGITUDE, y = LATITUDE), size = 2, shape = 8, color = "darkorange1") +
+    coord_sf(xlim = c(xlim1, xlim2), ylim = c(ylim1, ylim2), expand = FALSE)+
+    theme(panel.grid.major = element_line(color = gray(0.5), linetype = "dashed",
+                                          size = 0.5), panel.background = element_rect(fill = "aliceblue"))+
+    annotation_scale(location = "bl", width_hint = 0.4)
+}
 
-extent(all_sp)
-table(all_sp$ISL)
-cell_size <- 50/1000 # go from meters to km
+extent(subset(all_2,ISL=="OAH")) # identify extent of coordinates
+Plot_WaveJuv(islands,all_2,juv,"OAH","Oahu",-158.5, -157.5,21.2, 21.8)
 
-span_x <- diff(extent(all_sp)[1:2]) # the span of degrees
-span_x_km <- span_x*111.111 # converting degrees to km of the span of the points
-n_cell_x <- round(span_x_km/cell_size) # the value we want to assign to ncol 
+extent(subset(all_2,ISL=="KAH")) # identify extent of coordinates
+Plot_WaveJuv(islands,all_2,juv,"KAH","Kahoolawe",-156.72, -156.5,20.5, 20.61)
 
-span_y <- diff(extent(all_sp)[3:4]) # the span of degrees
-span_y_km <- span_y*111.111
-n_cell_y <- round(span_y_km/cell_size) # the value we want to assign to nrow 
+extent(subset(all_2,ISL=="MAU"))
+Plot_WaveJuv(islands,all_2,juv,"MAU","Maug",145.2, 145.25,20, 20.05)
 
-# convert from spdf to raster
-rast <- raster()
-extent(rast) <- extent(all_sp) # this might be unnecessary
-ncol(rast) <- n_cell_x # this is one way of assigning cell size / resolution
-nrow(rast) <- n_cell_y
-rast2 <- rasterize(all_sp, rast, all_sp$means, fun=mean)
-rast2
-# writeRaster(rast2, "WavesHawaii.nc", format = "CDF") too big to save
-# plot(rast2) #waaaaay too large to plot
+extent(subset(all_2,ISL=="PAL"))
+Plot_WaveJuv(islands,all_2,juv,"PAL","Palmyra",-162.2, -161.99,5.85,5.925)
+
+extent(subset(all_2,ISL=="KIN"))
+Plot_WaveJuv(islands,all_2,juv,"KIN","Kingman",-162.49, -162.3,6.35,6.47)
+
 
 # convert juv data to spatial points data
-xy_juv <- juv[,c(3,4)]
-juv_sp <- SpatialPointsDataFrame(coords = xy_juv, data = juv,
+xy_juv <- juvS[,c(4,3)]
+juv_sp <- SpatialPointsDataFrame(coords = xy_juv, data = juvS,
                                  proj4string = CRS("+proj=longlat +datum=WGS84 +ellps=WGS84 +towgs84=0,0,0"))
 str(juv_sp)
+
+#Buffered Extract from all_sp to juv_sp
+# #Oahu Case for Trial
+# oahu_waves=subset(all_sp,ISL=="OAH")
+# oahu_waves$ID=paste0("OAH_",1:nrow(oahu_waves))
+# dim(oahu_waves)
+# oahu_juv=subset(juv_sp,ISLAND=="Oahu")
+# dim(oahu_juv)
+# ExpandingExtract_Flex(Data = oahu_waves,SurveyPts = oahu_juv,Data_Col="medians",Dists = seq(0, 4000, by = 50))
 
 
 ### calculate the mean wave action values within 250m radius of each juv point
 # source expanding extract function
-source("M:/Environmental Data Summary/HelperCode/ExpandingExtract.R")
+source("M:/Environmental Data Summary/HelperCode/ExpandingExtract_Flex.R")
+sites_waves <- ExpandingExtract_Flex(Data = all_sp, SurveyPts = juv_sp,
+                                     Dists = seq(0, 4000, by = 50),Data_Col = "medians",REPORT = T) # you may not want to keep sites that have wave data from 4km away, but you can drop these sites later in the script
 
-sites_waves <- ExpandingExtract(r = rast2, SpDF = juv_sp, Dists = seq(0, 4000, by = 50))
-sites_waves
 
-juv_2 <- cbind(juv, sites_waves)
+########################Something is wrong- it is returning NaN for all values and only providing 4000km buffer size.
 
-ggplot(juv_2[ which(juv_2$Island_Name == "Lanai"),], aes(x = Longitude_DD, y = Latitude_DD, color = Dist)) + 
-  geom_point() +
-  scale_color_viridis_c()
 
-plot(sort(juv_2$Dist)) # where there are natural breaks in distances
+
+#Plot the % of sites that fall within each distance 96.3% of sites are within 750 of wave data
+head(sites_waves)
+t=table(sites_waves$Dist) #visualize 
+st=cumsum(t)
+plot(st/sum(t))
+st
+st/sum(t)
+plot(sort(sites_waves$Dist)) # where there are natural breaks in distances
 abline(h = 1000)
 abline(h=750) # this seems like a reasonable break
 abline(h=500)
 
-# save the data!
-setwd("C:/Users/Morgan.Winston/Desktop/MHI NWHI 2019 Coral Bleaching/Data/Bleaching Assessments/Combined/Current Database/For Analysis/Supplemental Data")
-write.csv(juv_2, "Hawaii_WaveActionData.csv")
+
+TooFar=750
+TooFar=1000
+
+sites_waves$values[which(sites_waves$Dist>TooFar)]=NA
+
+juv_2 <- cbind(juvS, sites_waves)
+
+#Spot check specific sites with high distances to make sure you are comfortable using the value chosen
+Plot_DistCheck<-function(d1,d2,isl="Oahu",xlim1,xlim2,ylim1,ylim2){
+  ggplot(data = d1) +
+    geom_sf() +
+    geom_point(data = subset(d2,ISLAND==isl),aes(x = LONGITUDE, y = LATITUDE, color = Dist)) +
+    theme(panel.grid.major = element_line(color = gray(0.5), linetype = "dashed",
+                                          size = 0.5), panel.background = element_rect(fill = "aliceblue"))+
+    coord_sf(xlim = c(xlim1, xlim2), ylim = c(ylim1, ylim2), expand = FALSE)+
+    scale_color_viridis_c()+
+    geom_text(data = juv_2, aes(x = LONGITUDE, y = LATITUDE,label=SITE), size = 3, hjust=0, vjust=-1)
+    
+}
+
+#Palmyra
+Plot_DistCheck(islands,juv_2,"Palmyra",-162.17, -161.99,5.86,5.905)
+
+#Make changes to specific sites that have values that don't make sense 
+juv_2$values<-ifelse(juv_2$SITE %in% c("PAL-00775","PAL-01196","PAL-01187","PAL-00763","PAL-00753","PAL-01176"),
+                     0,juv_2$values) #Change these to 0, they are all sheltered sites and too far from available wave data.
+
+#Kingman
+Plot_DistCheck(islands,juv_2,"Kingman",-162.49, -162.3,6.35,6.47)
+#Sites look good-no changes needed
+
+#Lisianski
+summary(subset(juv_2,ISLAND=="Lisianski"))
+
+Plot_DistCheck(islands,juv_2,"Lisianski",-174.1,-173.8,25.91,26.15)
+Plot_WaveJuv(islands,all_2,juv,"LIS","Lisianski",-174.1,-173.8,25.91,26.15)
+juv_2$values<-ifelse(juv_2$SITE %in% c("LIS-04067"), 0,juv_2$values) #Change these to 0
+juv_2$values<-ifelse(juv_2$SITE %in% c("LIS-00802"),NA,juv_2$values) #Change these to NA
+
+
+#Oahu
+Plot_DistCheck(islands,juv_2,"Oahu",-158.3, -157.6,21.2, 21.8)
+Plot_WaveJuv(islands,all_2,juv,"OAH","Oahu",-158.3, -157.6,21.2, 21.8)
+#Sites look good-no changes needed
+
+#Maug
+Plot_WaveJuv(islands,all_2,juv,"MAU","Maug",145.2, 145.25,20, 20.05)
+Plot_DistCheck(islands,juv_2,"Maug",145.2, 145.25,20, 20.05)
+#Sites look good-no changes needed
+
+#Maui
+summary(subset(juv_2,ISLAND=="Maui"))
+Plot_WaveJuv(islands,all_2,juv,"MAI","Maui",-156.8,-155.9,20.55, 21.1)
+Plot_DistCheck(islands,juv_2,"Maui",-156.8,-155.9,20.55, 21.1)
+#Sites look good-no changes needed
+
+head(juv_2)
+wave<-juv_2%>% dplyr::select(ISLAND:values)
+wave<-wave %>% dplyr::rename(WavePower=values)
+
+#save the data
+write.csv(wave,file="T:/Benthic/Projects/Juvenile Project/Pacific_WaveActionData_v2.csv",row.names = F)
