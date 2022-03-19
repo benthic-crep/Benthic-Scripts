@@ -169,7 +169,7 @@ ab[is.na(ab$HABITAT_CODE),]$HABITAT_CODE<-"UNKNOWN"
 
 
 #Generate a SITE table
-sites<-ddply(ab,.(METHOD,REGION,OBS_YEAR,ISLAND,PERM_SITE,CLIMATE_STATION_YN,SITE,LATITUDE,LONGITUDE,REEF_ZONE,DEPTH_BIN),
+sites<-ddply(ab,.(METHOD,REGION,OBS_YEAR,ISLAND,PERM_SITE,CLIMATE_STATION_YN,SITEVISITID,LATITUDE,LONGITUDE,REEF_ZONE,DEPTH_BIN),
              summarize,x=sum(POINTS))
 sites$x<-NULL
 dim(sites)
@@ -208,7 +208,7 @@ T1data.cols<-c(r_levels)
 T1data.cols<-T1data.cols[!T1data.cols %in% c("TW","UC","MF")]
 
 
-wsd<-merge(sites, photo, by=c("METHOD", "OBS_YEAR", "SITE"), all.y=T)
+wsd<-merge(sites, photo, by=c("METHOD", "OBS_YEAR", "SITEVISITID"), all.y=T)
 
 #Make sure that you have the correct # of sites/region and year
 test1<-ddply(wsd,.(REGION,OBS_YEAR),summarize,nSite_wsd=length(unique(SITE)))
@@ -266,7 +266,7 @@ r_levels<-c(unique(as.character(ab$TIER_3)))
 T3data.cols<-c(r_levels)
 T3data.cols<-T3data.cols[!T3data.cols %in% c("WAND","UNK","TAPE","MOBF","SHAD")]
 
-wsd<-merge(sites, photo, by=c("METHOD", "OBS_YEAR", "SITE"), all.y=T)
+wsd<-merge(sites, photo, by=c("METHOD", "OBS_YEAR", "SITEVISITID"), all.y=T)
 
 #Merge Tier 3 data with SURVEY MASTER data
 wsd_t3<-merge(sm,wsd,by=c("SITEVISITID","SITE","OBS_YEAR"),all.y=TRUE)
