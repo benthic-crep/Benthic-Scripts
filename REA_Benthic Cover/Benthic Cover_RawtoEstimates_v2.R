@@ -221,6 +221,8 @@ full_join(test1,oracle.site)
 #You will need TRANSECT_PHOTOS, EXCLUDE FLAG and Oceanography from the SM file to be able to filter out OCC and Special Project sites
 
 sm<-read.csv("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/data/SURVEY MASTER.csv")
+SURVEY_MASTER=sm
+save(SURVEY_MASTER,file="M:/Environmental Data Summary/EDS GitHub respository/data/SURVEY MASTER.rdata")
 
 #Convert date formats
 sm$DATE_<-mdy(sm$DATE_)

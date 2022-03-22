@@ -31,11 +31,10 @@ jwd_site<-read.csv("T:/Benthic/Projects/Juvenile Project/JuvProject_SITE_weights
 
 tsdhw<-read.csv("T:/Benthic/Projects/Juvenile Project/Juvenile_TimeSinceDHW4_8.csv"); tsdhw<-subset(tsdhw,select= -c(X,ISLAND))
 wave<-read.csv("T:/Benthic/Projects/Juvenile Project/Pacific_WaveActionData_v2.csv")
-load("C:/Users/Courtney.S.Couch/Documents/GitHub/env_data_summary/outputs/Survey_Master_Timeseries_2021-11-16.Rdata")
+load("C:/Users/Courtney.S.Couch/Documents/GitHub/env_data_summary/outputs/Survey_Master_Timeseries_2022-03-18.Rdata")
 cover1<-read.csv("T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Site/BenthicCover_2010-2020_Tier1_SITE.csv")#Cover from all sites
 cover3<-read.csv("T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Site/BenthicCover_2010-2020_Tier3_SITE.csv")#Cover from all sites
 sectors<-read.csv("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/data/Sectors-Strata-Areas.csv", stringsAsFactors=FALSE)
-#load("C:/Users/Courtney.S.Couch/Documents/GitHub/env_data_summary/outputs/Survey_Master_Timeseries_2021-02-27.Rdata") #Survey master file with env data
 
 #Change Regions to correspond to juvenile data
 Convert_Region<-function(data){
@@ -115,11 +114,12 @@ jwd_site<-jwd_site[,jcols]
 head(jwd_site)
 
 #Subset survey master and env columns of interest
+
+
 cols<-c("MISSIONID","DATE_","SITEVISITID", "OBS_YEAR", "REGION", "ISLAND","SEC_NAME", "SITE","REEF_ZONE",
                "DEPTH_BIN","STRATANAME", "LATITUDE_LOV", "LONGITUDE_LOV","DHW.MeanMax_Degree_Heating_Weeks_YR01","DHW.MeanMax_Degree_Heating_Weeks_YR03", "DHW.MeanMax_Degree_Heating_Weeks_YR10",
         "DHW.MaxMax_Degree_Heating_Weeks_YR03","DHW.MaxMax_Degree_Heating_Weeks_YR10","DHW.Np10y_Major_Degree_Heating_Weeks_YR10",
-        "mean_monthly_range_SST_CRW_Daily_YR10","mean_biweekly_range_SST_CRW_Daily_YR10","mean_annual_range_Chlorophyll_A_ESAOCCCI_8Day_YR10","mean_Chlorophyll_A_VIIRS_Monthly_750m_YR05",
-        "mean_annual_range_Kd490_ESAOCCCI_8Day_YR10","mean_kdPAR_VIIRS_Weekly_YR10")
+        "mean_monthly_range_SST_CRW_Daily_YR10","mean_biweekly_range_SST_CRW_Daily_YR10")
 sm_env<-SM[,cols]
 
 

@@ -100,7 +100,7 @@ new.df<-cbind(jcdG_stS_last,preds)
 
 
 # Survey weighted GLMs - Density ----------------------------------------------------------
-#Still having issues with variables that have NA values (e.g. Years since DHW event)-na.action=na.omit doesn't work
+#Using a quasipoisson because the data are highly overdisperse and I have count derived data
 des<-svydesign(id=~1, strata=~REGION+ISLAND+SEC_NAME, weights=~sw,data=new.df)
 
 
@@ -213,6 +213,8 @@ AIC(mod2)
 AIC(mod3)
 
 #Model Averaging using MuMin
+des<-svydesign(id=~1, strata=~REGION+ISLAND+SEC_NAME, weights=~sw,data=new.df)
+
 global.model<-svyglm(JuvColDen ~  scaled_CCA + scaled_SAND_RUB + scaled_MeanDepth + scaled_MaxMaxDHW03+
                        scaled_Mean_Mon_SST_Range + scaled_MeanWavePower + scaled_meanChla05+scaled_CORAL,design=des, family="quasipoisson")
 
@@ -226,7 +228,6 @@ model.set<-dredge(global.model)
 vars <- c("scaled_CCA","scaled_SAND_RUB", "scaled_MeanDepth", "scaled_MaxMaxDHW03",
             "scaled_MeanWavePower","scaled_meanChla05","scaled_CORAL")
 
-
 models <- list()
 
 for (i in 1:7){
@@ -236,6 +237,7 @@ for (i in 1:7){
     models <- c(models, model)
   }
 }
+#models
 
 mods<-lapply(models, function(x) svyglm(x,design=des,family="quasipoisson"))
 aics<-lapply(models, function(x) as.data.frame(AIC(svyglm(x,design=des,family="quasipoisson")))[2,]) #calcaulte AIC values for each model and consolidate them into a list
@@ -254,6 +256,7 @@ mod.w<-unlist(top.mod, use.names = FALSE)
 #This is a temporary workaround for now
 m1<-svyglm(JuvColDen ~ scaled_CCA + scaled_MaxMaxDHW03,design=des, family="quasipoisson")
 m2<-svyglm(JuvColDen ~ scaled_MaxMaxDHW03,design=des, family="quasipoisson")
+m3<-svyglm(JuvColDen ~ scaled_CCA * scaled_MaxMaxDHW03,design=des, family="quasipoisson")
 
 #extract coefficents and se 
 coeff<-c(m1$coefficients,m2$coefficients)
