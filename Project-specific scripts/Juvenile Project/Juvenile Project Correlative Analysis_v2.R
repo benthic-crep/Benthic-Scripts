@@ -212,11 +212,22 @@ AIC(mod1)
 AIC(mod2)
 AIC(mod3)
 
+
+new.df$JuvCount<-new.df$JuvColDen*50
 #Model Averaging using MuMin
 des<-svydesign(id=~1, strata=~REGION+ISLAND+SEC_NAME, weights=~sw,data=new.df)
 
 global.model<-svyglm(JuvColDen ~  scaled_CCA + scaled_SAND_RUB + scaled_MeanDepth + scaled_MaxMaxDHW03+
                        scaled_Mean_Mon_SST_Range + scaled_MeanWavePower + scaled_meanChla05+scaled_CORAL,design=des, family="quasipoisson")
+summary(global.model)
+
+global.model<-svyglm(JuvColDen ~  scaled_CCA + scaled_SAND_RUB + scaled_MeanDepth + scaled_MaxMaxDHW03+
+                       scaled_Mean_Mon_SST_Range + scaled_MeanWavePower + scaled_meanChla05+scaled_CORAL,design=des, family="poisson")
+summary(global.model)
+global.model$aic
+
+global.model<-svyglm(JuvColDen ~  scaled_CCA ,design=des, family="poisson")
+
 
 #Can't standarize with svyglm
 stz.model<-standardize(global.model,standardize.y=F)
@@ -266,8 +277,27 @@ SEcoeff<-as.numeric(as.character(SEcoeff))
 df.mod<-as.numeric(as.character(m1$df.residual))
 test<-par.avg(x=coeff,se=SEcoeff,df=df.mod,weight=mod.w)
 
+as.data.frame(summary(m1)$coefficients[,1])
+summary(mods)$coefficients[,1:2]
 
+coefs <- lapply(mods, function(x) summary(x)$coefficients[,1:2])
+coefs
 
+ID <- seq(1:127)
+ID<-paste("mod",ID,sep="")
+ID<-as.factor(ID)
+library(purrr)
+library(tibble)
+all.coefs<-map2(coefs, ID, ~cbind(.x, Model = .y))
+head(all.coefs)
+all.coefs <- do.call(rbind, all.coefs)
+head(all.coefs)
+all.coefs<-as.data.frame(all.coefs)
+all.coefs %>%
+  column_to_rownames(Variable)
+
+it's adding numbers to row names
+'
 
 #Partial Regression Plots
 m.all$Variable_plot <- factor(c("Coral Cover",

@@ -36,6 +36,13 @@ cover1<-read.csv("T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Site
 cover3<-read.csv("T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Site/BenthicCover_2010-2020_Tier3_SITE.csv")#Cover from all sites
 sectors<-read.csv("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/data/Sectors-Strata-Areas.csv", stringsAsFactors=FALSE)
 
+
+nwhi17<-subset(jwd_site,REGION=="NWHI"& ANALYSIS_YEAR=="2017")
+levels(as.factor(nwhi17$SITE))
+
+"FFS-04365" "FFS-04383" "FFS-04390" "FFS-04395" "KUR-04113" "KUR-04115" "KUR-04117" "KUR-04130" "LIS-04307" "LIS-04310" "LIS-04312" "LIS-04328" "LIS-04332"
+"LIS-04359" "LIS-04367" "LIS-04368" "LIS-04373" "LIS-04391" "LIS-04393" "PHR-04250" "PHR-04259"
+
 #Change Regions to correspond to juvenile data
 Convert_Region<-function(data){
   data$REGION<-ifelse(data$ISLAND %in% c("Farallon de Pajaros", "Maug", "Asuncion", "Alamagan", "Pagan", "Agrihan", "Guguan", "Sarigan","Farallon_de_Pajaros")
@@ -126,7 +133,7 @@ sm_env<-SM[,cols]
 
 #Generate a list of Regions and years to include in final summary
 REGION<-c("NWHI","MHI","PHOENIX","LINE","SMARIAN","NMARIAN","SAMOA","WAKE")
-OBS_YEAR<-c("2016","2019","2018","2018","2017","2017","2018","2017")
+OBS_YEAR<-c("2017","2019","2018","2018","2017","2017","2018","2017")
 keep<-as.data.frame(cbind(REGION,OBS_YEAR))
 
 keep$r_y<-paste(keep$REGION,keep$OBS_YEAR,sep = "_")
@@ -171,9 +178,8 @@ tsdhw<-tsdhw %>% filter(!is.na(YearSinceDHW4))
 cover<-cover %>% select(SITE,CORAL,CCA,SAND_RUB,TURF)
 sm_env<-sm_env %>% select(SITE,SITEVISITID,DHW.MaxMax_Degree_Heating_Weeks_YR03,
                           DHW.MaxMax_Degree_Heating_Weeks_YR10,DHW.Np10y_Major_Degree_Heating_Weeks_YR10,
-                          mean_monthly_range_SST_CRW_Daily_YR10,mean_Chlorophyll_A_VIIRS_Monthly_750m_YR05)
+                          mean_monthly_range_SST_CRW_Daily_YR10)
 wave<-wave %>% select(SITE,WavePower)
-
 
 all_pred_site<- jwd_site   %>% 
   left_join(cover) %>%

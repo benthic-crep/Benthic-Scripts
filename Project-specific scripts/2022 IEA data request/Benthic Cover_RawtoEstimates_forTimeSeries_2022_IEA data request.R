@@ -184,15 +184,31 @@ dpsec<-left_join(dpsec,nstrat)
 dpsec<-subset(dpsec,select= -c(Mean.EMA,Mean.HAL,Mean.I,Mean.SC, Mean.SED,Mean.TOT_AREA_WT,
                                PooledSE.EMA,PooledSE.HAL,PooledSE.I,PooledSE.SC, PooledSE.SED))
 
-write.csv(dpsec, file="T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Sector/BenthicCover_2010-2019_Tier1_SECTOR_forTimesSeries_v2.csv",row.names=F)
-#write.csv(dpsec, file="T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Sector/BenthicCover_2010-2019_Tier3_SECTOR_forTimeseries_v2.csv",row.names=F)
 
 
+#Only include sectors and years that were included in the first version of the data
+mhi<-subset(dpsec,REGION=="MHI")
+mhi$S_Y<-paste(mhi$ANALYSIS_SEC,mhi$ANALYSIS_YEAR,sep="_")
+
+#read in original version of data
+old<-read.csv("T:/Benthic/Data/Data Requests/2021 IEA/MHICover2010-2019_Tier1_Sector_TimeSeries_Gove.csv")
+old$S_Y<-paste(old$ANALYSIS_SEC,old$ANALYSIS_YEAR,sep="_")
+
+mhi<-subset(mhi,S_Y %in% old$S_Y)
+
+nrow(mhi)
+nrow(old)
+
+#Make sure all other categories match - they do
+mhi$Mean.CORAL != old$Mean.CORAL
+mhi$Mean.CCA != old$Mean.CCA
+mhi$Mean.MA != old$Mean.MA
+mhi$Mean.TURF != old$Mean.TURF
+
+write.csv(mhi, file="T:/Benthic/Data/Data Requests/2021 IEA/MHICover2010-2019_Tier1_Sector_TimeSeries_Gove_v2.csv",row.names=F)
 
 
-
-
-
+plot(mhi$Mean.BSR,old$Mean.BSR)
 
 #####NOTE: We are are not summarizing to ISLAND level because we've dropped quite a few strata and sectors. 
 #Talk to Courtney if you want island-level time series data.

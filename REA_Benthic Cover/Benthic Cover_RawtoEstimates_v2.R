@@ -189,13 +189,10 @@ photo$new.N<-photo$N-(photo$MF+photo$UC+photo$TW)
 #Add CCA + Coral
 photo$CCA_CORAL<-photo$CCA + photo$CORAL
 
-#Add Reef Builder Ratio: BSR (Benthic Substrate Ratio)
-photo$BSR<-(photo$CCA + photo$CORAL)/(photo$TURF+ photo$MA)
-
 #Change Inf to NA
 photo<-photo%>% mutate_if(is.numeric, ~ifelse(abs(.) == Inf,NA,.))
 
-r_levels<-c(unique(as.character(ab$TIER_1)),"CCA_CORAL","BSR")
+r_levels<-c(unique(as.character(ab$TIER_1)),"CCA_CORAL")
 data.cols<-c(r_levels)
 data.cols
 
@@ -203,10 +200,18 @@ data.cols
 photo[,data.cols]<-(photo[,data.cols]/photo$new.N)*100
 head(photo)
 
-r_levels<-c(unique(as.character(ab$TIER_1)))
+#Add Reef Builder Ratio: BSR (Benthic Substrate Ratio)
+photo$BSR<-(photo$CCA + photo$CORAL)/(photo$TURF+ photo$MA)
+
+# plot(photo$BSR,
+#      (photo$CORAL+photo$CCA)/(photo$TURF+photo$MA))
+# abline(0,1)
+# abline(0,2)
+# abline(0,3)
+
+r_levels<-c(unique(as.character(ab$TIER_1)),"BSR")
 T1data.cols<-c(r_levels)
 T1data.cols<-T1data.cols[!T1data.cols %in% c("TW","UC","MF")]
-
 
 wsd<-merge(sites, photo, by=c("METHOD", "OBS_YEAR", "SITEVISITID"), all.y=T)
 
@@ -245,7 +250,7 @@ wsd_t1$TRANSECT_PHOTOS<-"-1" #make sure that all rows = -1
 wsd_t1<-subset(wsd_t1,select= -c(MF,UC,TW))
 
 #Save Tier 1 site data to t drive. This file has all sites (fish, benthic and OCC) that were annoated between 2010 and 2018
-write.csv(wsd_t1, file="T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Site/BenthicCover_2010-2020_Tier1_SITE.csv",row.names=F)
+write.csv(wsd_t1, file="T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Site/BenthicCover_2010-2020_Tier1_SITE_v2.csv",row.names=F)
 
 
 # Generate Site-level Data at TIER 3 level--------------
@@ -283,7 +288,7 @@ wsd_t3$TRANSECT_PHOTOS<-"-1" #make sure that all rows = -1
 wsd_t3<-subset(wsd_t3,select= -c(WAND,UNK,TAPE,MOBF,SHAD))
 
 #Save Tier 1 site data to t drive. This file has all sites (fish, benthic and OCC) that were annoated between 2010 and 2018
-write.csv(wsd_t3, file="T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Site/BenthicCover_2010-2020_Tier3_SITE.csv",row.names = F)
+write.csv(wsd_t3, file="T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Site/BenthicCover_2010-2020_Tier3_SITE_v2.csv",row.names = F)
 
 
 # CHECK THAT DATA IS READY FOR POOLING AND DO SOME FINAL CLEAN UPS --------
