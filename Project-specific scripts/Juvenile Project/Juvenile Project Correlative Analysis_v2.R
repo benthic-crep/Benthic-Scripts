@@ -28,6 +28,8 @@ library(ggpubr)
 library(lemon)
 library(MuMIn)
 library(arm)
+library(purrr)
+library(tibble)
 
 setwd("T:/Benthic/Projects/Juvenile Project")
 
@@ -259,9 +261,13 @@ delAIC<-lapply(aics, function(x, minval) x- minval, minval = minAIC) #calculate 
 ll<-lapply(delAIC, function(x) exp(-0.5*x))
 sum_ll<-Reduce(sum,ll)
 AICw<-lapply(ll, function(x,sl) exp(-0.5*x)/sl,sl=sum_ll)
+mod.w<-unlist(AICw, use.names = FALSE)
+delAIC<-unlist(delAIC, use.names = FALSE)
 
-top.mod<-Filter(function(x) x <2, delAIC) #subset top models (del AIC <2)
-mod.w<-unlist(top.mod, use.names = FALSE)
+
+#Top models
+# top.mod<-Filter(function(x) x <2, delAIC) #subset top models (del AIC <2)
+# mod.w<-unlist(top.mod, use.names = FALSE)
 
 #Top models- need to figure out how to more easily identify top models in the code above without manually digging through previous lists
 #This is a temporary workaround for now
@@ -283,21 +289,32 @@ summary(mods)$coefficients[,1:2]
 coefs <- lapply(mods, function(x) summary(x)$coefficients[,1:2])
 coefs
 
+#convert list of all model coefficents to a dataframe
 ID <- seq(1:127)
 ID<-paste("mod",ID,sep="")
 ID<-as.factor(ID)
-library(purrr)
-library(tibble)
 all.coefs<-map2(coefs, ID, ~cbind(.x, Model = .y))
 head(all.coefs)
 all.coefs <- do.call(rbind, all.coefs)
 head(all.coefs)
-all.coefs<-as.data.frame(all.coefs)
-all.coefs %>%
-  column_to_rownames(Variable)
 
-it's adding numbers to row names
-'
+#Convert row names to variables
+vars <- rownames(all.coefs)
+all.coefs<-as.data.frame(all.coefs)
+new.coefs<-cbind(vars,all.coefs)
+rownames(new.coefs)<-NULL #remove rownames
+
+new.coefs<-filter(new.coefs,vars !="(Intercept)") #remove the intercept
+colnames(new.coefs)[3]<-"Std.Error"
+c<-new.coefs %>%
+  dplyr::select(vars,Estimate,Model) %>%
+  pivot_wider(names_from = vars,values_from = Estimate,values_fill = 0)
+
+e<-new.coefs %>%
+  dplyr::select(vars,Std.Error,Model) %>%
+  pivot_wider(names_from = vars,values_from = Std.Error,values_fill = 0)
+
+test<-cbind(c,mod.w)
 
 #Partial Regression Plots
 m.all$Variable_plot <- factor(c("Coral Cover",

@@ -136,6 +136,7 @@ ab[ab$GENERA_NAME %in% c("Lobophora sp","Peyssonnelia sp", "Encrusting macroalga
 ab$GENERA_NAME<-as.character(ab$GENERA_NAME)
 ab$TIER_1<-as.character(ab$TIER_1)
 
+ab$TIER_3<-ifelse(ab$TIER_3=="HALI","HAL",ab$TIER_3)
 ab$TIER_1<-ifelse(ab$TIER_3=="HAL","HAL",ab$TIER_1)
 ab$CATEGORY_NAME<-ifelse(ab$TIER_3=="HAL","Halimeda sp",ab$CATEGORY_NAME)
 
