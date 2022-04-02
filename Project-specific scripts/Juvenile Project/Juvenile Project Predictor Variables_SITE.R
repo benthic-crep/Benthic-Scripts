@@ -32,16 +32,10 @@ jwd_site<-read.csv("T:/Benthic/Projects/Juvenile Project/JuvProject_SITE_weights
 tsdhw<-read.csv("T:/Benthic/Projects/Juvenile Project/Juvenile_TimeSinceDHW4_8.csv"); tsdhw<-subset(tsdhw,select= -c(X,ISLAND))
 wave<-read.csv("T:/Benthic/Projects/Juvenile Project/Pacific_WaveActionData_v2.csv")
 load("C:/Users/Courtney.S.Couch/Documents/GitHub/env_data_summary/outputs/Survey_Master_Timeseries_2022-03-18.Rdata")
-cover1<-read.csv("T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Site/BenthicCover_2010-2020_Tier1_SITE.csv")#Cover from all sites
-cover3<-read.csv("T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Site/BenthicCover_2010-2020_Tier3_SITE.csv")#Cover from all sites
+cover1<-read.csv("T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Site/BenthicCover_2010-2020_Tier1_SITE_wNWHI2017.csv")#Cover from all sites
+cover3<-read.csv("T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Site/BenthicCover_2010-2020_Tier3_SITE_wNWHI2017.csv")#Cover from all sites
 sectors<-read.csv("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/data/Sectors-Strata-Areas.csv", stringsAsFactors=FALSE)
 
-
-nwhi17<-subset(jwd_site,REGION=="NWHI"& ANALYSIS_YEAR=="2017")
-levels(as.factor(nwhi17$SITE))
-
-"FFS-04365" "FFS-04383" "FFS-04390" "FFS-04395" "KUR-04113" "KUR-04115" "KUR-04117" "KUR-04130" "LIS-04307" "LIS-04310" "LIS-04312" "LIS-04328" "LIS-04332"
-"LIS-04359" "LIS-04367" "LIS-04368" "LIS-04373" "LIS-04391" "LIS-04393" "PHR-04250" "PHR-04259"
 
 #Change Regions to correspond to juvenile data
 Convert_Region<-function(data){
@@ -114,7 +108,7 @@ jwd_site$LONGITUDE<-jwd_site$LONGITUDE_LOV
 jwd_site<-dplyr::filter(jwd_site,OBS_YEAR>=2017) #Only use most recent survey years
 
 #Columns to keep
-jcols<-c("SITEVISITID", "ANALYSIS_YEAR","OBS_YEAR", "REGION", "ISLAND","SEC_NAME", "SITE","HABITAT_CODE","REEF_ZONE","new_MIN_DEPTH_M","new_MAX_DEPTH_M",
+jcols<-c("DATE_","SITEVISITID", "ANALYSIS_YEAR","OBS_YEAR", "REGION", "ISLAND","SEC_NAME", "SITE","HABITAT_CODE","REEF_ZONE","new_MIN_DEPTH_M","new_MAX_DEPTH_M",
          "DEPTH_BIN","TRANSECTAREA_j","GENUS_CODE","JuvColCount","JuvColDen","Year_Island","STRATANAME","REGION_YEAR","LATITUDE", "LONGITUDE",
          "n","Ntot","sw")
 jwd_site<-jwd_site[,jcols]
@@ -156,7 +150,7 @@ nrow(cover);View(cover)
 #Create summarized benthic columns
 cover$RUBBLE<-cover$CCAR+cover$RUB+cover$TURFR
 cover$TURF_BARE<-cover$TURFH+cover$HARD
-cover$CCA<-cover$CCAH
+cover$CCA<-cover$CCAH+cover$CCAR
 cover$SAND<-cover$SED
 cover$TURF<-cover$TURFH
 
@@ -168,6 +162,15 @@ cover$SAND_RUB<-cover$RUBBLE+cover$SAND
 head(cover)
 
 cover$STRATANAME<-paste(cover$SEC_NAME,cover$REEF_ZONE,cover$DEPTH_BIN,sep="_") #Create stratum
+
+#Calculate strata mean cover for- 
+
+cover_st<-cover %>%
+  group_by(OBS_YEAR,STRATANAME) %>%
+  summarize(CORALst=mean(CORAL,na.rm=T),
+            CCAst=mean(CCA,na.rm=T),
+            SAND_RUBst=mean(SAND_RUB,na.rm=T),
+            TURFst=mean(TURF,na.rm=T))
 
 
 #remove NAs from tsdhw
@@ -191,6 +194,37 @@ head(all_pred_site)
 View(all_pred_site)
 nrow(jwd_site)
 nrow(all_pred_site)
+
+all_pred_site<-left_join(all_pred_site,cover_st)
+head(all_pred_site)
+
+#More manual tweaks
+#there are some sites that don't have cover- sub with strata means for a given year
+all_pred_site$CORAL<-ifelse(is.na(all_pred_site$CORAL),all_pred_site$CORALst,all_pred_site$CORAL)
+all_pred_site$CCA<-ifelse(is.na(all_pred_site$CCA),all_pred_site$CCAst,all_pred_site$CCA)
+all_pred_site$SAND_RUB<-ifelse(is.na(all_pred_site$SAND_RUB),all_pred_site$SAND_RUBst,all_pred_site$SAND_RUB)
+all_pred_site$TURF<-ifelse(is.na(all_pred_site$TURF),all_pred_site$TURFst,all_pred_site$TURF)
+
+#Fix incorrect year since DHW 4 
+#If a site never experienced a >=4 DHW event then set YearSinceDHW4 to the most recent survey date - 1st recorded DHW data (1/1/1985)
+all_pred_site$DATE_<-ymd(all_pred_site$DATE_)
+dhw_start<-ymd("1985-01-01") 
+
+all_pred_site$YearSinceDHW4<-ifelse(is.na(all_pred_site$YearSinceDHW4),difftime(all_pred_site$DATE_ ,dhw_start, units = c("weeks"))/52,all_pred_site$YearSinceDHW4)
+subset(all_pred_site,SEC_NAME=="OAH_NORTH")
+
+#Missing depths
+all_pred_site$new_MAX_DEPTH_M<-ifelse(all_pred_site$SITE=="TIN-00711",12,all_pred_site$new_MAX_DEPTH_M)
+all_pred_site$new_MIN_DEPTH_M<-ifelse(all_pred_site$SITE=="TIN-00711",3,all_pred_site$new_MIN_DEPTH_M)
+
+all_pred_site$new_MAX_DEPTH_M<-ifelse(all_pred_site$SITE=="TIN-00646",70,all_pred_site$new_MAX_DEPTH_M)
+all_pred_site$new_MIN_DEPTH_M<-ifelse(all_pred_site$SITE=="TIN-00646",70,all_pred_site$new_MIN_DEPTH_M)
+
+all_pred_site$new_MAX_DEPTH_M<-ifelse(all_pred_site$SITE=="TIN-00581",45,all_pred_site$new_MAX_DEPTH_M)
+all_pred_site$new_MIN_DEPTH_M<-ifelse(all_pred_site$SITE=="TIN-00581",45,all_pred_site$new_MIN_DEPTH_M)
+
+
+write.csv(all_pred_site, file="T:/Benthic/Projects/Juvenile Project/JuvDeltaDen_Pred_SITE.csv",row.names = F)
 
 
 #Still need to look into the Palmyra and Kingman issue

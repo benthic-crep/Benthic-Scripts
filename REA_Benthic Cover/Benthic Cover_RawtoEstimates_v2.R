@@ -31,6 +31,20 @@ load("T:/Benthic/Data/REA Coral Demography & Cover/Raw from Oracle/ALL_BIA_STR_C
 cnet$SITE<-SiteNumLeadingZeros(cnet$SITE)
 table(cnet$REGION,cnet$OBS_YEAR)
 
+cnet2017<-read.csv("C:/Users/Courtney.S.Couch/Documents/2017_NWHI_CnetAnnotations_formatted.csv")
+
+#Date conversations still not working
+cnet2017$DATE_<-mdy(cnet2017$DATE_)
+cnet2017$DATE_TAKEN<-mdy(cnet2017$DATE_TAKEN);head(cnet2017$DATE_TAKEN)
+cnet2017$DATE_ANNOTATED<-mdy(cnet2017$DATE_ANNOTATED);head(cnet2017$DATE_ANNOTATED)
+
+cnet$DATE_<-mdy(cnet$DATE_)
+cnet$DATE_TAKEN<-mdy(cnet$DATE_TAKEN);head(cnet$DATE_TAKEN)
+cnet$DATE_ANNOTATED<-mdy(cnet$DATE_ANNOTATED);head(cnet$DATE_ANNOTATED)
+
+#combine old cnet and 2017 nwhi cnet data
+cnet<-rbind(cnet,cnet2017) 
+
 
 ##Generate Table of all the bia categories to review
 head(bia)
@@ -66,7 +80,9 @@ cnet$TIER_3<-cnet$GENERA_CODE
 
 
 #Combine cpc and coralnet
-FIELDS_TO_RETAIN<-c("MISSIONID","METHOD", "REGION", "OBS_YEAR","ISLAND", "SITEVISITID","SITE", "LATITUDE", "LONGITUDE", "REEF_ZONE", "DEPTH_BIN", "PERM_SITE", "CLIMATE_STATION_YN", "MIN_DEPTH", "MAX_DEPTH", "HABITAT_CODE", "REP", "IMAGE_NAME", "PHOTOID", "ANALYST", "TIER_1", "CATEGORY_NAME", "TIER_2", "SUBCATEGORY_NAME", "TIER_3", "GENERA_NAME", "POINTS")
+FIELDS_TO_RETAIN<-c("MISSIONID","METHOD", "REGION", "OBS_YEAR","ISLAND", "SITEVISITID","SITE", "LATITUDE", "LONGITUDE", "REEF_ZONE", "DEPTH_BIN", "PERM_SITE", 
+                    "CLIMATE_STATION_YN", "MIN_DEPTH", "MAX_DEPTH", "HABITAT_CODE", "REP", "IMAGE_NAME", "PHOTOID", "ANALYST", "TIER_1", "CATEGORY_NAME", 
+                    "TIER_2", "SUBCATEGORY_NAME", "TIER_3", "GENERA_NAME", "POINTS")
 x<-bia[,FIELDS_TO_RETAIN]; head(x)
 y<-cnet[,FIELDS_TO_RETAIN]; head(y)
 z<-cli[,FIELDS_TO_RETAIN]; head(z)
@@ -136,8 +152,8 @@ ab[ab$GENERA_NAME %in% c("Lobophora sp","Peyssonnelia sp", "Encrusting macroalga
 ab$GENERA_NAME<-as.character(ab$GENERA_NAME)
 ab$TIER_1<-as.character(ab$TIER_1)
 
-ab$TIER_3<-ifelse(ab$TIER_3=="HALI","HAL",ab$TIER_3)
-ab$TIER_1<-ifelse(ab$TIER_3=="HAL","HAL",ab$TIER_1)
+ab$TIER_3<-ifelse(ab$TIER_3=="HALI","HAL",as.character(ab$TIER_3))
+ab$TIER_1<-ifelse(ab$TIER_3=="HAL","HAL",as.character(ab$TIER_1))
 ab$CATEGORY_NAME<-ifelse(ab$TIER_3=="HAL","Halimeda sp",ab$CATEGORY_NAME)
 
 hal<-subset(ab,TIER_1=="HAL")
@@ -227,8 +243,6 @@ full_join(test1,oracle.site)
 #You will need TRANSECT_PHOTOS, EXCLUDE FLAG and Oceanography from the SM file to be able to filter out OCC and Special Project sites
 
 sm<-read.csv("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/data/SURVEY MASTER.csv")
-SURVEY_MASTER=sm
-save(SURVEY_MASTER,file="M:/Environmental Data Summary/EDS GitHub respository/data/SURVEY MASTER.rdata")
 
 #Convert date formats
 sm$DATE_<-mdy(sm$DATE_)
@@ -251,7 +265,7 @@ wsd_t1$TRANSECT_PHOTOS<-"-1" #make sure that all rows = -1
 wsd_t1<-subset(wsd_t1,select= -c(MF,UC,TW))
 
 #Save Tier 1 site data to t drive. This file has all sites (fish, benthic and OCC) that were annoated between 2010 and 2018
-write.csv(wsd_t1, file="T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Site/BenthicCover_2010-2020_Tier1_SITE_v2.csv",row.names=F)
+write.csv(wsd_t1, file="T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Site/BenthicCover_2010-2020_Tier1_SITE_wNWHI2017.csv",row.names=F)
 
 
 # Generate Site-level Data at TIER 3 level--------------
@@ -289,7 +303,7 @@ wsd_t3$TRANSECT_PHOTOS<-"-1" #make sure that all rows = -1
 wsd_t3<-subset(wsd_t3,select= -c(WAND,UNK,TAPE,MOBF,SHAD))
 
 #Save Tier 1 site data to t drive. This file has all sites (fish, benthic and OCC) that were annoated between 2010 and 2018
-write.csv(wsd_t3, file="T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Site/BenthicCover_2010-2020_Tier3_SITE_v2.csv",row.names = F)
+write.csv(wsd_t3, file="T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Site/BenthicCover_2010-2020_Tier3_SITE_wNWHI2017.csv",row.names = F)
 
 
 # CHECK THAT DATA IS READY FOR POOLING AND DO SOME FINAL CLEAN UPS --------

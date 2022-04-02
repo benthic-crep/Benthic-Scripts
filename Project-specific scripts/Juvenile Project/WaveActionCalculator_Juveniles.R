@@ -158,11 +158,11 @@ abline(h = 1000)
 abline(h=750) # this seems like a reasonable break
 abline(h=500)
 
-
-TooFar=750
-TooFar=1000
-
-sites_waves$values[which(sites_waves$Dist>TooFar)]=NA
+#Define a distance that is too far to estimate
+# TooFar=750
+# TooFar=1000
+# 
+# sites_waves$values[which(sites_waves$Dist>TooFar)]=NA
 
 juv_2 <- cbind(juvS, sites_waves)
 
@@ -196,7 +196,7 @@ summary(subset(juv_2,ISLAND=="Lisianski"))
 Plot_DistCheck(islands,juv_2,"Lisianski",-174.1,-173.8,25.91,26.15)
 Plot_WaveJuv(islands,all_2,juv,"LIS","Lisianski",-174.1,-173.8,25.91,26.15)
 juv_2$values<-ifelse(juv_2$SITE %in% c("LIS-04067"), 0,juv_2$values) #Change these to 0
-juv_2$values<-ifelse(juv_2$SITE %in% c("LIS-00802"),NA,juv_2$values) #Change these to NA
+juv_2$values<-ifelse(juv_2$SITE %in% c("LIS-00838"),196027.15,juv_2$values) #Change these be similar to nearby site
 
 
 #Oahu
