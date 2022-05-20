@@ -14,7 +14,7 @@ rm(list=ls()) # clear all variables
 setwd("C:/Users/Morgan.Winston/Downloads")
 
 # Need to source benthic team functions for functions to run throughout this script. Change directory to wherever files are located on personal computer
-source("C:/Users/Morgan.Winston/Documents/GitHub/Benthic-Scripts/Functions/Benthic_Functions.R")
+source("C:/Users/Morgan.Winston/Documents/GitHub/Benthic-Scripts/Functions/Benthic_Functions_old.R")
 source("C:/Users/Morgan.Winston/Documents/GitHub/Benthic-Scripts/Functions/core_functions.R")
   
 ######################################################################

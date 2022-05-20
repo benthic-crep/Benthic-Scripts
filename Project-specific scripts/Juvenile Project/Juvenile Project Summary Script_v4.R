@@ -2,6 +2,8 @@
 #It also identifies which sectors and strata have been surveyed in all years
 #It calculate delta density
 
+#Ends with summarized site-level data for most recent survey period.
+
 
 rm(list=ls())
 

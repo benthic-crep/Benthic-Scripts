@@ -31,7 +31,7 @@ jwd_site<-read.csv("T:/Benthic/Projects/Juvenile Project/JuvProject_SITE_weights
 
 tsdhw<-read.csv("T:/Benthic/Projects/Juvenile Project/Juvenile_TimeSinceDHW4_8.csv"); tsdhw<-subset(tsdhw,select= -c(X,ISLAND))
 wave<-read.csv("T:/Benthic/Projects/Juvenile Project/Pacific_WaveActionData_v2.csv")
-load("C:/Users/Courtney.S.Couch/Documents/GitHub/env_data_summary/outputs/Survey_Master_Timeseries_2022-03-18.Rdata")
+load("C:/Users/Courtney.S.Couch/Documents/GitHub/env_data_summary/outputs/Survey_Master_Timeseries_2022-04-04.Rdata")
 cover1<-read.csv("T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Site/BenthicCover_2010-2020_Tier1_SITE_wNWHI2017.csv")#Cover from all sites
 cover3<-read.csv("T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Site/BenthicCover_2010-2020_Tier3_SITE_wNWHI2017.csv")#Cover from all sites
 sectors<-read.csv("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/data/Sectors-Strata-Areas.csv", stringsAsFactors=FALSE)
@@ -114,13 +114,20 @@ jcols<-c("DATE_","SITEVISITID", "ANALYSIS_YEAR","OBS_YEAR", "REGION", "ISLAND","
 jwd_site<-jwd_site[,jcols]
 head(jwd_site)
 
+
+#Calculate median depth
+jwd_site<-jwd_site %>%
+  rowwise() %>%
+  mutate(Depth_Median=median(c(new_MIN_DEPTH_M,new_MAX_DEPTH_M)))
+  
 #Subset survey master and env columns of interest
 
 
 cols<-c("MISSIONID","DATE_","SITEVISITID", "OBS_YEAR", "REGION", "ISLAND","SEC_NAME", "SITE","REEF_ZONE",
-               "DEPTH_BIN","STRATANAME", "LATITUDE_LOV", "LONGITUDE_LOV","DHW.MeanMax_Degree_Heating_Weeks_YR01","DHW.MeanMax_Degree_Heating_Weeks_YR03", "DHW.MeanMax_Degree_Heating_Weeks_YR10",
-        "DHW.MaxMax_Degree_Heating_Weeks_YR03","DHW.MaxMax_Degree_Heating_Weeks_YR10","DHW.Np10y_Major_Degree_Heating_Weeks_YR10",
-        "mean_monthly_range_SST_CRW_Daily_YR10","mean_biweekly_range_SST_CRW_Daily_YR10")
+               "DEPTH_BIN","STRATANAME", "LATITUDE_LOV", "LONGITUDE_LOV","DHW.MeanMax_Degree_Heating_Weeks_YR01","DHW.MeanMax_Degree_Heating_Weeks_YR03", 
+        "DHW.MeanMax_Degree_Heating_Weeks_YR05","DHW.MeanMax_Degree_Heating_Weeks_YR10","DHW.MeanMax_Degree_Heating_Weeks_YR10YR01",
+        "DHW.MaxMax_Degree_Heating_Weeks_YR03","DHW.MaxMax_Degree_Heating_Weeks_YR05","DHW.MaxMax_Degree_Heating_Weeks_YR10","DHW.Np10y_Major_Degree_Heating_Weeks_YR10",
+        "mean_SST_CRW_Daily_YR10","sd_SST_CRW_Daily_YR10","mean_Chlorophyll_A_VIIRS_Monthly_750m_YR05","sd_Chlorophyll_A_VIIRS_Monthly_750m_YR05","mean_annual_range_SST_CRW_Daily_YR10")
 sm_env<-SM[,cols]
 
 
@@ -142,6 +149,15 @@ table(sm_env$REGION,sm_env$OBS_YEAR)
 
 sm_env$SEC_NAME<-sm_env$SEC_NAME
 
+#Calculate CVchla and CVsst
+sm_env$CVsst<-sm_env$sd_SST_CRW_Daily_YR10/sm_env$mean_SST_CRW_Daily_YR10
+sm_env$CVchla<-sm_env$sd_Chlorophyll_A_VIIRS_Monthly_750m_YR05/sm_env$mean_Chlorophyll_A_VIIRS_Monthly_750m_YR05
+
+# #Change NaN to NA
+# is.nan.data.frame <- function(x)
+#   do.call(cbind, lapply(x, is.nan))
+# 
+# sm_env[is.nan(sm_env)] <- NA
 
 #Combine Tier 1 and 3 cover
 cover<-left_join(cover3,cover1[,c("SITEVISITID","CORAL","MA","TURF","SED")])  
@@ -153,10 +169,11 @@ cover$TURF_BARE<-cover$TURFH+cover$HARD
 cover$CCA<-cover$CCAH+cover$CCAR
 cover$SAND<-cover$SED
 cover$TURF<-cover$TURFH
+cover$EMA_MA<-cover$EMA+cover$PESP+cover$MA
 
 #Consolidate columns and combine rubble and sand
 cols<-c("SITEVISITID", "OBS_YEAR", "REGION", "ISLAND","SEC_NAME", "SITE","REEF_ZONE",
-        "DEPTH_BIN", "LATITUDE", "LONGITUDE","CORAL","CCA","RUBBLE","SAND","TURF","MA")
+        "DEPTH_BIN", "LATITUDE", "LONGITUDE","CORAL","CCA","RUBBLE","SAND","TURF","MA","EMA_MA")
 cover<-cover[,cols]
 cover$SAND_RUB<-cover$RUBBLE+cover$SAND
 head(cover)
@@ -170,7 +187,8 @@ cover_st<-cover %>%
   summarize(CORALst=mean(CORAL,na.rm=T),
             CCAst=mean(CCA,na.rm=T),
             SAND_RUBst=mean(SAND_RUB,na.rm=T),
-            TURFst=mean(TURF,na.rm=T))
+            TURFst=mean(TURF,na.rm=T),
+            EMA_MAst=mean(EMA_MA,na.rm=T),)
 
 
 #remove NAs from tsdhw
@@ -178,14 +196,16 @@ tsdhw<-tsdhw %>% filter(!is.na(YearSinceDHW4))
 
 # Combine juvenile and predictor data at site-level -----------------------
 
-cover<-cover %>% select(SITE,CORAL,CCA,SAND_RUB,TURF)
-sm_env<-sm_env %>% select(SITE,SITEVISITID,DHW.MaxMax_Degree_Heating_Weeks_YR03,
-                          DHW.MaxMax_Degree_Heating_Weeks_YR10,DHW.Np10y_Major_Degree_Heating_Weeks_YR10,
-                          mean_monthly_range_SST_CRW_Daily_YR10)
+cover_forsite<-cover %>% select(SITE,CORAL,CCA,SAND_RUB,TURF,EMA_MA)
+sm_env<-sm_env %>% select(SITE,SITEVISITID,DHW.MeanMax_Degree_Heating_Weeks_YR01,DHW.MaxMax_Degree_Heating_Weeks_YR03,DHW.MeanMax_Degree_Heating_Weeks_YR03,
+                          DHW.MeanMax_Degree_Heating_Weeks_YR05,DHW.MaxMax_Degree_Heating_Weeks_YR05,DHW.MeanMax_Degree_Heating_Weeks_YR10,DHW.MaxMax_Degree_Heating_Weeks_YR10,
+                          DHW.MeanMax_Degree_Heating_Weeks_YR10YR01,DHW.Np10y_Major_Degree_Heating_Weeks_YR10,mean_annual_range_SST_CRW_Daily_YR10,
+                          CVchla,CVsst,mean_SST_CRW_Daily_YR10,mean_Chlorophyll_A_VIIRS_Monthly_750m_YR05,sd_SST_CRW_Daily_YR10,
+                          sd_Chlorophyll_A_VIIRS_Monthly_750m_YR05)
 wave<-wave %>% select(SITE,WavePower)
 
 all_pred_site<- jwd_site   %>% 
-  left_join(cover) %>%
+  left_join(cover_forsite) %>%
   left_join(tsdhw) %>%
   left_join(sm_env) %>%
   left_join(wave)
@@ -204,6 +224,7 @@ all_pred_site$CORAL<-ifelse(is.na(all_pred_site$CORAL),all_pred_site$CORALst,all
 all_pred_site$CCA<-ifelse(is.na(all_pred_site$CCA),all_pred_site$CCAst,all_pred_site$CCA)
 all_pred_site$SAND_RUB<-ifelse(is.na(all_pred_site$SAND_RUB),all_pred_site$SAND_RUBst,all_pred_site$SAND_RUB)
 all_pred_site$TURF<-ifelse(is.na(all_pred_site$TURF),all_pred_site$TURFst,all_pred_site$TURF)
+all_pred_site$EMA_MA<-ifelse(is.na(all_pred_site$EMA_MA),all_pred_site$EMA_MAst,all_pred_site$EMA_MA)
 
 #Fix incorrect year since DHW 4 
 #If a site never experienced a >=4 DHW event then set YearSinceDHW4 to the most recent survey date - 1st recorded DHW data (1/1/1985)
@@ -214,14 +235,8 @@ all_pred_site$YearSinceDHW4<-ifelse(is.na(all_pred_site$YearSinceDHW4),difftime(
 subset(all_pred_site,SEC_NAME=="OAH_NORTH")
 
 #Missing depths
-all_pred_site$new_MAX_DEPTH_M<-ifelse(all_pred_site$SITE=="TIN-00711",12,all_pred_site$new_MAX_DEPTH_M)
-all_pred_site$new_MIN_DEPTH_M<-ifelse(all_pred_site$SITE=="TIN-00711",3,all_pred_site$new_MIN_DEPTH_M)
-
-all_pred_site$new_MAX_DEPTH_M<-ifelse(all_pred_site$SITE=="TIN-00646",70,all_pred_site$new_MAX_DEPTH_M)
-all_pred_site$new_MIN_DEPTH_M<-ifelse(all_pred_site$SITE=="TIN-00646",70,all_pred_site$new_MIN_DEPTH_M)
-
-all_pred_site$new_MAX_DEPTH_M<-ifelse(all_pred_site$SITE=="TIN-00581",45,all_pred_site$new_MAX_DEPTH_M)
-all_pred_site$new_MIN_DEPTH_M<-ifelse(all_pred_site$SITE=="TIN-00581",45,all_pred_site$new_MIN_DEPTH_M)
+all_pred_site$Depth_Median<-ifelse(all_pred_site$SITE=="TIN-00646",21.3,all_pred_site$Depth_Median)
+all_pred_site$Depth_Median<-ifelse(all_pred_site$SITE=="TIN-00581",13.7,all_pred_site$Depth_Median)
 
 
 write.csv(all_pred_site, file="T:/Benthic/Projects/Juvenile Project/JuvDeltaDen_Pred_SITE.csv",row.names = F)
@@ -496,14 +511,14 @@ View(lat_sum)
 
 #We are missing some cover data from some benthic sites so use all benthic and fish sites
 #Merge together wsd and sectors
+sitesKEEP<-unique(all_pred_site$SITE)
+cover<-dplyr::filter(cover,SITE %in% sitesKEEP)
 wsd<-left_join(cover,sectors[,c("SEC_NAME","REEF_ZONE","DEPTH_BIN","AREA_HA")]);nrow(wsd);head(wsd)
 
 #Subset just Forereef sites
-wsd$REEF_ZONE<-ifelse(wsd$REEF_ZONE=="Protected Slope","Forereef",as.character(wsd$REEF_ZONE))
-wsd<-subset(wsd,REEF_ZONE=="Forereef")
+# wsd$REEF_ZONE<-ifelse(wsd$REEF_ZONE=="Protected Slope","Forereef",as.character(wsd$REEF_ZONE))
+# wsd<-subset(wsd,REEF_ZONE=="Forereef")
 
-wsd$STRATANAME<-paste(wsd$SEC_NAME,wsd$REEF_ZONE,wsd$DEPTH_BIN,sep="_") #Create stratum
-head(wsd)
 wsd$SEC_NAME<-wsd$SEC_NAME
 wsd$ANALYSIS_YEAR<-wsd$OBS_YEAR
 
@@ -540,6 +555,23 @@ head(cover_sum)
 cover_sum3<-cover_sum
 
 cover_sum2<-cover_sum%>% dplyr::filter(ANALYSIS_YEAR>2013)
+
+#SAVE BY SECTOR PER YEAR
+OUTPUT_LEVEL<-c("REGION","ISLAND","SEC_NAME","ANALYSIS_YEAR") 
+dpsec<-Calc_Pooled_Simple(dps$Mean, dps$SampleVar, data.cols, OUTPUT_LEVEL, "AREA_HA")
+
+dpsec<-as.data.frame(dpsec)
+dpsec<-dpsec %>% dplyr::select(Mean.REGION:Mean.SAND_RUB,-c(Mean.N))
+
+dpsec<-dpsec %>%
+  dplyr::rename_all(funs(stringr::str_replace_all(., "Mean.", "")))
+head(dpsec)
+
+colnames(dpsec)[c(5:11)]<-paste(colnames(dpsec)[c(5:11)],"sec",sep="_")
+
+write.csv(dpsec, file="T:/Benthic/Projects/Juvenile Project/BenthicCover_JuvenileProject_Tier1_SECTOR.csv",row.names = F)
+
+
 
 # #Generate a list of Regions and years to include in final summary
 REGION<-c("NWHI","MHI","PHOENIX","LINE","SMARIAN","NMARIAN","SAMOA","WAKE")

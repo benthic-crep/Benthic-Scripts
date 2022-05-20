@@ -68,7 +68,7 @@ table(x$REGION, x$OBS_YEAR) #review years and regions in dataframe
 # nw$S_ORDER<-ifelse(nw$SPCODE=="AAAA",NA,"Scleractinia")
 
 #Create vector of column names to include then exclude unwanted columns from dataframe
-DATA_COLS<-c("MISSIONID","REGION","REGION_NAME","ISLAND","ISLANDCODE","LATITUDE",	"LONGITUDE","REEF_ZONE","DEPTH_BIN","OBS_YEAR",
+DATA_COLS<-c("MISSIONID","REGION","REGION_NAME","ISLAND","ISLANDCODE","REEF_ZONE","DEPTH_BIN","OBS_YEAR",
              "DATE_","NO_SURVEY_YN","EXCLUDE_FLAG","SITEVISITID", "SITE","HABITAT_CODE","DIVER","TRANSECTNUM","SEGMENT","SEGWIDTH","SEGLENGTH","FRAGMENT_YN",
              "COLONYID","TAXONCODE","MORPH_CODE","MORPHOLOGY","COLONYLENGTH","OLDDEAD",
              "RECENTDEAD_1","RECENT_GENERAL_CAUSE_CODE_1","RECENT_SPECIFIC_CAUSE_CODE_1",
@@ -114,6 +114,10 @@ if(DEBUG){head(x)}
 survey_master<-read.csv("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/data/SURVEY MASTER.csv")
 
 
+#Use SM coordinates-some coordinates are wrong in data and need to be updated
+colnames(survey_master)[colnames(survey_master)=="LATITUDE_LOV"]<-"LATITUDE" #Change column name- we will eventually change this column back to "taxoncode" after we modify the spcode names to match the taxalist we all feel comfortable identifying
+colnames(survey_master)[colnames(survey_master)=="LONGITUDE_LOV"]<-"LONGITUDE" #Change column name- we will eventually change this column back to "taxoncode" after we modify the spcode names to match the taxalist we all feel comfortable identifying
+
 #Check that OBS_YEAR, SITEVISITID, and SITE are all the same in both x and survey master
 OYerror<-which(x$OBS_YEAR!=survey_master$OBS_YEAR[match(x$SITEVISITID,survey_master$SITEVISITID)])
 SIerror<-which(as.vector(x$SITE)!=survey_master$SITE[match(x$SITEVISITID,survey_master$SITEVISITID)])
@@ -121,7 +125,7 @@ SIOYerrors<-unique(c(OYerror,SIerror))
 if(length(SIOYerrors)>0){print(paste0("Warning: Raw Data disagree with Survey Master for sitevisitids: ",x$SITEVISITID[SIOYerrors]))}
 
 #merge 'em NOTE: left-join will spit out a Warning message that you are joining on factors that have different levels. Basically you have more sites in survey master than x. This is correct and can be ignored here.
-x<-left_join(x, survey_master[,c("OBS_YEAR","SITEVISITID","SITE","SEC_NAME","ANALYSIS_YEAR","bANALYSIS_SCHEME","new_MIN_DEPTH_M","new_MAX_DEPTH_M")])
+x<-left_join(x, survey_master[,c("OBS_YEAR","SITEVISITID","SITE","LATITUDE","LONGITUDE","SEC_NAME","ANALYSIS_YEAR","bANALYSIS_SCHEME","new_MIN_DEPTH_M","new_MAX_DEPTH_M")])
 
 if(DEBUG){write.csv(x,"test.csv")}
 
@@ -296,7 +300,7 @@ class(x$DATE_)
 x$DATE_ <- as.Date(x$DATE_, format = "%Y-%m-%d")
 
 #Create vector of column names to include then exclude unwanted columns from dataframe
-DATA_COLS<-c("MISSIONID","REGION","REGION_NAME","ISLAND","ISLANDCODE","SITE","LATITUDE","LONGITUDE","REEF_ZONE","DEPTH_BIN","OBS_YEAR",
+DATA_COLS<-c("MISSIONID","REGION","REGION_NAME","ISLAND","ISLANDCODE","SITE","REEF_ZONE","DEPTH_BIN","OBS_YEAR",
              "DATE_","NO_SURVEY_YN","EXCLUDE_FLAG","SITEVISITID","HABITAT_CODE","DIVER","TRANSECTNUM","SEGMENT","SEGWIDTH","SEGLENGTH",
              "COLONYID","TAXONCODE","MORPH_CODE","MORPHOLOGY","COLONYLENGTH","GENUS_CODE","S_ORDER","TAXONNAME")
 
@@ -345,12 +349,18 @@ head(x)
 # load site master to merge with demographic data
 survey_master<-read.csv("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/data/SURVEY MASTER.csv")
 
-#add SITE MASTER information to x
-#x<-merge(x, survey_master[,c("SITE", "SEC_NAME", "ANALYSIS_SEC", "ANALYSIS_YEAR", "ANALYSIS_SCHEME")], by="SITE", all.x=TRUE) #Fish team's original code, we may want to create analysis scheme later in the
-length(unique(x$SITEVISITID)) #double check that sites weren't dropped
+#Use SM coordinates-some coordinates are wrong in data and need to be updated
+colnames(survey_master)[colnames(survey_master)=="LATITUDE_LOV"]<-"LATITUDE" #Change column name- we will eventually change this column back to "taxoncode" after we modify the spcode names to match the taxalist we all feel comfortable identifying
+colnames(survey_master)[colnames(survey_master)=="LONGITUDE_LOV"]<-"LONGITUDE" #Change column name- we will eventually change this column back to "taxoncode" after we modify the spcode names to match the taxalist we all feel comfortable identifying
+
+#Check that OBS_YEAR, SITEVISITID, and SITE are all the same in both x and survey master
+OYerror<-which(x$OBS_YEAR!=survey_master$OBS_YEAR[match(x$SITEVISITID,survey_master$SITEVISITID)])
+SIerror<-which(as.vector(x$SITE)!=survey_master$SITE[match(x$SITEVISITID,survey_master$SITEVISITID)])
+SIOYerrors<-unique(c(OYerror,SIerror))
+if(length(SIOYerrors)>0){print(paste0("Warning: Raw Data disagree with Survey Master for sitevisitids: ",x$SITEVISITID[SIOYerrors]))}
 
 #merge 'em NOTE: left-join will spit out a Warning message that you are joining on factors that have different levels. Basically you have more sites in survey master than x. This is correct and can be ignored here.
-x<-left_join(x, survey_master[,c("OBS_YEAR","SITEVISITID","SITE","SEC_NAME","ANALYSIS_YEAR","bANALYSIS_SCHEME","new_MIN_DEPTH_M","new_MAX_DEPTH_M")])
+x<-left_join(x, survey_master[,c("OBS_YEAR","SITEVISITID","SITE","LATITUDE","LONGITUDE","SEC_NAME","ANALYSIS_YEAR","bANALYSIS_SCHEME","new_MIN_DEPTH_M","new_MAX_DEPTH_M")])
 
 if(DEBUG){write.csv(x,"test.csv")}
 

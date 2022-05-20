@@ -24,26 +24,28 @@ bia$SITE<-SiteNumLeadingZeros(bia$SITE)
 
 #CNET data - from CoralNet
 #These data contain human annotated data. There may be a small subset of robot annotated data. 
-#The robot annoations are included because the confidence threshold in CoralNet was set to 90% allowing the robot to annotate points when it was 90% certain.
+#The robot annotations are included because the confidence threshold in CoralNet was set to 70-90% allowing the robot to annotate points when it was 70-90% certain.
 #2019 NWHI data not in these view because it was analyzed as part of a bleaching dataset
 load("T:/Benthic/Data/REA Coral Demography & Cover/Raw from Oracle/ALL_BIA_STR_CNET.rdata") #load data
 
 cnet$SITE<-SiteNumLeadingZeros(cnet$SITE)
-table(cnet$REGION,cnet$OBS_YEAR)
 
-cnet2017<-read.csv("C:/Users/Courtney.S.Couch/Documents/2017_NWHI_CnetAnnotations_formatted.csv")
+#Temporary work around for merging in 2015 and 2017 NWHI data that hasn't been uploaded to Oracle yet- remove this once Michael has incorporated data
+new.cnet<-read.csv("T:/Benthic/Data/REA Coral Demography & Cover/Raw Data from CoralNet/2015_2017_NWHI_CnetAnnotations_formatted.csv")
+new.cnet<-new.cnet %>% drop_na(ROUNDID) #remove blank rows
+
+class(new.cnet$DATE_)
+class(new.cnet$DATE_TAKEN)
 
 #Date conversations still not working
-cnet2017$DATE_<-mdy(cnet2017$DATE_)
-cnet2017$DATE_TAKEN<-mdy(cnet2017$DATE_TAKEN);head(cnet2017$DATE_TAKEN)
-cnet2017$DATE_ANNOTATED<-mdy(cnet2017$DATE_ANNOTATED);head(cnet2017$DATE_ANNOTATED)
+new.cnet$DATE_<-mdy(new.cnet$DATE_)
+new.cnet$DATE_TAKEN<-ymd(new.cnet$DATE_TAKEN);head(new.cnet$DATE_TAKEN)
+new.cnet$DATE_ANNOTATED<-ymd_hms(new.cnet$DATE_ANNOTATED);head(new.cnet$DATE_ANNOTATED)
 
-cnet$DATE_<-mdy(cnet$DATE_)
-cnet$DATE_TAKEN<-mdy(cnet$DATE_TAKEN);head(cnet$DATE_TAKEN)
-cnet$DATE_ANNOTATED<-mdy(cnet$DATE_ANNOTATED);head(cnet$DATE_ANNOTATED)
-
-#combine old cnet and 2017 nwhi cnet data
-cnet<-rbind(cnet,cnet2017) 
+#combine old cnet and 2015 & 2017 nwhi cnet data
+cnet<-rbind(cnet,new.cnet) 
+table(cnet$REGION,cnet$OBS_YEAR)
+table(new.cnet$REGION,new.cnet$OBS_YEAR)
 
 
 ##Generate Table of all the bia categories to review
@@ -147,7 +149,6 @@ ab[ab$GENERA_NAME %in% c("Lobophora sp","Peyssonnelia sp", "Encrusting macroalga
 ab[ab$GENERA_NAME %in% c("Lobophora sp","Peyssonnelia sp", "Encrusting macroalga"),]$CATEGORY_NAME<-"Encrusting macroalga"
 
 
-
 ###Create a Halimeda class
 ab$GENERA_NAME<-as.character(ab$GENERA_NAME)
 ab$TIER_1<-as.character(ab$TIER_1)
@@ -186,9 +187,8 @@ ab[is.na(ab$HABITAT_CODE),]$HABITAT_CODE<-"UNKNOWN"
 
 
 #Generate a SITE table
-sites<-ddply(ab,.(METHOD,REGION,OBS_YEAR,ISLAND,PERM_SITE,CLIMATE_STATION_YN,SITEVISITID,LATITUDE,LONGITUDE,REEF_ZONE,DEPTH_BIN),
-             summarize,x=sum(POINTS))
-sites$x<-NULL
+sites<-unique(ab[,c("METHOD","REGION","OBS_YEAR","ISLAND","PERM_SITE","CLIMATE_STATION_YN","SITEVISITID","LATITUDE","LONGITUDE","REEF_ZONE","DEPTH_BIN")])
+
 dim(sites)
 
 
@@ -206,9 +206,6 @@ photo$new.N<-photo$N-(photo$MF+photo$UC+photo$TW)
 #Add CCA + Coral
 photo$CCA_CORAL<-photo$CCA + photo$CORAL
 
-#Change Inf to NA
-photo<-photo%>% mutate_if(is.numeric, ~ifelse(abs(.) == Inf,NA,.))
-
 r_levels<-c(unique(as.character(ab$TIER_1)),"CCA_CORAL")
 data.cols<-c(r_levels)
 data.cols
@@ -223,8 +220,7 @@ photo$BSR<-(photo$CCA + photo$CORAL)/(photo$TURF+ photo$MA)
 # plot(photo$BSR,
 #      (photo$CORAL+photo$CCA)/(photo$TURF+photo$MA))
 # abline(0,1)
-# abline(0,2)
-# abline(0,3)
+
 
 r_levels<-c(unique(as.character(ab$TIER_1)),"BSR")
 T1data.cols<-c(r_levels)
@@ -264,8 +260,11 @@ wsd_t1$TRANSECT_PHOTOS<-"-1" #make sure that all rows = -1
 #Remove the unknowns and TWS columns
 wsd_t1<-subset(wsd_t1,select= -c(MF,UC,TW))
 
+#Remove sites that have less than 150 points after removing MF,UC, TW (a lot of our early imagery was poor quality and will be removed)
+wsd_t1<-subset(wsd_t1,new.N >=150)
+
 #Save Tier 1 site data to t drive. This file has all sites (fish, benthic and OCC) that were annoated between 2010 and 2018
-write.csv(wsd_t1, file="T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Site/BenthicCover_2010-2020_Tier1_SITE_wNWHI2017.csv",row.names=F)
+write.csv(wsd_t1, file="T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Site/BenthicCover_2010-2020_Tier1_SITE.csv",row.names=F)
 
 
 # Generate Site-level Data at TIER 3 level--------------
@@ -302,8 +301,11 @@ wsd_t3$TRANSECT_PHOTOS<-"-1" #make sure that all rows = -1
 #Remove the unknowns and TWS columns
 wsd_t3<-subset(wsd_t3,select= -c(WAND,UNK,TAPE,MOBF,SHAD))
 
+#Remove sites that have less than 150 points after removing MF,UC, TW (a lot of our early imagery was poor quality and will be removed)
+wsd_t3<-subset(wsd_t3,new.N >=150)
+
 #Save Tier 1 site data to t drive. This file has all sites (fish, benthic and OCC) that were annoated between 2010 and 2018
-write.csv(wsd_t3, file="T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Site/BenthicCover_2010-2020_Tier3_SITE_wNWHI2017.csv",row.names = F)
+write.csv(wsd_t3, file="T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Site/BenthicCover_2010-2020_Tier3_SITE.csv",row.names = F)
 
 
 # CHECK THAT DATA IS READY FOR POOLING AND DO SOME FINAL CLEAN UPS --------
