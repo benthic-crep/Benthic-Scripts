@@ -146,7 +146,7 @@ site.data.gen2<-left_join(site.data.gen2,meta)
 site.data.gen2$Juvpres.abs<-ifelse(site.data.gen2$JuvColDen>0,1,0)
 
 #Make tweaks to pooling sector pooling and drop specific islands
-isl.drop<-c("Alamagan","Midway","Niihau","Johnston") 
+isl.drop<-c("Alamagan","Midway","Maro","Niihau","Johnston","Guguan") 
 site.data.gen2<-site.data.gen2[!site.data.gen2$ISLAND %in% c(isl.drop),] #Remove islands that don't have enough strata sampled across the years 
 
 #Not enough sampling in each sector- pool them together
@@ -184,7 +184,7 @@ table(site.data.gen2$ISLAND,site.data.gen2$OBS_YEAR)
 
 
 #Change Region Names -breaking up marianas and PRIAs into subregions because of broad geography and thermal history
-site.data.gen2$REGION<-ifelse(site.data.gen2$ISLAND %in% c("FDP", "Maug", "Asuncion", "Alamagan", "Pagan", "Agrihan", "Guguan", "Sarigan","Farallon_de_Pajaros")
+site.data.gen2$REGION<-ifelse(site.data.gen2$ISLAND %in% c("Maug", "Asuncion", "Alamagan", "Pagan", "Agrihan", "Guguan", "Sarigan","Farallon de Pajaros")
                               ,"NMARIAN", as.character(site.data.gen2$REGION))
 site.data.gen2$REGION<-ifelse(site.data.gen2$ISLAND %in% c("Saipan", "Tinian", "Aguijan", "Rota", "Guam")
                               ,"SMARIAN", as.character(site.data.gen2$REGION))
@@ -344,12 +344,23 @@ ggsave(plot=p8,file="T:/Benthic/Projects/Juvenile Project/Figures/DensityRegiona
 
 
 # Spatial Trends in Juveniles in Most recent survey --------------------------------------------
-R_Y<-c("MHI_2019","NWHI_2017","NMARIAN_2017","SMARIAN_2017","PHOENIX_2018","LINE_2018","SAMOA_2018","WAKE_2017")
+# R_Y<-c("MHI_2019","NWHI_2017","NMARIAN_2017","SMARIAN_2017","PHOENIX_2018","LINE_2018","SAMOA_2018","WAKE_2017")
+# 
+# site.swS$REGION_YEAR<-paste(site.swS$REGION,site.swS$OBS_YEAR,sep="_")
+# site.swS<-site.swS[site.swS$REGION_YEAR %in% R_Y,] 
 
+
+#Remove 2014 NWHI data because we do not have benthic cover data for this year
+REGION_YEAR<-c("NWHI_2014")
+
+table(site.swS$REGION,site.swS$OBS_YEAR)
 site.swS$REGION_YEAR<-paste(site.swS$REGION,site.swS$OBS_YEAR,sep="_")
-site.swS<-site.swS[site.swS$REGION_YEAR %in% R_Y,] 
+site.swS<-site.swS[site.swS$REGION_YEAR != REGION_YEAR,]
+table(site.swS$REGION,site.swS$OBS_YEAR)
+
 
 table(site.swS$ISLAND,site.swS$DB_RZ)
+nrow(site.swS) #total number of sites used in the spatial analysis
 
 #Use survey package to calculate mean SE and conduct statistical analyses
 site.swS$ANALYSIS_YEAR<-as.factor(site.swS$ANALYSIS_YEAR)
@@ -365,7 +376,9 @@ modR<-svyglm(JuvColCount ~ REGION, design=des,offset= TRANSECTAREA_j, family="po
 summary(modR)
 tuk2<-glht(modR, mcp(REGION="Tukey")) 
 tuk.cld2 <- cld(tuk2)
-sig<-c("c","c","c","c","a","b","c","a")
+#sig<-c("c","c","c","c","a","b","c","a")
+sig<-c("b","b","d","bd","a","c","d","a")
+
 spatial_Rmean<-cbind(spatial_Rmean,sig)
 
 

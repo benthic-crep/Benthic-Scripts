@@ -199,6 +199,8 @@ plot(new.df$JuvColDen~new.df$Depth_Median)
 #plot(new.df$JuvColDen~new.df$LATITUDE)
 plot(new.df$JuvColDen~new.df$CVsst)
 plot(new.df$JuvColDen~new.df$CVchla) 
+plot(new.df$JuvColDen~new.df$Meanchla) 
+
 plot(new.df$JuvColDen~new.df$scaled_CORAL) 
 plot(new.df$JuvColDen~new.df$scaled_CCA) 
 plot(new.df$JuvColDen~new.df$scaled_EMA_MA) 
@@ -368,6 +370,7 @@ global.mod1<-svyglm(JuvColCount ~
                        scaled_EMA_MA +
                        scaled_SAND_RUB +
                        poly(scaled_Depth_Median,2,raw=TRUE)*scaled_MeanDHW10 +
+                       scaled_Meanchla*scaled_MeanDHW10 +
                        scaled_CVsst*scaled_MeanDHW10 +
                        scaled_WavePower*scaled_MeanDHW10+
                        scaled_YearSinceDHW4*scaled_MeanDHW10+
@@ -414,16 +417,23 @@ RED.MOD8 <- update(RED.MOD7, .~. -scaled_EMA_MA) #drop 2-way interaction term
 anova(RED.MOD7, RED.MOD8) #LRT --> move forward w/ whichever model keeps/removes term
 summary(RED.MOD8)
 
-RED.MOD9 <- update(RED.MOD8, .~. -scaled_SAND_RUB) #drop 2-way interaction term
+RED.MOD9 <- update(RED.MOD8, .~. -scaled_MeanDHW10:scaled_Meanchla) #drop 2-way interaction term
 anova(RED.MOD9, RED.MOD8) #LRT --> move forward w/ whichever model keeps/removes term
 summary(RED.MOD9)
 
+RED.MOD10 <- update(RED.MOD9, .~. -scaled_Meanchla) #drop 2-way interaction term
+anova(RED.MOD9, RED.MOD10) #LRT --> move forward w/ whichever model keeps/removes term
+summary(RED.MOD10)
 
-AIC(RED.MOD7)
-AIC(RED.MOD8)
+RED.MOD11 <- update(RED.MOD10, .~. -scaled_SAND_RUB) #drop 2-way interaction term
+anova(RED.MOD11, RED.MOD10) #LRT --> move forward w/ whichever model keeps/removes term
+summary(RED.MOD11)
+
 AIC(RED.MOD9)
+AIC(RED.MOD10)
+AIC(RED.MOD11)
 
-best.mod<-RED.MOD8
+best.mod<-RED.MOD10
 summary(best.mod)
 
 #Only option to generate a R2 like metric for these kinds of models
