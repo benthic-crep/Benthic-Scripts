@@ -44,9 +44,9 @@ human<-read.csv("T:/Benthic/Projects/Juvenile Project/Data/JuvCoralSitse_w_pop_d
 #Change Regions to correspond to juvenile data
 Convert_Region<-function(data){
   data$REGION<-ifelse(data$ISLAND %in% c("Farallon de Pajaros", "Maug", "Asuncion", "Alamagan", "Pagan", "Agrihan", "Guguan", "Sarigan","Farallon_de_Pajaros")
-                      ,"NMARIAN", as.character(data$REGION))
+                      ,"NMI", as.character(data$REGION))
   data$REGION<-ifelse(data$ISLAND %in% c("Saipan", "Tinian", "Aguijan", "Rota", "Guam")
-                    ,"SMARIAN", as.character(data$REGION))
+                    ,"SMI", as.character(data$REGION))
   data$REGION<-ifelse(data$ISLAND %in% c("Howland","Baker")
                     ,"PHOENIX", as.character(data$REGION))
   data$REGION<-ifelse(data$ISLAND =="Wake"
@@ -352,7 +352,7 @@ write.csv(dpsec, file="T:/Benthic/Projects/Juvenile Project/BenthicCover_Juvenil
 
 
 # #Generate a list of Regions and years to include in final summary
-REGION<-c("NWHI","MHI","PHOENIX","LINE","SMARIAN","NMARIAN","SAMOA","WAKE")
+REGION<-c("NWHI","MHI","PHOENIX","LINE","SMI","NMI","SAMOA","WAKE")
 ANALYSIS_YEAR<-c("2016","2019","2018","2018","2017","2017","2018","2017")
 keep<-as.data.frame(cbind(REGION,ANALYSIS_YEAR))
 
@@ -376,7 +376,7 @@ CalcDeltaCover<-function(data,data.col,metric_name="DeltaCCA"){
   
   wide$DeltaCover<-NULL
   for (i in c(1:nrow(wide))){ #opening brace
-    if(wide$REGION[i] %in% c("SMARIAN","NMARIAN","WAKE")){ #c&p
+    if(wide$REGION[i] %in% c("SMI","NMI","WAKE")){ #c&p
       wide$DeltaCover[i] = wide$t2017[i]-wide$t2014[i] #c&p
     } #c&P
     if(wide$REGION[i] %in% c("SAMOA","LINE","PHOENIX")){ #c&p

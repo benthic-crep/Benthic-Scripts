@@ -24,7 +24,7 @@ file_list <- list.files("M:/Environmental Data Summary/DataDownload/Degree_Heati
 # #file_list<- subset(file_list, !(file_list %in% file.bad))
 # #file_list<-file_list[c(34:38)]
 #file_list<-("Lisianski_raw_Degree_Heating_Weeks.RData")
-load("M:/Environmental Data Summary/DataDownload/Degree_Heating_Weeks/RAW/Palmyra_raw_Degree_Heating_Weeks.RData")
+#load("M:/Environmental Data Summary/DataDownload/Degree_Heating_Weeks/RAW/Palmyra_raw_Degree_Heating_Weeks.RData")
 
 #Read in raw juvenile data (this file is used to identify which sites you want to extract DHW for- the file needs to have a date column)
 juvdata<-read.csv("T:/Benthic/Data/REA Coral Demography & Cover/Analysis Ready Raw data/CoralBelt_Juveniles_raw_CLEANED.csv")
@@ -128,24 +128,27 @@ DHWPeak<-function(data,jwd){
   
   #Remove columns with column names = NA and rows with NaN
   data <- data[!is.na(names(data))]
-  data <- na.omit(data)
-  
+
   #Subset data to make it easier to work with
   dhw<-pivot_longer(data, cols = 6:ncol(data), names_to = "DATE_", values_to = "DHW")
   
-  dhw$DATE_<-lubridate::ymd(dhw$DATE_)
-  head(dhw)
+  dhwR<-filter(dhw,DATE_>="2013-01-01")
+
+  # dhw$DATE_<-lubridate::ymd(dhw$DATE_)
+  # head(dhw)
   
-  dhw$OBS_YEAR<-year(dhw$DATE_)
+  dhwR$OBS_YEAR<-year(dhwR$DATE_)
   
   #Identify Date of peak DHW
-  peak <- dhw %>%
+  peak <- dhwR %>%
     group_by(SITE,OBS_YEAR) %>%
     filter(DHW == max(DHW)) %>%
     select(dhw=DHW, PeakDHW=DHW, DATE_) %>%
     filter(DATE_==min(DATE_))
   peak$PeakDate<-peak$DATE_
   peak <- peak[,c("SITE","OBS_YEAR","PeakDHW","PeakDate")]
+  
+  peak<-subset(peak,SITE %in% c(jwd$SITE))
   
   return(peak)
   
@@ -162,13 +165,6 @@ for(i in 1:length(file_list)){
   peak.all<-rbind(peak.all,df)
 }
 View(peak.all)
-
-peak.j<-left_join(juvdata,peak.all)
-
-peak.j<-unique(peak.j[,c("REGION","OBS_YEAR","PeakDHW","PeakDate")])
-peak$PeakDate<-peak$DATE_
-peak <- peak[,c("REGION","OBS_YEAR","PeakDHW","PeakDate")]
-
 
 write.csv(peak.all,file="T:/Benthic/Projects/Juvenile Project/Juvenile_PeakDHW.csv")
 

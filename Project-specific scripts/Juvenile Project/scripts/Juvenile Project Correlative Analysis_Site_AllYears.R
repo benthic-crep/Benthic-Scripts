@@ -45,7 +45,7 @@ cover_sec<-read.csv("T:/Benthic/Projects/Juvenile Project/BenthicCover_JuvenileP
 
 #remove columns
 df<-subset(df,select=c(DATE_,OBS_YEAR,REGION,ISLAND,SEC_NAME,DEPTH_BIN,REEF_ZONE,STRATANAME,HABITAT_CODE,SITE,n,NH,sw,TRANSECTAREA_j,JuvColCount,JuvColDen,
-                       LATITUDE,Depth_Median,CORAL,CORALst,CCA,SAND_RUB,TURF,EMA_MA, YearSinceDHW4, YearSinceDHW8,DHW.MeanMax_Degree_Heating_Weeks_YR01,
+                       LATITUDE,LONGITUDE,Depth_Median,CORAL,CORALst,CCA,SAND_RUB,TURF,EMA_MA, YearSinceDHW4, YearSinceDHW8,DHW.MeanMax_Degree_Heating_Weeks_YR01,
                        DHW.MeanMax_Degree_Heating_Weeks_YR03,DHW.MeanMax_Degree_Heating_Weeks_YR05,DHW.MeanMax_Degree_Heating_Weeks_YR10YR01,
                        DHW.MeanMax_Degree_Heating_Weeks_YR10,DHW.MaxMax_Degree_Heating_Weeks_YR10,
                        DHW.Np10y_Major_Degree_Heating_Weeks_YR10,WavePower,CVsst,CVchla,mean_SST_CRW_Daily_YR10,mean_Chlorophyll_A_VIIRS_Monthly_750m_YR05,
@@ -61,6 +61,8 @@ df$Area<-df$NH
 df$CORAL_sec<-ifelse(df$SEC_NAME=="Baker",23.62746339,df$CORAL_sec)#no 2018 benthic cover sites so using fish sector data
 df$CoralSec_A<-df$Area*df$CORAL_sec
 
+df<-filter(df,ISLAND !="Guguan") #only 1 year
+
 
 #Remove 2014 NWHI data because we do not have benthic cover data for this year
 REGION_YEAR<-c("NWHI_2014")
@@ -75,11 +77,11 @@ df$OBS_MONTH<-month(df$DATE_)
 df$OBS_DAY<-day(df$DATE_)
 
 meta<-df %>%
-  group_by(REGION,OBS_YEAR) %>%
+  group_by(REGION,ISLAND,OBS_YEAR) %>%
   summarize(MinDate=min(DATE_),MaxDate=max(DATE_),n=length(n))
 
 meta<-df %>%
-  group_by(REGION,OBS_YEAR) %>%
+  group_by(REGION,ISLAND,OBS_YEAR) %>%
   summarize(MinMonth=min(OBS_MONTH),MaxMonth=max(OBS_MONTH),
             MinDay=min(OBS_DAY),MaxDay=max(OBS_DAY),
             n=length(n))
@@ -89,8 +91,49 @@ meta$DateRange<-paste(meta$DateMin,meta$DateMax,sep=" - ")
 
 
 meta$DateRange<-paste(meta$MinDate,meta$MaxDate,sep = ",")
-meta<-meta[,c("REGION","OBS_YEAR","DateRange","n")]
+meta<-meta[,c("REGION","ISLAND","OBS_YEAR","DateRange","n")]
 head(meta)
+
+
+meta<-meta %>% mutate(T1_T2= dplyr::recode(OBS_YEAR,
+                                           `2013`="T1",     
+                                           `2014`="T1",
+                                                `2015`="T1",
+                                                `2016`="T2",
+                                                `2017`="T2",
+                                                `2018`="T2",
+                                                `2019`="T3"))
+meta$R_Y<-paste(meta$REGION,meta$OBS_YEAR,sep="-")
+meta$T1_T2<-ifelse(meta$R_Y=="NWHI-2017","T3",meta$T1_T2)
+View(meta)
+
+coord<-df %>%
+  group_by(REGION,ISLAND) %>%
+  summarize(Latitude=median(LATITUDE),Longitude=median(LONGITUDE))
+
+wide.date<-meta %>%
+  dplyr::select(REGION,ISLAND,T1_T2,DateRange) %>%
+  pivot_wider(names_from = T1_T2,values_from = DateRange)
+
+wide.n<-meta %>%
+  dplyr::select(REGION,ISLAND,T1_T2,n) %>%
+  pivot_wider(names_from = T1_T2,values_from = n)
+View(wide.n)
+
+wide<-left_join(wide.date,wide.n,by=c("REGION","ISLAND"))
+
+wide$T1<-paste(wide$T1.x,"(",wide$T1.y,")")
+wide$T2<-paste(wide$T2.x,"(",wide$T2.y,")")
+wide$T3<-paste(wide$T3.x,"(",wide$T3.y,")")
+
+wide<-left_join(wide,coord,by=c("REGION","ISLAND"))
+
+head(wide)
+wide<-wide[,c("REGION","ISLAND","Latitude","Longitude","T1","T2","T3")]
+
+
+write.csv(wide,file="T:/Benthic/Projects/Juvenile Project/Tables/Table1.csv")
+
 
 #Dealing with missing Year Since DHW4 data:
 #If a site never experienced a >=4 DHW event then set YearSinceDHW4 to the most recent survey date - 1st recorded DHW data (1/1/1985)
@@ -111,6 +154,9 @@ subset(df,SEC_NAME=="OAH_NORTH")
 
 
 View(df)
+
+#Convert latitude to absolute value
+df$LATITUDE<-abs(df$LATITUDE)
 
 
 #Rename Predictors
@@ -214,6 +260,8 @@ par(mfrow=c(1,1))
 plot(new.df$JuvColDen~new.df$YearSinceDHW4)
 plot(new.df$JuvColDen~new.df$scaled_CoralSec_A) 
 plot(new.df$JuvColDen~new.df$scaled_logHumanDen) 
+
+head(new.df)
 
 
 ##Convert Year since HS event into categorical variable
@@ -365,16 +413,16 @@ ggplot(newdata, aes(x = scaled_CORAL, y = Predicted_Juv)) +
 #Global model with Interactions with MeanMaxDHW10
 global.mod1<-svyglm(JuvColCount ~
                        poly(scaled_CORAL,3,raw=TRUE)+ 
-                       scaled_CCA+
+                       scaled_CCA*poly(scaled_Depth_Median,2,raw=TRUE)+
                        scaled_CoralSec_A*scaled_MeanDHW10 +
                        scaled_EMA_MA +
                        scaled_SAND_RUB +
+                       HS_YN+
                        poly(scaled_Depth_Median,2,raw=TRUE)*scaled_MeanDHW10 +
                        scaled_Meanchla*scaled_MeanDHW10 +
                        scaled_CVsst*scaled_MeanDHW10 +
                        scaled_WavePower*scaled_MeanDHW10+
                        scaled_YearSinceDHW4*scaled_MeanDHW10+
-                       HS_YN+
                        scaled_logHumanDen*scaled_MeanDHW10,
                      design=des, family="poisson",offset=log(TRANSECTAREA_j))
 
@@ -393,19 +441,19 @@ RED.MOD2 <- update(RED.MOD1, .~. -scaled_CoralSec_A:scaled_MeanDHW10) #drop 2-wa
 anova(RED.MOD1, RED.MOD2) #LRT --> move forward w/ whichever model keeps/removes term
 summary(RED.MOD2)
 
-RED.MOD3 <- update(RED.MOD2, .~. -scaled_MeanDHW10:poly(scaled_Depth_Median, 2, raw = TRUE)) #drop 2-way interaction term
+RED.MOD3 <- update(RED.MOD2, .~. -scaled_CCA) #drop 2-way interaction term
 anova(RED.MOD2, RED.MOD3,test = "Chisq") #LRT --> move forward w/ whichever model keeps/removes term
 summary(RED.MOD3)
 
-RED.MOD4 <- update(RED.MOD3, .~. -scaled_WavePower) #drop 2-way interaction term
+RED.MOD4 <- update(RED.MOD3, .~. -poly(scaled_Depth_Median, 2, raw = TRUE):scaled_MeanDHW10) #drop 2-way interaction term
 anova(RED.MOD3, RED.MOD4) #LRT --> move forward w/ whichever model keeps/removes term
 summary(RED.MOD4)
 
-RED.MOD5 <- update(RED.MOD4, .~. -scaled_CCA) #drop 2-way interaction term
+RED.MOD5 <- update(RED.MOD4, .~. -HS_YN) #drop 2-way interaction term
 anova(RED.MOD4, RED.MOD5) #LRT --> move forward w/ whichever model keeps/removes term
 summary(RED.MOD5)
 
-RED.MOD6 <- update(RED.MOD5, .~. -HS_YN) #drop 2-way interaction term
+RED.MOD6 <- update(RED.MOD5, .~. -poly(scaled_Depth_Median, 2, raw = TRUE):scaled_CCA) #drop 2-way interaction term
 anova(RED.MOD5, RED.MOD6) #LRT --> move forward w/ whichever model keeps/removes term
 summary(RED.MOD6)
 
@@ -413,27 +461,32 @@ RED.MOD7 <- update(RED.MOD6, .~. -scaled_MeanDHW10:scaled_WavePower) #drop 2-way
 anova(RED.MOD6, RED.MOD7) #LRT --> move forward w/ whichever model keeps/removes term
 summary(RED.MOD7)
 
-RED.MOD8 <- update(RED.MOD7, .~. -scaled_EMA_MA) #drop 2-way interaction term
+RED.MOD8 <- update(RED.MOD7, .~. -scaled_WavePower) #drop 2-way interaction term
 anova(RED.MOD7, RED.MOD8) #LRT --> move forward w/ whichever model keeps/removes term
 summary(RED.MOD8)
 
-RED.MOD9 <- update(RED.MOD8, .~. -scaled_MeanDHW10:scaled_Meanchla) #drop 2-way interaction term
+RED.MOD9 <- update(RED.MOD8, .~. -scaled_EMA_MA) #drop 2-way interaction term
 anova(RED.MOD9, RED.MOD8) #LRT --> move forward w/ whichever model keeps/removes term
 summary(RED.MOD9)
 
-RED.MOD10 <- update(RED.MOD9, .~. -scaled_Meanchla) #drop 2-way interaction term
+RED.MOD10 <- update(RED.MOD9, .~. -scaled_MeanDHW10:scaled_Meanchla) #drop 2-way interaction term
 anova(RED.MOD9, RED.MOD10) #LRT --> move forward w/ whichever model keeps/removes term
 summary(RED.MOD10)
 
-RED.MOD11 <- update(RED.MOD10, .~. -scaled_SAND_RUB) #drop 2-way interaction term
+RED.MOD11 <- update(RED.MOD10, .~. -scaled_Meanchla) #drop 2-way interaction term
 anova(RED.MOD11, RED.MOD10) #LRT --> move forward w/ whichever model keeps/removes term
 summary(RED.MOD11)
+
+RED.MOD12 <- update(RED.MOD11, .~. -scaled_SAND_RUB) #drop 2-way interaction term
+anova(RED.MOD11, RED.MOD12) #LRT --> move forward w/ whichever model keeps/removes term
+summary(RED.MOD12)
 
 AIC(RED.MOD9)
 AIC(RED.MOD10)
 AIC(RED.MOD11)
+AIC(RED.MOD12)
 
-best.mod<-RED.MOD10
+best.mod<-RED.MOD11
 summary(best.mod)
 
 #Only option to generate a R2 like metric for these kinds of models
@@ -468,7 +521,7 @@ sum.co$Variable_plot <- factor(c("SST Variability x Heat Stress",
                                  "Sector-level Coral Cover",
                                  "Depth^2",
                                  "Human Density",
-                                 "Sand and Rubble Cover",
+                                 "Unconsolidated Cover",
                                  "Coral Cover^3",
                                  "SST Variability",
                                  "Heat Stress"),
@@ -481,12 +534,12 @@ sum.co$Variable_plot <- factor(c("SST Variability x Heat Stress",
                                           "Sector-level Coral Cover",
                                           "Depth^2",
                                           "Human Density",
-                                          "Sand and Rubble Cover",
+                                          "Unconsolidated Cover",
                                           "Coral Cover^3",
                                           "SST Variability",
                                           "Heat Stress"))
 
-write.csv(sum.co,file="Density_best.mod2013-19_svyglm_table_v2.csv")
+write.csv(sum.co,file="T:/Benthic/Projects/Juvenile Project/Tables/Density_best.mod2013-19_svyglm_table_v2.csv")
 
 
 sum.co$Sig <- NA
@@ -527,7 +580,7 @@ var_plot <-
     text = element_text(size = 18)) +
   xlab("") +
   ylab("\nParameter Estimate") +
-  scale_y_continuous(limits = c(-0.9,0.8)) +
+  scale_y_continuous(limits = c(-0.8,0.8)) +
   scale_x_discrete(limits = rev(levels(sum.co$Variable_plot))) +
   scale_color_manual(values = c("#009E73","black"))
 
@@ -544,7 +597,7 @@ dev.off()
 Predictplot <- function(mod=best.mod,dat=newdata, us_pred="CORAL",predictor="scaled_CORAL", predictor_name,sigcol="black",bks=2){
   dat$s_X<-dat[,predictor] #scaled predictor
   dat$X<-dat[,us_pred] #unscaled predictor
-
+  
   p <- predict(mod, newdata = dat, type = "response",se.fit=TRUE)
   p<-as.data.frame(p)
   colnames(p)<-c("Predicted_Juv","SE_Juv")
@@ -596,7 +649,10 @@ newdata$scaled_logHumanDen <- mean(new.df$scaled_logHumanDen)
 newdata$scaled_CVsst <- mean(new.df$scaled_CVsst)
 newdata$scaled_MeanDHW10<-seq(min(new.df$scaled_MeanDHW10),max(new.df$scaled_MeanDHW10),
                               by=round(rg(new.df$scaled_MeanDHW10),5)/nrow(new.df))
-newdata$scaled_YearSinceDHW4<-mean(new.df$scaled_YearSinceDHW4)
+newdata$scaled_YearSinceDHW4<-mean(new.df$scaled_YearSinceDHW4,na.rm=T)
+
+predict(best.mod, newdata = newdata, type = "response",se.fit=TRUE)
+
 
 hs.plot<-Predictplot(best.mod,dat=newdata,"MeanDHW10","scaled_MeanDHW10","Mean Max degC-weeks","black",2)+
         geom_rug(data=new.df,mapping=aes(x=scaled_MeanDHW10,y=0))
@@ -624,7 +680,7 @@ depth.plot<-Predictplot(best.mod,newdata,"Depth_Median","scaled_Depth_Median","M
 newdata <- new.df
 newdata$TRANSECTAREA_j <- 1 #Need to keep survey area constant
 newdata$scaled_CORAL <- seq(min(new.df$scaled_CORAL),max(new.df$scaled_CORAL),
-                            by=round(rg(new.df$scaled_CORAL),5)/nrow(new.df))
+                            by=round(rg(new.df$scaled_CORAL),4)/nrow(new.df))
 newdata$scaled_CoralSec_A <- mean(new.df$scaled_CoralSec_A)
 newdata$scaled_SAND_RUB <- mean(new.df$scaled_SAND_RUB)
 newdata$scaled_Depth_Median<- mean(new.df$scaled_Depth_Median)
@@ -641,7 +697,7 @@ newdata <- new.df
 newdata$TRANSECTAREA_j <- 1 #Need to keep survey area constant
 newdata$scaled_CORAL <- mean(new.df$scaled_CORAL)
 newdata$scaled_CoralSec_A <- seq(min(new.df$scaled_CoralSec_A),max(new.df$scaled_CoralSec_A),
-                                 by=round(rg(new.df$scaled_CoralSec_A),6)/nrow(new.df))
+                                 by=round(rg(new.df$scaled_CoralSec_A),5)/nrow(new.df))
 newdata$scaled_SAND_RUB <- mean(new.df$scaled_SAND_RUB)
 newdata$scaled_Depth_Median<- mean(new.df$scaled_Depth_Median)
 newdata$scaled_logHumanDen <- mean(new.df$scaled_logHumanDen)
@@ -658,14 +714,14 @@ newdata$TRANSECTAREA_j <- 1 #Need to keep survey area constant
 newdata$scaled_CORAL <- mean(new.df$scaled_CORAL)
 newdata$scaled_CoralSec_A <- mean(new.df$scaled_CoralSec_A)
 newdata$scaled_SAND_RUB <- seq(min(new.df$scaled_SAND_RUB),max(new.df$scaled_SAND_RUB),
-                               by=round(rg(new.df$scaled_SAND_RUB),5)/nrow(new.df))
+                               by=round(rg(new.df$scaled_SAND_RUB),4)/nrow(new.df))
 newdata$scaled_Depth_Median<- mean(new.df$scaled_Depth_Median)
 newdata$scaled_logHumanDen <- mean(new.df$scaled_logHumanDen)
 newdata$scaled_CVsst <- mean(new.df$scaled_CVsst)
 newdata$scaled_MeanDHW10<-mean(new.df$scaled_MeanDHW10)
 newdata$scaled_YearSinceDHW4<-mean(new.df$scaled_YearSinceDHW4)
 
-sandrub.plot<-Predictplot(best.mod,newdata,"SAND_RUB","scaled_SAND_RUB","% Sand & Rubble Cover","#009E73",10)+
+sandrub.plot<-Predictplot(best.mod,newdata,"SAND_RUB","scaled_SAND_RUB","% Unconsolidated Cover","#009E73",10)+
   geom_rug(data=new.df,mapping=aes(x=scaled_SAND_RUB,y=0))
 
 #LogHumanDensity
@@ -676,7 +732,7 @@ newdata$scaled_CoralSec_A <- mean(new.df$scaled_CoralSec_A)
 newdata$scaled_SAND_RUB <- mean(new.df$scaled_SAND_RUB)
 newdata$scaled_Depth_Median<- mean(new.df$scaled_Depth_Median)
 newdata$scaled_logHumanDen <- seq(min(new.df$scaled_logHumanDen),max(new.df$scaled_logHumanDen),
-                                  by=round(rg(new.df$scaled_logHumanDen),5)/nrow(new.df))
+                                  by=round(rg(new.df$scaled_logHumanDen),4)/nrow(new.df))
 newdata$scaled_CVsst <- mean(new.df$scaled_CVsst)
 newdata$scaled_MeanDHW10<-mean(new.df$scaled_MeanDHW10)
 newdata$scaled_YearSinceDHW4<-mean(new.df$scaled_YearSinceDHW4)
@@ -711,10 +767,11 @@ newdata$scaled_logHumanDen <- mean(new.df$scaled_logHumanDen)
 newdata$scaled_CVsst <- mean(new.df$scaled_CVsst)
 newdata$scaled_MeanDHW10<-mean(new.df$scaled_MeanDHW10)
 newdata$scaled_YearSinceDHW4<-seq(min(new.df$scaled_YearSinceDHW4),max(new.df$scaled_YearSinceDHW4),
-                                  by=round(rg(new.df$scaled_YearSinceDHW4),2)/nrow(new.df))
+                                  by=round(rg(new.df$scaled_YearSinceDHW4),6)/nrow(new.df))
 
 tsdhw.plot<-Predictplot(best.mod,newdata,"YearSinceDHW4","scaled_YearSinceDHW4","Years Since Heat Stress Event","black",2)+
   geom_rug(data=new.df,mapping=aes(x=scaled_YearSinceDHW4,y=0))
+
 
 # save full plot
 setwd("T:/Benthic/Projects/Juvenile Project/Figures/Drivers/")
@@ -726,8 +783,8 @@ grid.arrange(arrangeGrob(depth.plot + ggtitle("a)"),
                          coralsec.plot + ggtitle("d)"),
                          human.plot + ggtitle("e)"), 
                          sandrub.plot + ggtitle("f)"), 
-                         hs.plot + ggtitle("g)"),
-                         cvsst.plot + ggtitle("h)"),
+                         cvsst.plot + ggtitle("g)"),
+                         hs.plot + ggtitle("h)"),
                          nrow = 3), 
              nrow = 2, heights = c(10,1),
              left = ytitle)
@@ -805,7 +862,7 @@ newdata$scaled_MeanDHW10<-seq(min(r$scaled_MeanDHW10),max(r$scaled_MeanDHW10),
                               by=round(rg(r$scaled_MeanDHW10),3)/nrow(r))
 newdata$scaled_YearSinceDHW4<-mean(r$scaled_YearSinceDHW4)
 
-recentdhw.plot<-PredictplotI(best.mod,new.df,newdata,"MeanDHW10","scaled_MeanDHW10","Mean Max degC-weeks","#009E73", 2,16)+
+recentdhw.plot<-PredictplotI(best.mod,r,newdata,"MeanDHW10","scaled_MeanDHW10","Mean Max degC-weeks","#009E73", 2,16)+
   ggtitle("0 - 5 Years Since Heat Stress Event")+
   geom_rug(data=r,mapping=aes(x=scaled_MeanDHW10,y=0))
 
@@ -824,7 +881,7 @@ newdata$scaled_MeanDHW10<-seq(min(o$scaled_MeanDHW10),max(o$scaled_MeanDHW10),
                               by=round(rg(o$scaled_MeanDHW10),6)/nrow(o))
 newdata$scaled_YearSinceDHW4<-mean(o$scaled_YearSinceDHW4)
 
-olddhw.plot<-PredictplotI(best.mod,new.df,newdata,"MeanDHW10","scaled_MeanDHW10","Mean Max degC-weeks","#009E73", 0.5,16)+
+olddhw.plot<-PredictplotI(best.mod,o,newdata,"MeanDHW10","scaled_MeanDHW10","Mean Max degC-weeks","#009E73", 0.5,16)+
   ggtitle("5-15 Years Since Heat Stress Event")+
   geom_rug(data=o,mapping=aes(x=scaled_MeanDHW10,y=0))
 
@@ -844,6 +901,10 @@ dev.off()
 
 #### CVsst x Heat stress
 l <- subset(new.df,CVsst<0.06)
+
+plot(l$JuvColDen~l$scaled_MeanDHW10)
+
+
 newdata<-l
 newdata$TRANSECTAREA_j <- 1 #Need to keep survey area constant
 newdata$scaled_CORAL <- mean(l$scaled_CORAL)
@@ -856,13 +917,16 @@ newdata$scaled_MeanDHW10<-seq(min(l$scaled_MeanDHW10),max(l$scaled_MeanDHW10),
                               by=round(rg(l$scaled_MeanDHW10),5)/nrow(l))
 newdata$scaled_YearSinceDHW4<-mean(l$scaled_YearSinceDHW4)
 
-lowCV.plot<-PredictplotI(best.mod,new.df,newdata,"MeanDHW10","scaled_MeanDHW10","Mean Max degC-weeks","#009E73", 2,40)+
+lowCV.plot<-PredictplotI(best.mod,l,newdata,"MeanDHW10","scaled_MeanDHW10","Mean Max degC-weeks","#009E73", 2,40)+
   ggtitle("Low to moderate CV of SST")+
   geom_rug(data=l,mapping=aes(x=scaled_MeanDHW10,y=0))
 
 lowCV.plot
 
 h <- subset(new.df,CVsst>=0.06)
+
+plot(h$JuvColDen~h$scaled_MeanDHW10)
+
 newdata<-h
 newdata$TRANSECTAREA_j <- 1 #Need to keep survey area constant
 newdata$scaled_CORAL <- mean(h$scaled_CORAL)
@@ -875,7 +939,7 @@ newdata$scaled_MeanDHW10<-seq(min(h$scaled_MeanDHW10),max(h$scaled_MeanDHW10),
                               by=round(rg(h$scaled_MeanDHW10),5)/nrow(h))
 newdata$scaled_YearSinceDHW4<-mean(h$scaled_YearSinceDHW4)
 
-highCV.plot<-PredictplotI(best.mod,new.df,newdata,"MeanDHW10","scaled_MeanDHW10","Mean Max degC-weeks","#009E73", 0.5,40)+
+highCV.plot<-PredictplotI(best.mod,h,newdata,"MeanDHW10","scaled_MeanDHW10","Mean Max degC-weeks","#009E73", 0.5,40)+
   ggtitle("Moderate to high CV of SST")+
   geom_rug(data=h,mapping=aes(x=scaled_MeanDHW10,y=0))
 

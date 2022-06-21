@@ -185,9 +185,9 @@ table(site.data.gen2$ISLAND,site.data.gen2$OBS_YEAR)
 
 #Change Region Names -breaking up marianas and PRIAs into subregions because of broad geography and thermal history
 site.data.gen2$REGION<-ifelse(site.data.gen2$ISLAND %in% c("Maug", "Asuncion", "Alamagan", "Pagan", "Agrihan", "Guguan", "Sarigan","Farallon de Pajaros")
-                              ,"NMARIAN", as.character(site.data.gen2$REGION))
+                              ,"NMI", as.character(site.data.gen2$REGION))
 site.data.gen2$REGION<-ifelse(site.data.gen2$ISLAND %in% c("Saipan", "Tinian", "Aguijan", "Rota", "Guam")
-                              ,"SMARIAN", as.character(site.data.gen2$REGION))
+                              ,"SMI", as.character(site.data.gen2$REGION))
 site.data.gen2$REGION<-ifelse(site.data.gen2$ISLAND %in% c("Howland","Baker")
                               ,"PHOENIX", as.character(site.data.gen2$REGION))
 site.data.gen2$REGION<-ifelse(site.data.gen2$ISLAND =="Wake"
@@ -239,7 +239,7 @@ st.list<-ddply(site.swS,.(OBS_YEAR,REGION,ISLAND,SEC_NAME,STRATANAME),summarize,
 st.list_w<-dcast(st.list, formula=REGION+ISLAND+SEC_NAME+STRATANAME~ OBS_YEAR, value.var="n",fill=0)
 dCOLS<-c("2013","2014","2015","2016","2017","2018","2019")
 st.list_w$year_n<-rowSums(st.list_w[,dCOLS] > 0, na.rm=T) #count # of years of data
-st.list_w2<-subset(st.list_w,REGION %in% c("NMARIAN","SMARIAN","LINE","PHOENIX","WAKE","SAMOA") & year_n>=2)
+st.list_w2<-subset(st.list_w,REGION %in% c("NMI","SMI","LINE","PHOENIX","WAKE","SAMOA") & year_n>=2)
 st.list_w3<-subset(st.list_w,REGION %in% c("NWHI","MHI") & year_n>=3)
 st.list_w4<-rbind(st.list_w2,st.list_w3)
 
@@ -285,11 +285,11 @@ line.des<-svydesign(id=~1, strata=~ANALYSIS_YEAR+ISLAND+SEC_NAME+DB_RZ, weights=
 l<-svyglm(JuvColCount ~ ANALYSIS_YEAR, design=line.des,offset= TRANSECTAREA_j, family="poisson")
 summary(glht(l, mcp(ANALYSIS_YEAR="Tukey"))) 
 
-sm.des<-svydesign(id=~1, strata=~ANALYSIS_YEAR+ISLAND+SEC_NAME+DB_RZ, weights=~sw,data=subset(data.temporal,REGION=="SMARIAN"))
+sm.des<-svydesign(id=~1, strata=~ANALYSIS_YEAR+ISLAND+SEC_NAME+DB_RZ, weights=~sw,data=subset(data.temporal,REGION=="SMI"))
 sm<-svyglm(JuvColCount ~ ANALYSIS_YEAR, design=sm.des,offset= TRANSECTAREA_j, family="poisson")
 summary(glht(sm, mcp(ANALYSIS_YEAR="Tukey"))) 
 
-nm.des<-svydesign(id=~1, strata=~ANALYSIS_YEAR+ISLAND+SEC_NAME+DB_RZ, weights=~sw,data=subset(data.temporal,REGION=="NMARIAN"))
+nm.des<-svydesign(id=~1, strata=~ANALYSIS_YEAR+ISLAND+SEC_NAME+DB_RZ, weights=~sw,data=subset(data.temporal,REGION=="NMI"))
 nm<-svyglm(JuvColCount ~ ANALYSIS_YEAR, design=nm.des,offset= TRANSECTAREA_j, family="poisson")
 summary(glht(nm, mcp(ANALYSIS_YEAR="Tukey")))
 
@@ -306,7 +306,7 @@ round(p.adjust(pvals, "BH"), 3) #0.568 0.082 0.010 0.447 0.447 0.000 0.447 0.001
 # PLOTTING ----------------------------------------------------------------
 
 #bar plot of juv by region by year with post hoc tests 
-temp_Rmean$REGION <- factor(temp_Rmean$REGION, levels = c("MHI","WAKE","PHOENIX","LINE","SMARIAN","NMARIAN","SAMOA"))
+temp_Rmean$REGION <- factor(temp_Rmean$REGION, levels = c("MHI","WAKE","PHOENIX","LINE","SMI","NMI","SAMOA"))
 temp_Rmean$ANALYSIS_YEAR<-as.factor(temp_Rmean$ANALYSIS_YEAR)
 #Add Posthoc groupings from glms
 temp_Rmean<- temp_Rmean[order(temp_Rmean$REGION),];temp_Rmean
@@ -344,7 +344,7 @@ ggsave(plot=p8,file="T:/Benthic/Projects/Juvenile Project/Figures/DensityRegiona
 
 
 # Spatial Trends in Juveniles in Most recent survey --------------------------------------------
-# R_Y<-c("MHI_2019","NWHI_2017","NMARIAN_2017","SMARIAN_2017","PHOENIX_2018","LINE_2018","SAMOA_2018","WAKE_2017")
+# R_Y<-c("MHI_2019","NWHI_2017","NMI_2017","SMI_2017","PHOENIX_2018","LINE_2018","SAMOA_2018","WAKE_2017")
 # 
 # site.swS$REGION_YEAR<-paste(site.swS$REGION,site.swS$OBS_YEAR,sep="_")
 # site.swS<-site.swS[site.swS$REGION_YEAR %in% R_Y,] 
@@ -388,7 +388,7 @@ anova(null.mod,modR)
 
 
 #bar plot of juv by region by year with post hoc tests 
-spatial_Rmean$REGION <- factor(spatial_Rmean$REGION, levels = c("NWHI","MHI","WAKE","PHOENIX","LINE","SMARIAN","NMARIAN","SAMOA"))
+spatial_Rmean$REGION <- factor(spatial_Rmean$REGION, levels = c("NWHI","MHI","WAKE","PHOENIX","LINE","SMI","NMI","SAMOA"))
 #Add Posthoc groupings from glms
 spatial_Rmean<- spatial_Rmean[order(spatial_Rmean$REGION),];spatial_Rmean
 
@@ -421,7 +421,7 @@ ggsave(plot=p9,file="T:/Benthic/Projects/Juvenile Project/Figures/DensityRegiona
 
 
 spatial_Imean<-svyby(~JuvColDen,~REGION + ISLAND,des,svymean)
-spatial_Imean$REGION <- factor(spatial_Imean$REGION, levels = c("NWHI","MHI","WAKE","PHOENIX","LINE","SMARIAN","NMARIAN","SAMOA"))
+spatial_Imean$REGION <- factor(spatial_Imean$REGION, levels = c("NWHI","MHI","WAKE","PHOENIX","LINE","SMI","NMI","SAMOA"))
 
 
 p10 <- ggplot(spatial_Imean, aes(x=reorder(ISLAND,-JuvColDen), y=JuvColDen,fill=REGION)) +
