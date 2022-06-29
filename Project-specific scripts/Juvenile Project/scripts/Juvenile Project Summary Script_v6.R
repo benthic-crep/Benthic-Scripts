@@ -250,6 +250,7 @@ isl.drop<-c("Maui","Niihau","Kure","French Frigate","Midway","Pearl & Hermes","L
 data.temporal<-data.gen_temp[!data.gen_temp$ISLAND %in% c(isl.drop),] #Remove islands that don't have enough strata sampled across the years 
 View(data.temporal)
 
+write.csv(data.temporal,file="T:/Benthic/Projects/Juvenile Project/JuvDen_Temporal.csv",row.names = FALSE)
 
 # Temporal Trends in Juveniles --------------------------------------------
 
@@ -314,8 +315,9 @@ temp_Rmean$sig<-c("ab","b","a","","","","","a","b","","","a","b","","")
 
 #scale_fill_manual(values = c("#CC79A7","#D55E00","#E69F00","#F0E442","#009E73","#56B4E9","#0072B2","#999999")) +
   
-p8 <- ggplot(temp_Rmean, aes(x=ANALYSIS_YEAR, y=JuvColDen,fill=REGION)) +
-  geom_bar(stat = "identity", position = position_dodge2(preserve='single'), width = 1, color="black") +
+p8 <- ggplot(temp_Rmean, aes(x=ANALYSIS_YEAR, y=JuvColDen,color=REGION)) +
+  geom_point()+
+  #geom_bar(stat = "identity", position = position_dodge2(preserve='single'), width = 1, color="black") +
   geom_errorbar(aes(y=JuvColDen, x=ANALYSIS_YEAR,ymin=JuvColDen-se, ymax=JuvColDen+se), width=.2)+
   facet_grid(~REGION, scales = "free_x", space = "free") +
   theme_bw() +
@@ -343,7 +345,7 @@ ggsave(plot=p8,file="T:/Benthic/Projects/Juvenile Project/Figures/DensityRegiona
 
 
 
-# Spatial Trends in Juveniles in Most recent survey --------------------------------------------
+# Spatial Trends in Juveniles averaged across years --------------------------------------------
 # R_Y<-c("MHI_2019","NWHI_2017","NMI_2017","SMI_2017","PHOENIX_2018","LINE_2018","SAMOA_2018","WAKE_2017")
 # 
 # site.swS$REGION_YEAR<-paste(site.swS$REGION,site.swS$OBS_YEAR,sep="_")

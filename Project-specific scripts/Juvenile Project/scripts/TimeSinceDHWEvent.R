@@ -24,7 +24,7 @@ file_list <- list.files("M:/Environmental Data Summary/DataDownload/Degree_Heati
 # #file_list<- subset(file_list, !(file_list %in% file.bad))
 # #file_list<-file_list[c(34:38)]
 #file_list<-("Lisianski_raw_Degree_Heating_Weeks.RData")
-#load("M:/Environmental Data Summary/DataDownload/Degree_Heating_Weeks/RAW/Palmyra_raw_Degree_Heating_Weeks.RData")
+load("M:/Environmental Data Summary/DataDownload/Degree_Heating_Weeks/RAW/Tutuila_raw_Degree_Heating_Weeks.RData")
 
 #Read in raw juvenile data (this file is used to identify which sites you want to extract DHW for- the file needs to have a date column)
 juvdata<-read.csv("T:/Benthic/Data/REA Coral Demography & Cover/Analysis Ready Raw data/CoralBelt_Juveniles_raw_CLEANED.csv")
@@ -169,7 +169,55 @@ View(peak.all)
 write.csv(peak.all,file="T:/Benthic/Projects/Juvenile Project/Juvenile_PeakDHW.csv")
 
   
+data=df_i
+jwd=juvdata
+
+#Calcualte average DHW for each date  
+HS_Timeline<-function(data,jwd){
   
+  #Remove columns with column names = NA and rows with NaN
+  data <- data[!is.na(names(data))]
+ 
+  #Only include juvenile sites
+  jwd.meta<-ddply(jwd,.(SITE,SITEVISITID,DATE_),summarize,x=mean(SITEVISITID,na.rm=T))
+  jwd.meta<-subset(jwd.meta,select=-c(x));colnames(jwd.meta)<-c("SITE","SITEVISITID","J.DATE")
+  jwd.meta$J.DATE<-as.Date(jwd.meta$J.DATE, format = "%Y-%m-%d")
+  class(jwd.meta$J.DATE)
+  head(jwd.meta) 
+  
+  dhw<-pivot_longer(data, cols = 6:ncol(data), names_to = "DATE_", values_to = "DHW")
+  
+  dhwR<-filter(dhw,DATE_>="2008-01-01")
+  
+  #Merge 4 DHW data and Juvenile data
+  dhwR<-merge(jwd.meta,dhwR,by=c("SITE","SITEVISITID"),all.x=T) #tried using left_join- it doesn't like the date columns
+  head(dhwR)
+  
+  dhwM <- dhwR %>%
+    group_by(ISLAND,DATE_) %>%
+    summarise(MeanDHW=mean(DHW))
+  
+  return(dhwM)
+  
+}
+
+hs.all<-NULL
+for(i in 1:length(file_list)){
+  
+  #i = 1
+  filename = file_list[i]
+  load(filename)
+  df<-HS_Timeline(df_i,juvdata)
+  rm(list='df_i') #remove the dhw df for a given island from work space- files are too large to load all at once
+  hs.all<-rbind(hs.all,df)
+}
+View(hs.all)
+
+write.csv(hs.all,file="T:/Benthic/Projects/Juvenile Project/Juvenile_HSTimeline.csv")
+
+
+
+
 #Plot DHW time series to spot check
 
 dhw8$DATE_<-as.Date(dhw8$DATE_)
