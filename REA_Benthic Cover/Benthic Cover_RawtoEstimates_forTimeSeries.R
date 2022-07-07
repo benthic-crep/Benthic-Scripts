@@ -22,8 +22,8 @@ source("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/lib/fish_team_func
 source("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/lib/Islandwide Mean&Variance Functions.R")
 
 #Read in Tier 1 and 3 site level data from Benthic Cover_RawtoEstimates_v2 script (includes all sites and all years)
-wsd_t1<-read.csv("T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Site/BenthicCover_2010-2020_Tier1_SITE_v2.csv")
-wsd_t3<-read.csv("T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Site/BenthicCover_2010-2020_Tier3_SITE_v2.csv")
+wsd_t1<-read.csv("T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Site/BenthicCover_2010-2020_Tier1_SITE.csv")
+wsd_t3<-read.csv("T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Site/BenthicCover_2010-2020_Tier3_SITE.csv")
 sectors<-read.csv("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/data/Sectors-Strata-Areas.csv")
 
 
@@ -31,15 +31,15 @@ sectors<-read.csv("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/data/Se
 
 #Identify which taxonomic level you would like to summarize
 
-wsd<-wsd_t1
-#wsd<-wsd_t3
+#wsd<-wsd_t1
+wsd<-wsd_t3
 
 #Define data columns
-T1data.cols<-colnames(subset(wsd,select=c(CCA:TURF,CCA_CORAL,BSR)))
-#T3data.cols<-colnames(subset(wsd,select=c(ACAS:TAB)))
+#T1data.cols<-colnames(subset(wsd,select=c(CCA:TURF,CCA_CORAL,BSR)))
+T3data.cols<-colnames(subset(wsd,select=c(ACAS:TAB)))
 
-data.cols<-T1data.cols
-#data.cols<-T3data.cols
+#data.cols<-T1data.cols
+data.cols<-T3data.cols
 
 #remove permanent sites, climate sites and special projects
 wsd$PERM_SITE[is.na(wsd$PERM_SITE)]<-"0"
@@ -163,8 +163,8 @@ colnames(dpst$SampleSE)[9:ncol(dpst$SampleSE)] <- paste("SE.", colnames(dpst$Sam
 
 dpst<-left_join(dpst$Mean,dpst$SampleSE)
 
-write.csv(dpst, file="T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Stratum/BenthicCover_2010-2019_Tier1_STRATA_forTimesSeries_v2.csv",row.names=F)
-#write.csv(dpst, file="T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Stratum/BenthicCover_2010-2019_Tier3_STRATA_forTimesSeries_v2.csv",row.names=F)
+#write.csv(dpst, file="T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Stratum/BenthicCover_2010-2019_Tier1_STRATA_forTimesSeries.csv",row.names=F)
+write.csv(dpst, file="T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Stratum/BenthicCover_2010-2019_Tier3_STRATA_forTimesSeries.csv",row.names=F)
 
 
 
@@ -181,15 +181,10 @@ nstrat<-ddply(wsd,.(ANALYSIS_SEC,ANALYSIS_YEAR),
 
 dpsec<-left_join(dpsec,nstrat)
 
-dpsec<-subset(dpsec,select= -c(Mean.EMA,Mean.HAL,Mean.I,Mean.SC, Mean.SED,Mean.TOT_AREA_WT,
-                               PooledSE.EMA,PooledSE.HAL,PooledSE.I,PooledSE.SC, PooledSE.SED))
+#dpsec<-subset(dpsec,select= -c(Mean.EMA,Mean.HAL,Mean.I,Mean.SC, Mean.SED,Mean.TOT_AREA_WT,PooledSE.EMA,PooledSE.HAL,PooledSE.I,PooledSE.SC, PooledSE.SED))
 
-write.csv(dpsec, file="T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Sector/BenthicCover_2010-2019_Tier1_SECTOR_forTimesSeries_v2.csv",row.names=F)
-#write.csv(dpsec, file="T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Sector/BenthicCover_2010-2019_Tier3_SECTOR_forTimeseries_v2.csv",row.names=F)
-
-
-
-
+#write.csv(dpsec, file="T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Sector/BenthicCover_2010-2019_Tier1_SECTOR_forTimesSeries.csv",row.names=F)
+write.csv(dpsec, file="T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Sector/BenthicCover_2010-2019_Tier3_SECTOR_forTimeseries.csv",row.names=F)
 
 
 

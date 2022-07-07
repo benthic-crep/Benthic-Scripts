@@ -194,9 +194,6 @@ hs.allR<-rbind(hs.allR,nwhi.date)
 
 coeff=1
 
-#missing tutuila
-
-
 
 tl.plot<-
   ggplot() +
@@ -217,6 +214,18 @@ tl.plot<-
 
 tl.plot
 
+
+
+tl.plot<-
+  ggplot() +
+  facet_wrap( ~ REGION, nrow = 8) +
+  geom_line(data=hs.allR, aes(y=MeanDHW, x= DATE_), size=1) +
+  geom_hline(yintercept=4,linetype = "dashed",color="orange")+
+  geom_hline(yintercept=8,linetype = "dashed",color="red")+
+  theme_bw()+
+  scale_x_date(breaks=date_breaks("1 year"))
+
+tl.plot
 
 setwd("T:/Benthic/Projects/Juvenile Project/Figures/Patterns/")
 png(width = 650, height = 750, filename = "HS_Juv_Timeline.png")

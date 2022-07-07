@@ -24,7 +24,7 @@ file_list <- list.files("M:/Environmental Data Summary/DataDownload/Degree_Heati
 # #file_list<- subset(file_list, !(file_list %in% file.bad))
 # #file_list<-file_list[c(34:38)]
 #file_list<-("Lisianski_raw_Degree_Heating_Weeks.RData")
-load("M:/Environmental Data Summary/DataDownload/Degree_Heating_Weeks/RAW/Tutuila_raw_Degree_Heating_Weeks.RData")
+#load("M:/Environmental Data Summary/DataDownload/Degree_Heating_Weeks/RAW/Tutuila_raw_Degree_Heating_Weeks.RData")
 
 #Read in raw juvenile data (this file is used to identify which sites you want to extract DHW for- the file needs to have a date column)
 juvdata<-read.csv("T:/Benthic/Data/REA Coral Demography & Cover/Analysis Ready Raw data/CoralBelt_Juveniles_raw_CLEANED.csv")
@@ -195,7 +195,7 @@ HS_Timeline<-function(data,jwd){
   
   dhwM <- dhwR %>%
     group_by(ISLAND,DATE_) %>%
-    summarise(MeanDHW=mean(DHW))
+    summarise(MeanDHW=mean(DHW,na.rm=TRUE))
   
   return(dhwM)
   
@@ -213,8 +213,8 @@ for(i in 1:length(file_list)){
 }
 View(hs.all)
 
-write.csv(hs.all,file="T:/Benthic/Projects/Juvenile Project/Juvenile_HSTimeline.csv")
 
+write.csv(hs.all,file="T:/Benthic/Projects/Juvenile Project/Juvenile_HSTimeline.csv",row.names=FALSE)
 
 
 

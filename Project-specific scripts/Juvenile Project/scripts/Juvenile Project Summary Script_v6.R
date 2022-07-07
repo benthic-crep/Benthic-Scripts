@@ -146,7 +146,7 @@ site.data.gen2<-left_join(site.data.gen2,meta)
 site.data.gen2$Juvpres.abs<-ifelse(site.data.gen2$JuvColDen>0,1,0)
 
 #Make tweaks to pooling sector pooling and drop specific islands
-isl.drop<-c("Alamagan","Midway","Maro","Niihau","Johnston","Guguan") 
+isl.drop<-c("Alamagan","Midway","Maro","Niihau","Johnston","Guguan","Agrihan") 
 site.data.gen2<-site.data.gen2[!site.data.gen2$ISLAND %in% c(isl.drop),] #Remove islands that don't have enough strata sampled across the years 
 
 #Not enough sampling in each sector- pool them together
@@ -311,14 +311,14 @@ temp_Rmean$REGION <- factor(temp_Rmean$REGION, levels = c("MHI","WAKE","PHOENIX"
 temp_Rmean$ANALYSIS_YEAR<-as.factor(temp_Rmean$ANALYSIS_YEAR)
 #Add Posthoc groupings from glms
 temp_Rmean<- temp_Rmean[order(temp_Rmean$REGION),];temp_Rmean
-temp_Rmean$sig<-c("ab","b","a","","","","","a","b","","","a","b","","")
+temp_Rmean$sig<-c("ab","a","b","","","","","a","b","","","a","b","","")
 
 #scale_fill_manual(values = c("#CC79A7","#D55E00","#E69F00","#F0E442","#009E73","#56B4E9","#0072B2","#999999")) +
   
-p8 <- ggplot(temp_Rmean, aes(x=ANALYSIS_YEAR, y=JuvColDen,color=REGION)) +
-  geom_point()+
+p8 <- ggplot(temp_Rmean, aes(x=ANALYSIS_YEAR, y=JuvColDen,fill=REGION)) +
   #geom_bar(stat = "identity", position = position_dodge2(preserve='single'), width = 1, color="black") +
   geom_errorbar(aes(y=JuvColDen, x=ANALYSIS_YEAR,ymin=JuvColDen-se, ymax=JuvColDen+se), width=.2)+
+  geom_point(color="black",pch=21,size=4)+
   facet_grid(~REGION, scales = "free_x", space = "free") +
   theme_bw() +
   theme(panel.grid.major = element_blank(),
@@ -331,10 +331,10 @@ p8 <- ggplot(temp_Rmean, aes(x=ANALYSIS_YEAR, y=JuvColDen,color=REGION)) +
         axis.line = element_line(color = "black"),
         text = element_text(size = 12),
         axis.text.y = element_text(colour="black"),
-        axis.text.x = element_text(angle = 90)) +
+        axis.text.x = element_text(angle = 90,size=14, face = "bold"),
+        axis.title.y = element_text(size = 14, face = "bold")) +
   scale_fill_manual(values = c("#D55E00","#E69F00","#F0E442","#009E73","#56B4E9","#0072B2","#999999")) +
-  xlab("Year") +
-  ylab("Mean Juvenile Colonies/m^2") +
+  labs(x="",y=expression(paste("Mean Juvenile Colonies ",m^-2)))+
   scale_y_continuous(expand = c(0,0), limits = c(0,16)) +
   geom_text(aes(x=ANALYSIS_YEAR,y=JuvColDen+se,label=sig, group = REGION),
             position = position_dodge(),
@@ -378,8 +378,8 @@ modR<-svyglm(JuvColCount ~ REGION, design=des,offset= TRANSECTAREA_j, family="po
 summary(modR)
 tuk2<-glht(modR, mcp(REGION="Tukey")) 
 tuk.cld2 <- cld(tuk2)
-#sig<-c("c","c","c","c","a","b","c","a")
-sig<-c("b","b","d","bd","a","c","d","a")
+sig<-c("a","a","c","ac","b","d","c","b")
+#sig<-c("b","b","d","bd","a","c","d","a")
 
 spatial_Rmean<-cbind(spatial_Rmean,sig)
 
@@ -395,9 +395,10 @@ spatial_Rmean$REGION <- factor(spatial_Rmean$REGION, levels = c("NWHI","MHI","WA
 spatial_Rmean<- spatial_Rmean[order(spatial_Rmean$REGION),];spatial_Rmean
 
 
-p9 <- ggplot(spatial_Rmean, aes(x=REGION, y=JuvColDen,fill=REGION)) +
-  geom_bar(stat = "identity", position = position_dodge2(preserve='single'), width = 1, color="black") +
+spatialR <- ggplot(spatial_Rmean, aes(x=REGION, y=JuvColDen,fill=REGION)) +
+  #geom_bar(stat = "identity", position = position_dodge2(preserve='single'), width = 1, color="black") +
   geom_errorbar(aes(y=JuvColDen, x=REGION,ymin=JuvColDen-se, ymax=JuvColDen+se), width=.2)+
+  geom_point(color="black",pch=21,size=4)+
   theme_bw() +
   theme(panel.grid.major = element_blank(),
         panel.grid.minor = element_blank(),
@@ -409,25 +410,26 @@ p9 <- ggplot(spatial_Rmean, aes(x=REGION, y=JuvColDen,fill=REGION)) +
         axis.line = element_line(color = "black"),
         text = element_text(size = 12),
         axis.text.y = element_text(colour="black"),
-        axis.text.x = element_text(angle = 90)) +
-  scale_fill_manual(values = c("#CC79A7","#D55E00","#E69F00","#F0E442","#009E73","#56B4E9","#0072B2","#999999")) +
-  xlab("Region") +
-  ylab("Mean Juvenile Colonies/m^2") +
+        axis.text.x = element_text(angle = 90,size=12, face = "bold"),
+        axis.title.y = element_text(size = 14, face = "bold")) +
+  scale_fill_manual(name=NULL, values = c("#CC79A7","#D55E00","#E69F00","#F0E442","#009E73","#56B4E9","#0072B2","#999999")) +
+  labs(x="",y=expression(paste("Mean Juvenile Colonies ",m^-2)),title = "B")+
   scale_y_continuous(expand = c(0,0), limits = c(0,16)) +
   geom_text(aes(x=REGION,y=JuvColDen+se,label=sig, group = REGION),
             position = position_dodge(),
             vjust = -0.5) 
-p9
+spatialR
 
-ggsave(plot=p9,file="T:/Benthic/Projects/Juvenile Project/Figures/DensityRegionalSpatial.jpg",width=10,height=5)
+ggsave(plot=spatialR,file="T:/Benthic/Projects/Juvenile Project/Figures/DensityRegionalSpatial.jpg",width=10,height=5)
 
 
 spatial_Imean<-svyby(~JuvColDen,~REGION + ISLAND,des,svymean)
 spatial_Imean$REGION <- factor(spatial_Imean$REGION, levels = c("NWHI","MHI","WAKE","PHOENIX","LINE","SMI","NMI","SAMOA"))
 
 
-p10 <- ggplot(spatial_Imean, aes(x=reorder(ISLAND,-JuvColDen), y=JuvColDen,fill=REGION)) +
-  geom_bar(stat = "identity", position = position_dodge2(preserve='single'), width = 1, color="black") +
+p10 <- ggplot(spatial_Imean, aes(x=reorder(ISLAND,-JuvColDen), y=JuvColDen,color=REGION)) +
+  #geom_bar(stat = "identity", position = position_dodge2(preserve='single'), width = 1, color="black") +
+  geom_point(size=2)+
   geom_errorbar(aes(y=JuvColDen, x=ISLAND,ymin=JuvColDen-se, ymax=JuvColDen+se), width=.2)+
   theme_bw() +
   theme(panel.grid.major = element_blank(),
@@ -442,8 +444,8 @@ p10 <- ggplot(spatial_Imean, aes(x=reorder(ISLAND,-JuvColDen), y=JuvColDen,fill=
         axis.text.y = element_text(colour="black"),
         axis.text.x = element_text(vjust=0,angle = 90)) +
   scale_y_continuous(expand = c(0,0), limits = c(0,25)) +
-  scale_fill_manual(values = c("#CC79A7","#D55E00","#E69F00","#F0E442","#009E73","#56B4E9","#0072B2","#999999")) +
-  labs(x="Island",y=expression(paste("Mean Juvenile Colonies   ",m^-2)))
+  scale_color_manual(name=NULL,values = c("#CC79A7","#D55E00","#E69F00","#F0E442","#009E73","#56B4E9","#0072B2","#999999")) +
+  labs(x="Island",y=expression(paste("Mean Juvenile Colonies  ",m^-2)))
 p10
 
 
@@ -505,7 +507,7 @@ delta_shift <- juv_coords_sp %>%
   bind_cols(st_coordinates(.) %>% as.data.frame())
 
 #Create an Inset map using a similar process described above
-box_cut2 <- bbox2SP(n = 90, s = -90, w = -110, e = 110, proj4string = world@proj4string)
+box_cut2 <- bbox2SP(n = 90, s = -90, w = -120, e = 110, proj4string = world@proj4string)
 world_crop2 <- gDifference(world, box_cut2)
 
 pacific_crop2 <- world_crop2 %>% 
@@ -529,7 +531,7 @@ insetmap<-ggplot() +
         rect = element_blank())
 
 
-#plot main data map
+#plot main data map with island colors = gradient of juvenile density
 deltamap<-ggplot() +
   geom_sf(data = pacific_crop)+ #basemap
   geom_sf(data = delta_shift,aes(color = JuvColDen), size = 3, shape = 19)+ #data
@@ -547,61 +549,52 @@ deltamap<-ggplot() +
                         mid = 'yellow2',
                         low = 'red2',
                         na.value = 'gray95',
-                        name="Colony Density m^2")+  #you can add a legend title here if you want
-  theme(legend.position = c(0.9,0.15))
+                        name=expression(paste("Mean Juvenile Colonies  ",m^-2)))+  #you can add a legend title here if you want
+  #theme(legend.position = c(0.9,0.15))
+  theme(legend.position = "bottom")
+  
+
+#Combine main and inset maps
+finalmap = ggdraw() +
+  draw_plot(deltamap) +
+  draw_plot(spatialR, x = 0.05, y = 0.15, width = 0.3, height = 0.3)+
+  #draw_plot(insetmap, x = 0.02, y = 0.07, width = 0.3, height = 0.3)
+  draw_plot(insetmap, x = 0.77, y = 0.1, width = 0.23, height = 0.23)
+  
+finalmap
+
+ggsave(plot=finalmap,file="T:/Benthic/Projects/Juvenile Project/Figures/RecentJuvMap_colorsJuvCol.jpg",width=13,height=9)
+
+
+#plot main data map with island colors = REGION
+delta_shift$REGION <- factor(delta_shift$REGION, levels = c("NWHI","MHI","WAKE","PHOENIX","LINE","SMI","NMI","SAMOA"))
+
+deltamap<-ggplot() +
+  geom_sf(data = pacific_crop)+ #basemap
+  geom_sf(data = delta_shift, aes(fill = REGION),color="black",size = 3, pch=21)+ #data
+  geom_text_repel(data = delta_shift, #add island labels 
+                  aes(x = X...7, y = Y...8, label = ISLAND),
+                  size = 3,
+                  fontface = "bold",
+                  segment.size = 0.25,
+                  box.padding = 0.4,
+                  min.segment.length = 0,
+                  seed = 2020-5-16)+
+  labs(title="A")+
+  scale_fill_manual(name=NULL,values = c("#CC79A7","#D55E00","#E69F00","#F0E442","#009E73","#56B4E9","#0072B2","#999999")) +
+  annotation_scale(location = "bl", width_hint = 0.4)+ #add scale bar
+  #theme(legend.position = c(0.9,0.15))
+  theme(legend.position = "none")
 
 
 #Combine main and inset maps
 finalmap = ggdraw() +
   draw_plot(deltamap) +
-  draw_plot(insetmap, x = 0.02, y = 0.07, width = 0.3, height = 0.3)
+  draw_plot(spatialR, x = 0.05, y = 0.09, width = 0.4, height = 0.4)+
+  #draw_plot(insetmap, x = 0.02, y = 0.07, width = 0.3, height = 0.3)
+  draw_plot(insetmap, x = 0.77, y = 0.1, width = 0.23, height = 0.23)
 
 finalmap
 
-ggsave(plot=finalmap,file="T:/Benthic/Projects/Juvenile Project/Figures/RecentJuvMap.jpg",width=13,height=9)
-
-
-# Delta Density v. Depth --------------------------------------------------
-
-depth_strat<-read.csv("C:/Users/Courtney.S.Couch/Documents/Courtney's Files/R Files/ESD/Juvenile Project/Predictor Variables/JuvProject_Depth.csv")
-delta.df<-left_join(delta.df,depth_strat)
-
-#Use unweighted delta density
-plotNormalHistogram(sqrt(delta.df$DeltaDen_yr+2.7))
-mod<-lm(sqrt(DeltaDen_yr+2.7)~MeanMidDepth,data=delta.df)
-qqnorm(residuals(mod),ylab="Sample Quanqqnorm(residuals(mod)")
-qqline(residuals(mod), col="red")
-
-delta.df$Delta_trans<-sqrt(delta.df$DeltaDen_yr+2.7)
-
-
-mod1 <- lm(Delta_trans~REGION*MeanMaxDepth,data=delta.df)
-anova(mod1);summary(mod1)
-
-mod2 <- lm(Delta_trans~MeanMaxDepth,data=delta.df)
-anova(mod2);summary(mod2)
-
-jvd<-delta.df %>%
-  ggplot(aes(x=MeanMaxDepth, y=DeltaDen_yr)) + 
-  geom_smooth(se=TRUE,method="lm",lwd=1.5,color="black")+
-  geom_point()+
-  theme_bw() +
-  theme(
-    plot.background = element_blank()
-    ,panel.grid.major = element_blank()
-    ,panel.grid.minor = element_blank()
-    ,axis.ticks.x = element_blank() # no x axis ticks
-    ,axis.title.x = element_text( vjust = -.0001)
-    ,axis.text.x = element_text(angle = 90)) + # adjust x axis to lower the same amount as the genus labels
-  labs(x="Mean Max Depth(M)",y="Delta Juvenile Density/Year")+
-  geom_label(aes(x=4,y=6),hjust=0,label=paste("R^2=0.169","\n p=0.0458",sep=""))
-jvd
-
-
-#Save plots
-ggsave(plot=p9,file="T:/Benthic/Projects/Juvenile Project/Figures/WeightedDeltaRegional.jpg",width=10,height=5)
-ggsave(plot=p10,file="T:/Benthic/Projects/Juvenile Project/Figures/WeightedDeltaIsland.jpg",width=10,height=5)
-ggsave(plot=finalmap,file="T:/Benthic/Projects/Juvenile Project/Figures/WeightedDeltaIslandmap.jpg",width=11,height=7)
-ggsave(plot=jvd,file="C:/Users/Courtney.S.Couch/Documents/Courtney's Files/R Files/ESD/Juvenile Project/Figures/DeltavDepth.jpg",width=10,height=5)
-
+ggsave(plot=finalmap,file="T:/Benthic/Projects/Juvenile Project/Figures/RecentJuvMap_colorsREGION.jpg",width=13,height=9)
 
