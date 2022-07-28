@@ -50,8 +50,9 @@ table(hs.all$ISLAND,hs.all$REGION)
 class(df$DATE_)
 df$DATE_<-ymd(df$DATE_)
 juvR.date <- df %>%
-  group_by(REGION,OBS_YEAR) %>%
-  summarise(DATE_=median(DATE_))
+  dplyr::group_by(REGION,OBS_YEAR) %>%
+  dplyr::summarise(DATE_=median(DATE_))
+
 
 juvR.date$ANALYSIS_YEAR<-juvR.date$OBS_YEAR
 
@@ -151,8 +152,8 @@ p8 <- ggplot(temp_Rmean, aes(x=ANALYSIS_YEAR, y=JuvColDen,color=REGION)) +
 p8
 
 hs.allR<-hs.all %>%
-  group_by(REGION,DATE_) %>%
-  summarise(MeanDHW=mean(MeanDHW))
+  dplyr::group_by(REGION,DATE_) %>%
+  dplyr::summarise(MeanDHW=mean(MeanDHW,na.rm=TRUE))
 
 hs.allR$DATE_<-ymd(hs.allR$DATE_)
 
@@ -192,79 +193,42 @@ hs.allR<-subset(hs.allR,REGION!="NWHI")
 hs.allR<-rbind(hs.allR,nwhi.date)
 
 
-coeff=1
-
-
-tl.plot<-
-  ggplot() +
-  facet_wrap( ~ REGION, nrow = 8) +
-  geom_point(data=temp_Rmean, aes(y=JuvColDen,x=DATE_)) +
-  geom_errorbar(data=temp_Rmean,aes(y=JuvColDen, x=DATE_,ymin=JuvColDen-se, ymax=JuvColDen+se), width=1,size=1)+
-  geom_line(data=hs.allR, aes(y=MeanDHW, x= DATE_), size=1) +
-  geom_hline(yintercept=4,linetype = "dashed",color="orange")+
-  geom_hline(yintercept=8,linetype = "dashed",color="red")+
-    theme_bw()+
-  scale_x_date(breaks=date_breaks("1 year"))+
-  scale_y_continuous(
-    # Features of the first axis
-    name = "Mean Juvenile Colonies/m2",
-    # Add a second axis and specify its features
-    sec.axis = sec_axis(~.*coeff, name="Degree C-Weeks")
-  )
-
-tl.plot
-
-
-
-tl.plot<-
-  ggplot() +
-  facet_wrap( ~ REGION, nrow = 8) +
-  geom_line(data=hs.allR, aes(y=MeanDHW, x= DATE_), size=1) +
-  geom_hline(yintercept=4,linetype = "dashed",color="orange")+
-  geom_hline(yintercept=8,linetype = "dashed",color="red")+
-  theme_bw()+
-  scale_x_date(breaks=date_breaks("1 year"))
-
-tl.plot
-
-setwd("T:/Benthic/Projects/Juvenile Project/Figures/Patterns/")
-png(width = 650, height = 750, filename = "HS_Juv_Timeline.png")
-tl.plot
-dev.off()
-
-
 hs.allR$REGION <- factor(hs.allR$REGION, levels = c("NWHI","MHI","WAKE","PHOENIX","LINE","SMI","NMI","SAMOA"))
-#Add Posthoc groupings from glms
 hs.allR<- hs.allR[order(hs.allR$REGION),];hs.allR
 
 juvR.date$REGION <- factor(juvR.date$REGION, levels = c("NWHI","MHI","WAKE","PHOENIX","LINE","SMI","NMI","SAMOA"))
-#Add Posthoc groupings from glms
 juvR.date<- juvR.date[order(juvR.date$REGION),];juvR.date
 
+fill_colors <- c("#CC79A7","#D55E00","#E69F00","#F0E442","#009E73","#56B4E9","#0072B2","#999999")
 
-juvR.date$MeanDHW<-1
 hs.tl<-
   ggplot() +
-  facet_wrap( ~ REGION, nrow = 8) +
-  geom_point(data=juvR.date, aes(y=MeanDHW,x=DATE_),shape=4,size=3) +
+  facet_wrap( ~ REGION, nrow = 8,strip.position = "right") +
+  #geom_point(data=juvR.date, aes(y=MeanDHW,x=DATE_),shape=4,size=3) +
   geom_line(data=hs.allR, aes(y=MeanDHW, x= DATE_), size=1) +
-  geom_hline(yintercept=4,linetype = "dashed",color="orange")+
-  geom_hline(yintercept=8,linetype = "dashed",color="red")+
+  geom_hline(yintercept=4,linetype = "dashed",color="orange",size=0.5)+
+  geom_hline(yintercept=8,linetype = "dashed",color="red",size=0.5)+
+  geom_vline(data=juvR.date,aes(xintercept = DATE_,color=REGION),size=2) +
   theme_bw()+
   theme(panel.grid.major = element_blank(),
         panel.grid.minor = element_blank(),
         panel.spacing = unit(0, "lines"),
         strip.background = element_blank(),
-        strip.text = element_blank(),
+        strip.text = element_text(size = 12),
         legend.position = "none",
         axis.line = element_line(color = "black"),
         text = element_text(size = 12),
         axis.text.y = element_text(colour="black"))+
-  scale_x_date(breaks=date_breaks("1 year"))+
-  ylab("Mean Degree C-weeks")+
+  scale_x_date(breaks=date_breaks("1 year"), date_labels = "%b %Y")+
+  scale_color_manual(name = "", values = fill_colors)+
+  
+  ylab(expression(bold('Mean Degree Heating Weeks ('^o*'C-weeks)')))+
   xlab("")
-
 hs.tl
+
+
+# save full plot
+ggsave(plot=hs.tl,file="T:/Benthic/Projects/Juvenile Project/Figures/Final for Manuscript/Fig S1.png",width = 10, height = 8)
 
 
 #bar plot of juv by region by year with post hoc tests 

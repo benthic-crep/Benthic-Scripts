@@ -73,8 +73,9 @@ df$REGION_YEAR<-paste(df$REGION,df$OBS_YEAR,sep="_")
 df<-df[df$REGION_YEAR != REGION_YEAR,]
 table(df$REGION,df$OBS_YEAR)
 
+df$DATE_<-ymd(df$DATE_)
 #Generate table of date ranges and n for each island
-df$OBS_MONTH<-month(df$DATE_)
+df$OBS_MONTH<-lubridate::month(df$DATE_,label=TRUE)
 df$OBS_DAY<-day(df$DATE_)
 
 meta<-df %>%
@@ -86,16 +87,19 @@ meta<-df %>%
   summarize(MinMonth=min(OBS_MONTH),MaxMonth=max(OBS_MONTH),
             MinDay=min(OBS_DAY),MaxDay=max(OBS_DAY),
             n=length(n))
-meta$DateMin<-paste(meta$MinMonth,meta$MinDay,sep="/")
-meta$DateMax<-paste(meta$MaxMonth,meta$MaxDay,meta$OBS_YEAR,sep="/")
-meta$DateRange<-paste(meta$DateMin,meta$DateMax,sep=" - ")
+# meta$DateMin<-paste(meta$MinMonth,meta$MinDay,sep="/")
+# meta$DateMax<-paste(meta$MaxMonth,meta$MaxDay,meta$OBS_YEAR,sep="/")
+# meta$DateRange<-paste(meta$DateMin,meta$DateMax,sep=" - ")
+# 
+meta$Month<-ifelse(meta$MinMonth==meta$MaxMonth,as.character(meta$MaxMonth),paste(meta$MinMonth,meta$MaxMonth,sep=" - "))
+meta$DateRange<-paste(meta$Month,meta$OBS_YEAR,sep=" ")
 
+# meta$DateRange<-paste(meta$MinDate,meta$MaxDate,sep = ",")
+# meta<-meta[,c("REGION","ISLAND","OBS_YEAR","DateRange","n")]
+# head(meta)
 
-meta$DateRange<-paste(meta$MinDate,meta$MaxDate,sep = ",")
 meta<-meta[,c("REGION","ISLAND","OBS_YEAR","DateRange","n")]
 head(meta)
-
-
 meta<-meta %>% mutate(T1_T2= dplyr::recode(OBS_YEAR,
                                            `2013`="T1",     
                                            `2014`="T1",
@@ -132,8 +136,15 @@ wide<-left_join(wide,coord,by=c("REGION","ISLAND"))
 head(wide)
 wide<-wide[,c("REGION","ISLAND","Latitude","Longitude","T1","T2","T3")]
 
+wide$ISLAND <- factor(wide$ISLAND, levels = c("Kure","Pearl_&_Hermes","Lisianski","French_Frigate","Kauai",
+                                              "Oahu","Molokai","Maui","Lanai","Kahoolawe","Hawaii","Wake",
+                                              "Howland","Baker","Kingman","Palmyra","Jarvis","Saipan","Tinian",
+                                              "Rota","Aguijan","Guam","Farallon_de_Pajaros","Maug","Pagan","Asuncion",
+                                              "Sarigan","Swains","Tutuila","Ofu_&_Olosega","Tau","Rose"))
+wide<- wide[order(wide$ISLAND),];View(wide)
 
-write.csv(wide,file="T:/Benthic/Projects/Juvenile Project/Tables/Table1.csv")
+
+write.csv(wide,file="T:/Benthic/Projects/Juvenile Project/Tables/Table1_v2.csv")
 
 
 #Dealing with missing Year Since DHW4 data:
@@ -1646,7 +1657,7 @@ dev.off()
 
 
 
-##### CORRECT- Model selection no chla or cvsst x dhw interactions, but dhw x benthic interactions ####
+##### MANUSCRIPT- Model selection no chla or cvsst x dhw interactions, but dhw x benthic interactions ####
 
 #Global model with Interactions with MeanMaxDHW10
 global.mod3<-svyglm(JuvColCount ~
@@ -1752,7 +1763,7 @@ expression(bold('Mean Max '^o*'C-weeks'))
 # sum.co <- sum.co[order(factor(sum.co$Variable, levels = var_ord)),]
 sum.co$Variable_plot <- factor(c("Depth",
                                  "HS_ts x HS_sev",
-                                 expression("Coral Cover"^2~""),
+                                 "Coral Cover^2",
                                  "Coral Cover",
                                  "HS_ts",
                                  "Depth^2",
@@ -1766,7 +1777,7 @@ sum.co$Variable_plot <- factor(c("Depth",
                                  "Wave Power"),
                                levels = c("Depth",
                                           "HS_ts x HS_sev",
-                                          expression("Coral Cover"^2~""),
+                                          "Coral Cover^2",
                                           "Coral Cover",
                                           "HS_ts",
                                           "Depth^2",
@@ -1779,7 +1790,7 @@ sum.co$Variable_plot <- factor(c("Depth",
                                           "Heat Stress",
                                           "Wave Power"))
 
-write.csv(sum.co,file="T:/Benthic/Projects/Juvenile Project/Tables/Density_best.mod2013-19_svyglm_table_v2.csv")
+write.csv(sum.co,file="T:/Benthic/Projects/Juvenile Project/Tables/Table S2.csv")
 
 
 sum.co$Sig <- NA
@@ -2177,33 +2188,11 @@ PredictplotI_comb <- function(mod,origdat=new.df, dat1=newdata1,dat2=newdata2,us
   
   
   #Plot HSts x HSsev -having issues with legend for using this workaround until I can get function working
-  # plot1<-ggplot() + 
-  #   geom_line(data=dat1,aes(x = s_X, y = Predicted_Juv,color="0-3 years"),size=1) +
-  #   geom_line(data=dat2,aes(x = s_X, y = Predicted_Juv,color="3-15 years"),size=1) +
-  #   geom_ribbon(data = dat1,aes(x = s_X,ymin = Predict.lwr, ymax = Predict.upr,fill="0-3 years"),alpha = 0.1)+
-  #   geom_ribbon(data = dat2,aes(x = s_X,ymin = Predict.lwr, ymax = Predict.upr,fill="3-15 years"),alpha = 0.1)+
-  #   theme_bw() +
-  #   theme(
-  #     axis.title.y = element_blank(),
-  #     axis.title = element_text(face = "bold"),
-  #     legend.position = "bottom",
-  #     text = element_text(size = 14),
-  #     panel.grid = element_blank()
-  #   ) +
-  #   ylab(expression(bold(paste("Predicted Juvenile Colonies",m^-2)))) +
-  #   xlab(predictor_name)  +
-  #   scale_color_manual(name = "", values = c("0-3 years" = color1, "3-15 years" = color2))+
-  #   scale_fill_manual(name = "", values = c("0-3 years" = color1, "3-15 years" = color2))+
-  #   scale_x_continuous(labels = comma(mylabels),breaks=mybreaks)+
-  #   scale_y_continuous(limits=c(0,max(mx_Y)))
-  # 
-  
-  #Plot WP x HSsev -having issues with legend for using this workaround until I can get function working
-  plot1<-ggplot() + 
-    geom_line(data=dat1,aes(x = s_X, y = Predicted_Juv,color=color2),size=1) +
-    geom_line(data=dat2,aes(x = s_X, y = Predicted_Juv,color=color1),size=1) +
-    geom_ribbon(data = dat1,aes(x = s_X,ymin = Predict.lwr, ymax = Predict.upr,fill=color2),alpha = 0.1)+
-    geom_ribbon(data = dat2,aes(x = s_X,ymin = Predict.lwr, ymax = Predict.upr,fill=color1),alpha = 0.1)+
+  plot1<-ggplot() +
+    geom_line(data=dat1,aes(x = s_X, y = Predicted_Juv,color="0-3 years"),size=1) +
+    geom_line(data=dat2,aes(x = s_X, y = Predicted_Juv,color="3-15 years"),size=1) +
+    geom_ribbon(data = dat1,aes(x = s_X,ymin = Predict.lwr, ymax = Predict.upr,fill="0-3 years"),alpha = 0.1)+
+    geom_ribbon(data = dat2,aes(x = s_X,ymin = Predict.lwr, ymax = Predict.upr,fill="3-15 years"),alpha = 0.1)+
     theme_bw() +
     theme(
       axis.title.y = element_blank(),
@@ -2214,11 +2203,33 @@ PredictplotI_comb <- function(mod,origdat=new.df, dat1=newdata1,dat2=newdata2,us
     ) +
     ylab(expression(bold(paste("Predicted Juvenile Colonies",m^-2)))) +
     xlab(predictor_name)  +
-    scale_color_manual(name = "", values = c(color1,color2),labels=c(expression('< 4 '^o*'C-weeks'),expression("">="4" ^o*'C-weeks')))+
-    scale_fill_manual(name = "", values = c(color1,color2),labels=c(expression('< 4 '^o*'C-weeks'),expression("">="4" ^o*'C-weeks')))+
+    scale_color_manual(name = "", values = c("0-3 years" = color1, "3-15 years" = color2))+
+    scale_fill_manual(name = "", values = c("0-3 years" = color1, "3-15 years" = color2))+
     scale_x_continuous(labels = comma(mylabels),breaks=mybreaks)+
     scale_y_continuous(limits=c(0,max(mx_Y)))
-  
+
+  # 
+  # #Plot WP x HSsev -having issues with legend for using this workaround until I can get function working
+  # plot1<-ggplot() + 
+  #   geom_line(data=dat1,aes(x = s_X, y = Predicted_Juv,color=color2),size=1) +
+  #   geom_line(data=dat2,aes(x = s_X, y = Predicted_Juv,color=color1),size=1) +
+  #   geom_ribbon(data = dat1,aes(x = s_X,ymin = Predict.lwr, ymax = Predict.upr,fill=color2),alpha = 0.1)+
+  #   geom_ribbon(data = dat2,aes(x = s_X,ymin = Predict.lwr, ymax = Predict.upr,fill=color1),alpha = 0.1)+
+  #   theme_bw() +
+  #   theme(
+  #     axis.title.y = element_blank(),
+  #     axis.title = element_text(face = "bold"),
+  #     legend.position = "bottom",
+  #     text = element_text(size = 14),
+  #     panel.grid = element_blank()
+  #   ) +
+  #   ylab(expression(bold(paste("Predicted Juvenile Colonies",m^-2)))) +
+  #   xlab(predictor_name)  +
+  #   scale_color_manual(name = "", values = c(color1,color2),labels=c(expression('< 4 '^o*'C-weeks'),expression("">="4" ^o*'C-weeks')))+
+  #   scale_fill_manual(name = "", values = c(color1,color2),labels=c(expression('< 4 '^o*'C-weeks'),expression("">="4" ^o*'C-weeks')))+
+  #   scale_x_continuous(labels = comma(mylabels),breaks=mybreaks)+
+  #   scale_y_continuous(limits=c(0,max(mx_Y)))
+  # 
   
   return(plot1)
   
@@ -2309,7 +2320,7 @@ WP_HSsev.plot
 
 # save full plot
 setwd("T:/Benthic/Projects/Juvenile Project/Figures/Final for Manuscript/")
-ytitle <- text_grob(expression(bold(paste("Predicted Juvenile Colonies",m^-2))), size = 18, face = "bold", rot = 90,hjust=-0.02)
+ytitle <- text_grob(expression(bold(paste("Predicted Juvenile Colonies",m^-2))), size = 18, face = "bold", rot = 90,hjust=-0.001)
 png(width = 1050, height = 600, filename = "Fig.5.png")
 grid.arrange(arrangeGrob(HSts_HSsev.plot + ggtitle("A) Time Since Heat Stress x Heat Stress Severity"),
                          WP_HSsev.plot + ggtitle("B) Wave Power x Heat Stress Severity"),
