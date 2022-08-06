@@ -290,6 +290,9 @@ head(new.df)
 new.df$HS_YN<-ifelse(new.df$YearSinceDHW4<=15,"HS","No_HS")
 new.df$YearSinceDHW4<-ifelse(new.df$YearSinceDHW4<=15,new.df$YearSinceDHW4,NA)
 
+#Also tried setting NA values to max of climatolgoical time series = 32 years
+#new.df$YearSinceDHW4<-ifelse(is.na(new.df$YearSinceDHW4),32,new.df$YearSinceDHW4)
+
 
 
 
@@ -512,6 +515,7 @@ summary(best.mod)
 
 #Only option to generate a R2 like metric for these kinds of models
 cor(best.mod$y, fitted(best.mod))^2
+
 
 
 # PARAMETER ESTIMATES +/- SE ----------------------------------------------
@@ -1740,6 +1744,9 @@ summary(best.mod)
 #Only option to generate a R2 like metric for these kinds of models
 cor(best.mod$y, fitted(best.mod))^2
 
+
+#Also conducted model selection with NAs in YearSinceDHW4 treated as max of climatology (32 years)-
+#The top predictors and effect sizes didn't change. 
 
 # PARAMETER ESTIMATES +/- SE ----------------------------------------------
 

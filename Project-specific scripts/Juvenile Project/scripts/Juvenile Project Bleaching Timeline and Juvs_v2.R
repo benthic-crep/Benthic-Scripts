@@ -118,7 +118,7 @@ temp_Rmean<-left_join(temp_Rmean,juvR.date)
 head(temp_Rmean)
 
 #bar plot of juv by region by year with post hoc tests 
-temp_Rmean$REGION <- factor(temp_Rmean$REGION, levels = c("MHI","WAKE","PHOENIX","LINE","SMI","NMI","SAMOA"))
+temp_Rmean$REGION <- factor(temp_Rmean$REGION, levels = c("NWHI","MHI","NMI","WAKE","SMI","SAMOA","LINE","PHOENIX"))
 temp_Rmean$ANALYSIS_YEAR<-as.factor(temp_Rmean$ANALYSIS_YEAR)
 #Add Posthoc groupings from glms
 temp_Rmean<- temp_Rmean[order(temp_Rmean$REGION),];temp_Rmean
@@ -193,10 +193,10 @@ hs.allR<-subset(hs.allR,REGION!="NWHI")
 hs.allR<-rbind(hs.allR,nwhi.date)
 
 
-hs.allR$REGION <- factor(hs.allR$REGION, levels = c("NWHI","MHI","WAKE","PHOENIX","LINE","SMI","NMI","SAMOA"))
+hs.allR$REGION <- factor(hs.allR$REGION, levels = c("NWHI","MHI","NMI","WAKE","SMI","SAMOA","LINE","PHOENIX"))
 hs.allR<- hs.allR[order(hs.allR$REGION),];hs.allR
 
-juvR.date$REGION <- factor(juvR.date$REGION, levels = c("NWHI","MHI","WAKE","PHOENIX","LINE","SMI","NMI","SAMOA"))
+juvR.date$REGION <- factor(juvR.date$REGION, levels = c("NWHI","MHI","NMI","WAKE","SMI","SAMOA","LINE","PHOENIX"))
 juvR.date<- juvR.date[order(juvR.date$REGION),];juvR.date
 
 fill_colors <- c("#CC79A7","#D55E00","#E69F00","#F0E442","#009E73","#56B4E9","#0072B2","#999999")

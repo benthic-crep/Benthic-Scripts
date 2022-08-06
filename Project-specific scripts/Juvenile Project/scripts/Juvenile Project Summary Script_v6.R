@@ -307,11 +307,11 @@ round(p.adjust(pvals, "BH"), 3) #0.568 0.082 0.010 0.447 0.447 0.000 0.447 0.001
 # PLOTTING ----------------------------------------------------------------
 
 #bar plot of juv by region by year with post hoc tests 
-temp_Rmean$REGION <- factor(temp_Rmean$REGION, levels = c("MHI","WAKE","PHOENIX","LINE","SMI","NMI","SAMOA"))
+temp_Rmean$REGION <- factor(temp_Rmean$REGION, levels = c("MHI","NMI","WAKE","SMI","SAMOA","LINE","PHOENIX"))
 temp_Rmean$ANALYSIS_YEAR<-as.factor(temp_Rmean$ANALYSIS_YEAR)
 #Add Posthoc groupings from glms
 temp_Rmean<- temp_Rmean[order(temp_Rmean$REGION),];temp_Rmean
-temp_Rmean$sig<-c("ab","a","b","","","","","a","b","","","a","b","","")
+temp_Rmean$sig<-c("ab","a","b","a","b","","","","","","","a","b","","")
 
 #scale_fill_manual(values = c("#CC79A7","#D55E00","#E69F00","#F0E442","#009E73","#56B4E9","#0072B2","#999999")) +
   
@@ -368,7 +368,7 @@ nrow(site.swS) #total number of sites used in the spatial analysis
 site.swS$ANALYSIS_YEAR<-as.factor(site.swS$ANALYSIS_YEAR)
 site.swS$REGION<-as.factor(site.swS$REGION)
 
-des<-svydesign(id=~1, strata=~REGION+ISLAND+SEC_NAME+DB_RZ, weights=~sw,data=site.swS)
+des<-svydesign(id=~1, strata=~OBS_YEAR+REGION+ISLAND+SEC_NAME+DB_RZ, weights=~sw,data=site.swS)
 
 #Calculate regional mean and SE
 spatial_Rmean<-svyby(~JuvColDen,~REGION,des,svymean)
@@ -378,8 +378,8 @@ modR<-svyglm(JuvColCount ~ REGION, design=des,offset= TRANSECTAREA_j, family="po
 summary(modR)
 tuk2<-glht(modR, mcp(REGION="Tukey")) 
 tuk.cld2 <- cld(tuk2)
-sig<-c("a","a","c","ac","b","d","c","b")
-#sig<-c("b","b","d","bd","a","c","d","a")
+sig<-c("d","bd","a","ab","c","e","a","c")
+#sig<-c("a","a","c","ac","b","d","c","b")
 
 spatial_Rmean<-cbind(spatial_Rmean,sig)
 
@@ -390,7 +390,7 @@ anova(null.mod,modR)
 
 
 #bar plot of juv by region by year with post hoc tests 
-spatial_Rmean$REGION <- factor(spatial_Rmean$REGION, levels = c("NWHI","MHI","WAKE","PHOENIX","LINE","SMI","NMI","SAMOA"))
+spatial_Rmean$REGION <- factor(spatial_Rmean$REGION, levels = c("NWHI","MHI","NMI","WAKE","SMI","SAMOA","LINE","PHOENIX"))
 #Add Posthoc groupings from glms
 spatial_Rmean<- spatial_Rmean[order(spatial_Rmean$REGION),];spatial_Rmean
 
@@ -424,7 +424,7 @@ ggsave(plot=spatialR,file="T:/Benthic/Projects/Juvenile Project/Figures/DensityR
 
 
 spatial_Imean<-svyby(~JuvColDen,~REGION + ISLAND,des,svymean)
-spatial_Imean$REGION <- factor(spatial_Imean$REGION, levels = c("NWHI","MHI","WAKE","PHOENIX","LINE","SMI","NMI","SAMOA"))
+spatial_Imean$REGION <- factor(spatial_Imean$REGION, levels = c("NWHI","MHI","NMI","WAKE","SMI","SAMOA","LINE","PHOENIX"))
 
 
 p10 <- ggplot(spatial_Imean, aes(x=reorder(ISLAND,-JuvColDen), y=JuvColDen,color=REGION)) +
