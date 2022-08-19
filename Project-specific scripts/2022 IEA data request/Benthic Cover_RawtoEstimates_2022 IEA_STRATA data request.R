@@ -23,6 +23,7 @@ source("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/lib/Islandwide Mea
 
 #Read in Tier 1 and 3 site level data from Benthic Cover_RawtoEstimates_v2 script (includes all sites and all years)
 wsd_t1<-read.csv("T:/Benthic/Data/Data Requests/2021 IEA/BenthicCover_2010-2020_Tier1_SITE.csv")
+wsd_t3<-read.csv("T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Site/BenthicCover_2010-2020_Tier3_SITE_v2.csv")
 sectors<-read.csv("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/data/Sectors-Strata-Areas.csv")
 
 
@@ -31,11 +32,14 @@ sectors<-read.csv("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/data/Se
 #Identify which taxonomic level you would like to summarize
 
 wsd<-wsd_t1
+#wsd<-wsd_t3
 
 #Define data columns
 T1data.cols<-colnames(subset(wsd,select=c(CCA:TURF,CCA_CORAL,BSR)))
+#T3data.cols<-colnames(subset(wsd,select=c(ACAS:TAB)))
 
 data.cols<-T1data.cols
+#data.cols<-T3data.cols
 
 #remove permanent sites, climate sites and special projects
 wsd$PERM_SITE[is.na(wsd$PERM_SITE)]<-"0"
@@ -69,6 +73,19 @@ wsd$DEPTH_BIN<-as.factor(wsd$DEPTH_BIN)# change back to factor
 wsd$STRATA<-paste(substring(wsd$REEF_ZONE,1,1), substring(wsd$DEPTH_BIN,1,1), sep="")
 sectors$STRATA<-paste(substring(sectors$REEF_ZONE,1,1), substring(sectors$DEPTH_BIN,1,1), sep="")
 
+## TREAT GUGUAN, ALAMAGAN, SARIGAN AS ONE ISLAND  (REALLY ONE BASE REPORTING UNIT .. BUT SIMPLER TO STICK TO 'ISLAND')
+# SGA<-c("Guguan", "Alamagan", "Sarigan")
+# levels(wsd$ISLAND)<-c(levels(wsd$ISLAND), "AGS")
+# levels(sectors$ISLAND)<-c(levels(sectors$ISLAND), "AGS")
+# wsd[wsd$ISLAND %in% SGA,]$ISLAND<-"AGS"
+# sectors[sectors$ISLAND %in% SGA,]$ISLAND<-"AGS"
+# 
+# SGA<-c("Guguan", "Alamagan", "Sarigan")
+# levels(wsd$SEC_NAME)<-c(levels(wsd$SEC_NAME), "AGS")
+# levels(sectors$SEC_NAME)<-c(levels(sectors$SEC_NAME), "AGS")
+# wsd[wsd$SEC_NAME %in% SGA,]$SEC_NAME<-"AGS"
+# sectors[sectors$SEC_NAME %in% SGA,]$SEC_NAME<-"AGS"
+
 
 #Change Analysis year according to desired pooling
 wsd[is.na(wsd$ANALYSIS_YEAR),]
@@ -101,34 +118,14 @@ table(wsd$SEC_NAME,wsd$ANALYSIS_YEAR)
 #NOW CHECK HOW MANY REPS WE HAVE PER STRATA
 a<-dcast(wsd, ANALYSIS_SCHEME + ISLAND + ANALYSIS_SEC + OBS_YEAR ~ STRATA, value.var="AREA_HA", length); a
 
-# GENERATE DATA FOR TEMPORAL ANALYSIS - Sectors are only included if they: the strata have at least 2 sites and all strata are surveyed in all years
-#in the previous version of the data (MHICover2010-2019_Tier1_Sector_TimeSeries_Gove_v2) I did not ensure that sectors had all 3 strata. 
-#8/18/22- I'm correcting this issue
 
-
-#Subset Main Hawaiian islands
-wsd<-subset(wsd,REGION=="MHI")
-
-# Subset Strata and Sectors that were surveyed in more than 1 year -------
-
-#Drop stata with less than 2 sites
-st.list<-ddply(wsd,.(ANALYSIS_YEAR,REGION,ISLAND,ANALYSIS_SEC ,STRATANAME),summarize,n=length(unique(SITEVISITID)))
-st.list2<-st.list %>% dplyr::filter(n>=2);head(st.list2) #remove strata that have less than 2 sites/stratum
-
-#Drop sectors with less than 3 strata- important for temporal analysis to compare sectors with all strata
-st.list2<-ddply(st.list2,.(ANALYSIS_YEAR,REGION,ISLAND,ANALYSIS_SEC),summarize,n=length(unique(STRATANAME)))
-st.list3<-st.list2 %>% dplyr::filter(n==3);head(st.list3) #remove strata that have less than 2 sites/stratum
-st.list3$SEC_YEAR<-paste(st.list3$ANALYSIS_SEC,st.list3$ANALYSIS_YEAR)
-wsd$SEC_YEAR<-paste(wsd$ANALYSIS_SEC,wsd$ANALYSIS_YEAR)
-
-
-wsd2<-wsd[wsd$SEC_YEAR %in% c(st.list3$SEC_YEAR),] #Subset data to only include sectors_years with strata with 2 sites and all 3 strata
-wsd2<-separate(wsd2,STRATA,c("REEFZONE","DEPTH_BIN"),sep="_");wsd2<-dplyr::select(wsd2,-REEFZONE)
+# Generate STRATA level data for each island for ALL 2019 data ----------------------------
+wsd2<-wsd[wsd$STRATANAME %in% c(st.list_w3$STRATANAME),] #Subset data to only include strata of interest
 
 # POOL WSD (WORKING SITE DATA TO STRATA THEN TO HIGHER LEVELS -------------
 
 ### CALCULATE MEAN AND VARIANCE WITHIN STRATA ###
-SPATIAL_POOLING_BASE<-c("REGION","ISLAND", "ANALYSIS_SEC", "REEF_ZONE","DEPTH_BIN", "STRATANAME")    
+SPATIAL_POOLING_BASE<-c("REGION","ISLAND", "ANALYSIS_SEC", "REEF_ZONE", "STRATA")    
 ADDITIONAL_POOLING_BY<-c("ANALYSIS_YEAR")                                    # additional fields that we want to break data at, but which do not relate to physical areas (eg survey year or method)
 
 #generate within strata means and vars
@@ -142,9 +139,86 @@ dps$SampleVar<-dps$SampleVar[dps$SampleVar$N>1,]
 dps$SampleSE<-dps$SampleSE[dps$SampleSE$N>1,]
 
 dpst<-dps
-colnames(dpst$Mean)[10:ncol(dpst$Mean)] <- paste("Mean.", colnames(dpst$Mean[,10:ncol(dpst$Mean)]), sep = "")
-colnames(dpst$SampleSE)[10:ncol(dpst$SampleSE)] <- paste("SE.", colnames(dpst$SampleSE[,10:ncol(dpst$SampleSE)]), sep = "")
+colnames(dpst$Mean)[9:ncol(dpst$Mean)] <- paste("Mean.", colnames(dpst$Mean[,9:ncol(dpst$Mean)]), sep = "")
+colnames(dpst$SampleSE)[9:ncol(dpst$SampleSE)] <- paste("SE.", colnames(dpst$SampleSE[,9:ncol(dpst$SampleSE)]), sep = "")
+
 dpst<-left_join(dpst$Mean,dpst$SampleSE)
+
+
+# e.g. SAVE BY SECTOR PER YEAR
+OUTPUT_LEVEL<-c("REGION","ISLAND","ANALYSIS_SEC","ANALYSIS_YEAR") 
+dpisl<-Calc_Pooled_Simple(dps$Mean, dps$SampleVar, data.cols, OUTPUT_LEVEL, "AREA_HA")
+dpisl<-as.data.frame(dpisl)
+dpisl<-subset(dpisl,select=-c(PooledSE.REGION:PooledSE.N))
+colnames(dpisl)[1:5]<-sub("Mean.","",colnames(dpisl)[1:5]) #remove mean from metadata columns
+
+nstrat<-ddply(wsd,.(ANALYSIS_SEC,ANALYSIS_YEAR),
+              summarize,
+              nstrat=length(unique(STRATANAME)))
+
+dpisl<-left_join(dpisl,nstrat)
+
+dpisl<-subset(dpisl,select= -c(Mean.EMA,Mean.HAL,Mean.I,Mean.SC, Mean.SED,Mean.TOT_AREA_WT,
+                               PooledSE.EMA,PooledSE.HAL,PooledSE.I,PooledSE.SC, PooledSE.SED))
+
+
+
+
+write.csv(dpst, file="T:/Benthic/Data/Data Requests/2021 IEA/BenthicCover_2010and2019_Tier1_STRATA_2022IEA.csv",row.names=F)
+#write.csv(dpst, file="T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Stratum/BenthicCover_2010-2019_Tier3_STRATA_forTimesSeries_v2.csv",row.names=F)
+
+
+
+
+
+# Generate STRATA level data for strata and sectors that were surveyed in BOTH 2010/12 & 2019 
+
+# Subset Strata and Sectors that were surveyed in more than 1 year -------
+
+st.list<-ddply(wsd,.(ANALYSIS_YEAR,REGION,ISLAND,ANALYSIS_SEC ,STRATANAME),summarize,n=length(unique(SITEVISITID)))
+st.list2<-st.list %>% dplyr::filter(n>=2);head(st.list2) #remove strata that have less than 2 sites/stratum
+
+#Generate list of strata that were surveyed in all years for a given region and had at least 2 sites/stratum
+st.list_w<-dcast(st.list2, formula=REGION+ISLAND+ANALYSIS_SEC+STRATANAME~ ANALYSIS_YEAR, value.var="n",fill=0)#count # of years of data
+st.list_w$year_n<-rowSums(st.list_w[,5:ncol(st.list_w)] > 0, na.rm=T) 
+
+st.list_w<-st.list_w %>% dplyr::filter(year_n>=2);head(st.list2) #remove strata that have less than 2 sites/stratum
+
+
+#Identify the max number of years a stratum was surveyed within a sector
+yMax<-ddply(st.list_w,.(REGION,ISLAND,ANALYSIS_SEC),
+            summarize,
+            year_n=max(year_n))
+st.list_w3<-left_join(yMax,st.list_w) #only include strata that were surveyed the maxiumum number of years for a given sector
+head(st.list_w3);st.list_w3<-droplevels(st.list_w3) #generate the list
+
+wsd2<-wsd[wsd$STRATANAME %in% c(st.list_w3$STRATANAME),] #Subset data to only include strata of interest
+
+# POOL WSD (WORKING SITE DATA TO STRATA THEN TO HIGHER LEVELS -------------
+
+### CALCULATE MEAN AND VARIANCE WITHIN STRATA ###
+SPATIAL_POOLING_BASE<-c("REGION","ISLAND", "ANALYSIS_SEC", "REEF_ZONE", "STRATA")    
+ADDITIONAL_POOLING_BY<-c("ANALYSIS_YEAR")                                    # additional fields that we want to break data at, but which do not relate to physical areas (eg survey year or method)
+
+#generate within strata means and vars
+POOLING_LEVEL<-c(SPATIAL_POOLING_BASE, ADDITIONAL_POOLING_BY)
+dps<-Calc_PerStrata(wsd2, data.cols, c(POOLING_LEVEL, "AREA_HA"))
+
+#SAVE BY STRATUM PER YEAR
+###### REMOVE STRATA with N=1 (cannot pool those up)
+dps$Mean<-dps$Mean[dps$Mean$N>1,]
+dps$SampleVar<-dps$SampleVar[dps$SampleVar$N>1,]
+dps$SampleSE<-dps$SampleSE[dps$SampleSE$N>1,]
+
+dpst<-dps
+colnames(dpst$Mean)[9:ncol(dpst$Mean)] <- paste("Mean.", colnames(dpst$Mean[,9:ncol(dpst$Mean)]), sep = "")
+colnames(dpst$SampleSE)[9:ncol(dpst$SampleSE)] <- paste("SE.", colnames(dpst$SampleSE[,9:ncol(dpst$SampleSE)]), sep = "")
+
+dpst<-left_join(dpst$Mean,dpst$SampleSE)
+
+write.csv(dpst, file="T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Stratum/BenthicCover_2010-2019_Tier1_STRATA_forTimesSeries_v2.csv",row.names=F)
+#write.csv(dpst, file="T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Stratum/BenthicCover_2010-2019_Tier3_STRATA_forTimesSeries_v2.csv",row.names=F)
+
 
 
 # e.g. SAVE BY SECTOR PER YEAR
@@ -164,110 +238,33 @@ dpsec<-subset(dpsec,select= -c(Mean.EMA,Mean.HAL,Mean.I,Mean.SC, Mean.SED,Mean.T
                                PooledSE.EMA,PooledSE.HAL,PooledSE.I,PooledSE.SC, PooledSE.SED))
 
 
-write.csv(dpsec, file="T:/Benthic/Data/Data Requests/2021 IEA/MHICoverAllYears_Sector_IEA.csv",row.names=F)
 
-table(dpsec$ANALYSIS_SEC,dpsec$ANALYSIS_YEAR)
+#Only include sectors and years that were included in the first version of the data
+mhi<-subset(dpsec,REGION=="MHI")
+mhi$S_Y<-paste(mhi$ANALYSIS_SEC,mhi$ANALYSIS_YEAR,sep="_")
 
-old<-read.csv("T:/Benthic/Data/Data Requests/2021 IEA/MHICover2010-2019_Tier1_Sector_TimeSeries_Gove_v2.csv")
+#read in original version of data
+old<-read.csv("T:/Benthic/Data/Data Requests/2021 IEA/MHICover2010-2019_Tier1_Sector_TimeSeries_Gove.csv")
+old$S_Y<-paste(old$ANALYSIS_SEC,old$ANALYSIS_YEAR,sep="_")
 
-table(old$ANALYSIS_SEC,old$ANALYSIS_YEAR)
+mhi<-subset(mhi,S_Y %in% old$S_Y)
 
-# Generate estimates of mean benthic cover at shal, mid and deep sites for each island for 2019--------
-#EXCLUDE strata that have <2 sites and sectors that don't have all 3 strata
+nrow(mhi)
+nrow(old)
 
-wsd_19<-filter(wsd2,ANALYSIS_YEAR =="2019")
+#Make sure all other categories match - they do
+mhi$Mean.CORAL != old$Mean.CORAL
+mhi$Mean.CCA != old$Mean.CCA
+mhi$Mean.MA != old$Mean.MA
+mhi$Mean.TURF != old$Mean.TURF
 
-### CALCULATE MEAN AND VARIANCE WITHIN STRATA ###
-SPATIAL_POOLING_BASE<-c("REGION","ISLAND", "ANALYSIS_SEC", "REEF_ZONE","DEPTH_BIN", "STRATANAME")    
-ADDITIONAL_POOLING_BY<-c("ANALYSIS_YEAR")                                    # additional fields that we want to break data at, but which do not relate to physical areas (eg survey year or method)
-
-#generate within strata means and vars
-POOLING_LEVEL<-c(SPATIAL_POOLING_BASE, ADDITIONAL_POOLING_BY)
-dps<-Calc_PerStrata(wsd_19, data.cols, c(POOLING_LEVEL, "AREA_HA"))
-
-#SAVE BY STRATUM PER YEAR
-###### REMOVE STRATA with N=1 (cannot pool those up)
-dps$Mean<-dps$Mean[dps$Mean$N>1,]
-dps$SampleVar<-dps$SampleVar[dps$SampleVar$N>1,]
-dps$SampleSE<-dps$SampleSE[dps$SampleSE$N>1,]
-
-#Island-level estimates summarized for the 3 depth strata
-OUTPUT_LEVEL<-c("REGION","ISLAND","ANALYSIS_YEAR","DEPTH_BIN") 
-dpisldb<-Calc_Pooled_Simple(dps$Mean, dps$SampleVar, data.cols, OUTPUT_LEVEL, "AREA_HA")
-dpisldb<-as.data.frame(dpisldb)
-dpisldb<-subset(dpisldb,select=-c(PooledSE.REGION:PooledSE.N))
-colnames(dpisldb)[1:5]<-sub("Mean.","",colnames(dpisldb)[1:5]) #remove mean from metadata columns
+write.csv(mhi, file="T:/Benthic/Data/Data Requests/2021 IEA/MHICover2010-2019_Tier1_Sector_TimeSeries_Gove_v2.csv",row.names=F)
 
 
-dpisldb<-subset(dpisldb,select= -c(Mean.EMA,Mean.HAL,Mean.I,Mean.SC, Mean.SED,Mean.TOT_AREA_WT,
-                               PooledSE.EMA,PooledSE.HAL,PooledSE.I,PooledSE.SC, PooledSE.SED))
+plot(mhi$Mean.BSR,old$Mean.BSR)
 
-
-write.csv(dpisldb, file="T:/Benthic/Data/Data Requests/2021 IEA/MHICover_2019_ISLAND_DEPTH_IEA.csv",row.names=F)
-
-
-# Generate estimates of mean benthic cover at shal, mid and deep sites for each island for 2010/2012 & 2019--------
-#EXCLUDE strata that have <2 sites and sectors that don't have all 3 strata & only sectors that were surveyed in both 2010 and 2019
-
-#Drop stata with less than 2 sites
-st.list<-ddply(wsd,.(ANALYSIS_YEAR,REGION,ISLAND,ANALYSIS_SEC ,STRATANAME),summarize,n=length(unique(SITEVISITID)))
-st.list2<-st.list %>% dplyr::filter(n>=2);head(st.list2) #remove strata that have less than 2 sites/stratum
-
-#Drop sectors with less than 3 strata- important for temporal analysis to compare sectors with all strata
-st.list2<-ddply(st.list2,.(ANALYSIS_YEAR,REGION,ISLAND,ANALYSIS_SEC),summarize,n=length(unique(STRATANAME)))
-st.list3<-st.list2 %>% dplyr::filter(n==3);head(st.list3) #remove strata that have less than 2 sites/stratum
-st.list3$SEC_YEAR<-paste(st.list3$ANALYSIS_SEC,st.list3$ANALYSIS_YEAR)
-wsd$SEC_YEAR<-paste(wsd$ANALYSIS_SEC,wsd$ANALYSIS_YEAR)
-
-wsd2<-wsd[wsd$SEC_YEAR %in% c(st.list3$SEC_YEAR),] #Subset data to only include sectors_years with strata with 2 sites and all 3 strata
-wsd2<-separate(wsd2,STRATA,c("REEFZONE","DEPTH_BIN"),sep="_");wsd2<-dplyr::select(wsd2,-REEFZONE)
-
-#Subset the 2010/2012 & 2019 sites
-wsd.10_19<-filter(wsd2,ANALYSIS_YEAR %in% c("2010-12","2019"))
-
-#Only include sectors that were surveyed in both years
-sec.list<-ddply(wsd.10_19,.(REGION,ISLAND,ANALYSIS_SEC),summarize,n=length(unique(ANALYSIS_YEAR)))
-sec.list2<-sec.list %>% dplyr::filter(n==2);head(sec.list2) #remove strata that have less than 2 sites/stratum
-
-wsd.10_19<-wsd.10_19[wsd.10_19$ANALYSIS_SEC %in% c(sec.list2$ANALYSIS_SEC),] #Subset data to only include sectors_years with strata with 2 sites and all 3 strata
-
-
-# POOL WSD (WORKING SITE DATA TO STRATA THEN TO HIGHER LEVELS -------------
-
-### CALCULATE MEAN AND VARIANCE WITHIN STRATA ###
-SPATIAL_POOLING_BASE<-c("REGION","ISLAND", "ANALYSIS_SEC", "REEF_ZONE","DEPTH_BIN", "STRATANAME")    
-ADDITIONAL_POOLING_BY<-c("ANALYSIS_YEAR")                                    # additional fields that we want to break data at, but which do not relate to physical areas (eg survey year or method)
-
-#generate within strata means and vars
-POOLING_LEVEL<-c(SPATIAL_POOLING_BASE, ADDITIONAL_POOLING_BY)
-dps<-Calc_PerStrata(wsd.10_19, data.cols, c(POOLING_LEVEL, "AREA_HA"))
-
-#SAVE BY STRATUM PER YEAR
-###### REMOVE STRATA with N=1 (cannot pool those up)
-dps$Mean<-dps$Mean[dps$Mean$N>1,]
-dps$SampleVar<-dps$SampleVar[dps$SampleVar$N>1,]
-dps$SampleSE<-dps$SampleSE[dps$SampleSE$N>1,]
-
-dpst<-dps
-colnames(dpst$Mean)[10:ncol(dpst$Mean)] <- paste("Mean.", colnames(dpst$Mean[,10:ncol(dpst$Mean)]), sep = "")
-colnames(dpst$SampleSE)[10:ncol(dpst$SampleSE)] <- paste("SE.", colnames(dpst$SampleSE[,10:ncol(dpst$SampleSE)]), sep = "")
-dpst<-left_join(dpst$Mean,dpst$SampleSE)
-
-
-
-#Island-level estimates summarized for the 3 depth strata
-OUTPUT_LEVEL<-c("REGION","ISLAND","ANALYSIS_YEAR","DEPTH_BIN") 
-dpisldb<-Calc_Pooled_Simple(dps$Mean, dps$SampleVar, data.cols, OUTPUT_LEVEL, "AREA_HA")
-dpisldb<-as.data.frame(dpisldb)
-dpisldb<-subset(dpisldb,select=-c(PooledSE.REGION:PooledSE.N))
-colnames(dpisldb)[1:5]<-sub("Mean.","",colnames(dpisldb)[1:5]) #remove mean from metadata columns
-
-
-dpisldb<-subset(dpisldb,select= -c(Mean.EMA,Mean.HAL,Mean.I,Mean.SC, Mean.SED,Mean.TOT_AREA_WT,
-                                   PooledSE.EMA,PooledSE.HAL,PooledSE.I,PooledSE.SC, PooledSE.SED))
-
-
-write.csv(dpisldb, file="T:/Benthic/Data/Data Requests/2021 IEA/MHICover_2010_2019_ISLAND_DEPTH_IEA.csv",row.names=F)
+#####NOTE: We are are not summarizing to ISLAND level because we've dropped quite a few strata and sectors. 
+#Talk to Courtney if you want island-level time series data.
 
 
 

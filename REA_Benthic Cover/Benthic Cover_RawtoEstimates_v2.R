@@ -265,6 +265,7 @@ wsd_t1<-subset(wsd_t1,new.N >=150)
 
 #Save Tier 1 site data to t drive. This file has all sites (fish, benthic and OCC) that were annoated between 2010 and 2018
 write.csv(wsd_t1, file="T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Site/BenthicCover_2010-2020_Tier1_SITE.csv",row.names=F)
+# write.csv(wsd_t1, file="T:/Benthic/Data/Data Requests/2021 IEA/BenthicCover_2010-2020_Tier1_SITE.csv",row.names=F)
 
 
 # Generate Site-level Data at TIER 3 level--------------
