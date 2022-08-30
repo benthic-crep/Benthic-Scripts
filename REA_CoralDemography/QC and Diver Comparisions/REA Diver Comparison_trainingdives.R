@@ -52,9 +52,9 @@ p2<-
 
 p2
 
-#p3<-
-  ggplot(data.gen[data.gen$GENUS_CODE != "SSSS" & data.gen$AdColCount > 0,],aes(x=ANALYST, y=AdColCount, fill=ANALYST)) + 
-  geom_bar(position="dodge", stat="identity") + 
+p3<-
+  ggplot(data.gen[data.gen$GENUS_CODE != "SSSS" & data.gen$AdColCount > 0 & data.gen$ANALYST != "Nico",],aes(x=ANALYST, y=AdColCount, fill=ANALYST)) + 
+  geom_bar(position="stack", stat="identity") + 
   facet_wrap(~GENUS_CODE,scales="free_y") +
   theme_bw() +
   theme(

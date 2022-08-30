@@ -54,12 +54,22 @@ data.gen<-data.gen %>% mutate(ANALYST=dplyr::recode(TRANSECT,
                                                     '2'= "Mia",
                                                     '3'="Nico",
                                                     'NA'="NA"))
+##Generate plot by segment
+data.l<-data.l %>% mutate(ANALYST=dplyr::recode(TRANSECT,
+                                                    '1'="Jonny",
+                                                    '2'= "Mia",
+                                                    '3'="Nico",
+                                                    'NA'="NA"))
+data.l<-left_join(data.l, segs, by = 'SS')
+data.l<-subset(data.l,Metric %in% c("AdColDen","JuvColDen","Ave.cl","Ave.od","Ave.rd","DZGN_G_prev","BLE_prev","CHRO_prev"))
+data.l$Number <- as.character(data.l$Number)
 
 #Plot between observer 
-p1<-ggplot(data.sum, aes(x=ANALYST, y=mean, fill=Metric)) + 
-  geom_bar(position=position_dodge(), stat="identity", color="black") + 
-  guides(fill=FALSE) + facet_wrap(~Metric, scales="free_y", labeller=label_parsed) +
-  geom_errorbar(aes(ymin=mean-se, ymax=mean+se),width=.15, position=position_dodge(.9)) +theme_bw() +
+p1<-ggplot(data.l[data.l$ANALYST!= "Nico",], aes(x=ANALYST, y=Value, fill = Number)) + 
+  geom_bar(position="dodge", stat="identity", color="black") + 
+  guides(fill=FALSE) + facet_grid(Metric~SITE, scales="free_y")+# , labeller=label_parsed) +
+  #geom_errorbar(aes(ymin=mean-se, ymax=mean+se),width=.15, position=position_dodge(.9)) +
+  theme_bw() +
   theme(
     plot.background = element_blank()
     ,panel.grid.major = element_blank()
