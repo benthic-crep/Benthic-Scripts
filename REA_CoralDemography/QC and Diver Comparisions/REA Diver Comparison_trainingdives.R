@@ -9,9 +9,9 @@ source("C:/Users/Courtney.S.Couch/Documents/GitHub/Benthic-Scripts/Functions/Ben
 source("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/lib/core_functions.R")
 source("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/lib/GIS_functions.R")
 
-dz<-read.csv("C:/Users/Courtney.S.Couch/Documents/GitHub/Benthic-Scripts/REA_CoralDemography/QC and Diver Comparisions/February 2022/Feb2022DiverComparison_DZ.csv")
+dz<-read.csv("C:/Users/Jonathan.Charendoff/Documents/GitHub/Benthic-Scripts/REA_CoralDemography/QC and Diver Comparisions/February 2022/Feb2022DiverComparison_DZ.csv")
 
-df<-read.csv("C:/Users/Courtney.S.Couch/Documents/GitHub/Benthic-Scripts/REA_CoralDemography/QC and Diver Comparisions/February 2022/Feb2022DiverComparison.csv")
+df<-read.csv("C:/Users/Jonathan.Charendoff/Documents/GitHub/Benthic-Scripts/REA_CoralDemography/QC and Diver Comparisions/February 2022/Feb2022DiverComparison.csv")
 df<-df[,c(1:11)]
 df$SegTax<-paste(df$Segment,df$Taxon,sep="_")
 
@@ -22,7 +22,7 @@ j<-filter(df,AdJuv=="J")
 
 #Counts
 p1<-
-  ggplot(a,aes(x=Diver, y=Count, fill=Taxon)) + 
+  ggplot(data.gen,aes(x=Diver, y=Count, fill=Taxon)) + 
   geom_bar(position="stack", stat="identity") + 
   facet_wrap(~Segment,scales="free_x")+
   theme_bw() +
@@ -53,9 +53,9 @@ p2<-
 p2
 
 p3<-
-  ggplot(a,aes(x=Diver, y=Count, fill=Diver)) + 
-  geom_bar(position="dodge", stat="identity") + 
-  facet_wrap(~SegTax,scales="free_x")+
+  ggplot(data.gen[data.gen$GENUS_CODE != "SSSS" & data.gen$AdColCount > 0 & data.gen$ANALYST != "Nico",],aes(x=ANALYST, y=AdColCount, fill=ANALYST)) + 
+  geom_bar(position="stack", stat="identity") + 
+  facet_wrap(~GENUS_CODE,scales="free_y") +
   theme_bw() +
   theme(
     axis.text.x = element_text(angle = 90)
