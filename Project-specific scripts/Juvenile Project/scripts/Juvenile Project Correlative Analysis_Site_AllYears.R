@@ -311,8 +311,10 @@ data.cols<-c("OBS_YEAR","REGION","ISLAND","SEC_NAME","STRATANAME","SITE","TRANSE
 new.df<-new.df[,data.cols]
 
 #StRS design
-des<-svydesign(id=~1, strata=~ OBS_YEAR + REGION+ISLAND+SEC_NAME+STRATANAME, weights=~sw,data=new.df)
-
+#concantate all nested variables into 1 column 
+#des<-svydesign(id=~1, strata=~ OBS_YEAR + REGION+ISLAND+SEC_NAME+STRATANAME, weights=~sw,data=new.df) - overestimating the variance wit this method only accounting for the first variable
+#des<-svydesign(id=~1, strata=~ New_Strata, weights=~sw,data=new.df)
+#check against with just obs_year
 
 # Testing for polynomial relationships -----------------------------------------------------
 
