@@ -31,15 +31,15 @@ sectors<-read.csv("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/data/Se
 
 #Identify which taxonomic level you would like to summarize
 
-#wsd<-wsd_t1
-wsd<-wsd_t3
+wsd<-wsd_t1
+#wsd<-wsd_t3
 
 #Define data columns
-#T1data.cols<-colnames(subset(wsd,select=c(CCA:TURF,CCA_CORAL,BSR)))
-T3data.cols<-colnames(subset(wsd,select=c(ACAS:TAB)))
+T1data.cols<-colnames(subset(wsd,select=c(CCA:TURF,CCA_CORAL,BSR)))
+#T3data.cols<-colnames(subset(wsd,select=c(ACAS:TAB)))
 
-#data.cols<-T1data.cols
-data.cols<-T3data.cols
+data.cols<-T1data.cols
+#data.cols<-T3data.cols
 
 #remove permanent sites, climate sites and special projects
 wsd$PERM_SITE[is.na(wsd$PERM_SITE)]<-"0"
@@ -120,16 +120,24 @@ a<-dcast(wsd, ANALYSIS_SCHEME + ISLAND + ANALYSIS_SEC + OBS_YEAR ~ STRATA, value
 
 # GENERATE DATA FOR TEMPORAL ANALYSIS - All sectors surveyed in all years 
 
-# Subset Strata and Sectors that were surveyed in more than 1 year -------
-
+#Drop stata with less than 2 sites
 st.list<-ddply(wsd,.(ANALYSIS_YEAR,REGION,ISLAND,ANALYSIS_SEC ,STRATANAME),summarize,n=length(unique(SITEVISITID)))
 st.list2<-st.list %>% dplyr::filter(n>=2);head(st.list2) #remove strata that have less than 2 sites/stratum
 
+#Drop sectors with less than 3 strata- important for temporal analysis to compare sectors with all strata
+st.list2<-ddply(st.list2,.(ANALYSIS_YEAR,REGION,ISLAND,ANALYSIS_SEC),summarize,n=length(unique(STRATANAME)))
+st.list3<-st.list2 %>% dplyr::filter(n==3);head(st.list3) #remove strata that have less than 2 sites/stratum
+st.list3$SEC_YEAR<-paste(st.list3$ANALYSIS_SEC,st.list3$ANALYSIS_YEAR)
+wsd$SEC_YEAR<-paste(wsd$ANALYSIS_SEC,wsd$ANALYSIS_YEAR)
+
+wsd2<-wsd[wsd$SEC_YEAR %in% c(st.list3$SEC_YEAR),] #Subset data to only include sectors_years with strata with 2 sites and all 3 strata
+wsd2<-separate(wsd2,STRATA,c("REEFZONE","DEPTH_BIN"),sep="_");wsd2<-dplyr::select(wsd2,-REEFZONE)
+
 #Generate list of strata that were surveyed in all years for a given region and had at least 2 sites/stratum
-st.list_w<-dcast(st.list2, formula=REGION+ISLAND+ANALYSIS_SEC+STRATANAME~ ANALYSIS_YEAR, value.var="n",fill=0)#count # of years of data
+st.list_w<-dcast(wsd2, formula=REGION+ISLAND+ANALYSIS_SEC+STRATANAME~ ANALYSIS_YEAR, value.var="SITE",fill=0)#count # of years of data
 st.list_w$year_n<-rowSums(st.list_w[,5:ncol(st.list_w)] > 0, na.rm=T) 
 
-st.list_w<-st.list_w %>% dplyr::filter(year_n>=2);head(st.list2) #remove strata that have less than 2 sites/stratum
+st.list_w<-st.list_w %>% dplyr::filter(year_n>=2);head(st.list_w) #remove strata that were surveyed less than 2 years
 
 
 #Identify the max number of years a stratum was surveyed within a sector
@@ -139,12 +147,12 @@ yMax<-ddply(st.list_w,.(REGION,ISLAND,ANALYSIS_SEC),
 st.list_w3<-left_join(yMax,st.list_w) #only include strata that were surveyed the maxiumum number of years for a given sector
 head(st.list_w3);st.list_w3<-droplevels(st.list_w3) #generate the list
 
-wsd2<-wsd[wsd$STRATANAME %in% c(st.list_w3$STRATANAME),] #Subset data to only include strata of interest
+wsd2<-wsd2[wsd2$STRATANAME %in% c(st.list_w3$STRATANAME),] #Subset data to only include strata of interest
 
 # POOL WSD (WORKING SITE DATA TO STRATA THEN TO HIGHER LEVELS -------------
 
 ### CALCULATE MEAN AND VARIANCE WITHIN STRATA ###
-SPATIAL_POOLING_BASE<-c("REGION","ISLAND", "ANALYSIS_SEC", "REEF_ZONE", "STRATA")    
+SPATIAL_POOLING_BASE<-c("REGION","ISLAND", "ANALYSIS_SEC", "REEF_ZONE", "STRATANAME")    
 ADDITIONAL_POOLING_BY<-c("ANALYSIS_YEAR")                                    # additional fields that we want to break data at, but which do not relate to physical areas (eg survey year or method)
 
 #generate within strata means and vars
@@ -163,8 +171,8 @@ colnames(dpst$SampleSE)[9:ncol(dpst$SampleSE)] <- paste("SE.", colnames(dpst$Sam
 
 dpst<-left_join(dpst$Mean,dpst$SampleSE)
 
-#write.csv(dpst, file="T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Stratum/BenthicCover_2010-2019_Tier1_STRATA_forTimesSeries.csv",row.names=F)
-write.csv(dpst, file="T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Stratum/BenthicCover_2010-2019_Tier3_STRATA_forTimesSeries.csv",row.names=F)
+write.csv(dpst, file="T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Stratum/BenthicCover_2010-2019_Tier1_STRATA_forTimesSeries.csv",row.names=F)
+#write.csv(dpst, file="T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Stratum/BenthicCover_2010-2019_Tier3_STRATA_forTimesSeries.csv",row.names=F)
 
 
 
@@ -183,8 +191,8 @@ dpsec<-left_join(dpsec,nstrat)
 
 #dpsec<-subset(dpsec,select= -c(Mean.EMA,Mean.HAL,Mean.I,Mean.SC, Mean.SED,Mean.TOT_AREA_WT,PooledSE.EMA,PooledSE.HAL,PooledSE.I,PooledSE.SC, PooledSE.SED))
 
-#write.csv(dpsec, file="T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Sector/BenthicCover_2010-2019_Tier1_SECTOR_forTimesSeries.csv",row.names=F)
-write.csv(dpsec, file="T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Sector/BenthicCover_2010-2019_Tier3_SECTOR_forTimeseries.csv",row.names=F)
+write.csv(dpsec, file="T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Sector/BenthicCover_2010-2019_Tier1_SECTOR_forTimesSeries.csv",row.names=F)
+#write.csv(dpsec, file="T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Sector/BenthicCover_2010-2019_Tier3_SECTOR_forTimeseries.csv",row.names=F)
 
 
 

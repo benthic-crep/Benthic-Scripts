@@ -19,8 +19,9 @@ source("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/lib/GIS_functions.
 awd<-read.csv("T:/Benthic/Data/REA Coral Demography & Cover/Analysis Ready Raw data/CoralBelt_Adults_raw_CLEANED.csv")
 jwd<-read.csv("T:/Benthic/Data/REA Coral Demography & Cover/Analysis Ready Raw data/CoralBelt_Juveniles_raw_CLEANED.csv")
 
-# awd=subset(awd,ISLAND=="Laysan")
-# jwd=subset(jwd,ISLAND=="Laysan")
+#If you want to test out script, subset with a single island- the entire script takes forever to run
+# awd=subset(awd,ISLAND=="Maui")
+# jwd=subset(jwd,ISLAND=="Maui")
 
 #Final Tweaks before calculating site-level data-------------------------------------------------
 #Colony fragments will be removed when you generate the site level data
@@ -117,6 +118,7 @@ totdzden.gen<-subset(totdzden.gen,select = c(SITEVISITID,SITE,TRANSECT,GENUS_COD
 #Calc_RDden_Transect
 rdden.gen<-Calc_RDden_Transect(awd,survey_colony,"GENUS_CODE") # Density of recent dead colonies by condition, you will need to subset which ever condition you want. The codes ending in "S" are the general categories
 acutedz.gen<-subset(rdden.gen,select = c(SITEVISITID,SITE,TRANSECT,GENUS_CODE,DZGN_G));colnames(acutedz.gen)[colnames(acutedz.gen)=="DZGN_G"]<-"DZGN_den" #subset just acute diseased colonies
+alga.gen<-subset(rdden.gen,select = c(SITEVISITID,SITE,TRANSECT,GENUS_CODE,ALGA));colnames(alga.gen)[colnames(alga.gen)=="ALGA"]<-"ALGA_den" #subset just colonies with macroalgae overgrowth
 
 #Calc_CONDden_Transect
 condden.gen<-Calc_CONDden_Transect(awd,survey_colony,"GENUS_CODE")# Density of condition colonies by condition, you will need to subset which ever condition you want
@@ -137,13 +139,12 @@ cl.gen<-subset(cl.gen,select=-c(METHOD))
 od.gen<-subset(od.gen,select=-c(METHOD))
 rd.gen<-subset(rd.gen,select=-c(METHOD))
 
-
 #Merge density and partial moratlity data together.You will need to replace the DUMMY field with the one you want
 MyMerge <- function(x, y){
   df <- merge(x, y, by= c("SITE","SITEVISITID","TRANSECT","GENUS_CODE"), all.x= TRUE, all.y= TRUE)
   return(df)
 }
-data.gen<-Reduce(MyMerge, list(acd.gen,jcd.gen,cl.gen,od.gen,rd.gen,totdzden.gen,acutedz.gen,chronicdz.gen,ble.gen));
+data.gen<-Reduce(MyMerge, list(acd.gen,jcd.gen,cl.gen,od.gen,rd.gen,totdzden.gen,acutedz.gen,chronicdz.gen,ble.gen,alga.gen));
 
 
 #Add METHOD back in
@@ -177,6 +178,7 @@ data.gen$TotDZ_prev<-(data.gen$TotDZ_den*data.gen$TRANSECTAREA_ad)/data.gen$AdCo
 data.gen$DZGN_prev<-(data.gen$DZGN_den*data.gen$TRANSECTAREA_ad)/data.gen$AdColCount*100
 data.gen$BLE_prev<-(data.gen$BLE_den*data.gen$TRANSECTAREA_ad)/data.gen$AdColCount*100
 data.gen$CHRO_prev<-(data.gen$CHRO_den*data.gen$TRANSECTAREA_ad)/data.gen$AdColCount*100
+data.gen$ALGA_prev<-(data.gen$ALGA_den*data.gen$TRANSECTAREA_ad)/data.gen$AdColCount*100
 
 #There will be some NAs when you merge the DZ and other dataframes together because there may be some taxa that didn't have disease
 #Convert NA to 0 ONLY for disease density NOT for prevalence
@@ -184,6 +186,7 @@ data.gen$TotDZ_den<-ifelse(is.na(data.gen$TotDZ_den),0,data.gen$TotDZ_den)
 data.gen$DZGN_den<-ifelse(is.na(data.gen$DZGN_den),0,data.gen$DZGN_den)
 data.gen$CHRO_den<-ifelse(is.na(data.gen$CHRO_den),0,data.gen$CHRO_den)
 data.gen$BLE_den<-ifelse(is.na(data.gen$BLE_den),0,data.gen$BLE_den)
+data.gen$ALGA_den<-ifelse(is.na(data.gen$ALGA_den),0,data.gen$ALGA_den)
 
 
 #Remove data from transects with less than 5m surveyed for adults and 1m for juvs.
@@ -197,8 +200,9 @@ site.data.gen<-ddply(data.gen, .(SITE,SITEVISITID,GENUS_CODE), #calc total colon
                      summarise,
                      AdColCount=mean(AdColCount,na.rm=T),AdColDen=mean(AdColDen,na.rm = T),Ave.od=mean(Ave.od,na.rm = T),
                      Ave.rd=mean(Ave.rd,na.rm = T),Ave.size=mean(Ave.cl,na.rm=T),JuvColCount=mean(JuvColCount,na.rm=T),
-                     JuvColDen=mean(JuvColDen,na.rm=T),BLE=mean(BLE_den,na.rm=T),TotDZ=mean(TotDZ_den,na.rm=T), AcuteDZ=mean(DZGN_den,na.rm=T),ChronicDZ=mean(CHRO_den,na.rm=T),
-                     BLE_prev=mean(BLE_prev,na.rm=T),TotDZ_prev=mean(TotDZ_prev,na.rm=T), AcuteDZ_prev=mean(DZGN_prev,na.rm=T),ChronicDZ_prev=mean(CHRO_prev,na.rm=T))
+                     JuvColDen=mean(JuvColDen,na.rm=T),BLE=mean(BLE_den,na.rm=T),TotDZ=mean(TotDZ_den,na.rm=T), AcuteDZ=mean(DZGN_den,na.rm=T),ChronicDZ=mean(CHRO_den,na.rm=T),ALGA=mean(ALGA_den,na.rm=T),
+                     BLE_prev=mean(BLE_prev,na.rm=T),TotDZ_prev=mean(TotDZ_prev,na.rm=T), AcuteDZ_prev=mean(DZGN_prev,na.rm=T),ChronicDZ_prev=mean(CHRO_prev,na.rm=T),AlgalOG_prev=mean(ALGA_prev,na.rm=T))
+
 
 #Duplicate dataframe because the ddply step above takes a while to create. Allows you to tweak code below without having to rerun the ddply step above
 site.data.gen2<-site.data.gen
@@ -424,7 +428,7 @@ site.data.gen2<-left_join(site.data.gen2,meta)
 site.data.sp2<-left_join(site.data.sp2,meta)
 site.data.tax2<-left_join(site.data.tax2,meta)
 
-
+#Final Tweaks
 #Add adult and juvenile pres/ab columns
 site.data.gen2$Adpres.abs<-ifelse(site.data.gen2$AdColDen>0,1,0)
 site.data.gen2$Juvpres.abs<-ifelse(site.data.gen2$JuvColDen>0,1,0)
@@ -432,6 +436,9 @@ site.data.sp2$Adpres.abs<-ifelse(site.data.sp2$AdColDen>0,1,0)
 site.data.sp2$Juvpres.abs<-ifelse(site.data.sp2$JuvColDen>0,1,0)
 site.data.tax2$Adpres.abs<-ifelse(site.data.tax2$AdColDen>0,1,0)
 site.data.tax2$Juvpres.abs<-ifelse(site.data.tax2$JuvColDen>0,1,0)
+
+site.data.gen2$ALGA<-ifelse(site.data.gen2$OBS_YEAR>= 2019,NA,site.data.gen2$ALGA)
+site.data.gen2$AlgalOG_prev<-ifelse(site.data.gen2$OBS_YEAR>= 2019,NA,site.data.gen2$AlgalOG_prev)
 
 #Save Site-level data
 write.csv(site.data.gen2,file="T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Site/BenthicREA_sitedata_GENUS.csv",row.names = F)

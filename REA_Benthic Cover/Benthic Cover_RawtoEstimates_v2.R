@@ -246,7 +246,7 @@ class(sm$DATE_)
 
 head(sm)
 
-sm<-sm[,c("DATE_","MISSIONID","SITEVISITID","SITE","OCC_SITEID","ANALYSIS_YEAR","ANALYSIS_SCHEME","OBS_YEAR","SEC_NAME","EXCLUDE_FLAG","TRANSECT_PHOTOS","Oceanography")]
+sm<-sm[,c("DATE_","MISSIONID","SITEVISITID","SITE","OCC_SITEID","ANALYSIS_YEAR","ANALYSIS_SCHEME","OBS_YEAR","SEC_NAME","EXCLUDE_FLAG","TRANSECT_PHOTOS","Oceanography","new_MIN_DEPTH_M","new_MAX_DEPTH_M")]
 wsd_t1<-merge(sm,wsd,by=c("SITEVISITID","SITE","OBS_YEAR"),all.y=TRUE)
 head(wsd_t1)
 
@@ -312,12 +312,12 @@ write.csv(wsd_t3, file="T:/Benthic/Data/REA Coral Demography & Cover/Summary Dat
 # CHECK THAT DATA IS READY FOR POOLING AND DO SOME FINAL CLEAN UPS --------
 
 #Identify which taxonomic level you would like to summarize
-wsd<-wsd_t1
-#wsd<-wsd_t3
+#wsd<-wsd_t1
+wsd<-wsd_t3
 
 #Define data columns
-data.cols<-T1data.cols
-#data.cols<-T3data.cols
+#data.cols<-T1data.cols
+data.cols<-T3data.cols
 
 #remove permanent sites, climate sites and special projects
 wsd$PERM_SITE[is.na(wsd$PERM_SITE)]<-"0"
@@ -439,21 +439,21 @@ colnames(dpst$SampleSE)[9:ncol(dpst$SampleSE)] <- paste("SE.", colnames(dpst$Sam
 dpst<-left_join(dpst$Mean,dpst$SampleSE)
 ri<-read.csv("T:/Benthic/Data/Lookup Tables/NCRMP_Regions_Islands.csv"); ri<-subset(ri,select = -c(X))
 dpst<-left_join(dpst,ri)
-write.csv(dpst, file="T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Stratum/BenthicCover_2010-2019_Tier1_STRATA.csv",row.names = F)
-#write.csv(dpst, file="T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Stratum/BenthicCover_2010-2019_Tier3_STRATA.csv",row.names = F)
+#write.csv(dpst, file="T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Stratum/BenthicCover_2010-2019_Tier1_STRATA.csv",row.names = F)
+write.csv(dpst, file="T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Stratum/BenthicCover_2010-2019_Tier3_STRATA.csv",row.names = F)
 
 #SAVE BY SECTOR PER YEAR
 OUTPUT_LEVEL<-c("REGION","ISLAND","ANALYSIS_SEC","ANALYSIS_YEAR") 
 dpsec<-Calc_Pooled_Simple(dps$Mean, dps$SampleVar, data.cols, OUTPUT_LEVEL, "AREA_HA")
-write.csv(dpsec, file="T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Sector/BenthicCover_2010-2019_Tier1_SECTOR.csv",row.names = F)
-#write.csv(dpsec, file="T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Sector/BenthicCover_2010-2019_Tier3_SECTOR.csv",row.names = F)
+#write.csv(dpsec, file="T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Sector/BenthicCover_2010-2019_Tier1_SECTOR.csv",row.names = F)
+write.csv(dpsec, file="T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Sector/BenthicCover_2010-2019_Tier3_SECTOR.csv",row.names = F)
 
 
 # e.g. SAVE BY ISLAND PER YEAR
 OUTPUT_LEVEL<-c("REGION","ISLAND","ANALYSIS_YEAR") 
 dpis<-Calc_Pooled_Simple(dps$Mean, dps$SampleVar, data.cols, OUTPUT_LEVEL, "AREA_HA")
-write.csv(dpis, file="T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Island/BenthicCover_2010-2019_Tier1_ISLAND.csv",row.names = F)
-#write.csv(dpis, file="T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Island/BenthicCover_2010-2019_Tier3_ISLAND.csv",row.names = F)
+#write.csv(dpis, file="T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Island/BenthicCover_2010-2019_Tier1_ISLAND.csv",row.names = F)
+write.csv(dpis, file="T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Island/BenthicCover_2010-2019_Tier3_ISLAND.csv",row.names = F)
 
 
 
