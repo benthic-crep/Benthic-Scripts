@@ -314,12 +314,12 @@ new.df<-new.df[,data.cols]
 #concantate all nested variables into 1 column 
 des<-svydesign(id=~1, strata=~ OBS_YEAR + REGION+ISLAND+SEC_NAME+STRATANAME, weights=~sw,data=new.df) #overestimating the variance wit this method only accounting for the first variable
 
-new.df$Strat_conc<-paste(new.df$OBS_YEAR, new.df$REGION,new.df$ISLAND,new.df$STRATANAME,sep = "_")
-rm.st<-c("2015_NWHI_French_Frigate_French_Frigate_Forereef_Deep","2015_NWHI_French_Frigate_French_Frigate_Forereef_Shallow",
-         "2015_NWHI_Lisianski_Lisianski_Forereef_Shallow")
-new.df<-dplyr::filter(new.df,!Strat_conc %in% rm.st)
-
-des<-svydesign(id=~1, strata=~ Strat_conc, weights=~sw,data=new.df)
+# new.df$Strat_conc<-paste(new.df$OBS_YEAR, new.df$REGION,new.df$ISLAND,new.df$STRATANAME,sep = "_")
+# rm.st<-c("2015_NWHI_French_Frigate_French_Frigate_Forereef_Deep","2015_NWHI_French_Frigate_French_Frigate_Forereef_Shallow",
+#          "2015_NWHI_Lisianski_Lisianski_Forereef_Shallow")
+# new.df<-dplyr::filter(new.df,!Strat_conc %in% rm.st)
+# 
+# des<-svydesign(id=~1, strata=~ Strat_conc, weights=~sw,data=new.df)
 
 #There was an error with depth bin of 1 of the 2015 FFS sites
 
@@ -636,7 +636,7 @@ Predictplot <- function(mod=best.mod,dat=newdata, us_pred="CORAL",predictor="sca
     theme(
       axis.title.y = element_blank(),
       axis.title = element_text(face = "bold"),
-      text = element_text(size = 14),
+      text = element_text(size = 18),
       panel.grid = element_blank()
     ) +
     ylab("Predicted Juvenile Abudance") +
@@ -836,6 +836,23 @@ grid.arrange(arrangeGrob(depth.plot + ggtitle("A)"),
 dev.off()
 
 
+#Figure for Reef Futures Presentation
+setwd("T:/Benthic/Projects/Juvenile Project/Figures/Drivers/")
+ytitle <- text_grob(expression(bold(paste("Predicted Juvenile Colonies",m^-2))), size = 18, face = "bold", rot = 90)
+png(width = 1050, height = 750, filename = "Predictions_2013-19_ReefFutures.png")
+grid.arrange(arrangeGrob(depth.plot,
+                         coral.plot,
+                         coralsec.plot,
+                         ma.plot,
+                         human.plot, 
+                         sandrub.plot, 
+                         nrow = 2), 
+             nrow = 2, heights = c(10,1),
+             left = ytitle)
+dev.off()
+
+
+
 # Visualizing Interactions- plan B ----------------------------------------
 #interaction surfaces just doesn't make sense so I created binned categories for Year Since DHW4 and generated predictions for each category
 
@@ -1029,7 +1046,7 @@ newdata1$scaled_MeanDHW10<-seq(min(r$scaled_MeanDHW10),max(r$scaled_MeanDHW10),
 newdata1$scaled_YearSinceDHW4<-mean(r$scaled_YearSinceDHW4)
 
 
-o <- subset(new.df,YearSinceDHW4>3)
+o <- subset(new.df,YearSinceDHW4>3 & YearSinceDHW4 <=15)
 newdata2<-o
 newdata2$TRANSECTAREA_j <- 1 #Need to keep survey area constant
 newdata2$scaled_CORAL <- mean(o$scaled_CORAL)
@@ -1045,11 +1062,84 @@ newdata2$scaled_MeanDHW10<-seq(min(o$scaled_MeanDHW10),max(o$scaled_MeanDHW10),
 newdata2$scaled_YearSinceDHW4<-mean(o$scaled_YearSinceDHW4)
 
 
-HSts_HSsev.plot<-PredictplotI_comb(mod=best.mod,origdat=new.df,dat1=newdata1,dat2=newdata2,us_pred="MeanDHW10",predictor="scaled_MeanDHW10",
-                                   predictor_name=expression(bold('Mean Max '^o*'C-weeks')),color1="steelblue2",color2="royalblue4", bks=2,mx_Y=16)+
+m <- subset(new.df,YearSinceDHW4>15)
+newdata3<-m
+newdata3$TRANSECTAREA_j <- 1 #Need to keep survey area constant
+newdata3$scaled_CORAL <- mean(m$scaled_CORAL)
+newdata3$scaled_CoralSec_A <- mean(m$scaled_CoralSec_A)
+newdata3$scaled_SAND_RUB <- mean(m$scaled_SAND_RUB)
+newdata3$scaled_EMA_MA <- mean(m$scaled_EMA_MA)
+newdata3$scaled_WavePower <- mean(m$scaled_WavePower)
+newdata3$scaled_Depth_Median<- mean(m$scaled_Depth_Median)
+newdata3$scaled_logHumanDen <- mean(m$scaled_logHumanDen)
+newdata3$scaled_CVsst <- mean(m$scaled_CVsst)
+newdata3$scaled_MeanDHW10<-seq(min(m$scaled_MeanDHW10),max(m$scaled_MeanDHW10),
+                               by=round(rg(m$scaled_MeanDHW10),4)/nrow(m))
+newdata3$scaled_YearSinceDHW4<-mean(m$scaled_YearSinceDHW4)
+
+
+
+
+p <- predict(best.mod, newdata = newdata1, type = "response",se.fit=TRUE)
+p<-as.data.frame(p)
+colnames(p)<-c("Predicted_Juv","SE_Juv")
+newdata1<-cbind(newdata1,p)
+newdata1$Predict.lwr <- newdata1$Predicted_Juv - 1.96 * newdata1$SE_Juv # confidence interval upper bound
+newdata1$Predict.upr <- newdata1$Predicted_Juv + 1.96 * newdata1$SE_Juv # confidence interval lower bound
+newdata1$HSts_cat<-"0-3 years"
+
+p <- predict(best.mod, newdata = newdata2, type = "response",se.fit=TRUE)
+p<-as.data.frame(p)
+colnames(p)<-c("Predicted_Juv","SE_Juv")
+newdata2<-cbind(newdata2,p)
+newdata2$Predict.lwr <- newdata2$Predicted_Juv - 1.96 * newdata2$SE_Juv # confidence interval upper bound
+newdata2$Predict.upr <- newdata2$Predicted_Juv + 1.96 * newdata2$SE_Juv # confidence interval lower bound
+newdata2$HSts_cat<-"3-15 years"
+
+p <- predict(best.mod, newdata = newdata3, type = "response",se.fit=TRUE)
+p<-as.data.frame(p)
+colnames(p)<-c("Predicted_Juv","SE_Juv")
+newdata3<-cbind(newdata3,p)
+newdata3$Predict.lwr <- newdata3$Predicted_Juv - 1.96 * newdata3$SE_Juv # confidence interval upper bound
+newdata3$Predict.upr <- newdata3$Predicted_Juv + 1.96 * newdata3$SE_Juv # confidence interval lower bound
+newdata3$HSts_cat<-"> 15 years"
+
+#Merge into 1 dataframe and add column for each HSts category. 
+all.newdata<-rbind(newdata1,newdata2,newdata3)
+
+
+#Unscaling predictor to plot on x axis
+att <- attributes(scale(new.df$MeanDHW10))
+mylabels <- seq(0,14,2)
+mybreaks <- scale(mylabels, att$`scaled:center`, att$`scaled:scale`)[,1]
+
+colors<-c("cyan4","purple3","goldenrod2")
+
+#Reorder HSts variables
+all.newdata$HSts_cat <- factor(all.newdata$HSts_cat, levels = c("0-3 years","3-15 years","> 15 years"))
+all.newdata<- all.newdata[order(all.newdata$HSts_cat),];head(all.newdata)
+
+#Plot
+plot1<-ggplot() +
+  geom_line(data=all.newdata,aes(x = scaled_MeanDHW10, y = Predicted_Juv,color=HSts_cat),size=1) +
+  geom_ribbon(data = all.newdata,aes(x = scaled_MeanDHW10,ymin = Predict.lwr, ymax = Predict.upr,fill=HSts_cat),alpha = 0.1)+
+  theme_bw() +
+  theme(
+    axis.title.y = element_blank(),
+    axis.title = element_text(face = "bold"),
+    legend.position = "bottom",
+    legend.title=element_blank(),
+    text = element_text(size = 14),
+    panel.grid = element_blank()
+  ) +
+  ylab(expression(bold(paste("Predicted Juvenile Colonies",m^-2)))) +
+  xlab(expression(bold('Mean Max '^o*'C-weeks')))  +
+  scale_color_manual(values = colors)+
+  scale_fill_manual(values = colors)+
+  scale_x_continuous(labels = comma(mylabels),breaks=mybreaks)+
+  scale_y_continuous(limits=c(0,20))+
   geom_rug(data=new.df,mapping=aes(x=scaled_MeanDHW10,y=0))
 
-HSts_HSsev.plot
 
 
 
@@ -1086,11 +1176,62 @@ newdata2$scaled_MeanDHW10<-mean(h$scaled_MeanDHW10)
 newdata2$scaled_YearSinceDHW4<-mean(h$scaled_YearSinceDHW4)
 
 
-WP_HSsev.plot<-PredictplotI_comb(mod=best.mod,origdat=new.df,dat1=newdata1,dat2=newdata2,us_pred="WavePower",predictor="scaled_WavePower",
-                                 predictor_name="Wave Power",color1="#F08080",color2="#882255", bks=75000,mx_Y=20)+
-  geom_rug(data=h,mapping=aes(x=scaled_WavePower,y=0))
 
-WP_HSsev.plot
+p <- predict(best.mod, newdata = newdata1, type = "response",se.fit=TRUE)
+p<-as.data.frame(p)
+colnames(p)<-c("Predicted_Juv","SE_Juv")
+newdata1<-cbind(newdata1,p)
+newdata1$Predict.lwr <- newdata1$Predicted_Juv - 1.96 * newdata1$SE_Juv # confidence interval upper bound
+newdata1$Predict.upr <- newdata1$Predicted_Juv + 1.96 * newdata1$SE_Juv # confidence interval lower bound
+newdata1$HSsev_cat<-"low"
+
+p <- predict(best.mod, newdata = newdata2, type = "response",se.fit=TRUE)
+p<-as.data.frame(p)
+colnames(p)<-c("Predicted_Juv","SE_Juv")
+newdata2<-cbind(newdata2,p)
+newdata2$Predict.lwr <- newdata2$Predicted_Juv - 1.96 * newdata2$SE_Juv # confidence interval upper bound
+newdata2$Predict.upr <- newdata2$Predicted_Juv + 1.96 * newdata2$SE_Juv # confidence interval lower bound
+newdata2$HSsev_cat<-"high"
+
+
+#Merge into 1 dataframe and add column for each HStsev category. 
+all.newdata<-rbind(newdata1,newdata2)
+
+
+#Unscaling predictor to plot on x axis
+att <- attributes(scale(new.df$WavePower))
+mylabels <- seq(0,max(new.df$WavePower),75000)
+mybreaks <- scale(mylabels, att$`scaled:center`, att$`scaled:scale`)[,1]
+
+colors<-c("steelblue2","royalblue4")
+
+#Reorder HSts variables
+all.newdata$HSsev_cat <- factor(all.newdata$HSsev_cat, levels = c("low","high"))
+all.newdata<- all.newdata[order(all.newdata$HSsev_cat),];head(all.newdata)
+
+#Plot
+plot2<-ggplot() +
+  geom_line(data=all.newdata,aes(x = scaled_WavePower, y = Predicted_Juv,color=HSsev_cat),size=1) +
+  geom_ribbon(data = all.newdata,aes(x = scaled_WavePower,ymin = Predict.lwr, ymax = Predict.upr,fill=HSsev_cat),alpha = 0.1)+
+  theme_bw() +
+  theme(
+    axis.title.y = element_blank(),
+    axis.title = element_text(face = "bold"),
+    legend.position = "bottom",
+    legend.title=element_blank(),
+    text = element_text(size = 14),
+    panel.grid = element_blank()
+  ) +
+  ylab(expression(bold(paste("Predicted Juvenile Colonies",m^-2)))) +
+  xlab("Wave Power")  +
+  scale_color_manual(labels=c(expression('< 4 '^o*'C-weeks'),expression("">= '4 '^o*'C-weeks')),values = colors)+
+  scale_fill_manual(labels=c(expression('< 4 '^o*'C-weeks'),expression("">= '4 '^o*'C-weeks')),values = colors)+
+  scale_x_continuous(labels = comma(mylabels),breaks=mybreaks)+
+  scale_y_continuous(limits=c(0,20))+
+  geom_rug(data=new.df,mapping=aes(x=scaled_WavePower,y=0))
+
+plot2
+
 
 
 
@@ -1105,5 +1246,16 @@ grid.arrange(arrangeGrob(HSts_HSsev.plot + ggtitle("A) Time Since Heat Stress x 
              left = ytitle)
 dev.off()
 
+
+# Reef Futures Plot
+setwd("T:/Benthic/Projects/Juvenile Project/Figures/Final for Manuscript/")
+ytitle <- text_grob(expression(bold(paste("Predicted Juvenile Colonies",m^-2))), size = 18, face = "bold", rot = 90,hjust=-0.001)
+png(width = 1050, height = 600, filename = "Fig.5.png")
+grid.arrange(arrangeGrob(HSts_HSsev.plot + ggtitle("A) Time Since Heat Stress x Heat Stress Severity"),
+                         WP_HSsev.plot + ggtitle("B) Wave Power x Heat Stress Severity"),
+                         nrow = 1), 
+             nrow = 2, heights = c(10,1),
+             left = ytitle)
+dev.off()
 
 
