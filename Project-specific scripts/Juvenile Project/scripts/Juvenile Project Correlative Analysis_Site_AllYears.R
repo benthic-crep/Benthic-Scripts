@@ -30,12 +30,17 @@ library(survey)
 library(gridExtra)
 library(ggpubr)
 library(lemon)
-library(MuMIn)
 library(arm)
 library(purrr)
 library(tibble)
-library(splines)
 library(car)
+library(extrafont)
+library(remotes)
+# remotes::install_version("Rttf2pt1", version = "1.3.8")
+# extrafont::font_import()
+#loadfonts(device="win")
+
+
 setwd("T:/Benthic/Projects/Juvenile Project")
 
 
@@ -853,183 +858,9 @@ dev.off()
 
 
 
-# Visualizing Interactions- plan B ----------------------------------------
-#interaction surfaces just doesn't make sense so I created binned categories for Year Since DHW4 and generated predictions for each category
+# Visualizing Interactions----------------------------------------
 
-library(scales)
-PredictplotI <- function(mod,origdat=new.df, dat=newdata,us_pred="CORAL",predictor="scaled_CORAL", predictor_name,sigcol="black",bks=2,mx_Y){
-  dat$s_X<-dat[,predictor]
-  
-  p <- predict(mod, newdata = dat, type = "response",se.fit=TRUE)
-  p<-as.data.frame(p)
-  colnames(p)<-c("Predicted_Juv","SE_Juv")
-  dat<-cbind(dat,p)
-  dat$Predict.lwr <- dat$Predicted_Juv - 1.96 * dat$SE_Juv # confidence interval upper bound
-  dat$Predict.upr <- dat$Predicted_Juv + 1.96 * dat$SE_Juv # confidence interval lower bound
-  head(dat)
-  
-  origdat$X<-origdat[,us_pred]
-  mx_val<-max(origdat$X, na.rm = TRUE)
-  
-  
-  #Unscaling predictor to plot on x axis
-  att <- attributes(scale(origdat$X))
-  mylabels <- seq(0,mx_val,bks)
-  mybreaks <- scale(mylabels, att$`scaled:center`, att$`scaled:scale`)[,1]
-  
-  # set color for line
-  #pcol<-ifelse(sum.co$Sig == "p>0.05","black","#3399FF")
-  
-  
-  #Try mapping geom_rug(dat2,aes(x=s_X)) - dat2= new.df
-  
-  #Plot
-  plot1<-ggplot(dat, aes(x = s_X, y = Predicted_Juv)) + 
-    geom_line(color=sigcol,size=1) +
-    geom_ribbon(data = dat,
-                aes(ymin = Predict.lwr, ymax = Predict.upr),
-                alpha = 0.1)+
-    #geom_rug() +
-    theme_bw() +
-    theme(
-      axis.title.y = element_blank(),
-      axis.title = element_text(face = "bold"),
-      text = element_text(size = 14),
-      panel.grid = element_blank()
-    ) +
-    ylab("Predicted Juvenile Abudance") +
-    xlab(predictor_name)  +
-    scale_x_continuous(labels = comma(mylabels),breaks=mybreaks)+
-    scale_y_continuous(limits=c(0,max(mx_Y)))
-  
-  return(plot1)
-  
-}
-
-
-# 
-# r <- subset(new.df,YearSinceDHW4<=4)
-# newdata<-r
-# newdata$TRANSECTAREA_j <- 1 #Need to keep survey area constant
-# newdata$scaled_CORAL <- mean(r$scaled_CORAL)
-# newdata$scaled_CoralSec_A <- mean(r$scaled_CoralSec_A)
-# newdata$scaled_SAND_RUB <- mean(r$scaled_SAND_RUB)
-# newdata$scaled_EMA_MA <- mean(r$scaled_EMA_MA)
-# newdata$scaled_WavePower <- mean(r$scaled_WavePower)
-# newdata$scaled_Depth_Median<- mean(r$scaled_Depth_Median)
-# newdata$scaled_logHumanDen <- mean(r$scaled_logHumanDen)
-# newdata$scaled_CVsst <- mean(r$scaled_CVsst)
-# newdata$scaled_MeanDHW10<-seq(min(r$scaled_MeanDHW10),max(r$scaled_MeanDHW10),
-#                               by=round(rg(r$scaled_MeanDHW10),3)/nrow(r))
-# newdata$scaled_YearSinceDHW4<-mean(r$scaled_YearSinceDHW4)
-# 
-# recentdhw.plot<-PredictplotI(best.mod,r,newdata,"MeanDHW10","scaled_MeanDHW10",expression(bold('Mean Max '^o*'C-weeks')),"#009E73", 2,16)+
-#   ggtitle("0 - 4 Years Since Heat Stress Event")+
-#   geom_rug(data=r,mapping=aes(x=scaled_MeanDHW10,y=0))
-# 
-# recentdhw.plot
-# 
-# o <- subset(new.df,YearSinceDHW4>4)
-# newdata<-o
-# newdata$TRANSECTAREA_j <- 1 #Need to keep survey area constant
-# newdata$scaled_CORAL <- mean(o$scaled_CORAL)
-# newdata$scaled_CoralSec_A <- mean(o$scaled_CoralSec_A)
-# newdata$scaled_SAND_RUB <- mean(o$scaled_SAND_RUB)
-# newdata$scaled_EMA_MA <- mean(o$scaled_EMA_MA)
-# newdata$scaled_WavePower <- mean(o$scaled_WavePower)
-# newdata$scaled_Depth_Median<- mean(o$scaled_Depth_Median)
-# newdata$scaled_logHumanDen <- mean(o$scaled_logHumanDen)
-# newdata$scaled_CVsst <- mean(o$scaled_CVsst)
-# newdata$scaled_MeanDHW10<-seq(min(o$scaled_MeanDHW10),max(o$scaled_MeanDHW10),
-#                               by=round(rg(o$scaled_MeanDHW10),4)/nrow(o))
-# newdata$scaled_YearSinceDHW4<-mean(o$scaled_YearSinceDHW4)
-# 
-# olddhw.plot<-PredictplotI(best.mod,o,newdata,"MeanDHW10","scaled_MeanDHW10",expression(bold('Mean Max '^o*'C-weeks')),"#009E73", 0.5,16)+
-#   ggtitle("4-15 Years Since Heat Stress Event")+
-#   geom_rug(data=o,mapping=aes(x=scaled_MeanDHW10,y=0))
-# 
-# olddhw.plot
-
-PredictplotI_comb <- function(mod,origdat=new.df, dat1=newdata1,dat2=newdata2,us_pred="CORAL",predictor="scaled_CORAL", predictor_name,cat1="0-3 years",cat2="3-15 years",color1="black",color2="grey75",bks=2,mx_Y){
-  dat1$s_X<-dat1[,predictor]
-  dat2$s_X<-dat2[,predictor]
-  
-  p <- predict(mod, newdata = dat1, type = "response",se.fit=TRUE)
-  p<-as.data.frame(p)
-  colnames(p)<-c("Predicted_Juv","SE_Juv")
-  dat1<-cbind(dat1,p)
-  dat1$Predict.lwr <- dat1$Predicted_Juv - 1.96 * dat1$SE_Juv # confidence interval upper bound
-  dat1$Predict.upr <- dat1$Predicted_Juv + 1.96 * dat1$SE_Juv # confidence interval lower bound
-  head(dat1)
-  
-  p <- predict(mod, newdata = dat2, type = "response",se.fit=TRUE)
-  p<-as.data.frame(p)
-  colnames(p)<-c("Predicted_Juv","SE_Juv")
-  dat2<-cbind(dat2,p)
-  dat2$Predict.lwr <- dat2$Predicted_Juv - 1.96 * dat2$SE_Juv # confidence interval upper bound
-  dat2$Predict.upr <- dat2$Predicted_Juv + 1.96 * dat2$SE_Juv # confidence interval lower bound
-  head(dat2)
-  
-  origdat$X<-origdat[,us_pred]
-  mx_val<-max(origdat$X, na.rm = TRUE)
-  
-  
-  #Unscaling predictor to plot on x axis
-  att <- attributes(scale(origdat$X))
-  mylabels <- seq(0,mx_val,bks)
-  mybreaks <- scale(mylabels, att$`scaled:center`, att$`scaled:scale`)[,1]
-  
-  
-  #Plot HSts x HSsev -having issues with legend for using this workaround until I can get function working
-  plot1<-ggplot() +
-    geom_line(data=dat1,aes(x = s_X, y = Predicted_Juv,color="0-3 years"),size=1) +
-    geom_line(data=dat2,aes(x = s_X, y = Predicted_Juv,color="3-15 years"),size=1) +
-    geom_ribbon(data = dat1,aes(x = s_X,ymin = Predict.lwr, ymax = Predict.upr,fill="0-3 years"),alpha = 0.1)+
-    geom_ribbon(data = dat2,aes(x = s_X,ymin = Predict.lwr, ymax = Predict.upr,fill="3-15 years"),alpha = 0.1)+
-    theme_bw() +
-    theme(
-      axis.title.y = element_blank(),
-      axis.title = element_text(face = "bold"),
-      legend.position = "bottom",
-      text = element_text(size = 14),
-      panel.grid = element_blank()
-    ) +
-    ylab(expression(bold(paste("Predicted Juvenile Colonies",m^-2)))) +
-    xlab(predictor_name)  +
-    scale_color_manual(name = "", values = c("0-3 years" = color1, "3-15 years" = color2))+
-    scale_fill_manual(name = "", values = c("0-3 years" = color1, "3-15 years" = color2))+
-    scale_x_continuous(labels = comma(mylabels),breaks=mybreaks)+
-    scale_y_continuous(limits=c(0,max(mx_Y)))
-
-  # 
-  # #Plot WP x HSsev -having issues with legend for using this workaround until I can get function working
-  # plot1<-ggplot() + 
-  #   geom_line(data=dat1,aes(x = s_X, y = Predicted_Juv,color=color2),size=1) +
-  #   geom_line(data=dat2,aes(x = s_X, y = Predicted_Juv,color=color1),size=1) +
-  #   geom_ribbon(data = dat1,aes(x = s_X,ymin = Predict.lwr, ymax = Predict.upr,fill=color2),alpha = 0.1)+
-  #   geom_ribbon(data = dat2,aes(x = s_X,ymin = Predict.lwr, ymax = Predict.upr,fill=color1),alpha = 0.1)+
-  #   theme_bw() +
-  #   theme(
-  #     axis.title.y = element_blank(),
-  #     axis.title = element_text(face = "bold"),
-  #     legend.position = "bottom",
-  #     text = element_text(size = 14),
-  #     panel.grid = element_blank()
-  #   ) +
-  #   ylab(expression(bold(paste("Predicted Juvenile Colonies",m^-2)))) +
-  #   xlab(predictor_name)  +
-  #   scale_color_manual(name = "", values = c(color1,color2),labels=c(expression('< 4 '^o*'C-weeks'),expression("">="4" ^o*'C-weeks')))+
-  #   scale_fill_manual(name = "", values = c(color1,color2),labels=c(expression('< 4 '^o*'C-weeks'),expression("">="4" ^o*'C-weeks')))+
-  #   scale_x_continuous(labels = comma(mylabels),breaks=mybreaks)+
-  #   scale_y_continuous(limits=c(0,max(mx_Y)))
-  # 
-  
-  return(plot1)
-  
-}
-
-
-#Combining into 1 figure
+#Heat Stress Severity x year since heat stress event
 r <- subset(new.df,YearSinceDHW4<=3)
 newdata1<-r
 newdata1$TRANSECTAREA_j <- 1 #Need to keep survey area constant
@@ -1119,6 +950,8 @@ colors<-c("cyan4","purple3","goldenrod2")
 all.newdata$HSts_cat <- factor(all.newdata$HSts_cat, levels = c("0-3 years","3-15 years","> 15 years"))
 all.newdata<- all.newdata[order(all.newdata$HSts_cat),];head(all.newdata)
 
+
+
 #Plot
 plot1<-ggplot() +
   geom_line(data=all.newdata,aes(x = scaled_MeanDHW10, y = Predicted_Juv,color=HSts_cat),size=1) +
@@ -1129,7 +962,9 @@ plot1<-ggplot() +
     axis.title = element_text(face = "bold"),
     legend.position = "bottom",
     legend.title=element_blank(),
-    text = element_text(size = 14),
+    legend.key.size = unit(1.5, 'cm'),
+    legend.text = element_text(size=18),
+    text = element_text(size = 18),
     panel.grid = element_blank()
   ) +
   ylab(expression(bold(paste("Predicted Juvenile Colonies",m^-2)))) +
@@ -1219,7 +1054,9 @@ plot2<-ggplot() +
     axis.title = element_text(face = "bold"),
     legend.position = "bottom",
     legend.title=element_blank(),
-    text = element_text(size = 14),
+    legend.key.size = unit(1.5, 'cm'),
+    legend.text = element_text(size=18),
+    text = element_text(size = 18),
     panel.grid = element_blank()
   ) +
   ylab(expression(bold(paste("Predicted Juvenile Colonies",m^-2)))) +
@@ -1237,10 +1074,11 @@ plot2
 
 # save full plot
 setwd("T:/Benthic/Projects/Juvenile Project/Figures/Final for Manuscript/")
-ytitle <- text_grob(expression(bold(paste("Predicted Juvenile Colonies",m^-2))), size = 18, face = "bold", rot = 90,hjust=-0.001)
+ytitle <- text_grob(expression(bold(paste("Predicted Juvenile Colonies",m^-2))), size = 18,
+                    face = "bold", rot = 90,hjust=0.2)
 png(width = 1050, height = 600, filename = "Fig.5.png")
-grid.arrange(arrangeGrob(HSts_HSsev.plot + ggtitle("A) Time Since Heat Stress x Heat Stress Severity"),
-                         WP_HSsev.plot + ggtitle("B) Wave Power x Heat Stress Severity"),
+grid.arrange(arrangeGrob(plot1 + ggtitle("A) Time Since Heat Stress x Heat Stress Severity"),
+                         plot2 + ggtitle("B) Wave Power x Heat Stress Severity"),
                          nrow = 1), 
              nrow = 2, heights = c(10,1),
              left = ytitle)
@@ -1249,10 +1087,11 @@ dev.off()
 
 # Reef Futures Plot
 setwd("T:/Benthic/Projects/Juvenile Project/Figures/Final for Manuscript/")
-ytitle <- text_grob(expression(bold(paste("Predicted Juvenile Colonies",m^-2))), size = 18, face = "bold", rot = 90,hjust=-0.001)
-png(width = 1050, height = 600, filename = "Fig.5.png")
-grid.arrange(arrangeGrob(HSts_HSsev.plot + ggtitle("A) Time Since Heat Stress x Heat Stress Severity"),
-                         WP_HSsev.plot + ggtitle("B) Wave Power x Heat Stress Severity"),
+ytitle <- text_grob(expression(bold(paste("Predicted Juvenile Colonies",m^-2))), size = 18,
+                    face = "bold",family = "Gill Sans MT", rot = 90,hjust=0.2)
+png(width = 1050, height = 600, filename = "Fig.5_ReefFutures.png")
+grid.arrange(arrangeGrob(plot1 + ggtitle("Time Since Heat Stress x Heat Stress Severity"),
+                         plot2 + ggtitle("Wave Power x Heat Stress Severity"),
                          nrow = 1), 
              nrow = 2, heights = c(10,1),
              left = ytitle)

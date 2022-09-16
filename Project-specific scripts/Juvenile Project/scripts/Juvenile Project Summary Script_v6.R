@@ -398,7 +398,7 @@ spatial_Rmean<- spatial_Rmean[order(spatial_Rmean$REGION),];spatial_Rmean
 spatialR <- ggplot(spatial_Rmean, aes(x=REGION, y=JuvColDen,fill=REGION)) +
   #geom_bar(stat = "identity", position = position_dodge2(preserve='single'), width = 1, color="black") +
   geom_errorbar(aes(y=JuvColDen, x=REGION,ymin=JuvColDen-se, ymax=JuvColDen+se), width=.2)+
-  geom_point(color="black",pch=21,size=4)+
+  geom_point(color="black",pch=21,size=5)+
   theme_bw() +
   theme(panel.grid.major = element_blank(),
         panel.grid.minor = element_blank(),
@@ -408,16 +408,16 @@ spatialR <- ggplot(spatial_Rmean, aes(x=REGION, y=JuvColDen,fill=REGION)) +
         strip.text = element_text(size = 12),
         legend.position = "none",
         axis.line = element_line(color = "black"),
-        text = element_text(size = 12),
+        text = element_text(size = 14),
         axis.text.y = element_text(colour="black"),
-        axis.text.x = element_text(angle = 90,size=12, face = "bold"),
+        axis.text.x = element_text(angle = 90,size=14, face = "bold"),
         axis.title.y = element_text(size = 14, face = "bold")) +
   scale_fill_manual(name=NULL, values = c("#CC79A7","#D55E00","#E69F00","#F0E442","#009E73","#56B4E9","#0072B2","#999999")) +
-  labs(x="",y=expression(paste("Mean Juvenile Colonies ",m^-2)),title = "B")+
+  labs(x="",y=expression(bold(paste("Mean Juvenile Colonies ",m^-2))),title = "B")+
   scale_y_continuous(expand = c(0,0), limits = c(0,16)) +
   geom_text(aes(x=REGION,y=JuvColDen+se,label=sig, group = REGION),
             position = position_dodge(),
-            vjust = -0.5) 
+            vjust = -0.5,size = 8) 
 spatialR
 
 ggsave(plot=spatialR,file="T:/Benthic/Projects/Juvenile Project/Figures/DensityRegionalSpatial.jpg",width=10,height=5)
@@ -568,6 +568,8 @@ ggsave(plot=finalmap,file="T:/Benthic/Projects/Juvenile Project/Figures/RecentJu
 
 #plot main data map with island colors = REGION
 delta_shift$REGION <- factor(delta_shift$REGION, levels = c("NWHI","MHI","WAKE","PHOENIX","LINE","SMI","NMI","SAMOA"))
+delta_shift<- delta_shift[order(delta_shift$REGION),];delta_shift
+
 
 deltamap<-ggplot() +
   geom_sf(data = pacific_crop)+ #basemap
@@ -590,11 +592,11 @@ deltamap<-ggplot() +
 #Combine main and inset maps
 finalmap = ggdraw() +
   draw_plot(deltamap) +
-  draw_plot(spatialR, x = 0.05, y = 0.09, width = 0.4, height = 0.4)+
+  draw_plot(spatialR, x = 0.05, y = 0.08, width = 0.5, height = 0.5)+
   #draw_plot(insetmap, x = 0.02, y = 0.07, width = 0.3, height = 0.3)
   draw_plot(insetmap, x = 0.77, y = 0.1, width = 0.23, height = 0.23)
 
 finalmap
 
-ggsave(plot=finalmap,file="T:/Benthic/Projects/Juvenile Project/Figures/RecentJuvMap_colorsREGION.jpg",width=13,height=9)
+ggsave(plot=finalmap,file="T:/Benthic/Projects/Juvenile Project/Figures/Final for Manuscript/Figure 1.jpg",width=13,height=9)
 
