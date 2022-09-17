@@ -323,6 +323,7 @@ x<-x[,DATA_COLS]
 # nw$DATE_ <- dmy(nw$DATE_)
 # nw$DATE_ <- as.Date(nw$DATE_, format = "%Y-%m-%d")
 
+
 # x<-rbind(x,nw)
 x$SITE<- as.factor(x$SITE)
 x$SITE<-SiteNumLeadingZeros(x$SITE) # Change site number such as MAR-22 to MAR-0022

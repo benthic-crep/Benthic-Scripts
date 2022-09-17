@@ -61,46 +61,13 @@ survey_site<-unique(jwd[,SURVEY_SITE])
 
 #TEMPORARY WORK AROUND-ASK MICHAEL TO FIX
 jwd$REEF_ZONE<-ifelse(jwd$SITE=="HAW-04285","Forereef",as.character(jwd$REEF_ZONE))
+jwd$DEPTH_BIN<-ifelse(jwd$SITE=="FFS-04155","Shallow",as.character(jwd$DEPTH_BIN))
 
 #Convert Protected Slope to Forereef
 jwd$REEF_ZONE<-ifelse(jwd$REEF_ZONE=="Protected Slope","Forereef",as.character(jwd$REEF_ZONE))
 
 #Remove 2 sites that weren't surveyed for juveniles
 jwd<-jwd[!(jwd$SITE %in% c("OFU-01012","PAG-00596")),]
-
-
-# #Look at the size class data to determine the min colony size cut off for analysis
-# #Subset 2019 Hawaii data
-# hi<-subset(jwd,OBS_YEAR=="2017")
-# 
-# ggplot(hi) + 
-#   geom_density(aes(x = COLONYLENGTH, fill = ANALYST), alpha = 0.2)+
-#   geom_vline(xintercept=1, color = "black")+
-#   facet_wrap(~ISLAND)
-# 
-# ggplot(hi) + 
-#   geom_histogram(aes(x = COLONYLENGTH, fill = ANALYST))+
-#   geom_vline(xintercept=1, color = "black")+
-#   facet_wrap(~ISLAND)
-# 
-# ggplot(hi) + 
-#   geom_density(aes(x = COLONYLENGTH, fill = ISLAND), alpha = 0.2)+
-#   geom_vline(xintercept=1, color = "black")+
-#   facet_wrap(~ISLAND)
-# 
-# s.data<-ddply(hi,.(ISLAND,ANALYST),
-#               summarise,
-#               min=min(COLONYLENGTH,na.rm=T),
-#               mean=mean(COLONYLENGTH,na.rm=T),
-#               ncol=length(COLONYLENGTH,na.rm=T))
-# 
-# s.all<-ddply(jwd,.(ANALYST),
-#              summarise,
-#              min=min(COLONYLENGTH,na.rm=T),
-#              mean=mean(COLONYLENGTH,na.rm=T),
-#              ncol=length(COLONYLENGTH))
-
-#There are some people that didn't record anything less than 1cm
 
 #Change colonies that are <1cm to NA. I'm not subsetting these data because I need to keep the placeholder in the dataframe in case a site only had colonies <1cm or >5cm
 View(subset(jwd,COLONYLENGTH<1))
@@ -145,7 +112,9 @@ nrow(meta)
 site.data.gen2<-left_join(site.data.gen2,meta)
 site.data.gen2$Juvpres.abs<-ifelse(site.data.gen2$JuvColDen>0,1,0)
 
-#Make tweaks to pooling sector pooling and drop specific islands
+#Make tweaks to pooling sector pooling and drop specific islands because they were not surveyed more than once or didn't have enough sampling across years 
+ ###May want to consider adding Niihau for spatial analysis. we have good 2013 and 2019 coverage
+
 isl.drop<-c("Alamagan","Midway","Maro","Niihau","Johnston","Guguan","Agrihan") 
 site.data.gen2<-site.data.gen2[!site.data.gen2$ISLAND %in% c(isl.drop),] #Remove islands that don't have enough strata sampled across the years 
 
@@ -534,18 +503,17 @@ insetmap<-ggplot() +
 #plot main data map with island colors = gradient of juvenile density
 deltamap<-ggplot() +
   geom_sf(data = pacific_crop)+ #basemap
-  geom_sf(data = delta_shift,aes(fill = JuvColDen),size = 3, shape = 21)+ #data
+  geom_sf(data = delta_shift,aes(color = JuvColDen), size = 3, shape = 19)+ #data
   geom_text_repel(data = delta_shift, #add island labels 
                   aes(x = X...7, y = Y...8, label = ISLAND),
-                  size = 5,
+                  size = 3,
                   fontface = "bold",
                   segment.size = 0.25,
                   box.padding = 0.4,
                   min.segment.length = 0,
-                  max.overlaps = Inf,
                   seed = 2020-5-16)+
   annotation_scale(location = "bl", width_hint = 0.4)+ #add scale bar
-  scale_fill_gradient2(midpoint = 8, #Color scheme
+  scale_color_gradient2(midpoint = 8, #Color scheme
                         high = 'forestgreen',
                         mid = 'yellow2',
                         low = 'red2',
@@ -558,7 +526,7 @@ deltamap<-ggplot() +
 #Combine main and inset maps
 finalmap = ggdraw() +
   draw_plot(deltamap) +
-  draw_plot(spatialR, x = 0.05, y = 0.14, width = 0.45, height = 0.45)+
+  draw_plot(spatialR, x = 0.05, y = 0.15, width = 0.3, height = 0.3)+
   #draw_plot(insetmap, x = 0.02, y = 0.07, width = 0.3, height = 0.3)
   draw_plot(insetmap, x = 0.77, y = 0.1, width = 0.23, height = 0.23)
   
