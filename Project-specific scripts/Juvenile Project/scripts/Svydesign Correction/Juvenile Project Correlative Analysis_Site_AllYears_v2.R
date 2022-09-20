@@ -226,6 +226,10 @@ preds<-r[,9:ncol(r)]
 # library(GGally)
 # ggpairs(preds)
 
+df %>% 
+  group_by(SITE) %>% 
+  filter(n()>1)
+
 
 library(corrplot)
 
@@ -323,9 +327,9 @@ new.df<-new.df[,data.cols]
 #des<-svydesign(id=~1, strata=~ OBS_YEAR + REGION+ISLAND+SEC_NAME+STRATANAME, weights=~sw,data=new.df) #overestimating the variance wit this method only accounting for the first variable
 
 new.df$Strat_conc<-paste(new.df$OBS_YEAR, new.df$REGION,new.df$ISLAND,new.df$STRATANAME,sep = "_")
-rm.st<-c("2015_NWHI_French_Frigate_French_Frigate_Forereef_Deep","2015_NWHI_French_Frigate_French_Frigate_Forereef_Shallow",
-         "2015_NWHI_Lisianski_Lisianski_Forereef_Shallow","2016_MHI_Kauai_KAU_NAPALI_Forereef_Mid")
-new.df<-dplyr::filter(new.df,!Strat_conc %in% rm.st)
+# rm.st<-c("2015_NWHI_French_Frigate_French_Frigate_Forereef_Deep","2015_NWHI_French_Frigate_French_Frigate_Forereef_Shallow",
+#          "2015_NWHI_Lisianski_Lisianski_Forereef_Shallow","2016_MHI_Kauai_KAU_NAPALI_Forereef_Mid")
+# new.df<-dplyr::filter(new.df,!Strat_conc %in% rm.st)
 des<-svydesign(id=~1, strata=~ Strat_conc, weights=~sw,data=new.df)
 
 #There was an error with depth bin of 1 of the 2015 FFS sites

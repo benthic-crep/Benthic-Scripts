@@ -109,6 +109,7 @@ colnames(x)[colnames(x)=="COND"]<-"CONDITION_1" #Change column name
 if(DEBUG){head(x)}
 
 
+
 # Merge Adult data and  SURVEY MASTER -------------------------------------
 #SURVEY MASTER was created by Ivor and Courtney by extracting sites directly from the Site Visit table from Oracle. It should be the complete list of sites surveyed since 2000
 survey_master<-read.csv("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/data/SURVEY MASTER.csv")
@@ -146,6 +147,7 @@ miss.sites<-ddply(test,.(OBS_YEAR,SITEVISITID,SITE,MISSIONID,REGION,REGION_NAME,
                   summarize,temp=median(SITEVISITID))
 #Should be a 0 row data.frame
 head(miss.sites,20)
+
 
 # CLEAN UP ----------------------------------------------------------------
 
@@ -285,6 +287,7 @@ x[is.na(x$CONDITION_3),"CONDITION_3"]<-"NONE"
 
 head(x)
 
+
 awd<-droplevels(x)
 write.csv(awd,file="T:/Benthic/Data/REA Coral Demography & Cover/Analysis Ready Raw data/CoralBelt_Adults_raw_CLEANED.csv",row.names = FALSE)
 #write.csv(awd,file="C:/Users/Courtney.S.Couch/Documents/Courtney's Files/R Files/ESD/Data/REA Coral Demography & Cover/Analysis Ready Raw data/CoralBelt_Adults_raw_CLEANED.csv",row.names = FALSE)
@@ -379,6 +382,7 @@ miss.sites<-ddply(test,.(OBS_YEAR,SITEVISITID,SITE,MISSIONID,REGION,REGION_NAME,
                          REEF_ZONE,DEPTH_BIN,DATE_,EXCLUDE_FLAG,HABITAT_CODE),
                   summarize,temp=median(SITEVISITID))
 head(miss.sites,20) #should be empty
+
 
 
 # CLEAN UP ----------------------------------------------------------------

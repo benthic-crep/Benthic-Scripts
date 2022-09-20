@@ -31,7 +31,7 @@ library(tidyr)
 setwd("C:/Users/Courtney.S.Couch/Documents/Courtney's Files/R Files/ESD/Juvenile Project")
 
 #LOAD DATA
-jwd_site<-read.csv("T:/Benthic/Projects/Juvenile Project/JuvProject_SITE_weights_AllYears_wHD.csv")
+jwd_site<-read.csv("T:/Benthic/Projects/Juvenile Project/JuvProject_SITE_weights_AllYears_wHD.csv") #This dataframe has both juvenile and human density data
 
 tsdhw<-read.csv("T:/Benthic/Projects/Juvenile Project/Juvenile_TimeSinceDHW4_8_v2.csv"); tsdhw<-subset(tsdhw,select= -c(X,ISLAND))
 wave<-read.csv("T:/Benthic/Projects/Juvenile Project/Pacific_WaveActionData_v3.csv")
@@ -234,6 +234,11 @@ all_pred_site$Depth_Median<-ifelse(is.na(all_pred_site$Depth_Median),all_pred_si
 
 
 View(all_pred_site)
+
+#Check for duplicate sites
+all_pred_site %>% 
+  group_by(SITE) %>% 
+  filter(n()>1)
 
 
 write.csv(all_pred_site, file="T:/Benthic/Projects/Juvenile Project/JuvDen_Pred_SITE_AllYears.csv",row.names = F)

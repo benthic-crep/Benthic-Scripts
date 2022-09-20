@@ -46,5 +46,7 @@ df<-df %>%
                                      SITE %in% c("TUT-01828","TUT-01854") ~ 462.214,
                                      TRUE ~ as.numeric(HumanDen)))
 
+
+
 write_csv(df, file = "T:/Benthic/Projects/Juvenile Project/JuvProject_SITE_weights_AllYears_wHD.csv")
        
