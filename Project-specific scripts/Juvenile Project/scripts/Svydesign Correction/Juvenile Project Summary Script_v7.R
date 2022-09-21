@@ -191,9 +191,6 @@ site.swS<-subset(site.swS,n>1)
 summary(site.swS$n)
 length(unique(site.swS$SITE))
 
-tmp<-unique(site.swS[,c("OBS_YEAR","REGION","ISLAND","REEF_ZONE","DEPTH_BIN","SITE")])
-View(subset(tmp,OBS_YEAR=="2015"&ISLAND=="French Frigate"))
-
 
 #Check for duplicate sites
 site.swS %>% 

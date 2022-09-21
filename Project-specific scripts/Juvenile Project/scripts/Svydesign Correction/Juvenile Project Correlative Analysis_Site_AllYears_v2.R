@@ -6,7 +6,7 @@
 
 rm(list=ls())
 
-#LOAD LIBRARY FUNCTIONS ... 
+#LOAD LIBRARY FUNCTIONS ...
 source("C:/Users/Courtney.S.Couch/Documents/GitHub/Benthic-Scripts/Functions/Benthic_Functions_newApp_vTAOfork.R")
 source("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/lib/GIS_functions.R")
 
@@ -48,12 +48,12 @@ setwd("T:/Benthic/Projects/Juvenile Project")
 
 
 #LOAD DATA
-df<-read.csv("T:/Benthic/Projects/Juvenile Project/JuvDen_Pred_SITE_AllYears.csv")#Combined juvenile delta density and all predictors
+df.orig<-read.csv("T:/Benthic/Projects/Juvenile Project/JuvDen_Pred_SITE_AllYears.csv")#Combined juvenile delta density and all predictors
 jcdG_st<-read.csv("T:/Benthic/Projects/Juvenile Project/JuvProject_STRATA_WITHOUT_MHI2013.csv")
 cover_sec<-read.csv("T:/Benthic/Projects/Juvenile Project/BenthicCover_JuvenileProject_Tier1_SECTOR.csv")
 
 #remove columns
-df<-subset(df,select=c(DATE_,OBS_YEAR,REGION,ISLAND,SEC_NAME,DEPTH_BIN,REEF_ZONE,STRATANAME,HABITAT_CODE,SITE,n,NH,sw,TRANSECTAREA_j,JuvColCount,JuvColDen,
+df<-subset(df.orig,select=c(DATE_,OBS_YEAR,REGION,ISLAND,SEC_NAME,DEPTH_BIN,REEF_ZONE,STRATANAME,HABITAT_CODE,SITE,n,NH,sw,TRANSECTAREA_j,JuvColCount,JuvColDen,
                        LATITUDE,LONGITUDE,Depth_Median,CORAL,CORALst,CCA,SAND_RUB,TURF,EMA_MA, YearSinceDHW4, YearSinceDHW8,DHW.MeanMax_Degree_Heating_Weeks_YR01,
                        DHW.MeanMax_Degree_Heating_Weeks_YR03,DHW.MeanMax_Degree_Heating_Weeks_YR05,DHW.MeanMax_Degree_Heating_Weeks_YR10YR01,
                        DHW.MeanMax_Degree_Heating_Weeks_YR10,DHW.MaxMax_Degree_Heating_Weeks_YR10,
@@ -70,15 +70,8 @@ df$Area<-df$NH
 df$CORAL_sec<-ifelse(df$SEC_NAME=="Baker",23.62746339,df$CORAL_sec)#no 2018 benthic cover sites so using fish sector data
 df$CoralSec_A<-df$Area*df$CORAL_sec
 
-df<-filter(df,ISLAND !="Guguan") #only 1 year
+#df<-filter(df,ISLAND !="Niihau")
 
-
-#Remove 2014 NWHI data because we do not have benthic cover data for this year
-REGION_YEAR<-c("NWHI_2014")
-
-table(df$REGION,df$OBS_YEAR)
-df$REGION_YEAR<-paste(df$REGION,df$OBS_YEAR,sep="_")
-df<-df[df$REGION_YEAR != REGION_YEAR,]
 table(df$REGION,df$OBS_YEAR)
 
 df$DATE_<-ymd(df$DATE_)
@@ -195,10 +188,10 @@ colnames(df)[colnames(df)=="mean_Chlorophyll_A_VIIRS_Monthly_750m_YR05"]<-"Meanc
 colnames(df)[colnames(df)=="DHW.Np10y_Major_Degree_Heating_Weeks_YR10"]<-"DHW_Freq"
 colnames(df)[colnames(df)=="mean_biweekly_range_SST_CRW_Daily_YR10"]<-"SST_Range"
 
-#Remove row with NAs for Chla
-nrow(df)
-df<-df %>% drop_na(CVchla)
-nrow(df)
+# #Remove row with NAs for Chla
+# nrow(df)
+# df<-df %>% drop_na(CVchla)
+# nrow(df)
 
 hist(log10(df$HumanDen+0.5))
 df$logHumanDen<-log10(df$HumanDen+0.5)
@@ -226,6 +219,7 @@ preds<-r[,9:ncol(r)]
 # library(GGally)
 # ggpairs(preds)
 
+#Check that there are no duplicate sites
 df %>% 
   group_by(SITE) %>% 
   filter(n()>1)
@@ -361,7 +355,7 @@ df.d$scaled_Depth_Median<- seq(min(new.df$scaled_Depth_Median),max(new.df$scaled
                                   by=round(rg(new.df$scaled_Depth_Median),5)/nrow(new.df))
 
 
-p <- predict(d_poly2, newdata = df.d, type = "response",se.fit=TRUE)
+p <- predict(d_poly3, newdata = df.d, type = "response",se.fit=TRUE)
 p<-as.data.frame(p)
 colnames(p)<-c("Predicted_Juv","SE_Juv")
 newdata<-cbind(df.d,p)
@@ -412,7 +406,7 @@ df.d$scaled_CORAL<- seq(min(new.df$scaled_CORAL),max(new.df$scaled_CORAL),
                                by=round(rg(new.df$scaled_CORAL),5)/nrow(new.df))
 
 
-p <- predict(d_poly3, newdata = df.d, type = "response",se.fit=TRUE)
+p <- predict(d_poly2, newdata = df.d, type = "response",se.fit=TRUE)
 p<-as.data.frame(p)
 colnames(p)<-c("Predicted_Juv","SE_Juv")
 newdata<-cbind(df.d,p)
@@ -440,18 +434,23 @@ ggplot(newdata, aes(x = scaled_CORAL, y = Predicted_Juv)) +
 #I played with polynomials with the other predictors and depth is the only one that falls out as nonlinear
 
 
+#CHanges- use 3rd order poly for depth and 2nd order for coral cover
+
 
 ##### MANUSCRIPT- Model selection no chla or cvsst x dhw interactions, but dhw x benthic interactions ####
+#There is an error- "all variables must be in design=argument
+
+des<-svydesign(id=~1, strata=~ Strat_conc, weights=~sw,data=new.df)
+
 
 #Global model with Interactions with MeanMaxDHW10
-global.mod3<-svyglm(JuvColCount ~
-                      poly(scaled_CORAL,3,raw=TRUE)*scaled_MeanDHW10+ 
-                      scaled_CCA*poly(scaled_Depth_Median,2,raw=TRUE)+
+global.mod<-svyglm(JuvColCount ~
+                      poly(scaled_CORAL,2,raw=TRUE)*scaled_MeanDHW10+ 
+                      scaled_CCA*poly(scaled_Depth_Median,3,raw=TRUE)+
                       scaled_CoralSec_A*scaled_MeanDHW10 +
                       scaled_EMA_MA*scaled_MeanDHW10 +
                       scaled_SAND_RUB*scaled_MeanDHW10 +
-                      HS_YN+
-                      poly(scaled_Depth_Median,2,raw=TRUE)*scaled_MeanDHW10 +
+                      poly(scaled_Depth_Median,3,raw=TRUE)*scaled_MeanDHW10 +
                       scaled_Meanchla +
                       scaled_CVsst+
                       scaled_WavePower*scaled_MeanDHW10+
@@ -459,66 +458,70 @@ global.mod3<-svyglm(JuvColCount ~
                       scaled_logHumanDen*scaled_MeanDHW10,
                     design=des, family="poisson",offset=log(TRANSECTAREA_j))
 
-summary(global.mod3)
+summary(global.mod)
 
 #Only option to generate a R2 like metric for these kinds of models
-cor(global.mod3$y, fitted(global.mod3))^2
+cor(global.mod3$y, fitted(global.mod))^2
 
 #Backwards model selection
-RED.MOD1 <- update(global.mod3, .~. -scaled_MeanDHW10:scaled_logHumanDen) #drop 2-way interaction term
-anova(global.mod1, RED.MOD1,method="Wald") #LRT --> move forward w/ whichever model keeps/removes term
+RED.MOD1 <- update(global.mod, .~. -scaled_MeanDHW10:scaled_logHumanDen) #drop 2-way interaction term
+anova(global.mod, RED.MOD1,method="Wald") #LRT --> move forward w/ whichever model keeps/removes term
 summary(RED.MOD1)
 
 
-RED.MOD2 <- update(RED.MOD1, .~. -scaled_MeanDHW10:scaled_SAND_RUB) #drop 2-way interaction term
+RED.MOD2 <- update(RED.MOD1, .~. -poly(scaled_CORAL, 2, raw = TRUE):scaled_MeanDHW10) #drop 2-way interaction term
 anova(RED.MOD1, RED.MOD2) #LRT --> move forward w/ whichever model keeps/removes term
 summary(RED.MOD2)
 
-RED.MOD3 <- update(RED.MOD2, .~. -poly(scaled_CORAL, 3, raw = TRUE):scaled_MeanDHW10) #drop 2-way interaction term
+RED.MOD3 <- update(RED.MOD2, .~. -scaled_MeanDHW10:poly(scaled_Depth_Median, 3, raw = TRUE)) #drop 2-way interaction term
 anova(RED.MOD2, RED.MOD3,test = "Chisq") #LRT --> move forward w/ whichever model keeps/removes term
 summary(RED.MOD3)
 
-RED.MOD4 <- update(RED.MOD3, .~. -scaled_CCA) #drop 2-way interaction term
+RED.MOD4 <- update(RED.MOD3, .~. -scaled_CVsst) #drop 2-way interaction term
 anova(RED.MOD3, RED.MOD4) #LRT --> move forward w/ whichever model keeps/removes term
 summary(RED.MOD4)
 
-RED.MOD5 <- update(RED.MOD4, .~. -scaled_MeanDHW10:poly(scaled_Depth_Median, 2, raw = TRUE)) #drop 2-way interaction term
+RED.MOD5 <- update(RED.MOD4, .~. -scaled_CCA:poly(scaled_Depth_Median, 3, raw = TRUE)) #drop 2-way interaction term
 anova(RED.MOD4, RED.MOD5) #LRT --> move forward w/ whichever model keeps/removes term
 summary(RED.MOD5)
 
-RED.MOD6 <- update(RED.MOD5, .~. -poly(scaled_Depth_Median, 2, raw = TRUE):scaled_CCA) #drop 2-way interaction term
+RED.MOD6 <- update(RED.MOD5, .~. -scaled_MeanDHW10:scaled_EMA_MA) #drop 2-way interaction term
 anova(RED.MOD5, RED.MOD6) #LRT --> move forward w/ whichever model keeps/removes term
 summary(RED.MOD6)
 
-RED.MOD7 <- update(RED.MOD6, .~. -scaled_CVsst) #drop 2-way interaction term
+RED.MOD7 <- update(RED.MOD6, .~. -scaled_MeanDHW10:scaled_CoralSec_A) #drop 2-way interaction term
 anova(RED.MOD6, RED.MOD7) #LRT --> move forward w/ whichever model keeps/removes term
 summary(RED.MOD7)
 
-RED.MOD8 <- update(RED.MOD7, .~. -HS_YN) #drop 2-way interaction term
+RED.MOD8 <- update(RED.MOD7, .~. -scaled_Meanchla) #drop 2-way interaction term
 anova(RED.MOD7, RED.MOD8) #LRT --> move forward w/ whichever model keeps/removes term
 summary(RED.MOD8)
 
-RED.MOD9 <- update(RED.MOD8, .~. -scaled_MeanDHW10:scaled_EMA_MA) #drop 2-way interaction term
+RED.MOD9 <- update(RED.MOD8, .~. -scaled_MeanDHW10:scaled_SAND_RUB) #drop 2-way interaction term
 anova(RED.MOD9, RED.MOD8) #LRT --> move forward w/ whichever model keeps/removes term
 summary(RED.MOD9)
 
-RED.MOD10 <- update(RED.MOD9, .~. -scaled_MeanDHW10:scaled_CoralSec_A) #drop 2-way interaction term
+RED.MOD10 <- update(RED.MOD9, .~. -scaled_CCA) #drop 2-way interaction term
 anova(RED.MOD9, RED.MOD10) #LRT --> move forward w/ whichever model keeps/removes term
 summary(RED.MOD10)
 
-RED.MOD11 <- update(RED.MOD10, .~. -scaled_Meanchla) #drop 2-way interaction term
+RED.MOD11 <- update(RED.MOD10, .~. -scaled_MeanDHW10:scaled_WavePower) #drop 2-way interaction term
 anova(RED.MOD11, RED.MOD10) #LRT --> move forward w/ whichever model keeps/removes term
 summary(RED.MOD11)
 
-RED.MOD12 <- update(RED.MOD11, .~. -scaled_EMA_MA) #drop 2-way interaction term
+RED.MOD12 <- update(RED.MOD11, .~. -scaled_CoralSec_A) #drop 2-way interaction term
 anova(RED.MOD11, RED.MOD12) #LRT --> move forward w/ whichever model keeps/removes term
 summary(RED.MOD12)
 
-AIC(RED.MOD10)
+RED.MOD13 <- update(RED.MOD12, .~. -scaled_WavePower) #drop 2-way interaction term
+anova(RED.MOD12, RED.MOD13) #LRT --> move forward w/ whichever model keeps/removes term
+summary(RED.MOD13)
+
 AIC(RED.MOD11)
 AIC(RED.MOD12)
+AIC(RED.MOD13)
 
-best.mod<-RED.MOD11
+best.mod<-RED.MOD12
 summary(best.mod)
 
 #Only option to generate a R2 like metric for these kinds of models
