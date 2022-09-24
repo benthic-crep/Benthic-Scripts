@@ -392,6 +392,7 @@ d<-svyglm(JuvColCount ~
             scaled_CORAL,
           design=des, family="poisson",offset=log(TRANSECTAREA_j))
 
+#Look at fit 2 ways
 anova(d,d_poly2) 
 anova(d_poly3,d_poly2) 
 

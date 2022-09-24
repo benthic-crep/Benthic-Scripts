@@ -186,6 +186,7 @@ site.sw<-left_join(site.data.gen2,w.df) #merge weights with site-level data
 head(site.sw)
 site.swS<-dplyr::filter(site.sw,GENUS_CODE=="SSSS")#only include total scleractinans
 
+length(unique(site.swS$SITE))
 #remove strata that have less than 2 sites
 site.swS<-subset(site.swS,n>1)
 summary(site.swS$n)
@@ -352,13 +353,13 @@ modR<-svyglm(JuvColCount ~ REGION, design=des,offset= TRANSECTAREA_j, family="po
 summary(modR)
 tuk2<-glht(modR, mcp(REGION="Tukey")) 
 tuk.cld2 <- cld(tuk2)
-sig<-c("d","bd","a","ab","c","e","a","c")
+sig<-c("bd","b","a","ab","c","d","a","c")
 #sig<-c("a","a","c","ac","b","d","c","b")
 
 spatial_Rmean<-cbind(spatial_Rmean,sig)
 
 
-svystdres(modR,stvar="DB_RZ",doplot=TRUE)
+#svystdres(modR,stvar="DB_RZ",doplot=TRUE)
 null.mod<-svyglm(JuvColCount ~ 1, design=des,offset= TRANSECTAREA_j, family="poisson")
 anova(null.mod,modR)
 
@@ -508,7 +509,7 @@ insetmap<-ggplot() +
 #plot main data map with island colors = gradient of juvenile density
 deltamap<-ggplot() +
   geom_sf(data = pacific_crop)+ #basemap
-  geom_sf(data = delta_shift,aes(color = JuvColDen), size = 3, shape = 19)+ #data
+  geom_sf(data = delta_shift,aes(fill = JuvColDen), size = 3, shape = 21)+ #data
   geom_text_repel(data = delta_shift, #add island labels 
                   aes(x = X...7, y = Y...8, label = ISLAND),
                   size = 3,
@@ -516,9 +517,10 @@ deltamap<-ggplot() +
                   segment.size = 0.25,
                   box.padding = 0.4,
                   min.segment.length = 0,
+                  max.overlaps = Inf,
                   seed = 2020-5-16)+
   annotation_scale(location = "bl", width_hint = 0.4)+ #add scale bar
-  scale_color_gradient2(midpoint = 8, #Color scheme
+  scale_fill_gradient2(midpoint = 8, #Color scheme
                         high = 'forestgreen',
                         mid = 'yellow2',
                         low = 'red2',
@@ -531,13 +533,13 @@ deltamap<-ggplot() +
 #Combine main and inset maps
 finalmap = ggdraw() +
   draw_plot(deltamap) +
-  draw_plot(spatialR, x = 0.05, y = 0.15, width = 0.3, height = 0.3)+
+  #draw_plot(spatialR, x = 0.05, y = 0.14, width = 0.45, height = 0.45)+
   #draw_plot(insetmap, x = 0.02, y = 0.07, width = 0.3, height = 0.3)
   draw_plot(insetmap, x = 0.77, y = 0.1, width = 0.23, height = 0.23)
   
 finalmap
 
-ggsave(plot=finalmap,file="T:/Benthic/Projects/Juvenile Project/Figures/RecentJuvMap_colorsJuvCol.jpg",width=13,height=9)
+ggsave(plot=finalmap,file="T:/Benthic/Projects/Juvenile Project/Figures/RecentJuvMap_colorsJuvCol2.jpg",width=13,height=9)
 
 
 #plot main data map with island colors = REGION
