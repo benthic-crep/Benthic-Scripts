@@ -102,14 +102,23 @@ sectors<-read.csv("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/data/Se
 
 #Merge together survey meta data and sector area files and check for missmatches 
 meta<-left_join(survey_site,sectors)
-meta[which(is.na(meta$AREA_HA)),]
 nrow(survey_site)
 nrow(meta)
 
 
 #Merge site level data and meta data
 site.data.gen2<-left_join(site.data.gen2,meta)
-site.data.gen2$Juvpres.abs<-ifelse(site.data.gen2$JuvColDen>0,1,0)
+site.data.gen2$Juvpres.abs<-ifelse(site.data.gen2$JuvColDen>0,1,0) #add presence/absense column 
+test<-subset(site.data.gen2,GENUS_CODE=="SSSS")
+
+missing<-subset(a1, !(a %in% a2$a))
+
+
+site.data.gen2[which(is.na(site.data.gen2$AREA_HA)),] #The NA values are from special missions and maug Lagoon that will be dropped later in the script - ok
+nrow(
+nrow(meta)
+
+
 
 #Make tweaks to pooling sector pooling and drop specific islands because they were not surveyed more than once or didn't have enough sampling across years 
  ###May want to consider adding Niihau for spatial analysis. we have good 2013 and 2019 coverage
