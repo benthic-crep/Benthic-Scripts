@@ -125,13 +125,13 @@ jwd_site<-jwd_site %>%
   mutate(Depth_Median=median(c(new_MIN_DEPTH_M,new_MAX_DEPTH_M)))
 
 
-#Subset survey master and env columns of interest
+#Subset survey master and env columns of interest -not prior to 10/14/22, I was using the 750m VIIRS Chla data, but the data only goes back to 2012. Swaping in 4km data
 
 cols<-c("MISSIONID","DATE_","SITEVISITID", "OBS_YEAR", "REGION", "ISLAND","SEC_NAME", "SITE","REEF_ZONE",
                "DEPTH_BIN","STRATANAME", "DHW.MeanMax_Degree_Heating_Weeks_YR01","DHW.MeanMax_Degree_Heating_Weeks_YR03", 
         "DHW.MeanMax_Degree_Heating_Weeks_YR05","DHW.MeanMax_Degree_Heating_Weeks_YR10","DHW.MeanMax_Degree_Heating_Weeks_YR10YR01",
         "DHW.MaxMax_Degree_Heating_Weeks_YR03","DHW.MaxMax_Degree_Heating_Weeks_YR05","DHW.MaxMax_Degree_Heating_Weeks_YR10","DHW.Np10y_Major_Degree_Heating_Weeks_YR10",
-        "mean_SST_CRW_Daily_YR10","sd_SST_CRW_Daily_YR10","mean_Chlorophyll_A_VIIRS_Monthly_750m_YR05","sd_Chlorophyll_A_VIIRS_Monthly_750m_YR05","mean_biweekly_range_SST_CRW_Daily_YR10")
+        "mean_SST_CRW_Daily_YR10","sd_SST_CRW_Daily_YR10","mean_Chlorophyll_A_ESAOCCCI_8Day_YR05","sd_Chlorophyll_A_ESAOCCCI_8Day_YR05","mean_biweekly_range_SST_CRW_Daily_YR10")
 sm_env<-SM[,cols]
 
 #Not enough sampling in each sector- pool them together
@@ -141,7 +141,7 @@ View(sm_env)
 
 #Calculate CVchla and CVsst
 sm_env$CVsst<-sm_env$sd_SST_CRW_Daily_YR10/sm_env$mean_SST_CRW_Daily_YR10
-sm_env$CVchla<-sm_env$sd_Chlorophyll_A_VIIRS_Monthly_750m_YR05/sm_env$mean_Chlorophyll_A_VIIRS_Monthly_750m_YR05
+sm_env$CVchla<-sm_env$sd_Chlorophyll_A_ESAOCCCI_8Day_YR05/sm_env$mean_Chlorophyll_A_ESAOCCCI_8Day_YR05
 
 # #Change NaN to NA
 is.nan.data.frame <- function(x)
@@ -196,8 +196,8 @@ cover_forsite<-cover %>% select(SITE,CORAL,CCA,SAND_RUB,TURF,EMA_MA)
 sm_env<-sm_env %>% select(SITE,SITEVISITID,DHW.MeanMax_Degree_Heating_Weeks_YR01,DHW.MaxMax_Degree_Heating_Weeks_YR03,DHW.MeanMax_Degree_Heating_Weeks_YR03,
                           DHW.MeanMax_Degree_Heating_Weeks_YR05,DHW.MaxMax_Degree_Heating_Weeks_YR05,DHW.MeanMax_Degree_Heating_Weeks_YR10,DHW.MaxMax_Degree_Heating_Weeks_YR10,
                           DHW.MeanMax_Degree_Heating_Weeks_YR10YR01,DHW.Np10y_Major_Degree_Heating_Weeks_YR10,mean_biweekly_range_SST_CRW_Daily_YR10,
-                          CVchla,CVsst,mean_SST_CRW_Daily_YR10,mean_Chlorophyll_A_VIIRS_Monthly_750m_YR05,sd_SST_CRW_Daily_YR10,
-                          sd_Chlorophyll_A_VIIRS_Monthly_750m_YR05)
+                          CVchla,CVsst,mean_SST_CRW_Daily_YR10,mean_Chlorophyll_A_ESAOCCCI_8Day_YR05,sd_SST_CRW_Daily_YR10,
+                          sd_Chlorophyll_A_ESAOCCCI_8Day_YR05)
 wave<-wave %>% select(SITE,WavePower)
 
 all_pred_site<- jwd_site   %>% 

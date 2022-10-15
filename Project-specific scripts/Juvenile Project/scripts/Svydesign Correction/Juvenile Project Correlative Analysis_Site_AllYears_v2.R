@@ -57,8 +57,8 @@ df<-subset(df.orig,select=c(DATE_,OBS_YEAR,REGION,ISLAND,SEC_NAME,DEPTH_BIN,REEF
                        LATITUDE,LONGITUDE,Depth_Median,CORAL,CORALst,CCA,SAND_RUB,TURF,EMA_MA, YearSinceDHW4, YearSinceDHW8,DHW.MeanMax_Degree_Heating_Weeks_YR01,
                        DHW.MeanMax_Degree_Heating_Weeks_YR03,DHW.MeanMax_Degree_Heating_Weeks_YR05,DHW.MeanMax_Degree_Heating_Weeks_YR10YR01,
                        DHW.MeanMax_Degree_Heating_Weeks_YR10,DHW.MaxMax_Degree_Heating_Weeks_YR10,
-                       DHW.Np10y_Major_Degree_Heating_Weeks_YR10,WavePower,CVsst,CVchla,mean_SST_CRW_Daily_YR10,mean_Chlorophyll_A_VIIRS_Monthly_750m_YR05,
-                       sd_SST_CRW_Daily_YR10,sd_Chlorophyll_A_VIIRS_Monthly_750m_YR05,mean_biweekly_range_SST_CRW_Daily_YR10,HumanDen))
+                       DHW.Np10y_Major_Degree_Heating_Weeks_YR10,WavePower,CVsst,CVchla,mean_SST_CRW_Daily_YR10,mean_Chlorophyll_A_ESAOCCCI_8Day_YR05,
+                       sd_SST_CRW_Daily_YR10,sd_Chlorophyll_A_ESAOCCCI_8Day_YR05,mean_biweekly_range_SST_CRW_Daily_YR10,HumanDen))
 
 #Combine site level data with sector cover data
 cover_sec$OBS_YEAR<-cover_sec$ANALYSIS_YEAR
@@ -181,12 +181,14 @@ colnames(df)[colnames(df)=="DHW.MeanMax_Degree_Heating_Weeks_YR10YR01"]<-"MeanDH
 colnames(df)[colnames(df)=="DHW.MeanMax_Degree_Heating_Weeks_YR10"]<-"MeanDHW10"
 colnames(df)[colnames(df)=="DHW.MaxMax_Degree_Heating_Weeks_YR10"]<-"MaxDHW10"
 colnames(df)[colnames(df)=="mean_SST_CRW_Daily_YR10"]<-"MeanSST"
-colnames(df)[colnames(df)=="sd_Chlorophyll_A_VIIRS_Monthly_750m_YR05"]<-"SDchla"
+colnames(df)[colnames(df)=="sd_Chlorophyll_A_ESAOCCCI_8Day_YR05"]<-"SDchla"
 colnames(df)[colnames(df)=="sd_SST_CRW_Daily_YR10"]<-"SDsst"
-colnames(df)[colnames(df)=="mean_Chlorophyll_A_VIIRS_Monthly_750m_YR05"]<-"Meanchla"
+colnames(df)[colnames(df)=="mean_Chlorophyll_A_ESAOCCCI_8Day_YR05"]<-"Meanchla"
 
 colnames(df)[colnames(df)=="DHW.Np10y_Major_Degree_Heating_Weeks_YR10"]<-"DHW_Freq"
 colnames(df)[colnames(df)=="mean_biweekly_range_SST_CRW_Daily_YR10"]<-"SST_Range"
+
+
 
 # #Remove row with NAs for Chla
 # nrow(df)
