@@ -138,7 +138,7 @@ head(wide)
 wide<-wide[,c("REGION","ISLAND","Latitude","Longitude","T1","T2","T3")]
 
 wide$ISLAND <- factor(wide$ISLAND, levels = c("Kure","Pearl_&_Hermes","Lisianski","French_Frigate","Kauai",
-                                              "Oahu","Molokai","Maui","Lanai","Kahoolawe","Hawaii","Wake",
+                                              "Oahu","Molokai","Maui","Niihau","Lanai","Kahoolawe","Hawaii","Wake",
                                               "Howland","Baker","Kingman","Palmyra","Jarvis","Saipan","Tinian",
                                               "Rota","Aguijan","Guam","Farallon_de_Pajaros","Maug","Pagan","Asuncion",
                                               "Sarigan","Swains","Tutuila","Ofu_&_Olosega","Tau","Rose"))

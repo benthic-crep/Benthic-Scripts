@@ -115,13 +115,9 @@ missing<-subset(a1, !(a %in% a2$a))
 
 
 site.data.gen2[which(is.na(site.data.gen2$AREA_HA)),] #The NA values are from special missions and maug Lagoon that will be dropped later in the script - ok
-nrow(
 nrow(meta)
 
-
-
 #Make tweaks to pooling sector pooling and drop specific islands because they were not surveyed more than once or didn't have enough sampling across years 
- ###May want to consider adding Niihau for spatial analysis. we have good 2013 and 2019 coverage
 
 #isl.drop<-c("Alamagan","Midway","Maro","Niihau","Johnston","Guguan","Agrihan") 
 

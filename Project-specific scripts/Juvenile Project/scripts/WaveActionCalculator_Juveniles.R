@@ -10,7 +10,7 @@ library(ggsn)
 library(ggspatial)
 library(ggrepel)
 
-setwd("M:/Environmental Data Summary/DataDownload/WaveEnergySwath")
+setwd("M:/Environmental_Data_Summary/Data_Download/WaveEnergySwath")
 list.files()
 
 ### read in wave data
@@ -136,7 +136,7 @@ str(juv_sp)
 
 ### calculate the mean wave action values within 250m radius of each juv point
 # source expanding extract function
-source("M:/Environmental Data Summary/HelperCode/ExpandingExtract_Flex.R")
+source("M:/Environmental_Data_Summary/HelperCode/ExpandingExtract_Flex.R")
 sites_waves <- ExpandingExtract_Flex(Data = all_sp, SurveyPts = juv_sp,
                                      Dists = seq(0, 4000, by = 50),Data_Col = "medians",REPORT = T) # you may not want to keep sites that have wave data from 4km away, but you can drop these sites later in the script
 
@@ -159,9 +159,9 @@ abline(h=500)
 
 #Define a distance that is too far to estimate
 # TooFar=750
-# TooFar=1000
+TooFar=1000
 # 
-# sites_waves$values[which(sites_waves$Dist>TooFar)]=NA
+sites_waves$values[which(sites_waves$Dist>TooFar)]=NA
 
 juv_2 <- cbind(juvS, sites_waves)
 
@@ -234,4 +234,4 @@ wave<-juv_2%>% dplyr::select(ISLAND:values)
 wave<-wave %>% dplyr::rename(WavePower=values)
 
 #save the data
-write.csv(wave,file="T:/Benthic/Projects/Juvenile Project/Pacific_WaveActionData_v3.csv",row.names = F)
+write.csv(wave,file="T:/Benthic/Projects/Juvenile Project/Pacific_WaveActionData_v4.csv",row.names = F)
