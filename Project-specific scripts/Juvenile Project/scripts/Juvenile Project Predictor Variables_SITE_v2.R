@@ -34,7 +34,7 @@ setwd("C:/Users/Courtney.S.Couch/Documents/Courtney's Files/R Files/ESD/Juvenile
 jwd_site<-read.csv("T:/Benthic/Projects/Juvenile Project/JuvProject_SITE_weights_AllYears_wHD.csv") #This dataframe has both juvenile and human density data
 
 tsdhw<-read.csv("T:/Benthic/Projects/Juvenile Project/Juvenile_TimeSinceDHW4_8_v2.csv"); tsdhw<-subset(tsdhw,select= -c(X,ISLAND))
-wave<-read.csv("T:/Benthic/Projects/Juvenile Project/Pacific_WaveActionData_v3.csv")
+wave<-read.csv("T:/Benthic/Projects/Juvenile Project/Pacific_WaveActionData_v4.csv")
 load("C:/Users/Courtney.S.Couch/Documents/GitHub/env_data_summary/outputs/Survey_Master_Timeseries_2022-04-04.Rdata")
 cover1<-read.csv("T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Site/BenthicCover_2010-2020_Tier1_SITE.csv")#Cover from all sites
 cover3<-read.csv("T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Site/BenthicCover_2010-2020_Tier3_SITE.csv")#Cover from all sites

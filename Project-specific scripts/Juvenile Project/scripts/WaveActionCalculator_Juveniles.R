@@ -145,7 +145,7 @@ sites_waves <- ExpandingExtract_Flex(Data = all_sp, SurveyPts = juv_sp,
 
 
 
-#Plot the % of sites that fall within each distance 96.3% of sites are within 750 of wave data
+#Plot the % of sites that fall within each distance 97.5% of sites are within 1km of wave data
 head(sites_waves)
 t=table(sites_waves$Dist) #visualize 
 st=cumsum(t)
@@ -158,12 +158,15 @@ abline(h=750) # this seems like a reasonable break
 abline(h=500)
 
 #Define a distance that is too far to estimate
-# TooFar=750
 TooFar=1000
-# 
+
+#Remove sites with wave data >1000m away
 sites_waves$values[which(sites_waves$Dist>TooFar)]=NA
 
 juv_2 <- cbind(juvS, sites_waves)
+nrow(juv_2)
+sum(!complete.cases(juv_2)) #35 sites will be dropped
+
 
 #Spot check specific sites with high distances to make sure you are comfortable using the value chosen
 Plot_DistCheck<-function(d1,d2,isl="Oahu",xlim1,xlim2,ylim1,ylim2){
@@ -228,7 +231,7 @@ Plot_WaveJuv(islands,all_2,juv,"PHR","Pearl & Hermes",-176.1,-175.3,27.5, 27.9)
 Plot_DistCheck(islands,juv_2,"Pearl & Hermes",-176.1,-175.3,27.5, 27.9)
 
 
-
+#Cleanup dataframe & Export to the Predictor script "Juvenile Project Predictor Variables_SITE_v2.R"
 head(juv_2)
 wave<-juv_2%>% dplyr::select(ISLAND:values)
 wave<-wave %>% dplyr::rename(WavePower=values)
