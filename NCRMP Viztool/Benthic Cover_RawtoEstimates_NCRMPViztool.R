@@ -2,7 +2,7 @@
 #It's a modification from Benthic_Cover_RawtoEstimates_v2
 #Updates: 
 #1. No longer combining all backreef depths and Lagoon depths into "Backreef_All" and "Lagoon_All"
-#2. Adding script to calcualte regional estimates of cover
+#2. Adding script to calculate regional estimates of cover
 
 
 
@@ -15,10 +15,10 @@ setwd("C:/Users/Courtney.S.Couch/Documents/Courtney's Files/R Files/ESD/BIA")
 # library(RODBC)            # to connect to oracle
 
 #LOAD LIBRARY FUNCTIONS ... 
-source("M:/Benthic Scripts_LEA/Benthic_Functions_newApp_vTAOfork.R")
-source("M:/Benthic Scripts_LEA/core_functions.R")
-source("M:/Benthic Scripts_LEA/fish_team_functions.R")
-source("M:/Benthic Scripts_LEA/Islandwide Mean&Variance Functions.R")
+source("C:/Users/Courtney.S.Couch/Documents/GitHub/Benthic-Scripts/Functions/Benthic_Functions_newApp.R")
+source("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/lib/core_functions.R")
+source("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/lib/fish_team_functions.R")
+source("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/lib/Islandwide Mean&Variance Functions.R")
 
 #Climate data - this is from CPCE
 load("T:/Benthic/Data/REA Coral Demography & Cover/Raw from Oracle/ALL_BIA_CLIMATE_PERM.rdata")   #bia
@@ -32,7 +32,7 @@ bia$SITE<-SiteNumLeadingZeros(bia$SITE)
 
 #CNET data - from CoralNet
 #These data contain human annotated data. There may be a small subset of robot annotated data. 
-#The robot annoations are included because the confidence threshold in CoralNet was set to 90% allowing the robot to annotate points when it was 90% certain.
+#The robot annoations are included because the confidence threshold in CoralNet was set to 75-90% allowing the robot to annotate points when it was 90% certain.
 #2019 NWHI data not in these view because it was analyzed as part of a bleaching dataset
 load("T:/Benthic/Data/REA Coral Demography & Cover/Raw from Oracle/ALL_BIA_STR_CNET.rdata") #load data
 
@@ -52,7 +52,7 @@ head(cnet)
 cnet_tab<-ddply(cnet,.(CATEGORY_CODE,CATEGORY_NAME,SUBCATEGORY_CODE,SUBCATEGORY_NAME,GENERA_CODE,GENERA_NAME,FUNCTIONAL_GROUP),summarize,count=length(ROUNDID))
 #write.csv(cnet_tab, file="CNET categories.csv")
 
-sm<-read.csv("M:/Benthic Scripts_LEA/SURVEY MASTER.csv")
+sm<-read.csv("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/data/SURVEY MASTER.csv")
 sm$SITE<-SiteNumLeadingZeros(sm$SITE)
 
 test<-subset(sm,OBS_YEAR=="2019",TRANSECT_PHOTOS=="-1");nrow(test)
@@ -80,6 +80,10 @@ z<-cli[,FIELDS_TO_RETAIN]; head(z)
 
 ab<-rbind(x,y,z)
 
+#Add Tier 2b (genus for corals, order for macroalgae)
+codes_lu<-read.csv("T:/Benthic/Data/Lookup Tables/All_Photoquad_codes.csv")
+codes_lu<-codes_lu[,c("T2b_DESC","TIER_2b","CODE")];colnames(codes_lu)[which(names(codes_lu) =="CODE")]<-"TIER_3"
+ab<-left_join(ab,codes_lu)
 
 #Flag sites that have more than 33 and less than 15 images
 #With the exception of OCC 2012 sites, there should be 30 images/site/10 points/image
@@ -113,21 +117,17 @@ write.csv(miss.from.smSITE,file="C:/Users/Courtney.S.Couch/Documents/GitHub/fish
 SURVEY_INFO<-c("OBS_YEAR", "REGION",  "ISLAND")
 survey_island<-Aggregate_InputTable(cnet, SURVEY_INFO)
 
-#There are some missing Tier3 information. If these data are missing then fill it with tier2 code
-CATEGORY_FIELDS<-c("METHOD", "TIER_1", "CATEGORY_NAME", "TIER_2", "SUBCATEGORY_NAME", "TIER_3", "GENERA_NAME")
-summary(ab[,CATEGORY_FIELDS])
-levels(ab$TIER_3)<-c(levels(ab$TIER_3), levels(ab$TIER_2))
-levels(ab$GENERA_NAME)<-c(levels(ab$GENERA_NAME), levels(ab$SUBCATEGORY_NAME))
-ab[is.na(ab$TIER_3), ]$TIER_3<-ab[is.na(ab$TIER_3), ]$TIER_2
-ab[is.na(ab$GENERA_NAME), ]$GENERA_NAME<-ab[is.na(ab$GENERA_NAME), ]$SUBCATEGORY_NAME
-ab<-droplevels(ab)
+#There are some missing Tier3 information for pre 2013 data. If these data are missing then fill it with tier2 code
+ab$TIER_2<-ifelse(ab$TIER_2=="HAL","HALI",as.character(ab$TIER_2)) #change to match the Tier 3 halimeda code
 
-#all.tab<-aggregate(ab$POINTS, by=ab[,c("METHOD", "TIER_1", "CATEGORY_NAME", "TIER_2", "SUBCATEGORY_NAME", "TIER_3", "GENERA_NAME")], FUN=length)
-#write.csv(all.tab, file="tmp All CATEGORIES BOTH METHODS.csv")
+ab<-ab %>% dplyr::mutate(TIER_3=coalesce(TIER_3,TIER_2))
+ab<-ab %>% dplyr::mutate(GENERA_NAME=coalesce(GENERA_NAME,SUBCATEGORY_NAME))
+ab<-ab %>% dplyr::mutate(TIER_2b=coalesce(TIER_2b,TIER_2))
+ab<-ab %>% dplyr::mutate(T2b_DESC=coalesce(T2b_DESC,SUBCATEGORY_NAME))
 
+head(ab)
 
 # Reclassify EMA and Halimeda --------------------------------------------
-
 
 #CREATING CLASS EMA "Encrusting Macroalgae
 levels(ab$TIER_1)<-c(levels(ab$TIER_1), "EMA")
@@ -137,21 +137,12 @@ ab[ab$GENERA_NAME %in% c("Lobophora sp","Peyssonnelia sp", "Encrusting macroalga
 ab[ab$GENERA_NAME %in% c("Lobophora sp","Peyssonnelia sp", "Encrusting macroalga"),]$SUBCATEGORY_NAME<-"Encrusting macroalga"
 ab[ab$GENERA_NAME %in% c("Lobophora sp","Peyssonnelia sp", "Encrusting macroalga"),]$CATEGORY_NAME<-"Encrusting macroalga"
 
-
-
 ###Create a Halimeda class
-ab$GENERA_NAME<-as.character(ab$GENERA_NAME)
-ab$TIER_1<-as.character(ab$TIER_1)
-
-ab$TIER_3<-ifelse(ab$TIER_3=="HALI","HAL",ab$TIER_3)
-ab$TIER_1<-ifelse(ab$TIER_3=="HAL","HAL",ab$TIER_1)
-ab$CATEGORY_NAME<-ifelse(ab$TIER_3=="HAL","Halimeda sp",ab$CATEGORY_NAME)
-
-hal<-subset(ab,TIER_1=="HAL")
+ab$TIER_3<-ifelse(ab$TIER_3=="HALI","HALI",as.character(ab$TIER_3))
+ab$TIER_1<-ifelse(ab$TIER_3=="HALI","HALI",as.character(ab$TIER_1))
+ab$CATEGORY_NAME<-ifelse(ab$TIER_3=="HALI","Halimeda sp",as.character(ab$CATEGORY_NAME))
+hal<-subset(ab,TIER_1=="HALI")
 head(hal)
-
-all.tab<-aggregate(ab$POINTS, by=ab[,c("METHOD", "TIER_1", "CATEGORY_NAME", "TIER_2", "SUBCATEGORY_NAME", "TIER_3", "GENERA_NAME")], FUN=length)
-write.csv(all.tab, file="All CATEGORIES BOTH METHODS CLEANED.csv")
 
 save(ab, file="T:/Benthic/Data/REA Coral Demography & Cover/Analysis Ready Raw data/BIA_2010-2020_CLEANED.RData")
 
@@ -250,8 +241,73 @@ wsd_t1$TRANSECT_PHOTOS<-"-1" #make sure that all rows = -1
 #Remove the unknowns and TWS columns
 wsd_t1<-subset(wsd_t1,select= -c(MF,UC,TW))
 
-#Save Tier 1 site data to t drive. This file has all sites (fish, benthic and OCC) that were annoated between 2010 and 2018
+#Save Tier 1 site data to t drive. This file has all sites (fish, benthic and OCC) that were annotated between 2010 and 2018
 write.csv(wsd_t1, file="T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Site/BenthicCover_2010-2020_Tier1_SITE.csv",row.names=F)
+
+
+# Generate Site-level Data at TIER 2b (Genus/Class) level--------------
+
+photo<-dcast(ab, formula=METHOD + OBS_YEAR + SITEVISITID + SITE  ~ TIER_2b, value.var="POINTS", sum, fill=0)
+head(photo)
+
+r_levels<-c(unique(as.character(ab$TIER_2b)))
+photo$N<-rowSums(photo[,r_levels])
+
+#Subtract mobile inverts and tape wand shallow and unclassified
+photo$new.N<-photo$N-(photo$WAND+photo$UNK+photo$TAPE+photo$MOBF+photo$SHAD)
+
+#Change Inf to NA
+photo<-photo%>% mutate_if(is.numeric, ~ifelse(abs(.) == Inf,NA,.))
+
+r_levels<-c(unique(as.character(ab$TIER_2b)))
+data.cols<-c(r_levels)
+data.cols
+
+#Calculate proportion
+photo[,data.cols]<-(photo[,data.cols]/photo$new.N)*100
+head(photo)
+
+r_levels<-c(unique(as.character(ab$TIER_2b)))
+T2data.cols<-c(r_levels)
+T2data.cols<-T2data.cols[!T2data.cols %in% c("WAND","UNK","TAPE","MOBF","SHAD")]
+
+
+wsd<-merge(sites, photo, by=c("METHOD", "OBS_YEAR", "SITE"), all.y=T)
+
+#Make sure that you have the correct # of sites/region and year
+test1<-ddply(wsd,.(REGION,OBS_YEAR),summarize,nSite_wsd=length(unique(SITE)))
+
+#check against original number of sites pulled from oracle
+full_join(test1,oracle.site)
+
+#Merge Tier 2b data with SURVEY MASTER FILE
+#Remember this will have all the sites ever surveyed not just StRS sites
+#You will need TRANSECT_PHOTOS, EXCLUDE FLAG and Oceanography from the SM file to be able to filter out OCC and Special Project sites
+
+#sm<-read.csv("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/data/SURVEY MASTER.csv")
+
+#Convert date formats
+sm$DATE_<-mdy(sm$DATE_)
+class(sm$DATE_)
+
+head(sm)
+
+sm<-sm[,c("DATE_","MISSIONID","SITEVISITID","SITE","OCC_SITEID","ANALYSIS_YEAR","OBS_YEAR","SEC_NAME","EXCLUDE_FLAG","TRANSECT_PHOTOS","Oceanography")]
+wsd_t2<-merge(sm,wsd,by=c("SITEVISITID","SITE","OBS_YEAR"),all.y=TRUE)
+head(wsd_t2)
+
+
+#Are there NAs in TRANSECT PHOTOS
+test<-wsd_t2[is.na(wsd_t2$TRANSECT_PHOTOS),]
+View(test) # none of the 2010 imagery has TRANSECT_PHOTOS assigned - ASK MICHAEL TO FIX
+wsd_t2$TRANSECT_PHOTOS<-"-1" #make sure that all rows = -1
+
+
+#Remove the unknowns and TWS columns
+wsd_t2<-subset(wsd_t2,select= -c(WAND,UNK,TAPE,MOBF,SHAD))
+
+#Save Tier 1 site data to t drive. This file has all sites (fish, benthic and OCC) that were annoated between 2010 and 2018
+write.csv(wsd_t2, file="T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Site/BenthicCover_2010-2020_Tier2b_SITE.csv",row.names=F)
 
 
 # CHECK THAT DATA IS READY FOR POOLING AND DO SOME FINAL CLEAN UPS --------
