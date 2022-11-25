@@ -20,3 +20,8 @@ all.cols<-subset(all.cols,select= -c(HARD,RUB,SG))
 
 all.cols<-subset(all.cols,OBS_YEAR>=2013)
 write.csv(all.cols,"T:/Benthic/Data/Data Requests/ErinReed_Alga/NCRMP_AlgalCover_Tier2b.csv")
+
+"SITEVISITID",	"REGION",	"ISLAND",	"SITE",	"OLD_SITE",	"OCC_SITEID",	"REEF_ZONE",	"DEPTH_BIN",
+"ROUNDID",	"MISSIONID",	"OBS_YEAR",	"DATE_",	"HABITAT_CODE",	"LATITUDE_SV",	"LONGITUDE_SV",	"LATITUDE_LOV",	"LONGITUDE_LOV",
+"EXCLUDE_FLAG",	"CLIMATE_STATION_YN",	"PERM_SITE",	"TRANSECT_PHOTOS",	"PHOTOMOSAIC_YN",	"MIN_DEPTH_M",	"MAX_DEPTH_M",	"benth",	"fish",	"arms_d",
+"arms_r",	"cau_d",	"cau_r",	"microb"	"ARMS",	"Benthic",	"CAU",	"Fish",	"Oceanography"
