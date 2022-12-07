@@ -1,5 +1,14 @@
 # WAVE ACTION CALCULATOR #
 ## this code assigns wave action per juvenile coral site using two wave data files
+# 
+# 
+# 
+# [1] spatial_7.3-13  ggrepel_0.8.2   ggspatial_1.1.4 ggsn_0.5.0    
+# [5] ggplot2_3.3.2   ncf_1.2-9       raster_3.4-5    sf_0.9-8      
+#     sp_1.4-4      
+# 
+# devtools::install_version("spatial", version = "7.3-13", repos = "http://cran.us.r-project.org")
+#     
 
 library(dplyr)
 library(sp)
@@ -9,6 +18,9 @@ library(ncf) # for gcdist()
 library(ggsn)
 library(ggspatial)
 library(ggrepel)
+
+
+
 
 setwd("M:/Environmental_Data_Summary/Data_Download/WaveEnergySwath")
 list.files()
@@ -51,18 +63,6 @@ head(as.data.frame(all_2))
 # save full wave action dataframe as a new data set
 write.csv(all_2, "WaveActionPacific_1997_2010.csv")
 
-# # run pairwise gcdist() function to view distance matrix between all of the points
-# wave_dist <- gcdist(all_2$x, all_2$y)
-# wave_dist_f <- gcdist(cont$x, cont$y)
-# 
-# dim(wave_dist)
-# dim(all_2)
-# 
-# # look at the histogram of that -- focus on smallest size to see how close the points are to one another
-# hist(wave_dist)
-# min(wave_dist[ which(wave_dist>0)])
-# plot(table(round(wave_dist[ which(wave_dist>0 & wave_dist<1)],3)))
-# plot(table(round(wave_dist_f[ which(wave_dist_f>0 & wave_dist_f<10)],3)))
 
 # convert to spatial points data frame
 xy <- all_2[,c(1,2)]
@@ -72,16 +72,7 @@ all_sp <- SpatialPointsDataFrame(coords = xy, data = all_2,
 ### read in juvenile data
 juv<-read.csv("T:/Benthic/Projects/Juvenile Project/JuvProject_SITE_weights_AllYears_wHD.csv")
 
-#Clean up juvenile site data
-juv<-juv%>%dplyr::filter(OBS_YEAR >=2013)
-levels(juv$MISSIONID)
-juv<-juv[!juv$MISSIONID %in% c("MP1410","MP1512","MP1602","SE1602","MP2006"),]
-juv$Year_Island<-paste(juv$OBS_YEAR,juv$ISLAND,sep="_")
-juv$Year_Region<-paste(juv$OBS_YEAR,juv$REGION,sep="_")
-juv<-droplevels(juv);levels(juv$MISSIONID)
-View(juv)
-
-juvS<-subset(juv,GENUS_CODE=="SSSS")
+juvS<-subset(juv,GENUS_CODE=="SSSS") #subset just total hard coral for each site
 juvS <- subset(juvS,select=c(ISLAND,SITE,LATITUDE,LONGITUDE)) # remove extra columns -- only need site name + coords
 colnames(juvS)
 
@@ -124,24 +115,12 @@ juv_sp <- SpatialPointsDataFrame(coords = xy_juv, data = juvS,
                                  proj4string = CRS("+proj=longlat +datum=WGS84 +ellps=WGS84 +towgs84=0,0,0"))
 str(juv_sp)
 
-#Buffered Extract from all_sp to juv_sp
-# #Oahu Case for Trial
-# oahu_waves=subset(all_sp,ISL=="OAH")
-# oahu_waves$ID=paste0("OAH_",1:nrow(oahu_waves))
-# dim(oahu_waves)
-# oahu_juv=subset(juv_sp,ISLAND=="Oahu")
-# dim(oahu_juv)
-# ExpandingExtract_Flex(Data = oahu_waves,SurveyPts = oahu_juv,Data_Col="medians",Dists = seq(0, 4000, by = 50))
-
 
 ### calculate the mean wave action values within 250m radius of each juv point
 # source expanding extract function
 source("M:/Environmental_Data_Summary/HelperCode/ExpandingExtract_Flex.R")
 sites_waves <- ExpandingExtract_Flex(Data = all_sp, SurveyPts = juv_sp,
                                      Dists = seq(0, 4000, by = 50),Data_Col = "medians",REPORT = T) # you may not want to keep sites that have wave data from 4km away, but you can drop these sites later in the script
-
-
-########################Something is wrong- it is returning NaN for all values and only providing 4000km buffer size.
 
 
 
@@ -237,4 +216,4 @@ wave<-juv_2%>% dplyr::select(ISLAND:values)
 wave<-wave %>% dplyr::rename(WavePower=values)
 
 #save the data
-write.csv(wave,file="T:/Benthic/Projects/Juvenile Project/Pacific_WaveActionData_v4.csv",row.names = F)
+write.csv(wave,file="T:/Benthic/Projects/Juvenile Project/Pacific_WaveActionData_v5.csv",row.names = F)

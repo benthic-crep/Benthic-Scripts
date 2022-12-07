@@ -31,21 +31,25 @@ load("T:/Benthic/Data/REA Coral Demography & Cover/Raw from Oracle/ALL_BIA_STR_C
 cnet$SITE<-SiteNumLeadingZeros(cnet$SITE)
 
 #Temporary work around for merging in 2015 and 2017 NWHI data that hasn't been uploaded to Oracle yet- remove this once Michael has incorporated data
-new.cnet<-read.csv("T:/Benthic/Data/REA Coral Demography & Cover/Raw Data from CoralNet/2015_2017_NWHI_CnetAnnotations_formatted.csv")
-new.cnet<-new.cnet %>% drop_na(ROUNDID) #remove blank rows
+new.nw<-read.csv("T:/Benthic/Data/REA Coral Demography & Cover/Raw Data from CoralNet/2015_2017_NWHI_CnetAnnotations_formatted.csv")
+new.nw<-new.nw %>% drop_na(ROUNDID) #remove blank rows
+new.laysan<-read.csv("T:/Benthic/Data/REA Coral Demography & Cover/Raw Data from CoralNet/2015_2017_NWHI_CnetAnnotations_Laysan_formatted.csv")
+new.laysan<-new.laysan %>% drop_na(ROUNDID) #remove blank rows
+
+new.cnet<-rbind(new.nw,new.laysan)
 
 class(new.cnet$DATE_)
 class(new.cnet$DATE_TAKEN)
 
 #Date conversations still not working
-new.cnet$DATE_<-mdy(new.cnet$DATE_)
-new.cnet$DATE_TAKEN<-ymd(new.cnet$DATE_TAKEN);head(new.cnet$DATE_TAKEN)
-new.cnet$DATE_ANNOTATED<-ymd_hms(new.cnet$DATE_ANNOTATED);head(new.cnet$DATE_ANNOTATED)
+new.cnet$DATE_<-lubridate::mdy(new.cnet$DATE_)
+new.cnet$DATE_TAKEN<-lubridate::ymd(new.cnet$DATE_TAKEN);head(new.cnet$DATE_TAKEN)
+new.cnet$DATE_ANNOTATED<-lubridate::ymd_hms(new.cnet$DATE_ANNOTATED);head(new.cnet$DATE_ANNOTATED)
 
 #combine old cnet and 2015 & 2017 nwhi cnet data
 cnet<-rbind(cnet,new.cnet) 
 table(cnet$REGION,cnet$OBS_YEAR)
-table(new.cnet$REGION,new.cnet$OBS_YEAR)
+table(new.cnet$ISLAND,new.cnet$OBS_YEAR)
 
 
 ##Generate Table of all the bia categories to review

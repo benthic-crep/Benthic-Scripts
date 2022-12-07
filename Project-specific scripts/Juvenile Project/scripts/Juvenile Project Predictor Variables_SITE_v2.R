@@ -226,10 +226,10 @@ all_pred_site$EMA_MA<-ifelse(is.na(all_pred_site$EMA_MA),all_pred_site$EMA_MAst,
 
 
 #Missing depths- went back to datasheets or use max depth
-all_pred_site$Depth_Median<-ifelse(all_pred_site$SITE=="TIN-00646",21.3,all_pred_site$Depth_Median)
-all_pred_site$Depth_Median<-ifelse(all_pred_site$SITE=="TIN-00581",13.7,all_pred_site$Depth_Median)
-all_pred_site$Depth_Median<-ifelse(all_pred_site$SITE=="WAK-00430",9.44,all_pred_site$Depth_Median)
-all_pred_site$Depth_Median<-ifelse(all_pred_site$SITE=="TUT-01987",22.1,all_pred_site$Depth_Median)
+# all_pred_site$Depth_Median<-ifelse(all_pred_site$SITE=="TIN-00646",21.3,all_pred_site$Depth_Median)
+# all_pred_site$Depth_Median<-ifelse(all_pred_site$SITE=="TIN-00581",13.7,all_pred_site$Depth_Median)
+# all_pred_site$Depth_Median<-ifelse(all_pred_site$SITE=="WAK-00430",9.44,all_pred_site$Depth_Median)
+# all_pred_site$Depth_Median<-ifelse(all_pred_site$SITE=="TUT-01987",22.1,all_pred_site$Depth_Median)
 all_pred_site$Depth_Median<-ifelse(is.na(all_pred_site$Depth_Median),all_pred_site$new_MAX_DEPTH_M,all_pred_site$Depth_Median)#missing min depth from several 2013 MHI sites
 
 

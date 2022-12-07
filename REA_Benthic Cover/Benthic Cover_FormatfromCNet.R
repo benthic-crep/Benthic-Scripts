@@ -33,10 +33,12 @@ lu$GENERA_NAME<-lu$T3_DESC
 colnames(lu)[colnames(lu)=="Cnet_SHORT_CODE"]<-"SHORT_CODE"
 
 #read in data directly from Cnet
-f15<-read.csv("2015_NWHI_CnetAnnotations_fish.csv")
-b17<-read.csv("2017_NWHI_CnetAnnotations_benthic.csv")
+# f15<-read.csv("2015_NWHI_CnetAnnotations_fish.csv")
+# b17<-read.csv("2017_NWHI_CnetAnnotations_benthic.csv")
+laysan<-read.csv("2015_2017_NWHI_CnetAnnotations_Laysan.csv")
 
-tmp<-rbind(f15,b17)
+#tmp<-rbind(f15,b17)
+tmp<-laysan
 
 new.cov<-tmp
 head(new.cov)
@@ -56,7 +58,7 @@ View(new.cov)
 
 #Convert dates to date format
 new.cov$DATE_TAKEN<-lubridate::mdy(new.cov$DATE_TAKEN);head(new.cov$DATE_TAKEN)
-new.cov$DATE_ANNOTATED<-ymd_hms(new.cov$DATE_ANNOTATED);head(new.cov$DATE_ANNOTATED)
+new.cov$DATE_ANNOTATED<-lubridate::ymd_hms(new.cov$DATE_ANNOTATED);head(new.cov$DATE_ANNOTATED)
 head(new.cov)
 
 
@@ -120,9 +122,12 @@ View(df)
 lapply(df, summary)
 table(df$OBS_YEAR,df$ISLAND)
 
+df$REGION_NAME<-"Northwestern Hawaiian Islands"
+df$ISLANDCODE<-"LAY"
 
-write.csv(df, file="T:/Benthic/Data/REA Coral Demography & Cover/Raw Data from CoralNet/2015_2017_NWHI_CnetAnnotations_formatted.csv",row.names = F)
+write.csv(df, file="T:/Benthic/Data/REA Coral Demography & Cover/Raw Data from CoralNet/2015_2017_NWHI_CnetAnnotations_Laysan_formatted.csv",row.names = F)
 
+#write.csv(df, file="T:/Benthic/Data/REA Coral Demography & Cover/Raw Data from CoralNet/2015_2017_NWHI_CnetAnnotations_formatted.csv",row.names = F)
 
 
 
