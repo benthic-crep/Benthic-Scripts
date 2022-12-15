@@ -222,7 +222,7 @@ full_join(test1,oracle.site)
 #sm<-read.csv("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/data/SURVEY MASTER.csv")
 
 #Convert date formats
-sm$DATE_<-mdy(sm$DATE_)
+sm$DATE_<-lubridate::mdy(sm$DATE_)
 class(sm$DATE_)
 
 head(sm)
@@ -313,10 +313,12 @@ write.csv(wsd_t2, file="T:/Benthic/Data/REA Coral Demography & Cover/Summary Dat
 # CHECK THAT DATA IS READY FOR POOLING AND DO SOME FINAL CLEAN UPS --------
 
 #Identify which taxonomic level you would like to summarize
-wsd<-wsd_t1
+#wsd<-wsd_t1
+wsd<-wsd_t2
 
 #Define data columns
-data.cols<-T1data.cols
+#data.cols<-T1data.cols
+data.cols<-T2data.cols
 
 #remove permanent sites, climate sites and special projects
 wsd$PERM_SITE[is.na(wsd$PERM_SITE)]<-"0"
@@ -338,7 +340,7 @@ setdiff(unique(wsd$ISLAND),unique(sectors$ISLAND))
 
 
 # Final clean up before pooling -------------------------------------------
-sectors<-read.csv("M:/Benthic Scripts_LEA/Sectors-Strata-Areas.csv")
+sectors<-read.csv("C:/Users/courtney.s.couch/Documents/GitHub/fish-paste/data/Sectors-Strata-Areas.csv")
 seclu<-read.csv("T:/Benthic/Data/Lookup Tables/PacificNCRMP_Benthic_Sectors_Lookup_v4.csv") #list of SEC_NAME (smallest sector) and corresponding pooled sector scheme
 
 #Merge site data with Sector look up table. This table indicates how sectors should be pooled or not
@@ -415,7 +417,7 @@ a<-dcast(wsd, ISLAND + ANALYSIS_SEC + OBS_YEAR ~ STRATA, value.var="AREA_HA", le
 ##
 ###################################################################################################################################################################
 #Save site level data - need to send site, lat and long to Viztool
-write.csv(wsd,"T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Site/2022ViztoolSites_Cover.csv")
+#write.csv(wsd,"T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Site/2022ViztoolSites_Cover.csv")
 
 
 #Some sectors are pooled together, this will ensure that strata area is pooled correctly
@@ -423,6 +425,18 @@ area.tmp<-ddply(wsd,.(REGION,ISLAND,ANALYSIS_YEAR,ANALYSIS_SEC,STRATA,AREA_HA),s
 new.area<-ddply(area.tmp,.(REGION,ISLAND,ANALYSIS_YEAR,ANALYSIS_SEC,STRATA),summarize,AREA_HA_correct=sum(AREA_HA,na.rm=TRUE)) #calculate # of possible sites in a given stratum
 
 wsd<-left_join(wsd,new.area)
+
+#Keep just the coral genera columns and metadata
+taxa.cols<-wsd %>% dplyr::select(ACAS:ZO)
+coral.genera<-read.csv("T:/Benthic/Data/Lookup Tables/Genus_lookup.csv")
+coral.genera<-coral.genera %>% dplyr::filter(!SPCODE %in%c("AAAA","SSSS","WIRE","CALG","ZOSP","ZOPA","UNKN","TUBA"))
+gen<-coral.genera$GENUS_CODE
+gen<-unique(gen)
+gen<-c(gen,"COL","MASS","BR","ENC","FOL","FREE","TAB")
+taxa.cols<-taxa.cols[names(taxa.cols) %in% gen] #only include the list of genera we want
+wsd<-dplyr::select(wsd,-c(ACAS:ZO)) #remove original data columns
+wsd<-cbind(wsd,taxa.cols) #combine metadata and subsetted taxa
+######start here................
 
 ### CALCULATE MEAN AND VARIANCE WITHIN STRATA ###
 SPATIAL_POOLING_BASE<-c("REGION","ISLAND", "ANALYSIS_SEC", "REEF_ZONE", "STRATA")    
@@ -451,7 +465,8 @@ ri <- ri %>% mutate(ri,
                         TRUE ~ REGION_NAME))
 
 dpst<-left_join(dpst,ri)
-write.csv(dpst, file="T:/Benthic/Data/Data Requests/NCRMPViztool/2022/unformatted/BenthicCover_2010-2019_Tier1_STRATA_Viztool.csv",row.names = F)
+#write.csv(dpst, file="T:/Benthic/Data/Data Requests/NCRMPViztool/2022/unformatted/BenthicCover_2010-2019_Tier1_STRATA_Viztool.csv",row.names = F)
+write.csv(dpst, file="T:/Benthic/Data/Data Requests/NCRMPViztool/2022/unformatted/BenthicCover_2010-2019_Tier2b_STRATA_Viztool.csv",row.names = F)
 
 #SAVE BY SECTOR PER YEAR
 OUTPUT_LEVEL<-c("REGION","ISLAND","ANALYSIS_SEC","ANALYSIS_YEAR") 
@@ -463,7 +478,8 @@ colnames(dpsec$PooledSE)[6:ncol(dpsec$PooledSE)] <- paste("SE.", colnames(dpsec$
 dpsec<-left_join(dpsec$Mean,dpsec$PooledSE)
 dpsec<-left_join(dpsec,ri)
 
-write.csv(dpsec, file="T:/Benthic/Data/Data Requests/NCRMPViztool/2022/unformatted/BenthicCover_2010-2019_Tier1_SECTOR_Viztool.csv",row.names = F)
+#write.csv(dpsec, file="T:/Benthic/Data/Data Requests/NCRMPViztool/2022/unformatted/BenthicCover_2010-2019_Tier1_SECTOR_Viztool.csv",row.names = F)
+write.csv(dpsec, file="T:/Benthic/Data/Data Requests/NCRMPViztool/2022/unformatted/BenthicCover_2010-2019_Tier2b_SECTOR_Viztool.csv",row.names = F)
 
 
 # e.g. SAVE BY ISLAND PER YEAR
@@ -476,7 +492,8 @@ colnames(dpis$PooledSE)[5:ncol(dpis$PooledSE)] <- paste("SE.", colnames(dpis$Poo
 dpis<-left_join(dpis$Mean,dpis$PooledSE)
 dpis<-left_join(dpis,ri)
 
-write.csv(dpis, file="T:/Benthic/Data/Data Requests/NCRMPViztool/2022/unformatted/BenthicCover_2010-2019_Tier1_ISLAND_Viztool.csv",row.names = F)
+#write.csv(dpis, file="T:/Benthic/Data/Data Requests/NCRMPViztool/2022/unformatted/BenthicCover_2010-2019_Tier1_ISLAND_Viztool.csv",row.names = F)
+write.csv(dpis, file="T:/Benthic/Data/Data Requests/NCRMPViztool/2022/unformatted/BenthicCover_2010-2019_Tier2b_ISLAND_Viztool.csv",row.names = F)
 
 
 # e.g. SAVE BY REGION PER YEAR
@@ -486,7 +503,8 @@ colnames(dpr$Mean)[4:ncol(dpr$Mean)] <- paste("Mean.", colnames(dpr$Mean[,4:ncol
 colnames(dpr$PooledSE)[4:ncol(dpr$PooledSE)] <- paste("SE.", colnames(dpr$PooledSE[,4:ncol(dpr$PooledSE)]), sep = "")
 
 dpr<-left_join(dpr$Mean,dpr$PooledSE)
-write.csv(dpr, file="T:/Benthic/Data/Data Requests/NCRMPViztool/2022/unformatted/BenthicCover_2010-2019_Tier1_REGION_Viztool.csv",row.names = F)
+#write.csv(dpr, file="T:/Benthic/Data/Data Requests/NCRMPViztool/2022/unformatted/BenthicCover_2010-2019_Tier1_REGION_Viztool.csv",row.names = F)
+write.csv(dpr, file="T:/Benthic/Data/Data Requests/NCRMPViztool/2022/unformatted/BenthicCover_2010-2019_Tier2b_REGION_Viztool.csv",row.names = F)
 
 
 

@@ -33,7 +33,7 @@ site.demo<-unique(site.demo[,c("REGION","PooledSector_Viztool","DB_RZ","ANALYSIS
 head(site.demo)
 
 
-#Read in COVER dat3
+#Read in Tier 1 (functional groups) COVER data
 st.cover<-read.csv("T:/Benthic/Data/Data Requests/NCRMPViztool/2022/unformatted/BenthicCover_2010-2019_Tier1_STRATA_Viztool.csv")
 st.cover<-st.cover[,c("REGION","ISLAND", "ANALYSIS_SEC","STRATA","ANALYSIS_YEAR","N","Mean.CORAL","Mean.CCA","Mean.MA","SE.CORAL","SE.CCA","SE.MA")]
 st.cover$GENUS_CODE<-"SSSS"
@@ -59,6 +59,42 @@ colnames(r.cover)[colnames(r.cover)=="N"]<-"N_Cover"
 site.cover<-read.csv("T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Site/2022ViztoolSites_Cover.csv")
 site.cover<-site.cover[,c("REGION","PooledSector_Viztool","STRATAcode","ANALYSIS_YEAR","SITEVISITID","SITE","LATITUDE","LONGITUDE")]
 site.cover$GENUS_CODE<-"SSSS"
+
+
+#Read in Tier 2b (Genus level) COVER data
+st.cover2<-read.csv("T:/Benthic/Data/Data Requests/NCRMPViztool/2022/unformatted/BenthicCover_2010-2019_Tier2b_STRATA_Viztool.csv")
+
+
+st.cover2<- st.cover2 %>% pivot_longer(
+  cols = Mean.ENC:SE.ANTI,
+  names_to = "GENUS_CODE",
+  values_to = "Value")
+
+
+st.cover2<-st.cover2[,c("REGION","ISLAND", "ANALYSIS_SEC","STRATA","ANALYSIS_YEAR","N","Mean.CORAL","Mean.CCA","Mean.MA","SE.CORAL","SE.CCA","SE.MA")]
+st.cover2<-st.cover2[,c("REGION","ISLAND", "ANALYSIS_SEC","STRATA","ANALYSIS_YEAR","N","Mean.CORAL","Mean.CCA","Mean.MA","SE.CORAL","SE.CCA","SE.MA")]
+
+st.cover$GENUS_CODE<-"SSSS"
+colnames(st.cover)[colnames(st.cover)=="N"]<-"N_Cover"
+colnames(st.cover)[colnames(st.cover)=="ANALYSIS_SEC"]<-"SECTOR"
+
+sec.cover<-read.csv("T:/Benthic/Data/Data Requests/NCRMPViztool/2022/unformatted/BenthicCover_2010-2019_Tier2b_SECTOR_Viztool.csv")
+sec.cover<-sec.cover[,c("REGION","ANALYSIS_SEC","ANALYSIS_YEAR","N","Mean.CORAL","Mean.CCA","Mean.MA","SE.CORAL","SE.CCA","SE.MA")]
+sec.cover$GENUS_CODE<-"SSSS"
+colnames(sec.cover)[colnames(sec.cover)=="N"]<-"N_Cover"
+colnames(sec.cover)[colnames(sec.cover)=="ANALYSIS_SEC"]<-"SECTOR"
+
+isl.cover<-read.csv("T:/Benthic/Data/Data Requests/NCRMPViztool/2022/unformatted/BenthicCover_2010-2019_Tier2b_ISLAND_Viztool.csv")
+isl.cover<-isl.cover[,c("REGION","ISLAND","ANALYSIS_YEAR","N","Mean.CORAL","Mean.CCA","Mean.MA","SE.CORAL","SE.CCA","SE.MA")]
+isl.cover$GENUS_CODE<-"SSSS"
+colnames(isl.cover)[colnames(isl.cover)=="N"]<-"N_Cover"
+
+r.cover<-read.csv("T:/Benthic/Data/Data Requests/NCRMPViztool/2022/unformatted/BenthicCover_2010-2019_Tier2b_REGION_Viztool.csv")
+r.cover<-r.cover[,c("REGION","ANALYSIS_YEAR","N","Mean.CORAL","Mean.CCA","Mean.MA","SE.CORAL","SE.CCA","SE.MA")]
+r.cover$GENUS_CODE<-"SSSS"
+colnames(r.cover)[colnames(r.cover)=="N"]<-"N_Cover"
+
+
 
 
 ChangeAnalysisYear<-function(data){

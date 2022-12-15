@@ -197,8 +197,23 @@ write.csv(dpsec, file="T:/Benthic/Data/REA Coral Demography & Cover/Summary Data
 
 
 
-#####NOTE: We are are not summarizing to ISLAND level because we've dropped quite a few strata and sectors. 
-#Talk to Courtney if you want island-level time series data.
+#####Be careful when using ISLAND level time series data because we've dropped quite a few strata and sectors. 
+# e.g. SAVE BY SECTOR PER YEAR
+OUTPUT_LEVEL<-c("REGION","ISLAND","ANALYSIS_YEAR") 
+dpisl<-Calc_Pooled_Simple(dps$Mean, dps$SampleVar, data.cols, OUTPUT_LEVEL, "AREA_HA")
+dpisl<-as.data.frame(dpisl)
+dpisl<-subset(dpisl,select=-c(PooledSE.REGION:PooledSE.N))
+colnames(dpisl)[1:4]<-sub("Mean.","",colnames(dpisl)[1:4]) #remove mean from metadata columns
+
+nstrat<-ddply(wsd,.(ISLAND,ANALYSIS_YEAR),
+              summarize,
+              nstrat=length(unique(STRATANAME)))
+
+dpsec<-left_join(dpsec,nstrat)
+
+
+write.csv(dpisl, file="T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Island/BenthicCover_2010-2019_Tier1_ISLAND_forTimesSeries.csv",row.names=F)
+
 
 
 
