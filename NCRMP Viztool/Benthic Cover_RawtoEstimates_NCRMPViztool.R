@@ -167,11 +167,25 @@ ab[is.na(ab$REEF_ZONE),]$REEF_ZONE<-"UNKNOWN"
 ab[is.na(ab$HABITAT_CODE),]$HABITAT_CODE<-"UNKNOWN"
 
 
-#Generate a SITE table
-sites<-ddply(ab,.(METHOD,REGION,OBS_YEAR,ISLAND,PERM_SITE,CLIMATE_STATION_YN,SITE,LATITUDE,LONGITUDE,REEF_ZONE,DEPTH_BIN),
+#Generate a SITE table- excluding lat and long for now because there are issues that we need to address with Michael- use lat and long from SM below
+sites<-ddply(ab,.(METHOD,REGION,OBS_YEAR,ISLAND,PERM_SITE,CLIMATE_STATION_YN,SITE,REEF_ZONE,DEPTH_BIN),
              summarize,x=sum(POINTS))
 sites$x<-NULL
 dim(sites)
+
+
+#We have some likely misidentified points in the Hawaiian Island (e.g. Acanthastrea in the MHI).
+#Read in list of hawaii codes and change everything that isn't in the list to UNKN
+hawaiicodes<-read.csv("T:/Benthic/Data/Lookup Tables/Hawaii_Photoquad_codes.csv")
+
+ab$TIER_1<-ifelse(ab$REGION %in% c("MHI","NWHI") & !(ab$TIER_3 %in% hawaiicodes$TIER_3),"UC",ab$TIER_1)
+ab$CATEGORY_NAME<-ifelse(ab$REGION %in% c("MHI","NWHI") & !(ab$TIER_3 %in% hawaiicodes$TIER_3),"Unclassified",ab$CATEGORY_NAME)
+ab$TIER_2<-ifelse(ab$REGION %in% c("MHI","NWHI") & !(ab$TIER_3 %in% hawaiicodes$TIER_3),"UNK",ab$TIER_2)
+ab$SUBCATEGORY_NAME<-ifelse(ab$REGION %in% c("MHI","NWHI") & !(ab$TIER_3 %in% hawaiicodes$TIER_3),"Unclassified/Unknown",ab$SUBCATEGORY_NAME)
+ab$TIER_2b<-ifelse(ab$REGION %in% c("MHI","NWHI") & !(ab$TIER_3 %in% hawaiicodes$TIER_3),"Unclassified/Unknown",ab$TIER_2b)
+ab$T2b_DESC<-ifelse(ab$REGION %in% c("MHI","NWHI") & !(ab$TIER_3 %in% hawaiicodes$TIER_3),"UC",ab$T2b_DESC)
+ab$TIER_3<-ifelse(ab$REGION %in% c("MHI","NWHI") & !(ab$TIER_3 %in% hawaiicodes$TIER_3),"UNK",ab$TIER_3)
+ab$GENERA_NAME<-ifelse(ab$REGION %in% c("MHI","NWHI") & !(ab$TIER_3 %in% hawaiicodes$TIER_3),"Unclassified/Unknown",ab$GENERA_NAME)
 
 
 # Generate Site-level Data at TIER 1 level--------------
@@ -219,7 +233,7 @@ full_join(test1,oracle.site)
 #Remember this will have all the sites ever surveyed not just StRS sites
 #You will need TRANSECT_PHOTOS, EXCLUDE FLAG and Oceanography from the SM file to be able to filter out OCC and Special Project sites
 
-#sm<-read.csv("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/data/SURVEY MASTER.csv")
+sm<-read.csv("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/data/SURVEY MASTER.csv")
 
 #Convert date formats
 sm$DATE_<-lubridate::mdy(sm$DATE_)
@@ -227,7 +241,7 @@ class(sm$DATE_)
 
 head(sm)
 
-sm<-sm[,c("DATE_","MISSIONID","SITEVISITID","SITE","OCC_SITEID","ANALYSIS_YEAR","OBS_YEAR","SEC_NAME","EXCLUDE_FLAG","TRANSECT_PHOTOS","Oceanography")]
+sm<-sm[,c("DATE_","MISSIONID","SITEVISITID","SITE","OCC_SITEID","ANALYSIS_YEAR","OBS_YEAR","SEC_NAME","EXCLUDE_FLAG","TRANSECT_PHOTOS","Oceanography","LATITUDE_LOV","LONGITUDE_LOV")]
 wsd_t1<-merge(sm,wsd,by=c("SITEVISITID","SITE","OBS_YEAR"),all.y=TRUE)
 head(wsd_t1)
 
@@ -284,7 +298,7 @@ full_join(test1,oracle.site)
 #Remember this will have all the sites ever surveyed not just StRS sites
 #You will need TRANSECT_PHOTOS, EXCLUDE FLAG and Oceanography from the SM file to be able to filter out OCC and Special Project sites
 
-#sm<-read.csv("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/data/SURVEY MASTER.csv")
+sm<-read.csv("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/data/SURVEY MASTER.csv")
 
 #Convert date formats
 sm$DATE_<-mdy(sm$DATE_)
@@ -309,6 +323,18 @@ wsd_t2<-subset(wsd_t2,select= -c(WAND,UNK,TAPE,MOBF,SHAD))
 #Save Tier 1 site data to t drive. This file has all sites (fish, benthic and OCC) that were annoated between 2010 and 2018
 write.csv(wsd_t2, file="T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Site/BenthicCover_2010-2020_Tier2b_SITE.csv",row.names=F)
 
+#Keep just the coral genera columns and metadata
+taxa.cols<-wsd_t2 %>% dplyr::select(ACAS:ZO)
+coral.genera<-read.csv("T:/Benthic/Data/Lookup Tables/Genus_lookup.csv")
+coral.genera<-coral.genera %>% dplyr::filter(!SPCODE %in%c("AAAA","SSSS","WIRE","CALG","ZOSP","ZOPA","UNKN","TUBA"))
+gen<-coral.genera$GENUS_CODE
+gen<-unique(gen)
+#gen<-c(gen,"COL","MASS","BR","ENC","FOL","FREE","TAB") #not including general morphology groups 
+taxa.cols<-taxa.cols[names(taxa.cols) %in% gen] #only include the list of genera we want
+wsd_t2<-dplyr::select(wsd_t2,-c(ACAS:ZO)) #remove original data columns
+wsd_t2<-cbind(wsd_t2,taxa.cols) #combine metadata and subsetted taxa
+wsd_t2<-filter(wsd_t2,OBS_YEAR>=2013) # drop sites before 2013- corals only identified to morphological group and algae only to CCA, UPMA, EMA and BGMA
+
 
 # CHECK THAT DATA IS READY FOR POOLING AND DO SOME FINAL CLEAN UPS --------
 
@@ -318,7 +344,7 @@ wsd<-wsd_t2
 
 #Define data columns
 #data.cols<-T1data.cols
-data.cols<-T2data.cols
+data.cols<-colnames(taxa.cols)
 
 #remove permanent sites, climate sites and special projects
 wsd$PERM_SITE[is.na(wsd$PERM_SITE)]<-"0"
@@ -426,17 +452,6 @@ new.area<-ddply(area.tmp,.(REGION,ISLAND,ANALYSIS_YEAR,ANALYSIS_SEC,STRATA),summ
 
 wsd<-left_join(wsd,new.area)
 
-#Keep just the coral genera columns and metadata
-taxa.cols<-wsd %>% dplyr::select(ACAS:ZO)
-coral.genera<-read.csv("T:/Benthic/Data/Lookup Tables/Genus_lookup.csv")
-coral.genera<-coral.genera %>% dplyr::filter(!SPCODE %in%c("AAAA","SSSS","WIRE","CALG","ZOSP","ZOPA","UNKN","TUBA"))
-gen<-coral.genera$GENUS_CODE
-gen<-unique(gen)
-gen<-c(gen,"COL","MASS","BR","ENC","FOL","FREE","TAB")
-taxa.cols<-taxa.cols[names(taxa.cols) %in% gen] #only include the list of genera we want
-wsd<-dplyr::select(wsd,-c(ACAS:ZO)) #remove original data columns
-wsd<-cbind(wsd,taxa.cols) #combine metadata and subsetted taxa
-######start here................
 
 ### CALCULATE MEAN AND VARIANCE WITHIN STRATA ###
 SPATIAL_POOLING_BASE<-c("REGION","ISLAND", "ANALYSIS_SEC", "REEF_ZONE", "STRATA")    
