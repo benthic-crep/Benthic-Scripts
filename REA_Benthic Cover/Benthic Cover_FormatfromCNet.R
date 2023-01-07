@@ -35,10 +35,11 @@ colnames(lu)[colnames(lu)=="Cnet_SHORT_CODE"]<-"SHORT_CODE"
 #read in data directly from Cnet
 # f15<-read.csv("2015_NWHI_CnetAnnotations_fish.csv")
 # b17<-read.csv("2017_NWHI_CnetAnnotations_benthic.csv")
-laysan<-read.csv("2015_2017_NWHI_CnetAnnotations_Laysan.csv")
+#laysan<-read.csv("2015_2017_NWHI_CnetAnnotations_Laysan.csv")
+nwhi<-read.csv("2014_2017_NWHI_CnetAnnotations.csv")
 
 #tmp<-rbind(f15,b17)
-tmp<-laysan
+tmp<-nwhi
 
 new.cov<-tmp
 head(new.cov)
@@ -71,7 +72,7 @@ new.cov<-new.cov %>%
 
 #Extract replicate and image number from file name
 ri<-new.cov %>%
-    separate(ORIGINAL_FILE_NAME,c("ISL","S_NUM","YEAR","REPLICATE","IMAGE_NUMBER")) %>%
+    separate(ORIGINAL_FILE_NAME,c("ISL","S_NUM","YEAR","REPLICATE","IMAGE_NUMBER","IMG_TYPE")) %>%
     dplyr::select(REPLICATE,IMAGE_NUMBER)
 head(ri)
 
@@ -109,10 +110,7 @@ df<-new.cov %>%
   left_join(cn.lu)
 df$FUNCTIONAL_GROUP<-NA #Functional group is wierd- it can have multiple categories for a single code (e.g. CCAH can be both Algae and CCA)- ignoring
 
-df<-df %>% dplyr::select(c.name) %>% #only include columns in the larger cnet dataset
-  dplyr::filter(ISLAND!="Midway") %>% #remove midway
-  dplyr::filter(REEF_ZONE=="Forereef") #Only include forereef sites
-  
+df<-df %>% dplyr::select(c.name)#only include columns in the larger cnet dataset
 
 head(df)
 nrow(new.cov);nrow(df)
@@ -123,9 +121,10 @@ lapply(df, summary)
 table(df$OBS_YEAR,df$ISLAND)
 
 df$REGION_NAME<-"Northwestern Hawaiian Islands"
-df$ISLANDCODE<-"LAY"
 
-write.csv(df, file="T:/Benthic/Data/REA Coral Demography & Cover/Raw Data from CoralNet/2015_2017_NWHI_CnetAnnotations_Laysan_formatted.csv",row.names = F)
+df<-df %>% dplyr::filter(OBS_YEAR!=2016)#already in the CoralNet data from Oracle
+
+write.csv(df, file="T:/Benthic/Data/REA Coral Demography & Cover/Raw Data from CoralNet/2014-2017_NWHI_CnetAnnotations_formatted.csv",row.names = F)
 
 #write.csv(df, file="T:/Benthic/Data/REA Coral Demography & Cover/Raw Data from CoralNet/2015_2017_NWHI_CnetAnnotations_formatted.csv",row.names = F)
 

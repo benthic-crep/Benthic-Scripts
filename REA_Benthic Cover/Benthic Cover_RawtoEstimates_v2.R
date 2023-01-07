@@ -1,6 +1,5 @@
 rm(list=ls())
 
-setwd("C:/Users/Courtney.S.Couch/Documents/Courtney's Files/R Files/ESD/BIA")
 
 library(gdata)             # needed for drop_levels()
 library(reshape)           # reshape library inclues the cast() function used below
@@ -30,13 +29,11 @@ load("T:/Benthic/Data/REA Coral Demography & Cover/Raw from Oracle/ALL_BIA_STR_C
 
 cnet$SITE<-SiteNumLeadingZeros(cnet$SITE)
 
-#Temporary work around for merging in 2015 and 2017 NWHI data that hasn't been uploaded to Oracle yet- remove this once Michael has incorporated data
-new.nw<-read.csv("T:/Benthic/Data/REA Coral Demography & Cover/Raw Data from CoralNet/2015_2017_NWHI_CnetAnnotations_formatted.csv")
+#Temporary work around for merging in 2014-2017 NWHI data that hasn't been uploaded to Oracle yet- remove this once Michael has incorporated data
+new.nw<-read.csv("T:/Benthic/Data/REA Coral Demography & Cover/Raw Data from CoralNet/2014-2017_NWHI_CnetAnnotations_formatted.csv")
 new.nw<-new.nw %>% drop_na(ROUNDID) #remove blank rows
-new.laysan<-read.csv("T:/Benthic/Data/REA Coral Demography & Cover/Raw Data from CoralNet/2015_2017_NWHI_CnetAnnotations_Laysan_formatted.csv")
-new.laysan<-new.laysan %>% drop_na(ROUNDID) #remove blank rows
 
-new.cnet<-rbind(new.nw,new.laysan)
+new.cnet<-new.nw
 
 class(new.cnet$DATE_)
 class(new.cnet$DATE_TAKEN)
@@ -65,8 +62,7 @@ cnet_tab<-ddply(cnet,.(CATEGORY_CODE,CATEGORY_NAME,SUBCATEGORY_CODE,SUBCATEGORY_
 #write.csv(cnet_tab, file="CNET categories.csv")
 
 sm<-read.csv("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/data/SURVEY MASTER.csv")
-sm$SITE<-SiteNumLeadingZeros(sm$SITE)
-sectors<-read.csv("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/data/Sectors-Strata-Areas_Cover.csv")
+sectors<-read.csv("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/data/Sectors-Strata-Areas.csv")
 
 test<-subset(sm,OBS_YEAR=="2019",TRANSECT_PHOTOS=="-1");nrow(test)
 
