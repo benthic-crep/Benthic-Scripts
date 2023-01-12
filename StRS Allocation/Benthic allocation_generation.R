@@ -1,12 +1,12 @@
 ### Allocation calculations for reef fish surveys
 
-# June 24, 2020
-# Questions: Kaylyn.McCoy@noaa.gov
+# January 11, 2023
+# Questions: Courtney Couch -derived from original script created by Kaylyn McCoy
 
 #__________________________________
-# This pulls in the last 3 rounds (or so) of data and calculates variance at the trophic group level (but this pooling level can be changed). Proportional Variance for each trophic group is calculated at the strata level and averaged for each strata. Proportional area is calculated from the sectors file at the island level, and is multiplied by the average variance at each strata. This becomes the proportional weight and should be used in conjunction with the proprotional area to allocate survey effort.
+# This pulls in the last 2 rounds (or so) of data and calculates variance at the genus level. Proportional Variance for each genus is calculated at the strata level and averaged for each strata. Proportional area is calculated from the sectors file at the island level, and is multiplied by the average variance at each strata. This becomes the proportional weight and should be used in conjunction with the proprotional area to allocate survey effort.
 
-# !!!!! FILES NEEDED: First run data pooling scripts 01 and 02 from GitHub to get site level averages: fish-paste/munge_REA/01_gitFishREACleanData and 02_gitFishREACalcWD. Summary data files you need are 1) TMPwsd.Rdata, and 2) TMPsectors.Rdata. You will also need the cruise itinerary and the number of sites that can be surveyed in one day.
+# !!!!! FILES NEEDED: First run data pooling scripts 01 and 02 from GitHub to get site level averages: T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Site/BenthicREA_sitedata_GENUS.csv. Summary data files you need are 1) TMPwsd.Rdata, and 2) TMPsectors.Rdata. You will also need the cruise itinerary and the number of sites that can be surveyed in one day.
 
 # If we aren't visiting all sectors during the field mission, remove that sector from this calculation - i.e. if we aren't going to all marine protected areas in Guam or we aren't sampling backreef in the NWHI, remove those areas in the beginning.
 #__________________________________
@@ -304,10 +304,40 @@ k$AREA_ALLOCATION<-round(k$TOTSITES*k$AREA_PCT)
 write.csv(k,file="N_MARIANA_allocation.csv")
 
 # American Samoa -------------------------------------------------------------------------
-#identify which target taxa you would like to use for allocation
+#pool sectors according to how you want them allocated
+sectors$SEC_NAME<-ifelse(sectors$SEC_NAME %in% c("TAU_OPEN","TAU_SANCTUARY"),"TAU_ALL",as.character(sectors$SEC_NAME))
+sectors$SEC_NAME<-ifelse(sectors$SEC_NAME %in% c("SWA_OPEN","SWA_SANCTUARY"),"SWA_ALL",as.character(sectors$SEC_NAME))
+sectors$SEC_NAME<-ifelse(sectors$SEC_NAME %in% c("TUT_FAGALUA","TUT_FAGATELE"),"TUT_FAGALUA_FAGATELE",as.character(sectors$SEC_NAME))
+sectors$SEC_NAME<-ifelse(sectors$SEC_NAME %in% c("TUT_AUNUU_A","TUT_AUNUU_B"),"TUT_AUNUU",as.character(sectors$SEC_NAME))
+ 
+View(sectors)
+
+#Add up NH (number of 250m2 grid areas in stratum) for the sectors that were pooled
+tmp<-unique(sectors[,c("SEC_NAME","REEF_ZONE","DEPTH_BIN","AREA_HA")])
+
+new.AREA_HA<- tmp %>% group_by(SEC_NAME,REEF_ZONE,DEPTH_BIN) %>%
+              summarise(new.AREA_HA=sum(AREA_HA))
+
+nrow(sectors) #double check that the same number of rows are present before and after joining
+sectors<-left_join(sectors,new.AREA_HA)
+sectors<-subset(sectors,select=c(REGION,ISLAND,SEC_NAME,REEF_ZONE,DEPTH_BIN,new.AREA_HA)) #remove old AREA_HA column
+sectors<-sectors %>% dplyr::rename(AREA_HA=new.AREA_HA) #rename AREA_HA
+sectors<-unique(sectors[,c("REGION","ISLAND","SEC_NAME","REEF_ZONE","DEPTH_BIN","AREA_HA")])
+nrow(sectors)#double check that the same number of rows are present before and after joining
+
+#create pooled sectors in site-level data
+wsd$SEC_NAME<-ifelse(wsd$SEC_NAME %in% c("TAU_OPEN","TAU_SANCTUARY"),"TAU_ALL",as.character(wsd$SEC_NAME))
+wsd$SEC_NAME<-ifelse(wsd$SEC_NAME %in% c("SWA_OPEN","SWA_SANCTUARY"),"SWA_ALL",as.character(wsd$SEC_NAME))
+wsd$SEC_NAME<-ifelse(wsd$SEC_NAME %in% c("TUT_FAGALUA","TUT_FAGATELE"),"TUT_FAGALUA_FAGATELE",as.character(wsd$SEC_NAME))
+wsd$SEC_NAME<-ifelse(wsd$SEC_NAME %in% c("TUT_AUNUU_A","TUT_AUNUU_B"),"TUT_AUNUU",as.character(wsd$SEC_NAME))
+
+View(wsd)
+
+
+#identify which target taxa you would like to use for allocation - because we had such limited sampling in 2018, using all years. Normally just most recent year
 taxasum<-subset(wsd,GENUS_CODE!="SSSS") %>% filter(REGION == "SAMOA", OBS_YEAR>"2014") %>% 
   group_by(ISLAND,GENUS_CODE) %>% # group by strata
-  summarize(adults = mean(AdColDen),n=n()) %>% # calculate variance (sd) for each trophic level 
+  summarize(adults = mean(AdColDen),n=n()) %>% # 
   drop_na()
 View(taxasum)
 
@@ -384,14 +414,14 @@ k<-select(j,-mean_v)
 # get list of islands
 unique(k$ISLAND)
 # Value (n) is number of sites we can survey in 1 day (this comes from team lead, based on small boats and number of divers)
-n<-7
+n<-7.5 #based on 2022 cruise
 # Plug in number of days we have at each island here (using each island's 3-letter code), and multiply based on number of sites we can survey in 1 day (n)
 
-ofu<-5*n 
-ros<-4*n
-swa<-4*n
-tau<-4*n
-tut<-15*n
+ofu<-3*n 
+ros<-3*n
+swa<-3*n
+tau<-2*n
+tut<-10*n
 
 #create a field for sites and give a dummy variable = 1
 k$TOTSITES<-1
@@ -407,7 +437,7 @@ k$WEIGHTED_ALLOCATION<-round(k$TOTSITES*k$AREA_VAR_PCT)
 k$AREA_ALLOCATION<-round(k$TOTSITES*k$AREA_PCT)
 
 # save file
-write.csv(k,file="SAMOA_2022allocation_bystratum.csv")
+write.csv(k,file="SAMOA_2023allocation_bystratum.csv") #this allocation will need to be manually tweaked to make sure we have at least 2 sites/stratum and a reasonable # of deep sites
 
 # PRIAs -------------------------------------------------------------------------
 taxasum<-subset(wsd,GENUS_CODE!="SSSS") %>% filter(REGION == "PRIAs", OBS_YEAR>="2015") %>% 
