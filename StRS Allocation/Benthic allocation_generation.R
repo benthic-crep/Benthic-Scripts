@@ -418,9 +418,9 @@ n<-7.5 #based on 2022 cruise
 # Plug in number of days we have at each island here (using each island's 3-letter code), and multiply based on number of sites we can survey in 1 day (n)
 
 ofu<-3*n 
-ros<-3*n
+ros<-2.5*n
 swa<-3*n
-tau<-2*n
+tau<-2.5*n
 tut<-10*n
 
 #create a field for sites and give a dummy variable = 1

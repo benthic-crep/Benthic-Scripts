@@ -1,15 +1,6 @@
 #Diver Comparision
 rm(list=ls())
 
-#Set Run Flags
-DEBUG=TRUE
-
-#LOAD LIBRARY FUNCTIONS ... 
-source("C:/Users/Courtney.S.Couch/Documents/GitHub/Benthic-Scripts/Functions/Benthic_Functions_newApp_vTAOfork.R")
-source("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/lib/core_functions.R")
-source("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/lib/GIS_functions.R")
-
-
 df<-read.csv("C:/Users/Courtney.S.Couch/Documents/GitHub/Benthic-Scripts/REA_CoralDemography/QC and Diver Comparisions/April 2022/Apr2022REA_TrainingDives.csv")
 df$SiteSeg<-paste(df$Site,df$Segment,sep="_")
 df$DateTax<-paste(df$DATE_,df$Taxon,sep="_")
