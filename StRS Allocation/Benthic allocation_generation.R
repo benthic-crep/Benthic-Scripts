@@ -440,7 +440,10 @@ k$AREA_ALLOCATION<-round(k$TOTSITES*k$AREA_PCT)
 write.csv(k,file="SAMOA_2023allocation_bystratum.csv") #this allocation will need to be manually tweaked to make sure we have at least 2 sites/stratum and a reasonable # of deep sites
 
 # PRIAs -------------------------------------------------------------------------
-taxasum<-subset(wsd,GENUS_CODE!="SSSS") %>% filter(REGION == "PRIAs", OBS_YEAR>="2015") %>% 
+years<-c("2018")
+#years<-c("2015","2018")
+
+taxasum<-subset(wsd,GENUS_CODE!="SSSS") %>% filter(REGION == "PRIAs", OBS_YEAR %in% years) %>% 
   group_by(ISLAND,GENUS_CODE) %>% # group by strata
   summarize(adults = mean(AdColDen),n=n()) %>% # calculate variance (sd) for each trophic level 
   drop_na()
@@ -452,11 +455,12 @@ wsd<-droplevels(wsd)
 
 
 # filter past data for region and the last few years/rounds
-sam<-wsd %>% filter(REGION == "PRIAs", OBS_YEAR>="2015") %>% 
+sam<-wsd %>% filter(REGION == "PRIAs", OBS_YEAR %in% years) %>% 
   group_by(ISLAND,SEC_NAME,REEF_ZONE,DEPTH_BIN,GENUS_CODE) %>% # group by strata
   summarize(SD_AdColDen = sd(AdColDen),n=n()) %>% # calculate variance (sd) for each genus
   drop_na() # drop strata with no data
 View(sam)
+
 
 # # # !!!!!! filter for reef zones/islands NOT being surveyed here !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 unique(sam$SEC_NAME)
@@ -522,11 +526,18 @@ unique(k$ISLAND)
 n<-6
 # Plug in number of days we have at each island here (using each island's 3-letter code), and multiply based on number of sites we can survey in 1 day (n)
 
-jar<-5*n 
-pal<-8*n
-kin<-5*n
-how<-4*n
-bak<-4*n
+# jar<-5*n 
+# pal<-8*n
+# kin<-5*n
+# how<-4*n
+# bak<-4*n
+
+#2023- data from SfM collected by random site team. Using total number of sites based on what we think is possible
+jar<-32
+pal<-38
+kin<-24
+how<-18
+bak<-16
 
 #create a field for sites and give a dummy variable = 1
 k$TOTSITES<-1
@@ -543,7 +554,7 @@ k$WEIGHTED_ALLOCATION<-round(k$TOTSITES*k$AREA_VAR_PCT)
 k$AREA_ALLOCATION<-round(k$TOTSITES*k$AREA_PCT)
 
 # save file
-write.csv(k,file="PRIAs_2022allocation_bystratum2015-2018.csv")
+write.csv(k,file="PRIAs_2023allocation_benthic_w2018only.csv")
 
 # MHIs -------------------------------------------------------------------------
 
