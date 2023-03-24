@@ -13,7 +13,7 @@ library(RODBC)            # to connect to oracle
 Sys.setenv(ODBCINI = "/library/ODBC/odbc.ini")
 
 ##*******## jump down to FISH REA WORKINGS if already saved as a .rfile
-ch <- odbcConnect("CRED_Oracle", uid = "CCOUCH", pwd = "XXXXXX")
+ch <- odbcConnect("GIS", uid = "CCOUCH", pwd = "xxxx")
 ##
 ## #list available tables
 tv<-sqlTables(ch, tableType = "VIEW")
@@ -79,7 +79,7 @@ cli <- sqlQuery(ch, paste("SELECT * FROM GISDAT.V_BIA_PERC_COVER_PHOTO_CLI_")); 
 save(cli, file="ALL_BIA_CLIMATE_PERM.rdata")
 
 # Coral Net Benthic Data
-cnet <- sqlQuery(ch, paste("SELECT * FROM GISDAT.MV_BIA_CNET_ANALYSIS_DATA")); head(cnet)
+cnet <- sqlQuery(ch, paste("SELECT * FROM GISDAT.MV_BIA_CNET_ANALYSIS_DATA_UNION")); head(cnet)
 save(cnet, file="ALL_BIA_STR_CNET.rdata")
 
 cnet_incR <- sqlQuery(ch, paste("SELECT * FROM GISDAT.MV_BIA_CNET_ANALYSIS_DATA_ALL")); head(cnet_incR)

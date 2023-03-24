@@ -15,8 +15,8 @@ rm(list=ls())
 # source("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/lib/core_functions.R")
 # source("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/lib/GIS_functions.R")
 
-source("M:/Benthic Scripts_LEA/Benthic_Functions_newApp_vTAOfork.R")
-source("M:/Benthic Scripts_LEA/core_functions.R")
+source("C:/Users/courtney.s.couch/Documents/GitHub/Benthic-Scripts/Functions/Benthic_Functions_newApp_vTAOfork.R")
+source("C:/Users/courtney.s.couch/Documents/GitHub/fish-paste/lib/core_functions.R")
 
 
 ## LOAD benthic data
@@ -42,6 +42,9 @@ head(subset(site.data.gen2,EXCLUDE_FLAG==-1))
 #survey_master<-read.csv("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/data/SURVEY MASTER.csv") #list of all sites
 survey_master<-read.csv("M:/Benthic Scripts_LEA/SURVEY MASTER.csv") #list of all sites
 
+#Read in list of SEC_NAME (smallest sector), the corresponding pooled sector scheme PooledSector_Viztool) that we are using for Viztool and strata codes/names. 
+#Sectors are pooled when there is inadequate sample size for a given single sector. The pooled sectors are the same across years
+#PooledSector_Demo_1 is the courser pooling that we typically use. Erica and Viztool had difficulty visualize sectors this large especially for the MHI.
 seclu<-read.csv("T:/Benthic/Data/Lookup Tables/PacificNCRMP_Benthic_Sectors_Lookup_v4.csv") #list of SEC_NAME (smallest sector) and corresponding pooled sector scheme
 
 
@@ -57,7 +60,7 @@ write.csv(site.data.gen2,"T:/Benthic/Data/REA Coral Demography & Cover/Summary D
 
 # Final clean up before pooling -------------------------------------------
 
-#Change island name for Alamagan, Guguan and Sarigan to SGA- small islands never sampled adequately enough 
+#Change island name for Alamagan, Guguan and Sarigan to SGA- small islands never sampled adequately enough & mirror's fish data
 site.data.gen2$ISLAND<-ifelse(site.data.gen2$ISLAND %in% c("Alamagan","Guguan","Sarigan"),"SGA",as.character(site.data.gen2$ISLAND)) #Combine islands
 
 
@@ -73,7 +76,7 @@ site.data.gen2 <- site.data.gen2 %>% mutate(site.data.gen2,
                             TRUE ~ REGION_NAME))
 
 
-#Remove NWHI islands only surveyed by PMNM
+#Remove NWHI islands only surveyed by PMNM and not sampled well
 remove<-c("Laysan","Maro","Midway")
 site.data.gen2<-dplyr::filter(site.data.gen2, !PooledSector_Viztool %in% remove)
 
@@ -85,7 +88,7 @@ site.data.gen2$REGION_YEAR<-ifelse((site.data.gen2$ISLAND=="Wake" & site.data.ge
 remove<-c("PRIAs_2016","PRIAs_2017")
 site.data.gen2<-dplyr::filter(site.data.gen2, !REGION_YEAR %in% remove)
 
-#remove Guam MPA 2017 data
+#remove Guam MPA 2017 data - not enough sites across all the MPAs
 site.data.gen2<-dplyr::filter(site.data.gen2, !(PooledSector_Viztool == "GUA_MP" & ANALYSIS_YEAR == "2017"))
 
 

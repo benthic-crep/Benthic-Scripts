@@ -1,5 +1,6 @@
 #This script generates data for the NCRMP Viztool
 #It's a modification from Benthic_Cover_RawtoEstimates_v2
+#This script reads in the raw point level data and generates site, strata, sector, island and regional roll ups at the Tier 1 and Tier 2b (genus) level
 #Updates: 
 #1. No longer combining all backreef depths and Lagoon depths into "Backreef_All" and "Lagoon_All"
 #2. Adding script to calculate regional estimates of cover

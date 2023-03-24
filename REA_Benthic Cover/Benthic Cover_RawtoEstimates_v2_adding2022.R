@@ -27,7 +27,8 @@ bia$SITE<-SiteNumLeadingZeros(bia$SITE)
 #2019 NWHI data not in these view because it was analyzed as part of a bleaching dataset
 #load("T:/Benthic/Data/REA Coral Demography & Cover/Raw from Oracle/ALL_BIA_STR_CNET.rdata") #load data
 
-cnet<-read.csv("T:/DataManagement/DataRequests/Courtney Couch/2023/MV_BIA_CNET_ANALYSIS_DATA.csv");cnet<-select(cnet,-c(SITE,TYPE))
+#cnet<-read.csv("T:/DataManagement/DataRequests/Courtney Couch/2023/MV_BIA_CNET_ANALYSIS_NCEI_DATA_ALL.csv");cnet<-select(cnet,-c(SITE,TYPE))
+cnet<-read.csv("T:/DataManagement/DataRequests/Courtney Couch/2023/MV_BIA_CNET_ANALYSIS_DATA_pre-2023.csv");cnet<-select(cnet,-c(SITE,TYPE))
 
 sm<-read.csv("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/data/SURVEY MASTER.csv")
 sm<-select(sm,c("SITEVISITID","SITE"))
@@ -119,14 +120,15 @@ oracle.site
 
 #Check this against site master list
 table(sm$REGION,sm$OBS)
-ab.site<-ddply(subset(cnet,OBS_YEAR=="2019"),.(REGION,OBS_YEAR),summarize,nSite=length(unique(SITE)));ab.site
+ab.site<-ddply(subset(ab,OBS_YEAR=="2022"),.(REGION,OBS_YEAR),summarize,nSite=length(unique(SITE)));ab.site
 
-#identify which new sites are in the CoralNet data, but still need to be integrated into the SURVEY MASTER file
+
+#identify which new sites are in the CoralNet data, but still need to be integrated into the SURVEY MASTER file- We are missing some marianas fixed sites from SM
 miss.from.sm<-cnet[!(cnet$SITEVISITID %in% sm$SITEVISITID),]
 miss.from.smSITE<-ddply(miss.from.sm,.(SITEVISITID,REGION,ISLAND,SITE,REEF_ZONE,DEPTH_BIN,ROUNDID,MISSIONID,OBS_YEAR, DATE_,HABITAT_CODE,
                                        LATITUDE,LONGITUDE,MIN_DEPTH,MAX_DEPTH),summarize,tmp=length(REPLICATE));miss.from.smSITE
 
-write.csv(miss.from.smSITE,file="C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/data/121120_SitesmissingfromSM.csv") #export list and manually add to SM
+write.csv(miss.from.smSITE,file="C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/data/SitesmissingfromSM.csv") #export list and manually add to SM
 #write.csv(ab, file="tmp All BIA BOTH METHODS.csv")
 
 SURVEY_INFO<-c("OBS_YEAR", "REGION",  "ISLAND")
@@ -249,8 +251,8 @@ full_join(test1,oracle.site)
 sm<-read.csv("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/data/SURVEY MASTER.csv")
 
 #Convert date formats
-sm$DATE_<-mdy(sm$DATE_)
-class(sm$DATE_)
+# sm$DATE_<-lubridate::mdy(sm$DATE_)
+# class(sm$DATE_)
 
 head(sm)
 
@@ -272,7 +274,7 @@ wsd_t1<-subset(wsd_t1,select= -c(MF,UC,TW))
 wsd_t1<-subset(wsd_t1,new.N >=150)
 
 #Save Tier 1 site data to t drive. This file has all sites (fish, benthic and OCC) that were annoated between 2010 and 2018
-write.csv(wsd_t1, file="T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Site/BenthicCover_2010-2020_Tier1_SITE.csv",row.names=F)
+write.csv(wsd_t1, file="T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Site/BenthicCover_2010-2022_Tier1_SITE.csv",row.names=F)
 # write.csv(wsd_t1, file="T:/Benthic/Data/Data Requests/2021 IEA/BenthicCover_2010-2020_Tier1_SITE.csv",row.names=F)
 
 
