@@ -12,16 +12,18 @@ library(RODBC)            # to connect to oracle
 
 Sys.setenv(ODBCINI = "/library/ODBC/odbc.ini")
 
-##*******## jump down to FISH REA WORKINGS if already saved as a .rfile
-ch <- odbcConnect("GIS", uid = "CCOUCH", pwd = "xxxx")
+##*******## Access the GIS database in Oracle. Add your username and password. If you forget your password then you will need to contact ITS
+ch <- odbcConnect("GIS", uid = "CCOUCH", pwd = "XXXXX") #from kiteworks
 ##
 ## #list available tables
 tv<-sqlTables(ch, tableType = "VIEW")
+
 a<-as.vector(tv$TABLE_NAME[grep("V0_", as.character(tv$TABLE_NAME))])
-b<-as.vector(tv$TABLE_NAME[grep("VS_", as.character(tv$TABLE_NAME))])
+b<-as.vector(tv$TABLE_NAME[grep("V_", as.character(tv$TABLE_NAME))])
 c<-as.vector(tv$TABLE_NAME[grep("V_BIA_PERC_COVER_PHOTO_STR", as.character(tv$TABLE_NAME))])
 d<-as.vector(tv$TABLE_NAME[grep("V_BIA", as.character(tv$TABLE_NAME))])
-##
+
+## Generate a table of Views that you have access to. If you don't see the view you are looking for then it is probably a permissions issue, check with Micahael to get access.
 rawtables<-c(a,b,c)
 rawtables
 
@@ -48,12 +50,18 @@ df <- sqlQuery(ch, paste("SELECT * FROM GISDAT.V0_FISH_REA")); head(df)
 save(df, file="ALL_REA_FISH_RAW.rdata")
 
 #Raw adult coral colony data from REA surveys using method e
-df <- sqlQuery(ch, paste("SELECT * FROM GISDAT.V0_CORAL_OBS_E")); head(df)
-save(df, file="ALL_REA_ADULTCORAL_RAW.rdata")
+# df <- sqlQuery(ch, paste("SELECT * FROM GISDAT.V0_CORAL_OBS_E")); head(df) #This is the older View that we used prior to 2022
+# save(df, file="T:/Benthic/Data/REA Coral Demography & Cover/Raw from Oracle/ALL_REA_ADULTCORAL_RAW_2013-2020.rdata")
 
-#Raw juvenile coral colony data from REA surveys using method f
-df <- sqlQuery(ch, paste("SELECT * FROM GISDAT.V0_CORAL_OBS_F")); head(df)
-save(df, file="ALL_REA_JUVCORAL_RAW.rdata")
+df <- sqlQuery(ch, paste("SELECT * FROM gisdat.V_NCEI_CORAL_OBS_E")); head(df) #We are now using the NCEI view- only difference is fewer collumns that we don't use any more and adding REPEAT_SEG
+save(df, file="T:/Benthic/Data/REA Coral Demography & Cover/Raw from Oracle/ALL_REA_ADULTCORAL_RAW_2013-2022.rdata")
+
+#Raw juvenile coral colony data from REA surveys using method f #We are now using the NCEI view- only difference is fewer collumns that we don't use any more and adding REPEAT_SEG
+# df <- sqlQuery(ch, paste("SELECT * FROM GISDAT.V0_CORAL_OBS_F")); head(df) #This is the older View that we used prior to 2022
+# save(df, file="T:/Benthic/Data/REA Coral Demography & Cover/Raw from Oracle/ALL_REA_JUVCORAL_RAW_2013-2020.rdata")
+
+df <- sqlQuery(ch, paste("SELECT * FROM gisdat.V_NCEI_CORAL_OBS_F")); head(df)
+save(df, file="T:/Benthic/Data/REA Coral Demography & Cover/Raw from Oracle/ALL_REA_JUVCORAL_RAW_2013-2022.rdata")
 
 ##
 ##
@@ -70,17 +78,20 @@ save(df, file="ALL_TOW_FISH_RAW.rdata")
 df <- sqlQuery(ch, paste("SELECT * FROM GISDAT.VS_BENT_TDS")); head(df)
 save(df, file="ALL_TOW_BENT_RAW.rdata")
 
-#BENTHIC REA
-#load("ALL_BIA_STR_RAW.rdata")
+#Photoquad Data -raw point annotations
+#Older CPCe (2010-2014) annotations from StRS sites
 bia <- sqlQuery(ch, paste("SELECT * FROM GISDAT.V_BIA_PERC_COVER_PHOTO_STR_")); head(bia)
 save(bia, file="ALL_BIA_STR_RAW_NEW.rdata")
 
+#Older CPCe (2010-2014) annotations from Climate sites
 cli <- sqlQuery(ch, paste("SELECT * FROM GISDAT.V_BIA_PERC_COVER_PHOTO_CLI_")); head(cli)
 save(cli, file="ALL_BIA_CLIMATE_PERM.rdata")
 
-# Coral Net Benthic Data
+# Coral Net Benthic Data (2015- present) from StRS and Climate sites
 cnet <- sqlQuery(ch, paste("SELECT * FROM GISDAT.MV_BIA_CNET_ANALYSIS_DATA_UNION")); head(cnet)
 save(cnet, file="ALL_BIA_STR_CNET.rdata")
+
+#Coral Net Benthic Data (2018) from StRS and Climate sites - Robot only annotations generated immediately after the cruise using 100% alleviation. Should only be used for Tier 1 Coral and CCA
 
 cnet_incR <- sqlQuery(ch, paste("SELECT * FROM GISDAT.MV_BIA_CNET_ANALYSIS_DATA_ALL")); head(cnet_incR)
 save(cnet_incR, file="ALL_BIA_STR_CNET_INC_ROBOT.rdata")

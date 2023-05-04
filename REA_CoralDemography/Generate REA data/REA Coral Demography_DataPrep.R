@@ -14,76 +14,39 @@ source("C:/Users/Courtney.S.Couch/Documents/GitHub/Benthic-Scripts/Functions/Ben
 source("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/lib/core_functions.R")
 source("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/lib/GIS_functions.R")
 
-library(lubridate)
-
 ## LOAD benthic data
-setwd("C:/Users/Courtney.S.Couch/Documents/Courtney's Files/R Files/ESD/Benthic REA")
-load("T:/Benthic/Data/REA Coral Demography & Cover/Raw from Oracle/ALL_REA_ADULTCORAL_RAW_2013-2020.rdata") #from oracle
+load("T:/Benthic/Data/REA Coral Demography & Cover/Raw from Oracle/ALL_REA_ADULTCORAL_RAW_2013-2022.rdata") #from oracle
 #load("C:/Users/Courtney.S.Couch/Documents/Courtney's Files/R Files/ESD/Data/REA Coral Demography & Cover/Raw from Oracle/ALL_REA_ADULTCORAL_RAW_2013-2020.rdata") #from oracle
 
 x<-df #leave this as df
 
-#This function isn't working- remove SITE from adult data for now - it will cause merging issues with the survey_master file later on
+#Add zeros to beginning of site number so we avoid MAR-22 changing to March 22
 x$SITE<- as.factor(x$SITE)
-x$SITE<-SiteNumLeadingZeros(x$SITE) # Change site number such as MAR-22 to MAR-0022
+x$SITE<-SiteNumLeadingZeros(x$SITE) 
 
 #Convert date formats
 class(x$DATE_)
 x$DATE_ <- as.Date(x$DATE_, format = "%Y-%m-%d")
 
+#review years and regions in dataframe
+table(x$REGION, x$OBS_YEAR) 
 
-### Use these functions to look at data
-head(x)
-tail(x)
-table(x$REGION, x$OBS_YEAR) #review years and regions in dataframe
-
-
-# 
-# #Temporary script to integrate 2017 NWHI data- waiting for orcale to work
-# nw<-read.csv("T:/Benthic/Data/REA Coral Demography & Cover/Raw from Oracle/PMNM2017_ADULTCOLONY_QCd.csv");nw<-subset(nw,select=-c(X))
-# nw$SITE<-gsub("-","-0",nw$SITE) #add 0 before site number 
-# nw$DATE_ <- ymd(nw$DATE_)
-# head(nw)
-# 
-# nw$REGION_NAME<-"Northwestern Hawaiian Islands"
-# nw$OBS_YEAR<-nw$YEAR
-# nw$NO_SURVEY_YN<-NA
-# nw$EXCLUDE_FLAG<-NA
-# nw$COLONYID<-c((1:nrow(nw)+633568))
-# nw$TAXONCODE<-nw$SPCODE
-# nw$MORPHOLOGY<-NA
-# nw$RECENT_GENERAL_CAUSE_CODE_2<-NA
-# nw$RECENT_SPECIFIC_CAUSE_CODE_2<-NA
-# nw$RECENTDEAD_2<-NA
-# nw$RECENT_GENERAL_CAUSE_CODE_3<-NA
-# nw$RECENT_SPECIFIC_CAUSE_CODE_3<-NA
-# nw$RECENTDEAD_3<-NA
-# nw$COND<-nw$CONDITION_1
-# nw$CONDITION_2<-NA
-# nw$CONDITION_3<-NA
-# nw$EXTENT_2<-NA
-# nw$EXTENT_3<-NA
-# nw$SEVERITY_2<-NA
-# nw$SEVERITY_3<-NA
-# nw$S_ORDER<-ifelse(nw$SPCODE=="AAAA",NA,"Scleractinia")
 
 #Create vector of column names to include then exclude unwanted columns from dataframe
 DATA_COLS<-c("MISSIONID","REGION","REGION_NAME","ISLAND","ISLANDCODE","REEF_ZONE","DEPTH_BIN","OBS_YEAR",
-             "DATE_","NO_SURVEY_YN","EXCLUDE_FLAG","SITEVISITID", "SITE","HABITAT_CODE","DIVER","TRANSECTNUM","SEGMENT","SEGWIDTH","SEGLENGTH","FRAGMENT_YN",
-             "COLONYID","TAXONCODE","MORPH_CODE","MORPHOLOGY","COLONYLENGTH","OLDDEAD",
+             "DATE_","NO_SURVEY_YN","SITEVISITID", "SITE","DIVER","TRANSECTNUM","SEGMENT","SEGWIDTH","SEGLENGTH","FRAGMENT_YN",
+             "COLONYID","TAXONCODE","MORPHOLOGY","COLONYLENGTH","OLDDEAD",
              "RECENTDEAD_1","RECENT_GENERAL_CAUSE_CODE_1","RECENT_SPECIFIC_CAUSE_CODE_1",
              "RECENTDEAD_2",	"RECENT_GENERAL_CAUSE_CODE_2","RECENT_SPECIFIC_CAUSE_CODE_2",
-             "RECENT_GENERAL_CAUSE_CODE_3","RECENT_SPECIFIC_CAUSE_CODE_3","RECENTDEAD_3","COND",
+             "RECENT_GENERAL_CAUSE_CODE_3","RECENT_SPECIFIC_CAUSE_CODE_3","RECENTDEAD_3","CONDITION_1",
              "CONDITION_2","CONDITION_3","EXTENT_1","EXTENT_2","EXTENT_3","SEVERITY_1","SEVERITY_2","SEVERITY_3",
              "GENUS_CODE","S_ORDER","TAXONNAME")
 
+#Add HABITAT_CODE and MORPH_CODE to the list once Lori has added them to the NCEI views
 
 #remove extraneous columns
 head(x[,DATA_COLS])
 x<-x[,DATA_COLS]
-# nw<-nw[,DATA_COLS]
-# 
-# x<-rbind(x,nw) #combine x and 2017 NWHI data
 
 
 #Double check level and class of variables to make sure there aren't any errors
@@ -103,11 +66,6 @@ colnames(x)[colnames(x)=="RECENT_SPECIFIC_CAUSE_CODE_2"]<-"RD2" #Change column n
 colnames(x)[colnames(x)=="RECENT_GENERAL_CAUSE_CODE_3"]<-"GENRD3" #Change column name
 colnames(x)[colnames(x)=="RECENT_SPECIFIC_CAUSE_CODE_3"]<-"RD3" #Change column name
 colnames(x)[colnames(x)=="FRAGMENT_YN"]<-"Fragment" #Change column name
-colnames(x)[colnames(x)=="COND"]<-"CONDITION_1" #Change column name
-
-
-if(DEBUG){head(x)}
-
 
 
 # Merge Adult data and  SURVEY MASTER -------------------------------------
@@ -128,8 +86,6 @@ if(length(SIOYerrors)>0){print(paste0("Warning: Raw Data disagree with Survey Ma
 #merge 'em NOTE: left-join will spit out a Warning message that you are joining on factors that have different levels. Basically you have more sites in survey master than x. This is correct and can be ignored here.
 x<-left_join(x, survey_master[,c("OBS_YEAR","SITEVISITID","SITE","LATITUDE","LONGITUDE","SEC_NAME","ANALYSIS_YEAR","bANALYSIS_SCHEME","new_MIN_DEPTH_M","new_MAX_DEPTH_M")])
 
-if(DEBUG){write.csv(x,"test.csv")}
-
 colnames(x)[colnames(x)=="new_MIN_DEPTH_M"]<-"MIN_DEPTH_M" #Change column name
 colnames(x)[colnames(x)=="new_MAX_DEPTH_M"]<-"MAX_DEPTH_M" #Change column name
 
@@ -143,7 +99,7 @@ if(dim(test)[1]>0) {cat("Warning: sites with MISSING SECTORS present")}   # shou
 #Create a list of missing sites that can be inported into the SITE MASTER file if needed
 test<-x[is.na(x$SEC_NAME),]
 miss.sites<-ddply(test,.(OBS_YEAR,SITEVISITID,SITE,MISSIONID,REGION,REGION_NAME,ISLAND,LATITUDE,LONGITUDE,
-                         REEF_ZONE,DEPTH_BIN,DATE_,EXCLUDE_FLAG,HABITAT_CODE),
+                         REEF_ZONE,DEPTH_BIN,DATE_),
                   summarize,temp=median(SITEVISITID))
 #Should be a 0 row data.frame
 head(miss.sites,20)
@@ -160,13 +116,13 @@ x.na
 #             summarize,
 #             SEG=length(unique(SEGMENT)))
 # test
-x$NO_SURVEY_YN[is.na(x$NO_SURVEY_YN)]<-0 #Change NAs (blank cells) to 0
+x$NO_SURVEY_YN[is.na(x$NO_SURVEY_YN)]<-0 #Change NAs (blank cells) to 0 - fix in the database
+
 ##Acutally do the removal of transects that were only surveyed for photoquads but not demographics
 x<-subset(x,NO_SURVEY_YN==0)
-x<-subset(x,SEGLENGTH!="NA") #Remove segments that were not surveyed for coral demography (no SEGLENGTH=0 in db)
 
 
-#Change NAs in RecentDead extent to 0  - note, NWHI 2014,2015 and 2017 only one recent dead and condition category were recorded
+#Change NAs in RecentDead extent to 0  - note, NWHI 2014,2015 and 2017 only one recent dead and condition category were recorded - fix in the database
 head(subset(x,S_ORDER=="Scleractinia" & is.na(x$RDEXTENT1))) #identify columns that have NAs
 x$RDEXTENT1<-ifelse(x$S_ORDER=="Scleractinia"& is.na(x$RDEXTENT1),0,x$RDEXTENT1)
 
@@ -181,8 +137,7 @@ x$RDEXTENT3<-ifelse(x$S_ORDER=="Scleractinia"& is.na(x$RDEXTENT3),0,x$RDEXTENT3)
 #This section of code has been disecpetively tricky to code to ensure that all the different taxaonomic levels are generated correctly
 #MODIFY WITH CAUTION
 #read in list of taxa that we feel comfortable identifying to species or genus level. Note, taxa lists vary by year and region. This will need to be updated through time.
-#taxa<-read.csv("T:/Benthic/Data/Lookup Tables/2013-20_Taxa_MASTER.csv")
-taxa<-read.csv("C:/Users/Courtney.S.Couch/Documents/Courtney's Files/R Files/ESD/Data/Lookup Tables/2013-20_Taxa_MASTER.csv")
+taxa<-read.csv("T:/Benthic/Data/Lookup Tables/2013-22_Taxa_MASTER.csv")
 
 x$OBS_YEAR<-as.factor(x$OBS_YEAR)#convert to factor to merge with taxa master
 
@@ -230,7 +185,7 @@ x$GENUS_CODE<-ifelse(x$SPCODE %in% c("MOAS","LEPA"),"UNKN",x$GENUS_CODE)
 View(x) #view data in separate window
 
 #Check that Unknown scl were changed correctly
-head(subset(x,TAXONCODE=="UNKN"&S_ORDER=="Scleractinia"),40)
+head(subset(x,TAXONCODE=="UNKN"&S_ORDER=="Scleractinia"))
 head(subset(x,GENUS_CODE=="UNKN"&S_ORDER=="Scleractinia"))
 head(subset(x,GENUS_CODE=="AAAA"))
 head(subset(x,SPCODE=="AAAA"))
@@ -244,10 +199,12 @@ nrow(x)
 
 
 ## CLEAN UP NAs ##
-NegNineCheckCols=c("OLDDEAD","RDEXTENT1","GENRD1","RD1","RDEXTENT2","GENRD2","RD2","GENRD3","RD3",
+NegNineCheckCols=c("COLONYLENGTH","OLDDEAD","RDEXTENT1","GENRD1","RD1","RDEXTENT2","GENRD2","RD2","GENRD3","RD3",
                    "RDEXTENT3","CONDITION_1","CONDITION_2","CONDITION_3","EXTENT_1","EXTENT_2","EXTENT_3","SEVERITY_1",
                    "SEVERITY_2","SEVERITY_3","GENUS_CODE","S_ORDER")
-x[,NegNineCheckCols][x[,NegNineCheckCols]==-9] <- NA #Convert missing numeric values to NA (they are entered as -9 in Oracle)
+x[,NegNineCheckCols][x[,NegNineCheckCols]==-9] <- NA #Convert missing numeric values to NA (they are entered as -9 in Oracle)- make sure these aren't converted to 0 later on
+
+View(x)
 
 tmp.lev<-levels(x$GENRD1); head(tmp.lev)
 levels(x$GENRD1)<-c(tmp.lev, "NONE") # change to NONE
@@ -289,13 +246,12 @@ head(x)
 
 
 awd<-droplevels(x)
-write.csv(awd,file="T:/Benthic/Data/REA Coral Demography & Cover/Analysis Ready Raw data/CoralBelt_Adults_raw_CLEANED.csv",row.names = FALSE)
-#write.csv(awd,file="C:/Users/Courtney.S.Couch/Documents/Courtney's Files/R Files/ESD/Data/REA Coral Demography & Cover/Analysis Ready Raw data/CoralBelt_Adults_raw_CLEANED.csv",row.names = FALSE)
+write.csv(awd,file="T:/Benthic/Data/REA Coral Demography & Cover/Analysis Ready Raw data/CoralBelt_Adults_raw_CLEANED_updated.csv",row.names = FALSE)
 
 
 ## CREATE JUVENILE CLEAN ANALYSIS READY DATA ----
 ## LOAD benthic data
-load("T:/Benthic/Data/REA Coral Demography & Cover/Raw from Oracle/ALL_REA_JUVCORAL_RAW_2013-2020.rdata") #from oracle
+load("T:/Benthic/Data/REA Coral Demography & Cover/Raw from Oracle/ALL_REA_JUVCORAL_RAW_2013-2022.rdata") #from oracle
 x<-df #leave this as df
 
 #Convert date formats
@@ -304,37 +260,20 @@ x$DATE_ <- as.Date(x$DATE_, format = "%Y-%m-%d")
 
 #Create vector of column names to include then exclude unwanted columns from dataframe
 DATA_COLS<-c("MISSIONID","REGION","REGION_NAME","ISLAND","ISLANDCODE","SITE","REEF_ZONE","DEPTH_BIN","OBS_YEAR",
-             "DATE_","NO_SURVEY_YN","EXCLUDE_FLAG","SITEVISITID","HABITAT_CODE","DIVER","TRANSECTNUM","SEGMENT","SEGWIDTH","SEGLENGTH",
-             "COLONYID","TAXONCODE","MORPH_CODE","MORPHOLOGY","COLONYLENGTH","GENUS_CODE","S_ORDER","TAXONNAME")
+             "DATE_","NO_SURVEY_YN","SITEVISITID","DIVER","TRANSECTNUM","SEGMENT","SEGWIDTH","SEGLENGTH",
+             "COLONYID","TAXONCODE","MORPHOLOGY","COLONYLENGTH","GENUS_CODE","S_ORDER","TAXONNAME")
 
+#Add HABITAT_CODE and MORPH_CODE in once Lori has updated Oracle
 
 #remove extraneous columns
 head(x[,DATA_COLS])
 x<-x[,DATA_COLS]
 
-#Cleanup 2017 NWHI data to merge with the rest of the juvenile data -temporary workaround until data team migrates data to Oracle
-#nw<-read.csv("T:/Benthic/Data/REA Coral Demography & Cover/Raw from Oracle/PMNM2017_JUVENILECOLONY_QCd.csv")
-
-# head(nw[,DATA_COLS])
-# nw<-nw[,DATA_COLS]
-# 
-# nw$COLONYID<-nrow(x)+1:length(nw$SITEVISITID)
-# nw$COLONYID<-ifelse(nw$TAXONCODE=="AAAA",NA,nw$COLONYID)
-
-#Convert date formats
-# class(nw$DATE_)
-# nw$DATE_ <- dmy(nw$DATE_)
-# nw$DATE_ <- as.Date(nw$DATE_, format = "%Y-%m-%d")
-
-
-# x<-rbind(x,nw)
 x$SITE<- as.factor(x$SITE)
 x$SITE<-SiteNumLeadingZeros(x$SITE) # Change site number such as MAR-22 to MAR-0022
 
 
 ### Use these functions to look at data
-head(x)
-tail(x)
 table(x$REGION, x$OBS_YEAR) #review years and regions in dataframe
 
 
@@ -366,8 +305,6 @@ if(length(SIOYerrors)>0){print(paste0("Warning: Raw Data disagree with Survey Ma
 #merge 'em NOTE: left-join will spit out a Warning message that you are joining on factors that have different levels. Basically you have more sites in survey master than x. This is correct and can be ignored here.
 x<-left_join(x, survey_master[,c("OBS_YEAR","SITEVISITID","SITE","LATITUDE","LONGITUDE","SEC_NAME","ANALYSIS_YEAR","bANALYSIS_SCHEME","new_MIN_DEPTH_M","new_MAX_DEPTH_M")])
 
-if(DEBUG){write.csv(x,"test.csv")}
-
 colnames(x)[colnames(x)=="new_MIN_DEPTH_M"]<-"MIN_DEPTH_M" #Change column name
 colnames(x)[colnames(x)=="new_MAX_DEPTH_M"]<-"MAX_DEPTH_M" #Change column name
 
@@ -376,10 +313,10 @@ test<-x[is.na(x$SEC_NAME), c("MISSIONID","REGION", "SITE","OBS_YEAR"),]
 test<-droplevels(test);table(test$SITE,test$MISSIONID) #create a table of missing sites by missionid
 if(dim(test)[1]>0) {cat("sites with MISSING SECTORS present")}   # should be 0
 
-#Create a list of missing sites that can be inported into the SITE MASTER file if needed
+#Create a list of missing sites that can be imported into the SITE MASTER file if needed
 test<-x[is.na(x$SEC_NAME),]
 miss.sites<-ddply(test,.(OBS_YEAR,SITEVISITID,SITE,MISSIONID,REGION,REGION_NAME,ISLAND,LATITUDE,LONGITUDE,
-                         REEF_ZONE,DEPTH_BIN,DATE_,EXCLUDE_FLAG,HABITAT_CODE),
+                         REEF_ZONE,DEPTH_BIN,DATE_),
                   summarize,temp=median(SITEVISITID))
 head(miss.sites,20) #should be empty
 
@@ -398,13 +335,11 @@ x.na
 # test
 x$NO_SURVEY_YN<-is.na(x$NO_SURVEY_YN)<-0 #Change NAs (blank cells) to 0
 x<-subset(x,NO_SURVEY_YN==0)
-x<-subset(x,SEGLENGTH!="NA") #Remove segments that were not surveyed for coral demography
 
 
 # Assign TAXONCODE --------------------------------------------------------
 #read in list of taxa that we feel comfortable identifying to species or genus level. Note, taxa lists vary by year and region. This will need to be updated through time.
-#taxa<-read.csv("T:/Benthic/Data/Lookup Tables/2013-20_Taxa_MASTER.csv")
-taxa<-read.csv("C:/Users/Courtney.S.Couch/Documents/Courtney's Files/R Files/ESD/Data/Lookup Tables/2013-20_Taxa_MASTER.csv")
+taxa<-read.csv("T:/Benthic/Data/Lookup Tables/2013-22_Taxa_MASTER.csv")
 
 x$OBS_YEAR<-as.factor(x$OBS_YEAR) #need to convert to factor in order to join with taxa df
 nrow(x)
@@ -470,6 +405,5 @@ x[,NegNineCheckCols][x[,NegNineCheckCols] ==-9] <- NA #Convert missing numeric v
 
 
 jwd<-droplevels(x)
-write.csv(jwd,file="T:/Benthic/Data/REA Coral Demography & Cover/Analysis Ready Raw data/CoralBelt_Juveniles_raw_CLEANED.csv",row.names = FALSE)
-#write.csv(jwd,file="C:/Users/Courtney.S.Couch/Documents/Courtney's Files/R Files/ESD/Data/REA Coral Demography & Cover/Analysis Ready Raw data/CoralBelt_Juveniles_raw_CLEANED.csv",row.names = FALSE)
+write.csv(jwd,file="T:/Benthic/Data/REA Coral Demography & Cover/Analysis Ready Raw data/CoralBelt_Juveniles_raw_CLEANED_updated.csv",row.names = FALSE)
 

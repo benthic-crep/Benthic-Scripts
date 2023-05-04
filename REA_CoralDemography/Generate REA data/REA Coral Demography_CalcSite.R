@@ -3,7 +3,6 @@
 #The script does some final tweaks to the data then generates Site-level data
 #These data only include surveys conducted between 2013-2019
 
-#Tot dz = rd den or cond.
 
 rm(list=ls())
 
@@ -16,12 +15,12 @@ source("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/lib/core_functions
 source("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/lib/GIS_functions.R")
 
 ## LOAD benthic data
-awd<-read.csv("T:/Benthic/Data/REA Coral Demography & Cover/Analysis Ready Raw data/CoralBelt_Adults_raw_CLEANED.csv")
-jwd<-read.csv("T:/Benthic/Data/REA Coral Demography & Cover/Analysis Ready Raw data/CoralBelt_Juveniles_raw_CLEANED.csv")
+awd<-read.csv("T:/Benthic/Data/REA Coral Demography & Cover/Analysis Ready Raw data/CoralBelt_Adults_raw_CLEANED_updated.csv")
+jwd<-read.csv("T:/Benthic/Data/REA Coral Demography & Cover/Analysis Ready Raw data/CoralBelt_Juveniles_raw_CLEANED_updated.csv")
 
 #If you want to test out script, subset with a single island- the entire script takes forever to run
-# awd=subset(awd,ISLAND=="Maui")
-# jwd=subset(jwd,ISLAND=="Maui")
+# awd=subset(awd,ISLAND=="Asuncion")
+# jwd=subset(jwd,ISLAND=="Asuncion")
 
 #Final Tweaks before calculating site-level data-------------------------------------------------
 #Colony fragments will be removed when you generate the site level data
@@ -56,7 +55,7 @@ awd_pre<-subset(awd_pre,select=-c(SEVERITY_2));colnames(awd_pre)[which(colnames(
 #awd_pre<-subset(awd_pre,select=-c(SEVERITY_3));colnames(awd_pre)[which(colnames(awd_pre) == 'SEVERITY_3n')] <- "SEVERITY_3" #change group to whatever your grouping field is.
 awd_pre$SEVERITY_3<-NA
 
-head(awd_pre)
+View(awd_pre)
 
 
 
@@ -67,6 +66,11 @@ nrow(awd)
 nrow(awd.);head(awd.)
 awd<-awd.; rm("awd.") #remove temporary dataframe if all good.
 
+#If bleaching severity is <2, change to NA- we just don't record bleaching consistently enough below severity 2
+awd$CONDITION_1<-ifelse(awd$CONDITION_1 %in% c("BLP","BLE") & awd$SEVERITY_1==1,"NONE",awd$CONDITION_1);View(awd)
+awd$CONDITION_2<-ifelse(awd$CONDITION_2 %in% c("BLP","BLE") & awd$SEVERITY_2==1,"NONE",awd$CONDITION_2);View(awd)
+summary(awd$SEVERITY_3) #if you have values in severity 3 then add the code conversion
+
 
 #Create a look a table of all of the colony attributes- you will need this the functions below
 SURVEY_COL<-c("METHOD","DATE_","SITEVISITID", "OBS_YEAR", "REGION", "REGION_NAME", "ISLAND","ISLANDCODE","SEC_NAME", "SITE", "REEF_ZONE",
@@ -74,30 +78,31 @@ SURVEY_COL<-c("METHOD","DATE_","SITEVISITID", "OBS_YEAR", "REGION", "REGION_NAME
 survey_colony<-unique(awd[,SURVEY_COL])
 
 SURVEY_SITE<-c("METHOD","MISSIONID","DATE_","SITEVISITID", "ANALYSIS_YEAR","OBS_YEAR", "REGION", "REGION_NAME", "ISLAND","ISLANDCODE","SEC_NAME", "SITE", "REEF_ZONE",
-               "DEPTH_BIN", "LATITUDE", "LONGITUDE","MIN_DEPTH_M","MAX_DEPTH_M","HABITAT_CODE")
+               "DEPTH_BIN", "LATITUDE", "LONGITUDE","MIN_DEPTH_M","MAX_DEPTH_M")
 survey_siteAd<-unique(awd[,SURVEY_SITE])
 
 SURVEY_SITE<-c("METHOD","MISSIONID","DATE_","SITEVISITID", "ANALYSIS_YEAR","OBS_YEAR", "REGION", "REGION_NAME", "ISLAND","ISLANDCODE","SEC_NAME", "SITE", "REEF_ZONE",
-               "DEPTH_BIN", "LATITUDE", "LONGITUDE","MIN_DEPTH_M","MAX_DEPTH_M","HABITAT_CODE")
+               "DEPTH_BIN", "LATITUDE", "LONGITUDE","MIN_DEPTH_M","MAX_DEPTH_M")
 survey_siteJ<-unique(jwd[,SURVEY_SITE])
 
 write.csv(survey_siteAd,"surveysite.csv")
 
 #We did juvenile only surveys in 2017 in PRIA, this will make sure the SV table has both adult and juv sites.
 survey_site<-full_join(survey_siteJ,survey_siteAd,by = c("METHOD","MISSIONID","DATE_","SITEVISITID", "ANALYSIS_YEAR","OBS_YEAR", "REGION", "REGION_NAME", "ISLAND","ISLANDCODE","SEC_NAME", "SITE", "REEF_ZONE",
-                                                         "DEPTH_BIN", "LATITUDE", "LONGITUDE","MIN_DEPTH_M","MAX_DEPTH_M","HABITAT_CODE"));nrow(survey_site)
+                                                         "DEPTH_BIN", "LATITUDE", "LONGITUDE","MIN_DEPTH_M","MAX_DEPTH_M"));nrow(survey_site)
 
 survey_site<-survey_site[!duplicated(survey_site[,4]),]
 
 #TEMPORARY WORK AROUND-ASK MICHAEL TO FIX
 survey_site$REEF_ZONE<-ifelse(survey_site$SITE=="HAW-04285","Forereef",as.character(survey_site$REEF_ZONE))
 
-#Remove HARAMP 2019 Transect 2- these were repeat surveys conducted for the SfM method comparison study
+#Remove Transect 2 from 2019-present- these were repeat surveys conducted for the SfM method comparison study
 awd$TR_YEAR<-paste(awd$TRANSECT,awd$OBS_YEAR,sep="_")
 jwd$TR_YEAR<-paste(jwd$TRANSECT,jwd$OBS_YEAR,sep="_")
-awd<-subset(awd,TR_YEAR!="2_2019")
-jwd<-subset(jwd,TR_YEAR!="2_2019")
+drop.data<-c("2_2019","2_2022")
 
+awd<-filter(awd,!TR_YEAR %in% drop.data) 
+jwd<-filter(jwd,!TR_YEAR %in% drop.data) 
 
 
 # GENERATE SUMMARY METRICS at the transect-leveL BY GENUS--------------------------------------------------
@@ -118,17 +123,14 @@ totdzden.gen<-subset(totdzden.gen,select = c(SITEVISITID,SITE,TRANSECT,GENUS_COD
 #Calc_RDden_Transect
 rdden.gen<-Calc_RDden_Transect(awd,survey_colony,"GENUS_CODE") # Density of recent dead colonies by condition, you will need to subset which ever condition you want. The codes ending in "S" are the general categories
 acutedz.gen<-subset(rdden.gen,select = c(SITEVISITID,SITE,TRANSECT,GENUS_CODE,DZGN_G));colnames(acutedz.gen)[colnames(acutedz.gen)=="DZGN_G"]<-"DZGN_den" #subset just acute diseased colonies
-alga.gen<-subset(rdden.gen,select = c(SITEVISITID,SITE,TRANSECT,GENUS_CODE,ALGA));colnames(alga.gen)[colnames(alga.gen)=="ALGA"]<-"ALGA_den" #subset just colonies with macroalgae overgrowth
+#alga.gen<-subset(rdden.gen,select = c(SITEVISITID,SITE,TRANSECT,GENUS_CODE,ALGA));colnames(alga.gen)[colnames(alga.gen)=="ALGA"]<-"ALGA_den" #subset just colonies with macroalgae overgrowth
 
 #Calc_CONDden_Transect
 condden.gen<-Calc_CONDden_Transect(awd,survey_colony,"GENUS_CODE")# Density of condition colonies by condition, you will need to subset which ever condition you want
 ble.gen<-subset(condden.gen,select = c(SITEVISITID,SITE,TRANSECT,GENUS_CODE,BLE));colnames(ble.gen)[colnames(ble.gen)=="BLE"]<-"BLE_den" #subset just bleached colonies
 chronicdz.gen<-subset(condden.gen,select = c(SITEVISITID,SITE,TRANSECT,GENUS_CODE,CHRO));colnames(chronicdz.gen)[colnames(chronicdz.gen)=="CHRO"]<-"CHRO_den" #subset just chronic diseased colonies
 
-#Calc_Richness_Transect
-#rich.gen<-Calc_Richness_Transect(awd,"GENUS_CODE")
-
-#ADD CODE TO CHANGE TRANSECT NUMBERS FOR JUVENILES
+#CHANGE TRANSECT NUMBERS FOR JUVENILES (pre-2018 we used 3 and 4)
 jcd.gen$TRANSECT[jcd.gen$TRANSECT==3]<-1
 jcd.gen$TRANSECT[jcd.gen$TRANSECT==4]<-2
 
@@ -139,12 +141,12 @@ cl.gen<-subset(cl.gen,select=-c(METHOD))
 od.gen<-subset(od.gen,select=-c(METHOD))
 rd.gen<-subset(rd.gen,select=-c(METHOD))
 
-#Merge density and partial moratlity data together.You will need to replace the DUMMY field with the one you want
+#Merge density and partial mortality data together.You will need to replace the DUMMY field with the one you want
 MyMerge <- function(x, y){
   df <- merge(x, y, by= c("SITE","SITEVISITID","TRANSECT","GENUS_CODE"), all.x= TRUE, all.y= TRUE)
   return(df)
 }
-data.gen<-Reduce(MyMerge, list(acd.gen,jcd.gen,cl.gen,od.gen,rd.gen,totdzden.gen,acutedz.gen,chronicdz.gen,ble.gen,alga.gen));
+data.gen<-Reduce(MyMerge, list(acd.gen,jcd.gen,cl.gen,od.gen,rd.gen,totdzden.gen,acutedz.gen,chronicdz.gen,ble.gen));
 
 
 #Add METHOD back in
@@ -178,7 +180,7 @@ data.gen$TotDZ_prev<-(data.gen$TotDZ_den*data.gen$TRANSECTAREA_ad)/data.gen$AdCo
 data.gen$DZGN_prev<-(data.gen$DZGN_den*data.gen$TRANSECTAREA_ad)/data.gen$AdColCount*100
 data.gen$BLE_prev<-(data.gen$BLE_den*data.gen$TRANSECTAREA_ad)/data.gen$AdColCount*100
 data.gen$CHRO_prev<-(data.gen$CHRO_den*data.gen$TRANSECTAREA_ad)/data.gen$AdColCount*100
-data.gen$ALGA_prev<-(data.gen$ALGA_den*data.gen$TRANSECTAREA_ad)/data.gen$AdColCount*100
+#data.gen$ALGA_prev<-(data.gen$ALGA_den*data.gen$TRANSECTAREA_ad)/data.gen$AdColCount*100
 
 #There will be some NAs when you merge the DZ and other dataframes together because there may be some taxa that didn't have disease
 #Convert NA to 0 ONLY for disease density NOT for prevalence
@@ -186,7 +188,7 @@ data.gen$TotDZ_den<-ifelse(is.na(data.gen$TotDZ_den),0,data.gen$TotDZ_den)
 data.gen$DZGN_den<-ifelse(is.na(data.gen$DZGN_den),0,data.gen$DZGN_den)
 data.gen$CHRO_den<-ifelse(is.na(data.gen$CHRO_den),0,data.gen$CHRO_den)
 data.gen$BLE_den<-ifelse(is.na(data.gen$BLE_den),0,data.gen$BLE_den)
-data.gen$ALGA_den<-ifelse(is.na(data.gen$ALGA_den),0,data.gen$ALGA_den)
+#data.gen$ALGA_den<-ifelse(is.na(data.gen$ALGA_den),0,data.gen$ALGA_den)
 
 
 #Remove data from transects with less than 5m surveyed for adults and 1m for juvs.
@@ -200,8 +202,8 @@ site.data.gen<-ddply(data.gen, .(SITE,SITEVISITID,GENUS_CODE), #calc total colon
                      summarise,
                      AdColCount=mean(AdColCount,na.rm=T),AdColDen=mean(AdColDen,na.rm = T),Ave.od=mean(Ave.od,na.rm = T),
                      Ave.rd=mean(Ave.rd,na.rm = T),Ave.size=mean(Ave.cl,na.rm=T),JuvColCount=mean(JuvColCount,na.rm=T),
-                     JuvColDen=mean(JuvColDen,na.rm=T),BLE=mean(BLE_den,na.rm=T),TotDZ=mean(TotDZ_den,na.rm=T), AcuteDZ=mean(DZGN_den,na.rm=T),ChronicDZ=mean(CHRO_den,na.rm=T),ALGA=mean(ALGA_den,na.rm=T),
-                     BLE_prev=mean(BLE_prev,na.rm=T),TotDZ_prev=mean(TotDZ_prev,na.rm=T), AcuteDZ_prev=mean(DZGN_prev,na.rm=T),ChronicDZ_prev=mean(CHRO_prev,na.rm=T),AlgalOG_prev=mean(ALGA_prev,na.rm=T))
+                     JuvColDen=mean(JuvColDen,na.rm=T),BLE=mean(BLE_den,na.rm=T),TotDZ=mean(TotDZ_den,na.rm=T), AcuteDZ=mean(DZGN_den,na.rm=T),ChronicDZ=mean(CHRO_den,na.rm=T),
+                     BLE_prev=mean(BLE_prev,na.rm=T),TotDZ_prev=mean(TotDZ_prev,na.rm=T), AcuteDZ_prev=mean(DZGN_prev,na.rm=T),ChronicDZ_prev=mean(CHRO_prev,na.rm=T))
 
 
 #Duplicate dataframe because the ddply step above takes a while to create. Allows you to tweak code below without having to rerun the ddply step above
@@ -437,12 +439,12 @@ site.data.sp2$Juvpres.abs<-ifelse(site.data.sp2$JuvColDen>0,1,0)
 site.data.tax2$Adpres.abs<-ifelse(site.data.tax2$AdColDen>0,1,0)
 site.data.tax2$Juvpres.abs<-ifelse(site.data.tax2$JuvColDen>0,1,0)
 
-site.data.gen2$ALGA<-ifelse(site.data.gen2$OBS_YEAR>= 2019,NA,site.data.gen2$ALGA)
-site.data.gen2$AlgalOG_prev<-ifelse(site.data.gen2$OBS_YEAR>= 2019,NA,site.data.gen2$AlgalOG_prev)
+# site.data.gen2$ALGA<-ifelse(site.data.gen2$OBS_YEAR>= 2019,NA,site.data.gen2$ALGA)
+# site.data.gen2$AlgalOG_prev<-ifelse(site.data.gen2$OBS_YEAR>= 2019,NA,site.data.gen2$AlgalOG_prev)
 
 #Save Site-level data
-write.csv(site.data.gen2,file="T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Site/BenthicREA_sitedata_GENUS.csv",row.names = F)
-write.csv(site.data.sp2,file="T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Site/BenthicREA_sitedata_SPCODE.csv",row.names = F)
-write.csv(site.data.tax2,file="T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Site/BenthicREA_sitedata_TAXONCODE.csv",row.names = F)
+write.csv(site.data.gen2,file="T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Site/BenthicREA_sitedata_GENUS_updated.csv",row.names = F)
+write.csv(site.data.sp2,file="T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Site/BenthicREA_sitedata_SPCODE_updated.csv",row.names = F)
+write.csv(site.data.tax2,file="T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Site/BenthicREA_sitedata_TAXONCODE_updated.csv",row.names = F)
 
 

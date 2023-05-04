@@ -122,12 +122,11 @@ scl_taxonname_list_ISLAND<-function(data){
 
 ##Calcuate segment and transect area and add column for transect area for methods c,e,f
 Transectarea<-function(data){
-  data$SEGAREA<-data$SEGLENGTH*data$SEGWIDTH # Calculate segment area
-
   #Calculate total transect area then merge back to a dataframe
   s.df<-ddply(data, .(MISSIONID,REGION,ISLAND,OBS_YEAR,SITE,TRANSECT,SEGMENT,SITEVISITID),
               summarise,
-              SEGAREA=median(SEGAREA))
+              SEGAREA=median(SEGLENGTH*SEGWIDTH)) #use median in case there are errors in older data with differing seg areas within a given segment- shouldn't be an issue for 2018-present
+  
   tr.df<-ddply(s.df, .(MISSIONID,REGION,ISLAND,OBS_YEAR,SITE,TRANSECT,SITEVISITID),
                summarise,
                TRANSECTAREA=sum(SEGAREA))
@@ -799,7 +798,6 @@ Calc_RDden_Transect<-function(data, survey_colony_f=survey_colony, grouping_fiel
   #trarea<-Calc_SurveyArea_By_Transect(data) #calculate survey area/site
   uTA=unique(scl[,c("METHOD","SITEVISITID","SITE","TRANSECT","TRANSECTAREA")])
   ab.tr<-left_join(x = uTA,y = abun)
-  #ab.tr<-left_join(x = uTA,y = abun,by=c("SITEVISITID","SITE","TRANSECT"))
   ab.tr[is.na(ab.tr),]<-0
 
   #Check NAs - Should be empty...
