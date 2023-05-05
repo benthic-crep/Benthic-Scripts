@@ -249,36 +249,39 @@ sectors<-read.csv("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/data/Se
 
 
 #Merge site data with Sector look up table. This table indicates how sectors should be pooled or not
-#For NCRMP viztool data- Keep pooling scheme the same across years
+
+#Merge site data with Sector look up table. This table indicates how sectors should be pooled or not
 site.data.sp2<-left_join(site.data.sp2,seclu)
 head(site.data.sp2)
 
+
+#Specific Changes to depth bin and reef zone
+site.data.sp2<-site.data.sp2 %>% mutate(REEF_ZONE = if_else(REEF_ZONE %in% c("Protected Slope","Forereef"), "Forereef", as.character(REEF_ZONE))) #Convert PRS to FRF
+site.data.sp2<-site.data.sp2 %>% mutate(DEPTH_BIN = if_else(ISLAND =="Kingman" & REEF_ZONE=="Lagoon", "ALL", as.character(DEPTH_BIN)))
+site.data.sp2<-site.data.sp2 %>% mutate(DEPTH_BIN = if_else(ISLAND =="Rose" & REEF_ZONE=="Backreef", "ALL", as.character(DEPTH_BIN)))
+site.data.sp2<-site.data.sp2 %>% mutate(REEF_ZONE = if_else(ISLAND =="Maug" & REEF_ZONE=="Lagoon", "Forereef", as.character(REEF_ZONE))) #Three sites were miss coded- fix in database
+
+#Remove some sectors or strata that were poorly sampled
+site.data.sp2 <- filter(site.data.sp2,!((SEC_NAME %in% c("GUA_ACHANG","GUA_PATI_POINT","GUA_PITI_BOMB","GUA_TUMON")& OBS_YEAR == "2017")))
+site.data.sp2 <- filter(site.data.sp2,!((ISLAND =="Johnston" & REEF_ZONE=="Lagoon")))
+site.data.sp2 <- filter(site.data.sp2,!((OBS_YEAR == "2018" & ISLAND=="Kingman" & REEF_ZONE=="Backreef")))
+
+#Create Strataname
+site.data.sp2$DB_RZ<-paste(substring(site.data.sp2$REEF_ZONE,1,1), substring(site.data.sp2$DEPTH_BIN,1,1), sep="")
+site.data.sp2$STRATANAME=paste0(site.data.sp2$PooledSector_Demo_1,"_",site.data.sp2$DB_RZ)
+
 #QC CHECK to make sure the sectors and strata pooled correctly
-data.test<-ddply(subset(site.data.sp2,SPCODE=="SSSS"),.(REGION,PooledSector,OBS_YEAR,STRATANAME),summarize,n=length(SITE))
+data.test<-ddply(subset(site.data.sp2,GENUS_CODE=="SSSS"),.(REGION,PooledSector_Demo_1,OBS_YEAR,STRATANAME),summarize,n=length(SITE))
 sm.test<-ddply(subset(survey_master,Benthic=="1"&EXCLUDE_FLAG=="0"&OBS_YEAR>=2013),.(REGION,ISLAND,SEC_NAME,OBS_YEAR,REEF_ZONE,DEPTH_BIN),summarize,n=length(SITE))
 
 write.csv(data.test,"tmp_sitedataQC.csv")
 write.csv(sm.test,"tmp_sitemasterQC.csv")
 
-# #Subset just Forereef Sites & just target taxa
-# site.data.sp2<-subset(site.data.sp2,REEF_ZONE=="Forereef")
-# site.data.sp2<-subset(site.data.sp2,SPCODE %in% c("ACSP", "MOSP", "PAVS", "POCS","POSP","SSSS"))
-# rich.data<-subset(rich.data,REEF_ZONE=="Forereef")
-
-# #Make sure you everything but forereef are dropped
-# table(site.data.sp2$REEF_ZONE,site.data.sp2$SPCODE)
-# table(rich.data$REEF_ZONE)
-
-site.data.sp2$STRATANAME<-paste(site.data.sp2$PooledSector,site.data.sp2$REEF_ZONE,site.data.sp2$DEPTH_BIN,sep="_")
-site.data.sp2$DB_RZ<-paste(substring(site.data.sp2$REEF_ZONE,1,1), substring(site.data.sp2$DEPTH_BIN,1,1), sep="")
-
 
 #Set ANALYSIS_SCHEMA to STRATA and DOMAIN_SCHEMA to whatever the highest level you want estimates for (e.g. sector, island, region)
 site.data.sp2$ANALYSIS_SCHEMA<-site.data.sp2$STRATANAME
-site.data.sp2$DOMAIN_SCHEMA<-site.data.sp2$PooledSector
+site.data.sp2$DOMAIN_SCHEMA<-site.data.sp2$PooledSector_Demo_1
 
-site.data.sp2$DOMAIN_SCHEMA<-site.data.sp2$PooledSector
-site.data.sp2$ANALYSIS_SCHEMA<-paste(site.data.sp2$PooledSector,site.data.sp2$DB_RZ,sep = "_")
 
 #Calculate metrics at Strata-level-We need to work on combining metrics into 1 function
 
@@ -416,53 +419,42 @@ MyMerge <- function(x, y){
 sec.data.sp<-Reduce(MyMerge, list(acdSP_sec,jcdSP_sec,odSP_sec,rdSP_sec,clSP_sec,bleSP_sec,TotDZSP_sec,AcuteDZSP_sec,ChronicDZSP_sec))
 colnames(sec.data.sp)[colnames(sec.data.sp)=="DOMAIN_SCHEMA"]<-"Sector"
 
-write.csv(st.data.sp,file="T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Stratum/BenthicREA_stratadata_SPCODE.csv")
-write.csv(is.data.sp,file="T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Island/BenthicREA_islanddata_SPCODE.csv")
-write.csv(sec.data.sp,file="T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Sector/BenthicREA_sectordata_SPCODE.csv")
+write.csv(st.data.sp,file="T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Stratum/BenthicREA_stratadata_SPCODE_updated.csv")
+write.csv(is.data.sp,file="T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Island/BenthicREA_islanddata_SPCODE_updated.csv")
+write.csv(sec.data.sp,file="T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Sector/BenthicREA_sectordata_SPCODE_updated.csv")
 
 
 # POOLING DATA from Site to Strata and Domain at TAXONCODE-level---------------------------------------------------
-survey_master<-read.csv("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/data/SURVEY MASTER.csv")
-sectors<-read.csv("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/data/Sectors-Strata-Areas.csv", stringsAsFactors=FALSE)
-
-#This function will pool data at Sector scale according to predetermined groups. Protected reef slope is converted to Forereef here
-#site.data.tax2<-PoolSecStrat(site.data.tax2)
-# rich.data<-PoolSecStrat(rich.data.gen)
-
-
 #Merge site data with Sector look up table. This table indicates how sectors should be pooled or not
 #For NCRMP viztool data- Keep pooling scheme the same across years
+#Merge site data with Sector look up table. This table indicates how sectors should be pooled or not
 site.data.tax2<-left_join(site.data.tax2,seclu)
 head(site.data.tax2)
 
-#QC CHECK to make sure the sectors and strata pooled correctly
-data.test<-ddply(subset(site.data.tax2,TAXONCODE=="SSSS"),.(REGION,PooledSector,OBS_YEAR,STRATANAME),summarize,n=length(SITE))
-sm.test<-ddply(subset(survey_master,Benthic=="1"&EXCLUDE_FLAG=="0"&OBS_YEAR>=2013),.(REGION,ISLAND,SEC_NAME,OBS_YEAR,REEF_ZONE,DEPTH_BIN),summarize,n=length(SITE))
 
-write.csv(data.test,"tmp_sitedataQC.csv")
-write.csv(sm.test,"tmp_sitemasterQC.csv")
+#Specific Changes to depth bin and reef zone
+site.data.tax2<-site.data.tax2 %>% mutate(REEF_ZONE = if_else(REEF_ZONE %in% c("Protected Slope","Forereef"), "Forereef", as.character(REEF_ZONE))) #Convert PRS to FRF
+site.data.tax2<-site.data.tax2 %>% mutate(DEPTH_BIN = if_else(ISLAND =="Kingman" & REEF_ZONE=="Lagoon", "ALL", as.character(DEPTH_BIN)))
+site.data.tax2<-site.data.tax2 %>% mutate(DEPTH_BIN = if_else(ISLAND =="Rose" & REEF_ZONE=="Backreef", "ALL", as.character(DEPTH_BIN)))
+site.data.tax2<-site.data.tax2 %>% mutate(REEF_ZONE = if_else(ISLAND =="Maug" & REEF_ZONE=="Lagoon", "Forereef", as.character(REEF_ZONE))) #Three sites were miss coded- fix in database
 
-# #Subset just Forereef Sites & just target taxa
-# site.data.tax2<-subset(site.data.tax2,REEF_ZONE=="Forereef")
-# site.data.tax2<-subset(site.data.tax2,TAXONCODE %in% c("ACSP", "MOSP", "PAVS", "POCS","POSP","SSSS"))
-# rich.data<-subset(rich.data,REEF_ZONE=="Forereef")
+#Remove some sectors or strata that were poorly sampled
+site.data.tax2 <- filter(site.data.tax2,!((SEC_NAME %in% c("GUA_ACHANG","GUA_PATI_POINT","GUA_PITI_BOMB","GUA_TUMON")& OBS_YEAR == "2017")))
+site.data.tax2 <- filter(site.data.tax2,!((ISLAND =="Johnston" & REEF_ZONE=="Lagoon")))
+site.data.tax2 <- filter(site.data.tax2,!((OBS_YEAR == "2018" & ISLAND=="Kingman" & REEF_ZONE=="Backreef")))
 
-# #Make sure you everything but forereef are dropped
-# table(site.data.tax2$REEF_ZONE,site.data.tax2$TAXONCODE)
-# table(rich.data$REEF_ZONE)
-
-site.data.tax2$STRATANAME<-paste(site.data.tax2$PooledSector,site.data.tax2$REEF_ZONE,site.data.tax2$DEPTH_BIN,sep="_")
+#Create Strataname
 site.data.tax2$DB_RZ<-paste(substring(site.data.tax2$REEF_ZONE,1,1), substring(site.data.tax2$DEPTH_BIN,1,1), sep="")
+site.data.tax2$STRATANAME=paste0(site.data.tax2$PooledSector_Demo_1,"_",site.data.tax2$DB_RZ)
 
-
-
+#QC CHECK to make sure the sectors and strata pooled correctly
+data.test<-ddply(subset(site.data.tax2,GENUS_CODE=="SSSS"),.(REGION,PooledSector_Demo_1,OBS_YEAR,STRATANAME),summarize,n=length(SITE))
+sm.test<-ddply(subset(survey_master,Benthic=="1"&EXCLUDE_FLAG=="0"&OBS_YEAR>=2013),.(REGION,ISLAND,SEC_NAME,OBS_YEAR,REEF_ZONE,DEPTH_BIN),summarize,n=length(SITE))
 
 #Set ANALYSIS_SCHEMA to STRATA and DOMAIN_SCHEMA to whatever the highest level you want estimates for (e.g. sector, island, region)
 site.data.tax2$ANALYSIS_SCHEMA<-site.data.tax2$STRATANAME
 site.data.tax2$DOMAIN_SCHEMA<-site.data.tax2$PooledSector
 
-site.data.tax2$DOMAIN_SCHEMA<-site.data.tax2$PooledSector
-site.data.tax2$ANALYSIS_SCHEMA<-paste(site.data.tax2$PooledSector,site.data.tax2$DB_RZ,sep = "_")
 
 #Calculate metrics at Strata-level-We need to work on combining metrics into 1 function
 
@@ -602,9 +594,9 @@ MyMerge <- function(x, y){
 sec.data.tax<-Reduce(MyMerge, list(acdTAX_sec,jcdTAX_sec,odTAX_sec,rdTAX_sec,clTAX_sec,bleTAX_sec,TotDZTAX_sec,AcuteDZTAX_sec,ChronicDZTAX_sec))
 colnames(sec.data.tax)[colnames(sec.data.tax)=="DOMAIN_SCHEMA"]<-"Sector"
 
-write.csv(st.data.tax,file="T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Stratum/BenthicREA_stratadata_TAXONCODE.csv")
-write.csv(is.data.tax,file="T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Island/BenthicREA_islanddata_TAXONCODE.csv")
-write.csv(sec.data.tax,file="T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Sector/BenthicREA_sectordata_TAXONCODE.csv")
+write.csv(st.data.tax,file="T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Stratum/BenthicREA_stratadata_TAXONCODE_updated.csv")
+write.csv(is.data.tax,file="T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Island/BenthicREA_islanddata_TAXONCODE_updated.csv")
+write.csv(sec.data.tax,file="T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Sector/BenthicREA_sectordata_TAXONCODE_updated.csv")
 
 #Things to work on
 #1. put pooling changes into csv file rather than write them out in text, too clunky and easy to get confused with different years
