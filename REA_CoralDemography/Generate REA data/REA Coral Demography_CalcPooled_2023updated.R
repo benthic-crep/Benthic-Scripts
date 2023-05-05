@@ -1,4 +1,10 @@
+#This script was updated from the original REA Coral Demography_CalcPooled.R. 
+#Updates:
+#1. no longer using PoolSecStrat() to define pooling structure, now using look up table PacificNCRMP_Benthic_Sectors_Lookup_v4.csv
+#This means that strata and sectors are pooled the same across all years. This is a divergence from previous years where sectors may have been pooled differently depending on sampling
+#Pooling differently across years creates a lot of confusion and caveats that are difficult to convey to end users. Happy to discuss this more. 
 
+#2. General clean up/updates to dplyr
 
 rm(list=ls())
 
@@ -8,22 +14,20 @@ source("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/lib/core_functions
 source("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/lib/GIS_functions.R")
 
 ## LOAD benthic data
-setwd("C:/Users/Courtney.S.Couch/Documents/Courtney's Files/R Files/ESD/Benthic REA")
-
-site.data.gen2<-read.csv("T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Site/BenthicREA_sitedata_GENUS.csv")
-site.data.sp2<-read.csv("T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Site/BenthicREA_sitedata_SPCODE.csv")
-site.data.tax2<-read.csv("T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Site/BenthicREA_sitedata_TAXONCODE.csv")
+site.data.gen2<-read.csv("T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Site/BenthicREA_sitedata_GENUS_updated.csv")
+site.data.sp2<-read.csv("T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Site/BenthicREA_sitedata_SPCODE_updated.csv")
+site.data.tax2<-read.csv("T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Site/BenthicREA_sitedata_TAXONCODE_updated.csv")
 
 
-site.data.gen2<-subset(site.data.gen2,ISLAND=="Maro")
-site.data.sp2<-subset(site.data.sp2,ISLAND=="Maro")
-site.data.tax2<-subset(site.data.tax2,ISLAND=="Maro")
+# site.data.gen2<-subset(site.data.gen2,ISLAND=="Rota")
+# site.data.sp2<-subset(site.data.sp2,ISLAND=="Rota")
+# site.data.tax2<-subset(site.data.tax2,ISLAND=="Rota")
 
 # Remove special missions -------------------------------------------------
 
 #Change all special missions to exclude flag =-1, right now they are 0. Then exclude these sites
 levels(as.factor(site.data.gen2$MISSIONID))
-site.data.gen2$EXCLUDE_FLAG<-ifelse(site.data.gen2$MISSIONID %in% c("MP1410","MP1512","MP1602","MP2006"),-1,0) #I left SE1602 in (2016 Jarvis and Rose)
+site.data.gen2$EXCLUDE_FLAG<-ifelse(site.data.gen2$MISSIONID %in% c("MP1410","MP1512","MP1602","MP2006","MP2206"),-1,0) #I left SE1602 in (2016 Jarvis and Rose)
 head(subset(site.data.gen2,EXCLUDE_FLAG==-1))
 
 #Actually remove special missions.
@@ -33,7 +37,7 @@ head(subset(site.data.gen2,EXCLUDE_FLAG==-1))
 
 #Taxoncode
 levels(site.data.tax2$MISSIONID)
-site.data.tax2$EXCLUDE_FLAG<-ifelse(site.data.tax2$MISSIONID %in% c("MP1410","MP1512","MP1602","MP2006"),-1,0) #I left SE1602 in (2016 Jarvis and Rose)
+site.data.tax2$EXCLUDE_FLAG<-ifelse(site.data.tax2$MISSIONID %in% c("MP1410","MP1512","MP1602","MP2006","MP2206"),-1,0) #I left SE1602 in (2016 Jarvis and Rose)
 head(subset(site.data.tax2,EXCLUDE_FLAG==-1))
 
 #Actually remove special missions.
@@ -43,7 +47,7 @@ head(subset(site.data.tax2,EXCLUDE_FLAG==-1))
 
 #Spcode
 levels(site.data.sp2$MISSIONID)
-site.data.sp2$EXCLUDE_FLAG<-ifelse(site.data.sp2$MISSIONID %in% c("MP1410","MP1512","MP1602","MP2006"),-1,0) #I left SE1602 in (2016 Jarvis and Rose)
+site.data.sp2$EXCLUDE_FLAG<-ifelse(site.data.sp2$MISSIONID %in% c("MP1410","MP1512","MP1602","MP2006","MP2206"),-1,0) #I left SE1602 in (2016 Jarvis and Rose)
 head(subset(site.data.sp2,EXCLUDE_FLAG==-1))
 
 #Actually remove special missions.
@@ -56,14 +60,29 @@ head(subset(site.data.sp2,EXCLUDE_FLAG==-1))
 survey_master<-read.csv("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/data/SURVEY MASTER.csv")
 sectors<-read.csv("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/data/Sectors-Strata-Areas.csv", stringsAsFactors=FALSE)
 seclu<-read.csv("T:/Benthic/Data/Lookup Tables/PacificNCRMP_Benthic_Sectors_Lookup_v4.csv")
-seclu<-subset(seclu,select= -c(AREA_HA,NH))
-#This function will pool data at Sector scale according to predetermined groups. Protected reef slope is converted to Forereef here
+#seclu<-subset(seclu,select= -c(AREA_HA,NH))
+#Old Pooling function- This function will pool data at Sector scale according to predetermined groups. Protected reef slope is converted to Forereef here
 #site.data.gen2<-PoolSecStrat(site.data.gen2)
 
 #Merge site data with Sector look up table. This table indicates how sectors should be pooled or not
-#For NCRMP viztool data- Keep pooling scheme the same across years
 site.data.gen2<-left_join(site.data.gen2,seclu)
 head(site.data.gen2)
+
+
+#Specific Changes to depth bin and reef zone
+site.data.gen2<-site.data.gen2 %>% mutate(REEF_ZONE = if_else(REEF_ZONE %in% c("Protected Slope","Forereef"), "Forereef", as.character(REEF_ZONE))) #Convert PRS to FRF
+site.data.gen2<-site.data.gen2 %>% mutate(DEPTH_BIN = if_else(ISLAND =="Kingman" & REEF_ZONE=="Lagoon", "ALL", as.character(DEPTH_BIN)))
+site.data.gen2<-site.data.gen2 %>% mutate(DEPTH_BIN = if_else(ISLAND =="Rose" & REEF_ZONE=="Backreef", "ALL", as.character(DEPTH_BIN)))
+site.data.gen2<-site.data.gen2 %>% mutate(REEF_ZONE = if_else(ISLAND =="Maug" & REEF_ZONE=="Lagoon", "Forereef", as.character(REEF_ZONE))) #Three sites were miss coded- fix in database
+
+#Remove some sectors or strata that were poorly sampled
+site.data.gen2 <- filter(site.data.gen2,!((SEC_NAME %in% c("GUA_ACHANG","GUA_PATI_POINT","GUA_PITI_BOMB","GUA_TUMON")& OBS_YEAR == "2017")))
+site.data.gen2 <- filter(site.data.gen2,!((ISLAND =="Johnston" & REEF_ZONE=="Lagoon")))
+site.data.gen2 <- filter(site.data.gen2,!((OBS_YEAR == "2018" & ISLAND=="Kingman" & REEF_ZONE=="Backreef")))
+
+#Create Strataname
+site.data.gen2$DB_RZ<-paste(substring(site.data.gen2$REEF_ZONE,1,1), substring(site.data.gen2$DEPTH_BIN,1,1), sep="")
+site.data.gen2$STRATANAME=paste0(site.data.gen2$PooledSector_Demo_1,"_",site.data.gen2$DB_RZ)
 
 #QC CHECK to make sure the sectors and strata pooled correctly
 data.test<-ddply(subset(site.data.gen2,GENUS_CODE=="SSSS"),.(REGION,PooledSector_Demo_1,OBS_YEAR,STRATANAME),summarize,n=length(SITE))
@@ -72,27 +91,13 @@ sm.test<-ddply(subset(survey_master,Benthic=="1"&EXCLUDE_FLAG=="0"&OBS_YEAR>=201
 write.csv(data.test,"tmp_sitedataQC.csv")
 write.csv(sm.test,"tmp_sitemasterQC.csv")
 
-# #Subset just Forereef Sites & just target taxa
-# site.data.gen2<-subset(site.data.gen2,REEF_ZONE=="Forereef")
-# site.data.gen2<-subset(site.data.gen2,GENUS_CODE %in% c("ACSP", "MOSP", "PAVS", "POCS","POSP","SSSS"))
-# rich.data<-subset(rich.data,REEF_ZONE=="Forereef")
 
-# #Make sure you everything but forereef are dropped
-# table(site.data.gen2$REEF_ZONE,site.data.gen2$GENUS_CODE)
-# table(rich.data$REEF_ZONE)
 
-site.data.gen2$STRATANAME<-paste(site.data.gen2$PooledSector_Demo_1,site.data.gen2$REEF_ZONE,site.data.gen2$DEPTH_BIN,sep="_")
-site.data.gen2$DB_RZ<-paste(substring(site.data.gen2$REEF_ZONE,1,1), substring(site.data.gen2$DEPTH_BIN,1,1), sep="")
-
+# Calculate metrics at Strata-level ---------------------------------------------------
 
 #Set ANALYSIS_SCHEMA to STRATA and DOMAIN_SCHEMA to whatever the highest level you want estimates for (e.g. sector, island, region)
 site.data.gen2$ANALYSIS_SCHEMA<-site.data.gen2$STRATANAME
 site.data.gen2$DOMAIN_SCHEMA<-site.data.gen2$PooledSector_Demo_1
-
-site.data.gen2$DOMAIN_SCHEMA<-site.data.gen2$PooledSector_Demo_1
-site.data.gen2$ANALYSIS_SCHEMA<-paste(site.data.gen2$PooledSector_Demo_1,site.data.gen2$DB_RZ,sep = "_")
-
-#Calculate metrics at Strata-level-We need to work on combining metrics into 1 function
 
 #Create a vector of columns to subset for strata estimates
 c.keep<-c("METHOD","REGION","ISLAND","ANALYSIS_YEAR","DOMAIN_SCHEMA","ANALYSIS_SCHEMA","REEF_ZONE","DB_RZ","GENUS_CODE",
@@ -137,12 +142,13 @@ View(acdG_st)
 View(sectors)
 
 
+# Calculate metrics at Island-level ---------------------------------------------------
+
+
 #Set ANALYSIS_SCHEMA to STRATA and DOMAIN_SCHEMA to whatever the highest level you want estimates for (e.g. sector, island, region)
 site.data.gen2$ANALYSIS_SCHEMA<-site.data.gen2$STRATANAME
 site.data.gen2$DOMAIN_SCHEMA<-site.data.gen2$ISLAND
 
-
-#Calculate Island Estimates
 acdG_is<-Calc_Domain(site.data.gen2,"GENUS_CODE","AdColDen","Adpres.abs")
 acdG_is<-acdG_is[,c("METHOD","REGION","ANALYSIS_YEAR","DOMAIN_SCHEMA","GENUS_CODE","n","Ntot","Mean_AdColDen","SE_AdColDen","CV_D._st","Y._st","SE_Y._st")]
 colnames(acdG_is)[colnames(acdG_is)=="CV_D._st"]<-"Adult_CV"
@@ -172,9 +178,9 @@ ChronicDZG_is<-Calc_Domain_Prevalence(site.data.gen2,"GENUS_CODE","ChronicDZ")
 ChronicDZG_is<-ChronicDZG_is[,c("METHOD","REGION","ANALYSIS_YEAR","DOMAIN_SCHEMA","GENUS_CODE","n","Ntot","Mean_ChronicDZ_Prev","SE_ChronicDZ_Prev")]
 
 
-#Calculate Sector Estimates
+# Calculate metrics at Sector-level ---------------------------------------------------
 site.data.gen2$ANALYSIS_SCHEMA<-site.data.gen2$STRATANAME
-site.data.gen2$DOMAIN_SCHEMA<-site.data.gen2$PooledSector
+site.data.gen2$DOMAIN_SCHEMA<-site.data.gen2$PooledSector_Demo_1
 
 
 acdG_sec<-Calc_Domain(site.data.gen2,"GENUS_CODE","AdColDen","Adpres.abs")
@@ -204,8 +210,6 @@ ChronicDZG_sec<-Calc_Domain_Prevalence(site.data.gen2,"GENUS_CODE","ChronicDZ")
 ChronicDZG_sec<-ChronicDZG_sec[,c("METHOD","REGION","ANALYSIS_YEAR","ISLAND","DOMAIN_SCHEMA","GENUS_CODE","n","Ntot","Mean_ChronicDZ_Prev","SE_ChronicDZ_Prev")]
 
 
-
-
 MyMerge <- function(x, y){
   df <- merge(x, y, by= c("METHOD","REGION","ISLAND","ANALYSIS_YEAR","SECTOR","Stratum","REEF_ZONE","DB_RZ","GENUS_CODE","n","Ntot"), all.x= TRUE, all.y= TRUE)
   return(df)
@@ -230,9 +234,9 @@ MyMerge <- function(x, y){
 sec.data.gen<-Reduce(MyMerge, list(acdG_sec,jcdG_sec,odG_sec,rdG_sec,clG_sec,bleG_sec,TotDZG_sec,AcuteDZG_sec,ChronicDZG_sec))
 colnames(sec.data.gen)[colnames(sec.data.gen)=="DOMAIN_SCHEMA"]<-"Sector"
 
-write.csv(st.data.gen,file="T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Stratum/BenthicREA_stratadata_GENUS.csv")
-write.csv(is.data.gen,file="T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Island/BenthicREA_islanddata_GENUS.csv")
-write.csv(sec.data.gen,file="T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Sector/BenthicREA_sectordata_GENUS.csv")
+write.csv(st.data.gen,file="T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Stratum/BenthicREA_stratadata_GENUS_updated.csv")
+write.csv(is.data.gen,file="T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Island/BenthicREA_islanddata_GENUS_updated.csv")
+write.csv(sec.data.gen,file="T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Sector/BenthicREA_sectordata_GENUS_updated.csv")
 
 
 # POOLING DATA from Site to Strata and Domain at SPCODE-level---------------------------------------------------
