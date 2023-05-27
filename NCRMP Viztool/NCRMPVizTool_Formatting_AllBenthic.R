@@ -4,9 +4,12 @@
 rm(list=ls())
 
 #LOAD LIBRARY FUNCTIONS ...
-source("C:/Users/Courtney.S.Couch/Documents/GitHub/Benthic-Scripts/Functions/Benthic_Functions_newApp_vTAOfork.R")
-source("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/lib/core_functions.R")
-source("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/lib/GIS_functions.R")
+# source("C:/Users/Courtney.S.Couch/Documents/GitHub/Benthic-Scripts/Functions/Benthic_Functions_newApp_vTAOfork.R")
+# source("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/lib/core_functions.R")
+# source("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/lib/GIS_functions.R")
+source("./Benthic-Scripts/Functions/Benthic_Functions_newApp_vTAOfork.R")
+source("../fish-paste/lib/core_functions.R")
+source("../fish-paste/lib/GIS_functions.R")
 
 #Read in DEMOGRAPHIC data ####
 st.demo<-read.csv("T:/Benthic/Data/Data Requests/NCRMPViztool/2022/unformatted/BenthicREA_STRATA_Demo_Viztool.csv")

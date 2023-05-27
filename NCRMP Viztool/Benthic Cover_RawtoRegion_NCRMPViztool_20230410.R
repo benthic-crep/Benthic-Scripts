@@ -19,7 +19,7 @@ rm(list=ls())
 
 #LOAD LIBRARY FUNCTIONS ... 
 library(lubridate)
-source("./Functions/Benthic_Functions_newApp.R")
+source("./Functions/Benthic_Functions_newApp_vTAOfork.R")
 source("../fish-paste/lib/core_functions.R")
 source("../fish-paste/lib/fish_team_functions.R")
 source("../fish-paste/lib/Islandwide Mean&Variance Functions.R")
@@ -94,7 +94,7 @@ ab<-left_join(ab,codes_lu)
 #With the exception of OCC 2012 sites, there should be 30 images/site/10 points/image
 test<-ddply(ab,.(OBS_YEAR,SITEVISITID,SITE),summarize,count=sum(POINTS))
 test2<-test[test$count<150 |test$count>330,]
-View(test2)
+#View(test2)
 #Ignore 2012 OCC sites. They analyzed 50 points per images 
 
 #Remove sites with less than 150 points -These really should be removed from Oracle eventually
@@ -253,7 +253,7 @@ head(wsd_t1)
 
 #Are there NAs in TRANSECT PHOTOS
 test<-wsd_t1[is.na(wsd_t1$TRANSECT_PHOTOS),]
-View(test) # none of the 2010 imagery has TRANSECT_PHOTOS assigned - ASK MICHAEL TO FIX
+#View(test) # none of the 2010 imagery has TRANSECT_PHOTOS assigned - ASK MICHAEL TO FIX
 wsd_t1$TRANSECT_PHOTOS<-"-1" #make sure that all rows = -1
 
 
@@ -319,7 +319,7 @@ head(wsd_t2)
 
 #Are there NAs in TRANSECT PHOTOS
 test<-wsd_t2[is.na(wsd_t2$TRANSECT_PHOTOS),]
-View(test) # none of the 2010 imagery has TRANSECT_PHOTOS assigned - ASK MICHAEL TO FIX
+#View(test) # none of the 2010 imagery has TRANSECT_PHOTOS assigned - ASK MICHAEL TO FIX
 wsd_t2$TRANSECT_PHOTOS<-"-1" #make sure that all rows = -1
 
 
@@ -345,7 +345,7 @@ wsd_t2<-filter(wsd_t2,OBS_YEAR>=2013) # drop sites before 2013- corals only iden
 # CHECK THAT DATA IS READY FOR POOLING AND DO SOME FINAL CLEAN UPS --------
 
 #Identify which taxonomic level you would like to summarize
-TIER=1#1
+TIER=2#1#
 
 if(TIER==1){
   wsd<-wsd_t1
@@ -390,9 +390,9 @@ wsd<-left_join(wsd,seclu)
 wsd<-left_join(wsd,sectors)
 
 
-#Create Stata column
+#Create Strata column
 wsd$STRATA<-paste(substring(wsd$REEF_ZONE,1,1), substring(wsd$DEPTH_BIN,1,1), sep="")
-wsd$STRATANAME_TRENDS<-paste(wsd$SEC_NAME,wsd$REEF_ZONE,wsd$DEPTH_BIN,sep="_")
+wsd$STRATANAME_TRENDS<-paste(wsd$PooledSector_Viztool,wsd$REEF_ZONE,wsd$DEPTH_BIN,sep="_")
 sectors$STRATA<-paste(substring(sectors$REEF_ZONE,1,1), substring(sectors$DEPTH_BIN,1,1), sep="")
 
 
@@ -433,17 +433,19 @@ wsd$REGION_YEAR<-ifelse((wsd$ISLAND=="Wake" & wsd$ANALYSIS_YEAR=="2017"),"PRIAs_
 table(wsd$REGION_YEAR)
 
 ####Don't remove PRIAs data####
-#remove<-c("PRIAs_2016","PRIAs_2017")
-#wsd<-dplyr::filter(wsd, !REGION_YEAR %in% remove)
+remove<-c("PRIAs_2016","PRIAs_2017")
+wsd<-dplyr::filter(wsd, !REGION_YEAR %in% remove)
 
 
 #Change Analysis year according to desired pooling
 wsd[is.na(wsd$ANALYSIS_YEAR),]
-levels(wsd$ANALYSIS_YEAR)<-c(levels(wsd$ANALYSIS_YEAR),"2015-16","2014-15","2017-18")
+levels(wsd$ANALYSIS_YEAR)<-sort(unique(c(unique(wsd$ANALYSIS_YEAR),"2015-16","2014-15","2017-18")))
 i_1012_hi=which(wsd$REGION %in% c("MHI", "NWHI") & wsd$OBS_YEAR %in% seq(2010,2012))
 if(length(i_1012_hi)>0) {wsd[i_1012_hi,]$ANALYSIS_YEAR<-"2010-12"}
 wsd[wsd$REGION %in% c("MHI", "NWHI") & wsd$OBS_YEAR %in% seq(2013,2015),]$ANALYSIS_YEAR<-"2013-15"
 wsd[wsd$REGION %in% c("SAMOA") & wsd$OBS_YEAR %in% seq(2015,2016),]$ANALYSIS_YEAR<-"2015-16"
+
+#nNce we get to region: Pooled Wake -> rest of pria by changing analysis year...
 wsd[wsd$REGION %in% c("PRIAs") & wsd$OBS_YEAR %in% seq(2014,2015),]$ANALYSIS_YEAR<-"2014-15"
 wsd[wsd$REGION %in% c("PRIAs") & wsd$OBS_YEAR %in% seq(2017,2018),]$ANALYSIS_YEAR<-"2017-18"
 
@@ -454,7 +456,11 @@ sectors$AREA_HA<-as.numeric(sectors$AREA_HA)
 
 #NOW CHECK HOW MANY REPS WE HAVE PER STRATA
 a<-dcast(wsd, ISLAND + ANALYSIS_SEC + OBS_YEAR ~ STRATA, value.var="AREA_HA", length); a
+View(a)
 
+RepTab=wsd %>% group_by(REGION,ANALYSIS_SEC) %>% filter(OBS_YEAR>=2013)%>% dplyr::count(ANALYSIS_YEAR) %>% pivot_wider(names_from=ANALYSIS_YEAR,values_from = n)
+RepTab=RepTab[,c(names(RepTab)[1:2],sort(names(RepTab)[3:10]))]
+RepTab %>% print(n=999)
 ####################################################################################################################################################################
 #
 #     POOL WSD (WORKING SITE DATA TO STRATA THEN TO HIGHER LEVELS
@@ -478,12 +484,16 @@ wsd<-left_join(wsd,new.area)
 
 ###### Build out Complete and Trends Dataset
 wsd$SEC_STR=paste0(wsd$ANALYSIS_SEC,"_",wsd$STRATA)
+#
 wsd=wsd %>%
   mutate(SAMPLING_REGION= case_when(
     ISLAND =="Wake" ~ "MARIAN",
     REGION =="CNMI" ~ "MARIAN",
     REGION =="GUA" ~ "MARIAN",
     TRUE ~ as.character(REGION)))
+
+#Drop Data before 2013
+wsd=wsd %>% filter(OBS_YEAR>=2013)
 
 ###### REMOVE STRATA that are undersampled in specific years (N<2) (cannot pool those up)
 #2023 MARCH - SUBSET FOR TEMPORALLY COHERENT STRATA LEVEL SAMPLING - NO LESS THAN 2 SAMPLES PER STRATA THE WHOLE TIME
@@ -497,12 +507,16 @@ REG_STRATA=unique(strat2drop[,c("SAMPLING_REGION","STRATANAME_TRENDS")])
 REG_STRATA$SR_STR=paste0(REG_STRATA$SAMPLING_REGION,"_",REG_STRATA$STRATANAME_TRENDS)
 
 #Years in which a region should have been sampled
+Canonical_N=200
+REGIONAL_SAMPLING_EFFORT_YEARS=table(strat2drop[,c("REGION","OBS_YEAR")],useNA = "ifany") %>%
+  as.data.frame() %>%   mutate(SR_YR=paste0(REGION,"_",OBS_YEAR))  %>% arrange(REGION) %>% filter(Freq>0)
+
 REGIONAL_SAMPLING_EFFORT_YEARS=table(strat2drop[,c("SAMPLING_REGION","ANALYSIS_YEAR")],useNA = "ifany") %>%
   as.data.frame() %>%   mutate(SR_YR=paste0(SAMPLING_REGION,"_",ANALYSIS_YEAR))  %>% arrange(SAMPLING_REGION) %>% filter(Freq>0)
-REGIONAL_SAMPLING_EFFORT_YEARS_CANON=REGIONAL_SAMPLING_EFFORT_YEARS %>% filter(Freq>100) %>% arrange(SAMPLING_REGION)
+REGIONAL_SAMPLING_EFFORT_YEARS_CANON=REGIONAL_SAMPLING_EFFORT_YEARS %>% filter(Freq>Canonical_N) %>% arrange(SAMPLING_REGION)
 
 #Highlight special island level sampling
-REGIONAL_SAMPLING_EFFORT_YEARS_SP=REGIONAL_SAMPLING_EFFORT_YEARS %>% filter(Freq<=100&Freq>0) 
+REGIONAL_SAMPLING_EFFORT_YEARS_SP=REGIONAL_SAMPLING_EFFORT_YEARS %>% filter(Freq<=Canonical_N&Freq>0) 
 ISLAND_SAMPLING_EFFORT_YEARS=table(strat2drop[,c("SAMPLING_REGION","ISLAND","ANALYSIS_YEAR")],useNA = "ifany") %>%
   as.data.frame() %>%   
   mutate(SR_YR=paste0(SAMPLING_REGION,"_",ANALYSIS_YEAR)) %>% 
@@ -523,6 +537,9 @@ Low_Freq_STR_Canon=Actual_Sample_Table %>%
 
 DropSTR_Canon=unique(Low_Freq_STR_Canon$STRATANAME_TRENDS)
 
+#dropwsd=wsd %>% filter(STRATANAME_TRENDS%in%DropSTR_Canon)
+#table(dropwsd[,c("STRATANAME_TRENDS","ANALYSIS_YEAR","REGION")])
+
 Low_Freq_STR_SP=Actual_Sample_Table %>%
   filter(SR_YR %in% REGIONAL_SAMPLING_EFFORT_YEARS_SP$SR_YR) 
 Low_Freq_STR_SP=Low_Freq_STR_SP %>% 
@@ -539,24 +556,44 @@ DropSTR=union(DropSTR_Canon,DropSTR_SP)
 
 ###### GENERATE "TRENDS" DATA OF STRATA, by REMOVING ANY STRATUM with N<=1 in any sample year
 #Continue with wsdComp and wsdTrend
-wsdComp=wsd
-wsdTrend=wsd %>% filter(!STRATANAME_TRENDS%in%DropSTR)
+
+wsdComp=wsd #Leave all sites in there until we dump stratum-year N=1
+wsdTrend=wsd %>% filter(!STRATANAME_TRENDS%in%DropSTR) #Filter out any undersampled stratum from DropSTR
 dim(wsdComp)
 dim(wsdTrend)
 
 
+### CALCULATE MEAN AND VARIANCE WITHIN STRATA ###
+SPATIAL_POOLING_BASE<-c("REGION","ISLAND", "ANALYSIS_SEC", "REEF_ZONE", "STRATA")    
+ADDITIONAL_POOLING_BY<-c("ANALYSIS_YEAR")                                    # additional fields that we want to break data at, but which do not relate to physical areas (eg survey year or method)
+
+#generate within strata means and vars
+POOLING_LEVEL<-c(SPATIAL_POOLING_BASE, ADDITIONAL_POOLING_BY)
+dpsComp<-Calc_PerStrata(wsdComp, data.cols, c(POOLING_LEVEL, "AREA_HA_correct"))
+
+#Clear out any Stratum-Year combo at N=1
+dpsComp$Mean=dpsComp$Mean %>% filter(N>1)
+dpsComp$SampleSE=dpsComp$SampleSE %>% filter(N>1)
+dpsComp$SampleVar=dpsComp$SampleVar %>% filter(N>1)
+min(dpsComp$Mean$N)
+
+dpsTrend<-Calc_PerStrata(wsdTrend, data.cols, c(POOLING_LEVEL, "AREA_HA_correct"))
+min(dpsTrend$Mean$N)
+
 #Complete
-dpstC<-dpsComp
+dpstC=dpsComp
 colnames(dpstC$Mean)[9:ncol(dpstC$Mean)] <- paste("Mean.", colnames(dpstC$Mean[,9:ncol(dpstC$Mean)]), sep = "")
 colnames(dpstC$SampleSE)[9:ncol(dpstC$SampleSE)] <- paste("SE.", colnames(dpstC$SampleSE[,9:ncol(dpstC$SampleSE)]), sep = "")
 dpstC<-left_join(dpstC$Mean,dpstC$SampleSE)
 
 #Trends
-dpstT<-dpsTrend
+dpstT=dpsTrend
 colnames(dpstT$Mean)[9:ncol(dpstT$Mean)] <- paste("Mean.", colnames(dpstT$Mean[,9:ncol(dpstT$Mean)]), sep = "")
 colnames(dpstT$SampleSE)[9:ncol(dpstT$SampleSE)] <- paste("SE.", colnames(dpstT$SampleSE[,9:ncol(dpstT$SampleSE)]), sep = "")
 dpstT<-left_join(dpstT$Mean,dpstT$SampleSE)
 
+#Drop GUAM MPA from Trends Dataset
+dpstT=dpstT %>% filter(ANALYSIS_SEC!="GUA_MP")
 
 ri<-read.csv("T:/Benthic/Data/Lookup Tables/NCRMP_Regions_Islands.csv")
 ri <- ri %>% mutate(ri,
@@ -577,13 +614,13 @@ if(TIER==1){
 
 #SAVE BY SECTOR PER YEAR
 OUTPUT_LEVEL<-c("REGION","ISLAND","ANALYSIS_SEC","ANALYSIS_YEAR") 
-dpsecC<-Calc_Pooled_Simple(dpsComp$Mean, dpsComp$SampleVar, data.cols, OUTPUT_LEVEL, "AREA_HA")
+dpsecC<-Calc_Pooled_Simple(dpsComp$Mean, dpsComp$SampleVar, data.cols, OUTPUT_LEVEL, "AREA_HA_correct")
 colnames(dpsecC$Mean)[6:ncol(dpsecC$Mean)] <- paste("Mean.", colnames(dpsecC$Mean[,6:ncol(dpsecC$Mean)]), sep = "")
 colnames(dpsecC$PooledSE)[6:ncol(dpsecC$PooledSE)] <- paste("SE.", colnames(dpsecC$PooledSE[,6:ncol(dpsecC$PooledSE)]), sep = "")
 dpsecC<-left_join(dpsecC$Mean,dpsecC$PooledSE)
 dpsecC<-left_join(dpsecC,ri)
 
-dpsecT<-Calc_Pooled_Simple(dpsTrend$Mean, dpsTrend$SampleVar, data.cols, OUTPUT_LEVEL, "AREA_HA")
+dpsecT<-Calc_Pooled_Simple(dpsTrend$Mean, dpsTrend$SampleVar, data.cols, OUTPUT_LEVEL, "AREA_HA_correct")
 colnames(dpsecT$Mean)[6:ncol(dpsecT$Mean)] <- paste("Mean.", colnames(dpsecT$Mean[,6:ncol(dpsecT$Mean)]), sep = "")
 colnames(dpsecT$PooledSE)[6:ncol(dpsecT$PooledSE)] <- paste("SE.", colnames(dpsecT$PooledSE[,6:ncol(dpsecT$PooledSE)]), sep = "")
 dpsecT<-left_join(dpsecT$Mean,dpsecT$PooledSE)
@@ -600,13 +637,13 @@ if(TIER==1){
 
 # e.g. SAVE BY ISLAND PER YEAR
 OUTPUT_LEVEL<-c("REGION","ISLAND","ANALYSIS_YEAR") 
-dpisC<-Calc_Pooled_Simple(dpsComp$Mean, dpsComp$SampleVar, data.cols, OUTPUT_LEVEL, "AREA_HA")
+dpisC<-Calc_Pooled_Simple(dpsComp$Mean, dpsComp$SampleVar, data.cols, OUTPUT_LEVEL, "AREA_HA_correct")
 colnames(dpisC$Mean)[5:ncol(dpisC$Mean)] <- paste("Mean.", colnames(dpisC$Mean[,5:ncol(dpisC$Mean)]), sep = "")
 colnames(dpisC$PooledSE)[5:ncol(dpisC$PooledSE)] <- paste("SE.", colnames(dpisC$PooledSE[,5:ncol(dpisC$PooledSE)]), sep = "")
 dpisC<-left_join(dpisC$Mean,dpisC$PooledSE)
 dpisC<-left_join(dpisC,ri)
 
-dpisT<-Calc_Pooled_Simple(dps$Mean, dps$SampleVar, data.cols, OUTPUT_LEVEL, "AREA_HA")
+dpisT<-Calc_Pooled_Simple(dpsTrend$Mean, dpsTrend$SampleVar, data.cols, OUTPUT_LEVEL, "AREA_HA_correct")
 colnames(dpisT$Mean)[5:ncol(dpisT$Mean)] <- paste("Mean.", colnames(dpisT$Mean[,5:ncol(dpisT$Mean)]), sep = "")
 colnames(dpisT$PooledSE)[5:ncol(dpisT$PooledSE)] <- paste("SE.", colnames(dpisT$PooledSE[,5:ncol(dpisT$PooledSE)]), sep = "")
 dpisT<-left_join(dpisT$Mean,dpisT$PooledSE)
@@ -614,29 +651,45 @@ dpisT<-left_join(dpisT,ri)
 
 if(TIER==1){
   write.csv(dpisC, file="T:/Benthic/Data/Data Requests/NCRMPViztool/2022/unformatted/BenthicCover_2010-2019_Tier1_ISLAND_Complete_Viztool.csv",row.names = F)
-  write.csv(dpisC, file="T:/Benthic/Data/Data Requests/NCRMPViztool/2022/unformatted/BenthicCover_2010-2019_Tier1_ISLAND_Trends_Viztool.csv",row.names = F)
+  write.csv(dpisT, file="T:/Benthic/Data/Data Requests/NCRMPViztool/2022/unformatted/BenthicCover_2010-2019_Tier1_ISLAND_Trends_Viztool.csv",row.names = F)
 }else{
-  write.csv(dpisT, file="T:/Benthic/Data/Data Requests/NCRMPViztool/2022/unformatted/BenthicCover_2010-2019_Tier2b_ISLAND_Complete_Viztool.csv",row.names = F)
+  write.csv(dpisC, file="T:/Benthic/Data/Data Requests/NCRMPViztool/2022/unformatted/BenthicCover_2010-2019_Tier2b_ISLAND_Complete_Viztool.csv",row.names = F)
   write.csv(dpisT, file="T:/Benthic/Data/Data Requests/NCRMPViztool/2022/unformatted/BenthicCover_2010-2019_Tier2b_ISLAND_Trends_Viztool.csv",row.names = F)
 }
 
 # e.g. SAVE BY REGION PER YEAR
 OUTPUT_LEVEL<-c("REGION","ANALYSIS_YEAR") 
-dprC<-Calc_Pooled_Simple(dpsComp$Mean, dpsComp$SampleVar, data.cols, OUTPUT_LEVEL, "AREA_HA")
+dprC<-Calc_Pooled_Simple(dpsComp$Mean, dpsComp$SampleVar, data.cols, OUTPUT_LEVEL, "AREA_HA_correct")
 colnames(dprC$Mean)[4:ncol(dprC$Mean)] <- paste("Mean.", colnames(dprC$Mean[,4:ncol(dprC$Mean)]), sep = "")
 colnames(dprC$PooledSE)[4:ncol(dprC$PooledSE)] <- paste("SE.", colnames(dprC$PooledSE[,4:ncol(dprC$PooledSE)]), sep = "")
 dprC<-left_join(dprC$Mean,dprC$PooledSE)
 
-dprT<-Calc_Pooled_Simple(dpsTrend$Mean, dpsTrend$SampleVar, data.cols, OUTPUT_LEVEL, "AREA_HA")
+#Drop "Special" Mission (i.e. Howland, Baker, Jarvis in 2016 and 2017)
+dpsTrendREG=dpsTrend
+dpsTrendREG$Mean=dpsTrendREG$Mean %>% filter(!(ISLAND %in% c("Howland", "Baker", "Jarvis")&ANALYSIS_YEAR%in%c("2016","2017")))
+dpsTrendREG$SampleVar=dpsTrendREG$SampleVar %>% filter(!(ISLAND %in% c("Howland", "Baker", "Jarvis")&ANALYSIS_YEAR%in%c("2016","2017")))
+
+#Pool Wake with rest of Pria
+dpsTrendREG$Mean=dpsTrend$Mean %>% filter() %>% mutate(ANALYSIS_YEAR= case_when(
+  ANALYSIS_YEAR %in% c("2014","2015") & REGION=="PRIAs" ~ "2014_2015",
+  ANALYSIS_YEAR %in% c("2017","2018") & REGION=="PRIAs" ~ "2017_2018",
+  TRUE ~ ANALYSIS_YEAR))
+
+dpsTrendREG$SampleVar=dpsTrend$SampleVar %>% mutate(ANALYSIS_YEAR= case_when(
+  ANALYSIS_YEAR %in% c("2014","2015") & REGION=="PRIAs" ~ "2014_2015",
+  ANALYSIS_YEAR %in% c("2017","2018") & REGION=="PRIAs" ~ "2017_2018",
+  TRUE ~ ANALYSIS_YEAR))
+
+dprT<-Calc_Pooled_Simple(dpsTrendREG$Mean, dpsTrendREG$SampleVar, data.cols, OUTPUT_LEVEL, "AREA_HA_correct")
 colnames(dprT$Mean)[4:ncol(dprT$Mean)] <- paste("Mean.", colnames(dprT$Mean[,4:ncol(dprT$Mean)]), sep = "")
 colnames(dprT$PooledSE)[4:ncol(dprT$PooledSE)] <- paste("SE.", colnames(dprT$PooledSE[,4:ncol(dprT$PooledSE)]), sep = "")
 dprT<-left_join(dprT$Mean,dprT$PooledSE)
 
 if(TIER==1){
-  write.csv(dprC, file="T:/Benthic/Data/Data Requests/NCRMPViztool/2022/unformatted/BenthicCover_2010-2019_Tier1_REGION_Viztool.csv",row.names = F)
-  write.csv(dprT, file="T:/Benthic/Data/Data Requests/NCRMPViztool/2022/unformatted/BenthicCover_2010-2019_Tier1_REGION_Viztool.csv",row.names = F)
+  write.csv(dprC, file="T:/Benthic/Data/Data Requests/NCRMPViztool/2022/unformatted/BenthicCover_2010-2019_Tier1_REGION_Complete_Viztool.csv",row.names = F)
+  write.csv(dprT, file="T:/Benthic/Data/Data Requests/NCRMPViztool/2022/unformatted/BenthicCover_2010-2019_Tier1_REGION_Trends_Viztool.csv",row.names = F)
 }else{
-  write.csv(dprC, file="T:/Benthic/Data/Data Requests/NCRMPViztool/2022/unformatted/BenthicCover_2010-2019_Tier2b_REGION_Viztool.csv",row.names = F)
-  write.csv(dprT, file="T:/Benthic/Data/Data Requests/NCRMPViztool/2022/unformatted/BenthicCover_2010-2019_Tier2b_REGION_Viztool.csv",row.names = F)
+  write.csv(dprC, file="T:/Benthic/Data/Data Requests/NCRMPViztool/2022/unformatted/BenthicCover_2010-2019_Tier2b_REGION_Complete_Viztool.csv",row.names = F)
+  write.csv(dprT, file="T:/Benthic/Data/Data Requests/NCRMPViztool/2022/unformatted/BenthicCover_2010-2019_Tier2b_REGION_Trends_Viztool.csv",row.names = F)
 }
 
