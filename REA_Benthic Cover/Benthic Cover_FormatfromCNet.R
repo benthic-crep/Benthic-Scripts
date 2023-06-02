@@ -1,7 +1,7 @@
 #Typically CoralNet data is downloaded from CoralNet then sent to the Data services team to upload to Oracle then merge with various look up tables
 #However, there may be times when you want to download data from CoralNet and immediately summarize the data before sending it the data team
 #This script will help you format data so it can be integrated into the larger dataset
-
+#Note- the sites will need to included in the SURVEY MASTER file
 
 rm(list=ls())
 
@@ -36,10 +36,11 @@ colnames(lu)[colnames(lu)=="Cnet_SHORT_CODE"]<-"SHORT_CODE"
 # f15<-read.csv("2015_NWHI_CnetAnnotations_fish.csv")
 # b17<-read.csv("2017_NWHI_CnetAnnotations_benthic.csv")
 #laysan<-read.csv("2015_2017_NWHI_CnetAnnotations_Laysan.csv")
-nwhi<-read.csv("2014_2017_NWHI_CnetAnnotations.csv")
+# nwhi<-read.csv("2014_2017_NWHI_CnetAnnotations.csv")
+swa<-read.csv("2023_Swains_CnetAnnotations.csv")
 
 #tmp<-rbind(f15,b17)
-tmp<-nwhi
+tmp<-swa
 
 new.cov<-tmp
 head(new.cov)
@@ -48,7 +49,7 @@ head(new.cov)
 names(new.cov)<-toupper(names(new.cov));head(new.cov)
 
 colnames(new.cov)[colnames(new.cov)=="LABEL"]<-"SHORT_CODE"
-colnames(new.cov)[colnames(new.cov)=="DATE_"]<-"DATE_TAKEN"
+colnames(new.cov)[colnames(new.cov)=="DATE"]<-"DATE_TAKEN"
 colnames(new.cov)[colnames(new.cov)=="DATE.ANNOTATED"]<-"DATE_ANNOTATED"
 colnames(new.cov)[colnames(new.cov)=="ROW"]<-"ROW_"
 colnames(new.cov)[colnames(new.cov)=="COLUMN"]<-"COL"
@@ -88,7 +89,7 @@ head(new.cov)
 
 
 #Join with survey master
-survey_master<-read.csv("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/data/SURVEY MASTER.csv")
+#survey_master<-read.csv("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/data/SURVEY MASTER.csv")
 
 #Use SM coordinates-some coordinates are wrong in data and need to be updated
 colnames(survey_master)[colnames(survey_master)=="LATITUDE_LOV"]<-"LATITUDE" #Change column name- we will eventually change this column back to "taxoncode" after we modify the spcode names to match the taxalist we all feel comfortable identifying

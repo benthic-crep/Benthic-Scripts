@@ -19,9 +19,9 @@ site.data.sp2<-read.csv("T:/Benthic/Data/REA Coral Demography & Cover/Summary Da
 site.data.tax2<-read.csv("T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Site/BenthicREA_sitedata_TAXONCODE_updated.csv")
 
 
-# site.data.gen2<-subset(site.data.gen2,ISLAND=="Rota")
-# site.data.sp2<-subset(site.data.sp2,ISLAND=="Rota")
-# site.data.tax2<-subset(site.data.tax2,ISLAND=="Rota")
+# site.data.gen2<-subset(site.data.gen2,ISLAND=="Sarigan")
+# site.data.sp2<-subset(site.data.sp2,ISLAND=="Sarigan")
+# site.data.tax2<-subset(site.data.tax2,ISLAND=="Sarigan")
 
 # Remove special missions -------------------------------------------------
 
@@ -74,6 +74,11 @@ site.data.gen2<-site.data.gen2 %>% mutate(REEF_ZONE = if_else(REEF_ZONE %in% c("
 site.data.gen2<-site.data.gen2 %>% mutate(DEPTH_BIN = if_else(ISLAND =="Kingman" & REEF_ZONE=="Lagoon", "ALL", as.character(DEPTH_BIN)))
 site.data.gen2<-site.data.gen2 %>% mutate(DEPTH_BIN = if_else(ISLAND =="Rose" & REEF_ZONE=="Backreef", "ALL", as.character(DEPTH_BIN)))
 site.data.gen2<-site.data.gen2 %>% mutate(REEF_ZONE = if_else(ISLAND =="Maug" & REEF_ZONE=="Lagoon", "Forereef", as.character(REEF_ZONE))) #Three sites were miss coded- fix in database
+
+#Change SGA
+site.data.gen2<-site.data.gen2 %>% mutate(ISLAND = if_else(PooledSector_Demo_1 == "SGA", "SGA", as.character(ISLAND))) #Convert PRS to FRF
+site.data.gen2<-site.data.gen2 %>% mutate(ISLANDCODE = if_else(PooledSector_Demo_1 == "SGA", "SGA", as.character(ISLANDCODE))) #Convert PRS to FRF
+
 
 #Remove some sectors or strata that were poorly sampled
 site.data.gen2 <- filter(site.data.gen2,!((SEC_NAME %in% c("GUA_ACHANG","GUA_PATI_POINT","GUA_PITI_BOMB","GUA_TUMON")& OBS_YEAR == "2017")))
@@ -261,6 +266,10 @@ site.data.sp2<-site.data.sp2 %>% mutate(DEPTH_BIN = if_else(ISLAND =="Kingman" &
 site.data.sp2<-site.data.sp2 %>% mutate(DEPTH_BIN = if_else(ISLAND =="Rose" & REEF_ZONE=="Backreef", "ALL", as.character(DEPTH_BIN)))
 site.data.sp2<-site.data.sp2 %>% mutate(REEF_ZONE = if_else(ISLAND =="Maug" & REEF_ZONE=="Lagoon", "Forereef", as.character(REEF_ZONE))) #Three sites were miss coded- fix in database
 
+site.data.sp2<-site.data.sp2 %>% mutate(ISLAND = if_else(PooledSector_Demo_1 == "SGA", "SGA", as.character(ISLAND))) #Convert PRS to FRF
+site.data.sp2<-site.data.sp2 %>% mutate(ISLANDCODE = if_else(PooledSector_Demo_1 == "SGA", "SGA", as.character(ISLANDCODE))) #Convert PRS to FRF
+
+
 #Remove some sectors or strata that were poorly sampled
 site.data.sp2 <- filter(site.data.sp2,!((SEC_NAME %in% c("GUA_ACHANG","GUA_PATI_POINT","GUA_PITI_BOMB","GUA_TUMON")& OBS_YEAR == "2017")))
 site.data.sp2 <- filter(site.data.sp2,!((ISLAND =="Johnston" & REEF_ZONE=="Lagoon")))
@@ -271,7 +280,7 @@ site.data.sp2$DB_RZ<-paste(substring(site.data.sp2$REEF_ZONE,1,1), substring(sit
 site.data.sp2$STRATANAME=paste0(site.data.sp2$PooledSector_Demo_1,"_",site.data.sp2$DB_RZ)
 
 #QC CHECK to make sure the sectors and strata pooled correctly
-data.test<-ddply(subset(site.data.sp2,GENUS_CODE=="SSSS"),.(REGION,PooledSector_Demo_1,OBS_YEAR,STRATANAME),summarize,n=length(SITE))
+data.test<-ddply(subset(site.data.sp2,SPCODE=="SSSS"),.(REGION,PooledSector_Demo_1,OBS_YEAR,STRATANAME),summarize,n=length(SITE))
 sm.test<-ddply(subset(survey_master,Benthic=="1"&EXCLUDE_FLAG=="0"&OBS_YEAR>=2013),.(REGION,ISLAND,SEC_NAME,OBS_YEAR,REEF_ZONE,DEPTH_BIN),summarize,n=length(SITE))
 
 write.csv(data.test,"tmp_sitedataQC.csv")
@@ -365,7 +374,7 @@ ChronicDZSP_is<-ChronicDZSP_is[,c("METHOD","REGION","ANALYSIS_YEAR","DOMAIN_SCHE
 
 #Calculate Sector Estimates
 site.data.sp2$ANALYSIS_SCHEMA<-site.data.sp2$STRATANAME
-site.data.sp2$DOMAIN_SCHEMA<-site.data.sp2$PooledSector
+site.data.sp2$DOMAIN_SCHEMA<-site.data.sp2$PooledSector_Demo_1
 
 
 acdSP_sec<-Calc_Domain(site.data.sp2,"SPCODE","AdColDen","Adpres.abs")
@@ -438,6 +447,10 @@ site.data.tax2<-site.data.tax2 %>% mutate(DEPTH_BIN = if_else(ISLAND =="Kingman"
 site.data.tax2<-site.data.tax2 %>% mutate(DEPTH_BIN = if_else(ISLAND =="Rose" & REEF_ZONE=="Backreef", "ALL", as.character(DEPTH_BIN)))
 site.data.tax2<-site.data.tax2 %>% mutate(REEF_ZONE = if_else(ISLAND =="Maug" & REEF_ZONE=="Lagoon", "Forereef", as.character(REEF_ZONE))) #Three sites were miss coded- fix in database
 
+site.data.tax2<-site.data.tax2 %>% mutate(ISLAND = if_else(PooledSector_Demo_1 == "SGA", "SGA", as.character(ISLAND))) #Convert PRS to FRF
+site.data.tax2<-site.data.tax2 %>% mutate(ISLANDCODE = if_else(PooledSector_Demo_1 == "SGA", "SGA", as.character(ISLANDCODE))) #Convert PRS to FRF
+
+
 #Remove some sectors or strata that were poorly sampled
 site.data.tax2 <- filter(site.data.tax2,!((SEC_NAME %in% c("GUA_ACHANG","GUA_PATI_POINT","GUA_PITI_BOMB","GUA_TUMON")& OBS_YEAR == "2017")))
 site.data.tax2 <- filter(site.data.tax2,!((ISLAND =="Johnston" & REEF_ZONE=="Lagoon")))
@@ -448,12 +461,12 @@ site.data.tax2$DB_RZ<-paste(substring(site.data.tax2$REEF_ZONE,1,1), substring(s
 site.data.tax2$STRATANAME=paste0(site.data.tax2$PooledSector_Demo_1,"_",site.data.tax2$DB_RZ)
 
 #QC CHECK to make sure the sectors and strata pooled correctly
-data.test<-ddply(subset(site.data.tax2,GENUS_CODE=="SSSS"),.(REGION,PooledSector_Demo_1,OBS_YEAR,STRATANAME),summarize,n=length(SITE))
+data.test<-ddply(subset(site.data.tax2,TAXONCODE=="SSSS"),.(REGION,PooledSector_Demo_1,OBS_YEAR,STRATANAME),summarize,n=length(SITE))
 sm.test<-ddply(subset(survey_master,Benthic=="1"&EXCLUDE_FLAG=="0"&OBS_YEAR>=2013),.(REGION,ISLAND,SEC_NAME,OBS_YEAR,REEF_ZONE,DEPTH_BIN),summarize,n=length(SITE))
 
 #Set ANALYSIS_SCHEMA to STRATA and DOMAIN_SCHEMA to whatever the highest level you want estimates for (e.g. sector, island, region)
 site.data.tax2$ANALYSIS_SCHEMA<-site.data.tax2$STRATANAME
-site.data.tax2$DOMAIN_SCHEMA<-site.data.tax2$PooledSector
+site.data.tax2$DOMAIN_SCHEMA<-site.data.tax2$PooledSector_Demo_1
 
 
 #Calculate metrics at Strata-level-We need to work on combining metrics into 1 function
@@ -538,7 +551,7 @@ ChronicDZTAX_is<-ChronicDZTAX_is[,c("METHOD","REGION","ANALYSIS_YEAR","DOMAIN_SC
 
 #Calculate Sector Estimates
 site.data.tax2$ANALYSIS_SCHEMA<-site.data.tax2$STRATANAME
-site.data.tax2$DOMAIN_SCHEMA<-site.data.tax2$PooledSector
+site.data.tax2$DOMAIN_SCHEMA<-site.data.tax2$PooledSector_Demo_1
 
 
 acdTAX_sec<-Calc_Domain(site.data.tax2,"TAXONCODE","AdColDen","Adpres.abs")

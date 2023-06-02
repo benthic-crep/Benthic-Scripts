@@ -70,17 +70,17 @@ CreateGenusCode<-function(data,taxamaster){
 #Convert SPCODE in raw colony data to taxoncode.We use taxoncode because some taxa can not be reliably identified
 #to species-level across observers and need to be rolled up to genus. -generates a look up table
 Convert_to_Taxoncode<-function(data,taxamaster){
-  a<-ddply(data,.(REGION,OBS_YEAR,S_ORDER,GENUS_CODE,SPCODE), #create a list of Genera and Species by region and year
-           summarise,
-           count=length(COLONYID))
+  a<-unique(data[,c("REGION","OBS_YEAR","S_ORDER","GENUS_CODE","SPCODE")])#create a list of Genera and Species by region and year
   b<-left_join(a,taxamaster,by=c("REGION","OBS_YEAR","SPCODE"))
   b$TAXONCODE<-ifelse(b$S_ORDER!="Scleractinia",as.character(b$SPCODE),
                       ifelse(is.na(b$TAXON_NAME), as.character(b$GENUS_CODE),as.character(b$SPCODE))) #Change spcode to genus code if we do not uniformly id that taxon to species level
   b$TAXONCODE[b$TAXONCODE==""] <- "UNKN" #Convert unknown species or codes that aren't in our taxa list to unknown
   out<-left_join(data,b,by=c("REGION","OBS_YEAR","GENUS_CODE","SPCODE","S_ORDER"))
-  out<-subset(out,select=-c(count,TAXON_NAME,TAXAGROUP)) #merge to master taxa list
+  out<-subset(out,select=-c(TAXON_NAME,TAXAGROUP)) #merge to master taxa list
   return(out$TAXONCODE)
 }
+
+
 
 #Generate taxa lists
 scl_genus_list<-function(data){

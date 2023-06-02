@@ -137,7 +137,7 @@ x$RDEXTENT3<-ifelse(x$S_ORDER=="Scleractinia"& is.na(x$RDEXTENT3),0,x$RDEXTENT3)
 #This section of code has been disecpetively tricky to code to ensure that all the different taxaonomic levels are generated correctly
 #MODIFY WITH CAUTION
 #read in list of taxa that we feel comfortable identifying to species or genus level. Note, taxa lists vary by year and region. This will need to be updated through time.
-taxa<-read.csv("T:/Benthic/Data/Lookup Tables/2013-22_Taxa_MASTER.csv")
+taxa<-read.csv("T:/Benthic/Data/Lookup Tables/2013-23_Taxa_MASTER.csv")
 
 x$OBS_YEAR<-as.factor(x$OBS_YEAR)#convert to factor to merge with taxa master
 
@@ -168,6 +168,23 @@ x$S_ORDER<-as.character(x$S_ORDER)
 #Make sure there are no NA values in genus code or taxoncode if it's supposed to be a scleractinian
 subset(x,S_ORDER=="Scleractinia" & GENUS_CODE=="NA") #this dataframe should be empty
 subset(x,S_ORDER=="Scleractinia" & TAXONCODE=="NA") #this dataframe should be empty
+
+
+#In 2023 we created several species complexes for taxa that are very difficult to tell apart 
+x$TAXONCODE<-ifelse(x$TAXONCODE %in% c("PMEA","PVER"),"PMVC",x$TAXONCODE)
+x$TAXONCODE<-ifelse(x$TAXONCODE %in% c("PGRA","PWOO","PEYD"),"PGWC",x$TAXONCODE)
+x$TAXONCODE<-ifelse(x$TAXONCODE %in% c("PMON","PRUS"),"PMRC",x$TAXONCODE)
+x$TAXONCODE<-ifelse(x$TAXONCODE == "MONS","ASTS",x$TAXONCODE)
+x$TAXONCODE<-ifelse(x$TAXONCODE == "MCUR","ACUR",x$TAXONCODE)
+x$GENUS_CODE<-ifelse(x$GENUS_CODE == "MONS","ASTS",x$GENUS_CODE)
+
+
+x$TAXONNAME<-ifelse(x$TAXONCODE== "PMVC","Pocillopora meandrina/verrucosa complex",x$TAXONNAME)
+x$TAXONNAME<-ifelse(x$TAXONCODE == "PGWC","Pocillopora grandis/woodjonesi complex",x$TAXONNAME)
+x$TAXONNAME<-ifelse(x$TAXONCODE == "PMRC", "Porites monticulosa/rus complex", x$TAXONNAME)
+x$TAXONNAME<-ifelse(x$TAXONCODE == "ASTS","Astrea sp",x$TAXONNAME)
+x$TAXONNAME<-ifelse(x$TAXONCODE == "ACUR","Astrea curta",x$TAXONNAME)
+
 
 #Fix missing NAs if need be
 # x$GENUS_CODE<-ifelse(is.na(x$GENUS_CODE)&x$S_ORDER=="Scleractinia",x$SPCODE,x$GENUS_CODE)
@@ -246,7 +263,7 @@ head(x)
 
 
 awd<-droplevels(x)
-write.csv(awd,file="T:/Benthic/Data/REA Coral Demography & Cover/Analysis Ready Raw data/CoralBelt_Adults_raw_CLEANED_updated.csv",row.names = FALSE)
+write.csv(awd,file="T:/Benthic/Data/REA Coral Demography & Cover/Analysis Ready Raw data/CoralBelt_Adults_raw_CLEANED.csv",row.names = FALSE)
 
 
 ## CREATE JUVENILE CLEAN ANALYSIS READY DATA ----
@@ -339,7 +356,7 @@ x<-subset(x,NO_SURVEY_YN==0)
 
 # Assign TAXONCODE --------------------------------------------------------
 #read in list of taxa that we feel comfortable identifying to species or genus level. Note, taxa lists vary by year and region. This will need to be updated through time.
-taxa<-read.csv("T:/Benthic/Data/Lookup Tables/2013-22_Taxa_MASTER.csv")
+taxa<-read.csv("T:/Benthic/Data/Lookup Tables/2013-23_Taxa_MASTER.csv")
 
 x$OBS_YEAR<-as.factor(x$OBS_YEAR) #need to convert to factor in order to join with taxa df
 nrow(x)
@@ -385,6 +402,17 @@ x$GENUS_CODE<-ifelse(x$SPCODE %in% c("MOAS","LEPA"),"UNKN",x$GENUS_CODE)
 
 View(x) #view data in separate window
 
+#Montastrea changed to Astrea in 2018
+x$GENUS_CODE<-ifelse(x$GENUS_CODE == "MONS","ASTS",x$GENUS_CODE)
+x$TAXONCODE<-ifelse(x$SPCODE == "MONS","ASTS",x$TAXONCODE)
+x$TAXONCODE<-ifelse(x$SPCODE == "MCUR","ASTS",x$TAXONCODE)
+x$TAXONCODE<-ifelse(x$TAXONCODE == "ASTS","Astrea sp",x$TAXONNAME)
+
+
+#We only analyze juveniles at the genus level- change taxoncode to genus
+x$TAXONCODE<-x$GENUS_CODE
+
+
 #Check that Unknown scl were changed correctly
 head(subset(x,TAXONCODE=="UNKN"&S_ORDER=="Scleractinia"),40)
 head(subset(x,GENUS_CODE=="UNKN"&S_ORDER=="Scleractinia"))
@@ -405,5 +433,5 @@ x[,NegNineCheckCols][x[,NegNineCheckCols] ==-9] <- NA #Convert missing numeric v
 
 
 jwd<-droplevels(x)
-write.csv(jwd,file="T:/Benthic/Data/REA Coral Demography & Cover/Analysis Ready Raw data/CoralBelt_Juveniles_raw_CLEANED_updated.csv",row.names = FALSE)
+write.csv(jwd,file="T:/Benthic/Data/REA Coral Demography & Cover/Analysis Ready Raw data/CoralBelt_Juveniles_raw_CLEANED.csv",row.names = FALSE)
 

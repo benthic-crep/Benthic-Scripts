@@ -1,3 +1,9 @@
+#This script combines all historical raw CPC and CoralNet annotations, generates analysis ready data,
+#generates site-level % cover for all sites then generates strata and weighed means at the sector and island-level
+#in v3, we've made several updates to the pooling scheme and added in the 2022 data. 
+#Note- CRED/CREP/ESD made the switch from CPC to CoralNet in 2015, but some of the legacy 2012 imagery was analyzed in CoralNet
+
+
 rm(list=ls())
 
 
@@ -25,18 +31,17 @@ bia$SITE<-SiteNumLeadingZeros(bia$SITE)
 #These data contain human annotated data. There may be a small subset of robot annotated data. 
 #The robot annotations are included because the confidence threshold in CoralNet was set to 70-90% allowing the robot to annotate points when it was 70-90% certain.
 #2019 NWHI data not in these view because it was analyzed as part of a bleaching dataset
-#load("T:/Benthic/Data/REA Coral Demography & Cover/Raw from Oracle/ALL_BIA_STR_CNET.rdata") #load data
+load("T:/Benthic/Data/REA Coral Demography & Cover/Raw from Oracle/ALL_CNET_Annotations.rdata") #load data
+cnet<-select(cnet,-c("TYPE"))
 
-#cnet<-read.csv("T:/DataManagement/DataRequests/Courtney Couch/2023/MV_BIA_CNET_ANALYSIS_NCEI_DATA_ALL.csv");cnet<-select(cnet,-c(SITE,TYPE))
-cnet<-read.csv("T:/DataManagement/DataRequests/Courtney Couch/2023/MV_BIA_CNET_ANALYSIS_DATA_pre-2023.csv");cnet<-select(cnet,-c(SITE,TYPE))
+cnet$SITE<-as.factor(cnet$SITE)
+cnet$SITE<-SiteNumLeadingZeros(cnet$SITE)
 
-sm<-read.csv("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/data/SURVEY MASTER.csv")
-sm<-select(sm,c("SITEVISITID","SITE"))
+#Read in survey master and sector files
+#sm<-read.csv("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/data/SURVEY MASTER.csv")
+sm<-read.csv("C:/Users/Courtney.S.Couch/Documents/GitHub/Benthic-Scripts/Survey Master Prep/SURVEY_MASTER_w2013benthic.csv")
 
-#This function isn't working- work with tye on this. This is hack for now
-#cnet$SITE<-SiteNumLeadingZeros(cnet$SITE)
-
-cnet<-left_join(cnet,sm)
+sectors<-read.csv("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/data/Sectors-Strata-Areas.csv")
 
 #Temporary work around for merging in 2014-2017 NWHI data that hasn't been uploaded to Oracle yet- remove this once Michael has incorporated data
 new.nw<-read.csv("T:/Benthic/Data/REA Coral Demography & Cover/Raw Data from CoralNet/2014-2017_NWHI_CnetAnnotations_formatted.csv")
@@ -52,6 +57,22 @@ new.cnet$DATE_<-lubridate::mdy(new.cnet$DATE_)
 new.cnet$DATE_TAKEN<-lubridate::ymd(new.cnet$DATE_TAKEN);head(new.cnet$DATE_TAKEN)
 new.cnet$DATE_ANNOTATED<-lubridate::ymd_hms(new.cnet$DATE_ANNOTATED);head(new.cnet$DATE_ANNOTATED)
 
+
+#########PLACEHOLDER Temporary work around for merging in 2023 SWAINS data
+new.nw<-read.csv("T:/Benthic/Data/REA Coral Demography & Cover/Raw Data from CoralNet/2014-2017_NWHI_CnetAnnotations_formatted.csv")
+new.nw<-new.nw %>% drop_na(ROUNDID) #remove blank rows
+
+new.cnet<-new.nw
+
+class(new.cnet$DATE_)
+class(new.cnet$DATE_TAKEN)
+
+#Date conversations still not working
+new.cnet$DATE_<-lubridate::mdy(new.cnet$DATE_)
+new.cnet$DATE_TAKEN<-lubridate::ymd(new.cnet$DATE_TAKEN);head(new.cnet$DATE_TAKEN)
+new.cnet$DATE_ANNOTATED<-lubridate::ymd_hms(new.cnet$DATE_ANNOTATED);head(new.cnet$DATE_ANNOTATED)
+
+
 #combine old cnet and 2015 & 2017 nwhi cnet data
 cnet<-rbind(cnet,new.cnet) 
 table(cnet$REGION,cnet$OBS_YEAR)
@@ -61,7 +82,6 @@ table(new.cnet$ISLAND,new.cnet$OBS_YEAR)
 ##Generate Table of all the bia categories to review
 head(bia)
 bia_tab<-ddply(bia,.(TIER_1, CATEGORY_NAME, TIER_2, SUBCATEGORY_NAME, TIER_3, GENERA_NAME),summarize,count=sum(POINTS))
-#write.csv(bia_tab, file="BIA categories.csv")
 table(bia$TIER_1)
 table(bia$TIER_2)
 
@@ -69,9 +89,6 @@ table(bia$TIER_2)
 head(cnet)
 cnet_tab<-ddply(cnet,.(CATEGORY_CODE,CATEGORY_NAME,SUBCATEGORY_CODE,SUBCATEGORY_NAME,GENERA_CODE,GENERA_NAME,FUNCTIONAL_GROUP),summarize,count=length(ROUNDID))
 #write.csv(cnet_tab, file="CNET categories.csv")
-
-sm<-read.csv("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/data/SURVEY MASTER.csv")
-sectors<-read.csv("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/data/Sectors-Strata-Areas.csv")
 
 test<-subset(sm,OBS_YEAR=="2019",TRANSECT_PHOTOS=="-1");nrow(test)
 
@@ -128,7 +145,7 @@ miss.from.sm<-cnet[!(cnet$SITEVISITID %in% sm$SITEVISITID),]
 miss.from.smSITE<-ddply(miss.from.sm,.(SITEVISITID,REGION,ISLAND,SITE,REEF_ZONE,DEPTH_BIN,ROUNDID,MISSIONID,OBS_YEAR, DATE_,HABITAT_CODE,
                                        LATITUDE,LONGITUDE,MIN_DEPTH,MAX_DEPTH),summarize,tmp=length(REPLICATE));miss.from.smSITE
 
-write.csv(miss.from.smSITE,file="C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/data/SitesmissingfromSM.csv") #export list and manually add to SM
+#write.csv(miss.from.smSITE,file="C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/data/SitesmissingfromSM.csv") #export list and manually add to SM
 #write.csv(ab, file="tmp All BIA BOTH METHODS.csv")
 
 SURVEY_INFO<-c("OBS_YEAR", "REGION",  "ISLAND")
@@ -169,11 +186,6 @@ ab$CATEGORY_NAME<-ifelse(ab$TIER_3=="HAL","Halimeda sp",ab$CATEGORY_NAME)
 
 hal<-subset(ab,TIER_1=="HAL")
 head(hal)
-
-all.tab<-aggregate(ab$POINTS, by=ab[,c("METHOD", "TIER_1", "CATEGORY_NAME", "TIER_2", "SUBCATEGORY_NAME", "TIER_3", "GENERA_NAME")], FUN=length)
-write.csv(all.tab, file="All CATEGORIES BOTH METHODS CLEANED.csv")
-
-save(ab, file="T:/Benthic/Data/REA Coral Demography & Cover/Analysis Ready Raw data/BIA_2010-2020_CLEANED.RData")
 
 test<-ddply(ab,.(REGION,OBS_YEAR),summarize,nSite=length(unique(SITE)))
 test
@@ -248,7 +260,9 @@ full_join(test1,oracle.site)
 #Remember this will have all the sites ever surveyed not just StRS sites
 #You will need TRANSECT_PHOTOS, EXCLUDE FLAG and Oceanography from the SM file to be able to filter out OCC and Special Project sites
 
-sm<-read.csv("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/data/SURVEY MASTER.csv")
+#sm<-read.csv("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/data/SURVEY MASTER.csv")
+sm<-read.csv("C:/Users/Courtney.S.Couch/Documents/GitHub/Benthic-Scripts/Survey Master Prep/SURVEY_MASTER_w2013benthic.csv")
+
 
 #Convert date formats
 # sm$DATE_<-lubridate::mdy(sm$DATE_)
@@ -273,9 +287,8 @@ wsd_t1<-subset(wsd_t1,select= -c(MF,UC,TW))
 #Remove sites that have less than 150 points after removing MF,UC, TW (a lot of our early imagery was poor quality and will be removed)
 wsd_t1<-subset(wsd_t1,new.N >=150)
 
-#Save Tier 1 site data to t drive. This file has all sites (fish, benthic and OCC) that were annoated between 2010 and 2018
+#Save Tier 1 site data to t drive. This file has all sites (fish, benthic and OCC) that were annoated between 2010 and 2023
 write.csv(wsd_t1, file="T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Site/BenthicCover_2010-2022_Tier1_SITE.csv",row.names=F)
-# write.csv(wsd_t1, file="T:/Benthic/Data/Data Requests/2021 IEA/BenthicCover_2010-2020_Tier1_SITE.csv",row.names=F)
 
 
 # Generate Site-level Data at TIER 3 level--------------
@@ -315,7 +328,7 @@ wsd_t3<-subset(wsd_t3,select= -c(WAND,UNK,TAPE,MOBF,SHAD))
 #Remove sites that have less than 150 points after removing MF,UC, TW (a lot of our early imagery was poor quality and will be removed)
 wsd_t3<-subset(wsd_t3,new.N >=150)
 
-#Save Tier 1 site data to t drive. This file has all sites (fish, benthic and OCC) that were annoated between 2010 and 2018
+#Save Tier 1 site data to t drive. This file has all sites (fish, benthic and OCC) that were annoated between 2010 and 2023
 write.csv(wsd_t3, file="T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Site/BenthicCover_2010-2020_Tier3_SITE.csv",row.names = F)
 
 
@@ -332,7 +345,7 @@ data.cols<-T3data.cols
 #remove permanent sites, climate sites and special projects
 wsd$PERM_SITE[is.na(wsd$PERM_SITE)]<-"0"
 wsd$TRANSECT_PHOTOS[is.na(wsd$TRANSECT_PHOTOS)]<-"0"
-wsd<-wsd[!wsd$MISSIONID%in% c("MP1410","MP1512","MP1602","MP2006","FAGAALU1","FAGAALU2"),] #I left SE1602 in (2016 Jarvis and Rose)
+wsd<-wsd[!wsd$MISSIONID%in% c("MP1410","MP1512","MP1602","MP2006","FAGAALU1","FAGAALU2","MP2206"),] #I left SE1602 in (2016 Jarvis and Rose)
 
 #Remove occ sites,sites with exclude flag =-1 and permanent sites
 wsd<-subset(wsd,is.na(OCC_SITEID)& EXCLUDE_FLAG!="-1"& PERM_SITE!=-1 & Oceanography !=1)
@@ -447,41 +460,40 @@ colnames(dpst$Mean)[9:ncol(dpst$Mean)] <- paste("Mean.", colnames(dpst$Mean[,9:n
 colnames(dpst$SampleSE)[9:ncol(dpst$SampleSE)] <- paste("SE.", colnames(dpst$SampleSE[,9:ncol(dpst$SampleSE)]), sep = "")
 
 dpst<-left_join(dpst$Mean,dpst$SampleSE)
-ri<-read.csv("T:/Benthic/Data/Lookup Tables/NCRMP_Regions_Islands.csv"); ri<-subset(ri,select = -c(X))
+ri<-read.csv("T:/Benthic/Data/Lookup Tables/NCRMP_Regions_Islands.csv")
 dpst<-left_join(dpst,ri)
-#write.csv(dpst, file="T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Stratum/BenthicCover_2010-2019_Tier1_STRATA.csv",row.names = F)
-write.csv(dpst, file="T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Stratum/BenthicCover_2010-2019_Tier3_STRATA.csv",row.names = F)
+#write.csv(dpst, file="T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Stratum/BenthicCover_2010-2022_Tier1_STRATA_updated.csv",row.names = F)
+write.csv(dpst, file="T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Stratum/BenthicCover_2010-2022_Tier3_STRATA_updated.csv",row.names = F)
 
 #SAVE BY SECTOR PER YEAR
 OUTPUT_LEVEL<-c("REGION","ISLAND","ANALYSIS_SEC","ANALYSIS_YEAR") 
 dpsec<-Calc_Pooled_Simple(dps$Mean, dps$SampleVar, data.cols, OUTPUT_LEVEL, "AREA_HA")
-#write.csv(dpsec, file="T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Sector/BenthicCover_2010-2019_Tier1_SECTOR.csv",row.names = F)
-write.csv(dpsec, file="T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Sector/BenthicCover_2010-2019_Tier3_SECTOR.csv",row.names = F)
+#write.csv(dpsec, file="T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Sector/BenthicCover_2010-2022_Tier1_SECTOR_updated.csv",row.names = F)
+write.csv(dpsec, file="T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Sector/BenthicCover_2010-2022_Tier3_SECTOR_updated.csv",row.names = F)
 
 
 # e.g. SAVE BY ISLAND PER YEAR
 OUTPUT_LEVEL<-c("REGION","ISLAND","ANALYSIS_YEAR") 
 dpis<-Calc_Pooled_Simple(dps$Mean, dps$SampleVar, data.cols, OUTPUT_LEVEL, "AREA_HA")
-#write.csv(dpis, file="T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Island/BenthicCover_2010-2019_Tier1_ISLAND.csv",row.names = F)
-write.csv(dpis, file="T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Island/BenthicCover_2010-2019_Tier3_ISLAND.csv",row.names = F)
+#write.csv(dpis, file="T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Island/BenthicCover_2010-2022_Tier1_ISLAND_updated.csv",row.names = F)
+write.csv(dpis, file="T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Island/BenthicCover_2010-2022_Tier3_ISLAND_updated.csv",row.names = F)
 
-
-
-#Create a summary table of sites from SURVEY MASTER to make sure that sites weren't dropped
-sm<-read.csv("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/data/SURVEY MASTER.csv")
-sm$SITE<-SiteNumLeadingZeros(sm$SITE)
-
-#Are there NAs in TRANSECT PHOTOS
-sm$TRANSECT_PHOTOS[is.na(sm$TRANSECT_PHOTOS)]<-0
-sm$Oceanography[is.na(sm$Oceanography)]<-0
-sm$EXCLUDE_FLAG[is.na(sm$EXCLUDE_FLAG)]<-0
-sm$CLIMATE_STATION_YN[is.na(sm$CLIMATE_STATION_YN)]<-0
-sm$PERM_SITE[is.na(sm$PERM_SITE)]<-0
-
-sm2<-subset(sm,Oceanography!=1 & TRANSECT_PHOTOS!=0 & EXCLUDE_FLAG!="-1"& PERM_SITE!=-1 &CLIMATE_STATION_YN!=-1)
-sm2$Stratum<-paste(sm2$SEC_NAME,sm2$REEF_ZONE,sm2$DEPTH_BIN)
-table(sm2$Stratum,sm2$OBS_YEAR)
-
+# 
+# 
+# #Create a summary table of sites from SURVEY MASTER to make sure that sites weren't dropped
+# sm<-read.csv("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/data/SURVEY MASTER.csv")
+# 
+# #Are there NAs in TRANSECT PHOTOS
+# sm$TRANSECT_PHOTOS[is.na(sm$TRANSECT_PHOTOS)]<-0
+# sm$Oceanography[is.na(sm$Oceanography)]<-0
+# sm$EXCLUDE_FLAG[is.na(sm$EXCLUDE_FLAG)]<-0
+# sm$CLIMATE_STATION_YN[is.na(sm$CLIMATE_STATION_YN)]<-0
+# sm$PERM_SITE[is.na(sm$PERM_SITE)]<-0
+# 
+# sm2<-subset(sm,Oceanography!=1 & TRANSECT_PHOTOS!=0 & EXCLUDE_FLAG!="-1"& PERM_SITE!=-1 &CLIMATE_STATION_YN!=-1)
+# sm2$Stratum<-paste(sm2$SEC_NAME,sm2$REEF_ZONE,sm2$DEPTH_BIN)
+# table(sm2$Stratum,sm2$OBS_YEAR)
+# 
 
 
 #QC Checks- Doing this mannually for now. build in some scripts
