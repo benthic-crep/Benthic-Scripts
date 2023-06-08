@@ -434,6 +434,9 @@ unique(wsd[is.na(wsd$AREA_HA), c("ISLAND", "ANALYSIS_SEC", "SEC_NAME", "OBS_YEAR
 #NOW CHECK HOW MANY REPS WE HAVE PER STRATA
 a<-dcast(wsd, ANALYSIS_SCHEME + ISLAND + ANALYSIS_SEC + OBS_YEAR ~ STRATA, value.var="AREA_HA", length); a
 
+
+
+
 ####################################################################################################################################################################
 #
 #     POOL WSD (WORKING SITE DATA TO STRATA THEN TO HIGHER LEVELS

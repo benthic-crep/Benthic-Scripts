@@ -13,7 +13,7 @@ library(RODBC)            # to connect to oracle
 Sys.setenv(ODBCINI = "/library/ODBC/odbc.ini")
 
 ##*******## Access the GIS database in Oracle. Add your username and password. If you forget your password then you will need to contact ITS
-ch <- odbcConnect("GIS", uid = "CCOUCH", pwd = "XXXXX") #from kiteworks
+ch <- odbcConnect("GIS", uid = "CCOUCH", pwd = "XXXX") #from kiteworks
 ##
 ## #list available tables
 tv<-sqlTables(ch, tableType = "VIEW")
@@ -78,18 +78,21 @@ save(df, file="ALL_TOW_FISH_RAW.rdata")
 df <- sqlQuery(ch, paste("SELECT * FROM GISDAT.VS_BENT_TDS")); head(df)
 save(df, file="ALL_TOW_BENT_RAW.rdata")
 
+
+
+
 #Photoquad Data -raw point annotations
 #Older CPCe (2010-2014) annotations from StRS sites
 bia <- sqlQuery(ch, paste("SELECT * FROM GISDAT.V_BIA_PERC_COVER_PHOTO_STR_")); head(bia)
-save(bia, file="ALL_BIA_STR_RAW_NEW.rdata")
+save(bia, file="T:/Benthic/Data/REA Coral Demography & Cover/Raw from Oracle/ALL_CPCe_STR_2010-2014.rdata")
 
 #Older CPCe (2010-2014) annotations from Climate sites
 cli <- sqlQuery(ch, paste("SELECT * FROM GISDAT.V_BIA_PERC_COVER_PHOTO_CLI_")); head(cli)
-save(cli, file="ALL_BIA_CLIMATE_PERM.rdata")
+save(cli, file="T:/Benthic/Data/REA Coral Demography & Cover/Raw from Oracle/ALL_CPCe_CLIMATE_2010-2014.rdata")
 
-# Coral Net Benthic Data (2015- present) from StRS and Climate sites
+# Coral Net Benthic Data (2015- present & some legacy 2012 imagery) from StRS, Climate and special mission sites
 cnet <- sqlQuery(ch, paste("SELECT * FROM GISDAT.MV_BIA_CNET_ANALYSIS_DATA_UNION")); head(cnet)
-save(cnet, file="ALL_BIA_STR_CNET.rdata")
+save(cnet, file="T:/Benthic/Data/REA Coral Demography & Cover/Raw from Oracle/ALL_CNET_Annotations.rdata")
 
 #Coral Net Benthic Data (2018) from StRS and Climate sites - Robot only annotations generated immediately after the cruise using 100% alleviation. Should only be used for Tier 1 Coral and CCA
 
