@@ -68,9 +68,44 @@ colnames(x)[colnames(x)=="RECENT_SPECIFIC_CAUSE_CODE_3"]<-"RD3" #Change column n
 colnames(x)[colnames(x)=="FRAGMENT_YN"]<-"Fragment" #Change column name
 
 
+#Formating and merging in 2023 Samoa data that hasn't been uploaded to oracle yet
+sm23<-read.csv("T:/Benthic/Benthic Scripts/Dama REA QC Script 20230509/23_ASPRIA/output/RA2301_LEG3_adult_data.csv")
+
+#Add zeros to beginning of site number so we avoid MAR-22 changing to March 22
+sm23$SITE<- as.factor(sm23$SITE)
+sm23$SITE<-SiteNumLeadingZeros(sm23$SITE) 
+
+sm23<-subset(sm23,select = -c(X,SITE_MIN_DEPTH,SITE_MAX_DEPTH,QC,LATITUDE,LONGITUDE,HABITAT_CODE))
+
+#Convert date formats
+class(sm23$DATE_)
+sm23$DATE_<-lubridate::dmy(sm23$DATE_)
+
+# Column Names Changes... -------------------------------------------------
+colnames(sm23)[colnames(sm23)=="Fragment.yn"]<-"Fragment" #Change column name
+colnames(sm23)[colnames(sm23)=="SEVERITY"]<-"SEVERITY_1" #Change column name
+colnames(sm23)[colnames(sm23)=="EXTENT"]<-"EXTENT_1" #Change column name
+
+colnames(sm23)[colnames(sm23)=="MORPH_CODE"]<-"MORPHOLOGY" #Change column name - THIS IS INCORRECT- temporary workaround until data gets migrated to oracle
+
+sm23$NO_SURVEY_YN<-0
+sm23$REGION<-"SAMOA"
+sm23$RDEXTENT3<-0
+sm23$CONDITION_3<-as.character(sm23$CONDITION_3)
+sm23$EXTENT_3<- NA
+
+sort(colnames(x))
+sort(colnames(sm23))
+
+x<-rbind(x,sm23)
+
 # Merge Adult data and  SURVEY MASTER -------------------------------------
 #SURVEY MASTER was created by Ivor and Courtney by extracting sites directly from the Site Visit table from Oracle. It should be the complete list of sites surveyed since 2000
-survey_master<-read.csv("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/data/SURVEY MASTER.csv")
+survey_master<-read.csv("C:/Users/courtney.s.couch/Documents/GitHub/Benthic-Scripts/NCRMP/Survey Master Prep/SURVEY_MASTER_w2023benthic.csv")
+
+#Convert date formats
+class(survey_master$DATE_)
+survey_master$DATE_ <- as.Date(survey_master$DATE_, format = "%Y-%m-%d")
 
 
 #Use SM coordinates-some coordinates are wrong in data and need to be updated
@@ -302,12 +337,42 @@ colnames(x)[colnames(x)=="TAXONCODE"]<-"SPCODE" #Change column name
 colnames(x)[colnames(x)=="TRANSECTNUM"]<-"TRANSECT" #Change column name
 
 
-head(x)
+#Formating and merging in 2023 Samoa data that hasn't been uploaded to oracle yet
+sm23j<-read.csv("T:/Benthic/Benthic Scripts/Dama REA QC Script 20230509/23_ASPRIA/output/RA2301_LEG3_juv_data.csv")
+
+
+#Add zeros to beginning of site number so we avoid MAR-22 changing to March 22
+sm23j$SITE<- as.factor(sm23j$SITE)
+sm23j$SITE<-SiteNumLeadingZeros(sm23j$SITE) 
+
+sm23j<-subset(sm23j,select = -c(X,SITE_MIN_DEPTH,SITE_MAX_DEPTH,QC,LATITUDE,LONGITUDE,HABITAT_CODE,TRANSECTAREA,TRANSECTID,Repeat.Segment.Yn,SEGAREA,COLONYWIDTH,SEGMENTID,GENUS_CODE))
+
+#Convert date formats
+class(sm23j$DATE_)
+sm23j$DATE_<-lubridate::dmy(sm23j$DATE_)
+
+
+# Column Names Changes... -------------------------------------------------
+colnames(sm23j)[colnames(sm23j)=="MORPH_CODE"]<-"MORPHOLOGY" #Change column name - THIS IS INCORRECT- temporary workaround until data gets migrated to oracle
+colnames(sm23j)[colnames(sm23j)=="SPECIES"]<-"SPCODE" #Change column name - THIS IS INCORRECT- temporary workaround until data gets migrated to oracle
+
+sm23j$NO_SURVEY_YN<-0
+sm23j$REGION<-"SAMOA"
+
+genlu<-read.csv("T:/Benthic/Data/Lookup Tables/Genus_lookup.csv")
+sm23j<-left_join(sm23j,genlu)
+head(sm23j)
+
+sort(colnames(x))
+sort(colnames(sm23j))
+
+
+x<-rbind(x,sm23j)
 
 
 # Merge Juvenile data and SITE MASTER -------------------------------------
 # load site master to merge with demographic data
-survey_master<-read.csv("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/data/SURVEY MASTER.csv")
+survey_master<-read.csv("C:/Users/courtney.s.couch/Documents/GitHub/Benthic-Scripts/NCRMP/Survey Master Prep/SURVEY_MASTER_w2023benthic.csv")
 
 #Use SM coordinates-some coordinates are wrong in data and need to be updated
 colnames(survey_master)[colnames(survey_master)=="LATITUDE_LOV"]<-"LATITUDE" #Change column name- we will eventually change this column back to "taxoncode" after we modify the spcode names to match the taxalist we all feel comfortable identifying

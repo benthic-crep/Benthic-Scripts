@@ -15,11 +15,12 @@ source("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/lib/core_functions
 source("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/lib/GIS_functions.R")
 
 ## LOAD benthic data
-awd<-read.csv("T:/Benthic/Data/REA Coral Demography & Cover/Analysis Ready Raw data/CoralBelt_Adults_raw_CLEANED_updated.csv")
-jwd<-read.csv("T:/Benthic/Data/REA Coral Demography & Cover/Analysis Ready Raw data/CoralBelt_Juveniles_raw_CLEANED_updated.csv")
+awd<-read.csv("T:/Benthic/Data/REA Coral Demography & Cover/Analysis Ready Raw data/CoralBelt_Adults_raw_CLEANED.csv")
+jwd<-read.csv("T:/Benthic/Data/REA Coral Demography & Cover/Analysis Ready Raw data/CoralBelt_Juveniles_raw_CLEANED.csv")
 
 #If you want to test out script, subset with a single island- the entire script takes forever to run
-# awd=subset(awd,ISLAND=="Asuncion")
+
+#awd=subset(awd,ISLAND=="Swains"& OBS_YEAR=="2023")
 # jwd=subset(jwd,ISLAND=="Asuncion")
 
 #Final Tweaks before calculating site-level data-------------------------------------------------
@@ -443,8 +444,8 @@ site.data.tax2$Juvpres.abs<-ifelse(site.data.tax2$JuvColDen>0,1,0)
 # site.data.gen2$AlgalOG_prev<-ifelse(site.data.gen2$OBS_YEAR>= 2019,NA,site.data.gen2$AlgalOG_prev)
 
 #Save Site-level data
-write.csv(site.data.gen2,file="T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Site/BenthicREA_sitedata_GENUS_updated.csv",row.names = F)
-write.csv(site.data.sp2,file="T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Site/BenthicREA_sitedata_SPCODE_updated.csv",row.names = F)
-write.csv(site.data.tax2,file="T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Site/BenthicREA_sitedata_TAXONCODE_updated.csv",row.names = F)
+write.csv(site.data.gen2,file="T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Site/BenthicREA_sitedata_GENUS.csv",row.names = F)
+write.csv(site.data.sp2,file="T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Site/BenthicREA_sitedata_SPCODE.csv",row.names = F)
+write.csv(site.data.tax2,file="T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Site/BenthicREA_sitedata_TAXONCODE.csv",row.names = F)
 
 
