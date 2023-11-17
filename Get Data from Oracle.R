@@ -13,7 +13,7 @@ library(RODBC)            # to connect to oracle
 Sys.setenv(ODBCINI = "/library/ODBC/odbc.ini")
 
 ##*******## Access the GIS database in Oracle. Add your username and password. If you forget your password then you will need to contact ITS
-ch <- odbcConnect("GIS", uid = "CCOUCH", pwd = "XXXX") #from kiteworks
+ch <- odbcConnect("GIS", uid = "CCOUCH", pwd = "XXXXXX") #from kiteworks
 ##
 ## #list available tables
 tv<-sqlTables(ch, tableType = "VIEW")

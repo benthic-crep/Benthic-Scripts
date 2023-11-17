@@ -69,7 +69,8 @@ colnames(x)[colnames(x)=="FRAGMENT_YN"]<-"Fragment" #Change column name
 
 
 #Formating and merging in 2023 Samoa data that hasn't been uploaded to oracle yet
-sm23<-read.csv("T:/Benthic/Benthic Scripts/Dama REA QC Script 20230509/23_ASPRIA/output/RA2301_LEG3_adult_data.csv")
+sm23<-read.csv("T:/Benthic/Benthic Scripts/202305_RA23_Benthic REA QC Script/23_ASPRIA/output/RA2301_LEG3_adult_data.csv")
+
 
 #Add zeros to beginning of site number so we avoid MAR-22 changing to March 22
 sm23$SITE<- as.factor(sm23$SITE)
@@ -93,6 +94,11 @@ sm23$REGION<-"SAMOA"
 sm23$RDEXTENT3<-0
 sm23$CONDITION_3<-as.character(sm23$CONDITION_3)
 sm23$EXTENT_3<- NA
+
+#Add ISLANDCODE column
+sm23$SITE2<-sm23$SITE
+sm23<- sm23 %>% separate(SITE2, into = c('ISLANDCODE', 'NUM'), sep = "\\-") %>%
+  dplyr::select(-NUM)
 
 sort(colnames(x))
 sort(colnames(sm23))
@@ -152,9 +158,10 @@ x.na
 #             SEG=length(unique(SEGMENT)))
 # test
 x$NO_SURVEY_YN[is.na(x$NO_SURVEY_YN)]<-0 #Change NAs (blank cells) to 0 - fix in the database
-
+nrow(x)
 ##Acutally do the removal of transects that were only surveyed for photoquads but not demographics
 x<-subset(x,NO_SURVEY_YN==0)
+nrow(x)
 
 
 #Change NAs in RecentDead extent to 0  - note, NWHI 2014,2015 and 2017 only one recent dead and condition category were recorded - fix in the database
@@ -313,7 +320,7 @@ x$DATE_ <- as.Date(x$DATE_, format = "%Y-%m-%d")
 #Create vector of column names to include then exclude unwanted columns from dataframe
 DATA_COLS<-c("MISSIONID","REGION","REGION_NAME","ISLAND","ISLANDCODE","SITE","REEF_ZONE","DEPTH_BIN","OBS_YEAR",
              "DATE_","NO_SURVEY_YN","SITEVISITID","DIVER","TRANSECTNUM","SEGMENT","SEGWIDTH","SEGLENGTH",
-             "COLONYID","TAXONCODE","MORPHOLOGY","COLONYLENGTH","GENUS_CODE","S_ORDER","TAXONNAME")
+             "COLONYID","TAXONCODE","COLONYLENGTH","GENUS_CODE","S_ORDER","TAXONNAME")
 
 #Add HABITAT_CODE and MORPH_CODE in once Lori has updated Oracle
 
@@ -338,14 +345,14 @@ colnames(x)[colnames(x)=="TRANSECTNUM"]<-"TRANSECT" #Change column name
 
 
 #Formating and merging in 2023 Samoa data that hasn't been uploaded to oracle yet
-sm23j<-read.csv("T:/Benthic/Benthic Scripts/Dama REA QC Script 20230509/23_ASPRIA/output/RA2301_LEG3_juv_data.csv")
+sm23j<-read.csv("T:/Benthic/Benthic Scripts/202305_RA23_Benthic REA QC Script/23_ASPRIA/output/RA2301_LEG3_juv_data.csv")
 
 
 #Add zeros to beginning of site number so we avoid MAR-22 changing to March 22
 sm23j$SITE<- as.factor(sm23j$SITE)
 sm23j$SITE<-SiteNumLeadingZeros(sm23j$SITE) 
 
-sm23j<-subset(sm23j,select = -c(X,SITE_MIN_DEPTH,SITE_MAX_DEPTH,QC,LATITUDE,LONGITUDE,HABITAT_CODE,TRANSECTAREA,TRANSECTID,Repeat.Segment.Yn,SEGAREA,COLONYWIDTH,SEGMENTID,GENUS_CODE))
+sm23j<-subset(sm23j,select = -c(X,SITE_MIN_DEPTH,SITE_MAX_DEPTH,QC,LATITUDE,LONGITUDE,HABITAT_CODE,TRANSECTAREA,SEGAREA,GENUS_CODE))
 
 #Convert date formats
 class(sm23j$DATE_)
@@ -362,6 +369,12 @@ sm23j$REGION<-"SAMOA"
 genlu<-read.csv("T:/Benthic/Data/Lookup Tables/Genus_lookup.csv")
 sm23j<-left_join(sm23j,genlu)
 head(sm23j)
+
+#Add ISLANDCODE column
+sm23j$SITE2<-sm23j$SITE
+sm23j<- sm23j %>% separate(SITE2, into = c('ISLANDCODE', 'NUM'), sep = "\\-") %>%
+  dplyr::select(-NUM)
+
 
 sort(colnames(x))
 sort(colnames(sm23j))
@@ -411,11 +424,9 @@ head(miss.sites,20) #should be empty
 #Test whether there are missing values in the NO_SURVEY_YN column. The value should be 0 or -1
 x.na<-x[is.na(x$NO_SURVEY_YN)&x$OBS_YEAR>2013,]
 x.na
-# test<-ddply(x.na,.(SITE),
-#             summarize,
-#             SEG=length(unique(SEGMENT)))
-# test
-x$NO_SURVEY_YN<-is.na(x$NO_SURVEY_YN)<-0 #Change NAs (blank cells) to 0
+
+
+is.na(x$NO_SURVEY_YN)<-0 #Change NAs (blank cells) to 0 - corrected this line of code on 7/25/23- it was changing all NO_SURVEY_YN to 0
 x<-subset(x,NO_SURVEY_YN==0)
 
 

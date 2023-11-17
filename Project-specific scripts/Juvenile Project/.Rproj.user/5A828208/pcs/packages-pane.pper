@@ -1,7 +1,0 @@
-{
-    "installOptions": {
-        "installFromRepository": true,
-        "libraryPath": "C:/Users/Courtney.S.Couch/Documents/R/R-4.1.0/library",
-        "installDependencies": true
-    }
-}
