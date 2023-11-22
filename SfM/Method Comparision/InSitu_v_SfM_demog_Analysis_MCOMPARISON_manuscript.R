@@ -26,10 +26,10 @@ library(car)
 
 
 source("T:/Benthic/Data/SfM/ScriptFiles/SfMvDiver Plotting Functions.R") 
-source("C:/Users/Courtney.S.Couch/Documents/GitHub/Benthic-Scripts/Functions/Benthic_Functions_newApp_vTAOfork.R")
-source("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/lib/core_functions.R")
+source("C:/Users/Jonathan.Charendoff/Documents/GitHub/Benthic-Scripts/Functions/Benthic_Functions_newApp_vTAOfork.R")
+source("C:/Users/Jonathan.Charendoff/Documents/GitHub/fish-paste/lib/core_functions.R")
 
-setwd("C:/Users/Courtney.S.Couch/Documents/GitHub/Benthic-Scripts/SfM/Method Comparision")
+setwd("C:/Users/Jonathan.Charendoff/Documents/GitHub/Benthic-Scripts/SfM/Method Comparision")
 
 #Plotting functions
 Plot1to1_new<-function(d,response_variable,predictor_variable,r_name,p_name,x,y){
@@ -211,8 +211,8 @@ PlotDepth_NP<-function(d,grouping_field,metric_field,genus_field,metric_name){
 
 #Read in files
 seg<-read.csv("C:/Users/Courtney.S.Couch/Documents/GitHub/Benthic-Scripts/SfM/Method Comparision/HARAMP19_GENUS_SEGMENT.csv")
-site<-read.csv("C:/Users/Courtney.S.Couch/Documents/GitHub/Benthic-Scripts/SfM/Method Comparision/HARAMP19_GENUS_SITE.csv")
-div<-read.csv("C:/Users/Courtney.S.Couch/Documents/GitHub/Benthic-Scripts/SfM/Method Comparision/HARAMP19_DIVERSITY_SITE.csv")
+site<-read.csv("C:/Users/Jonathan.Charendoff/Documents/GitHub/Benthic-Scripts/SfM/Method Comparision/HARAMP19_GENUS_SITE.csv")
+div<-read.csv("C:/Users/Jonathan.Charendoff/Documents/GitHub/Benthic-Scripts/SfM/Method Comparision/HARAMP19_DIVERSITY_SITE.csv")
 divS<-read.csv("C:/Users/Courtney.S.Couch/Documents/GitHub/Benthic-Scripts/SfM/Method Comparision/HARAMP19_DIVERSITY_SPECIES_SITE.csv")
 
 
@@ -537,7 +537,59 @@ site.wide$SfM_AdColDen[is.na(site.wide$SfM_AdColDen)]<-0
 
 head(site.wide)
 
-head(subset(site.wide,GENUS_CODE=="SSSS"))
+test.hawaii <- subset(site.wide,GENUS_CODE=="SSSS")
+
+mean(abs(test.hawaii$SfM_AdColDen - test.hawaii$Diver_AdColDen))/mean(c(mean(test.hawaii$SfM_AdColDen), mean(test.hawaii$Diver_AdColDen)))
+mean(abs(test.marian$SfM_AdColDen - test.marian$Diver_AdColDen))/mean(c(mean(test.marian$SfM_AdColDen), mean(test.marian$Diver_AdColDen)))
+
+mean(abs(test.hawaii$SfM_JuvColDen - test.hawaii$Diver_JuvColDen))/mean(c(mean(test.hawaii$SfM_JuvColDen), mean(test.hawaii$Diver_JuvColDen)))
+mean(abs(test.marian$SfM_JuvColDen - test.marian$Diver_JuvColDen))/mean(c(mean(test.marian$SfM_JuvColDen), mean(test.marian$Diver_JuvColDen)))
+
+#std error
+(sd(abs(test.hawaii$SfM_JuvColDen - test.hawaii$Diver_JuvColDen))/sqrt(nrow(test.hawaii)))/mean(c(mean(test.hawaii$SfM_JuvColDen), mean(test.hawaii$Diver_JuvColDen)))
+(sd(abs(test.marian$SfM_JuvColDen - test.marian$Diver_JuvColDen))/sqrt(nrow(test.marian)))/mean(c(mean(test.marian$SfM_JuvColDen), mean(test.marian$Diver_JuvColDen)))
+
+(sd(abs(test.hawaii$SfM_Ave.size - test.hawaii$Diver_Ave.size), na.rm = T)/sqrt(nrow(test.hawaii)))/mean(c(mean(test.hawaii$SfM_Ave.size, na.rm = T), mean(test.hawaii$Diver_Ave.size, na.rm = T)))
+(sd(abs(test.marian$SfM_Ave.size - test.marian$Diver_Ave.size), na.rm = T)/sqrt(nrow(test.marian)))/mean(c(mean(test.marian$SfM_Ave.size, na.rm = T), mean(test.marian$Diver_Ave.size, na.rm = T)))
+
+mean(abs(test.hawaii$SfM_Ave.size - test.hawaii$Diver_Ave.size), na.rm = T)/mean(c(mean(test.hawaii$SfM_Ave.size, na.rm = T), mean(test.hawaii$Diver_Ave.size, na.rm = T)))
+mean(abs(test.marian$SfM_Ave.size - test.marian$Diver_Ave.size), na.rm = T)/mean(c(mean(test.marian$SfM_Ave.size, na.rm = T), mean(test.marian$Diver_Ave.size, na.rm = T)))
+
+mean(abs(test.hawaii$SfM_Ave.od - test.hawaii$Diver_Ave.od), na.rm = T)/mean(c(mean(test.hawaii$SfM_Ave.od, na.rm = T), mean(test.hawaii$Diver_Ave.od, na.rm = T)))
+mean(abs(test.marian$SfM_Ave.od - test.marian$Diver_Ave.od), na.rm = T)/mean(c(mean(test.marian$SfM_Ave.od, na.rm = T), mean(test.marian$Diver_Ave.od, na.rm = T)))
+
+mean(abs(test.hawaii$SfM_Ave.rd - test.hawaii$Diver_Ave.rd), na.rm = T)/mean(c(mean(test.hawaii$SfM_Ave.rd, na.rm = T), mean(test.hawaii$Diver_Ave.rd, na.rm = T)))
+mean(abs(test.marian$SfM_Ave.rd - test.marian$Diver_Ave.rd), na.rm = T)/mean(c(mean(test.marian$SfM_Ave.rd, na.rm = T), mean(test.marian$Diver_Ave.rd, na.rm = T)))
+
+mean(abs(test.hawaii$SfM_AcuteDZ_prev - test.hawaii$Diver_AcuteDZ_prev), na.rm = T)/mean(c(median(test.hawaii$SfM_AcuteDZ_prev, na.rm = T), median(test.hawaii$Diver_AcuteDZ_prev, na.rm = T)))
+mean(abs(test.marian$SfM_AcuteDZ_prev - test.marian$Diver_AcuteDZ_prev), na.rm = T)/mean(c(mean(test.marian$SfM_AcuteDZ_prev, na.rm = T), mean(test.marian$Diver_AcuteDZ_prev, na.rm = T)))
+
+(sd(abs(test.hawaii$SfM_AcuteDZ_prev - test.hawaii$Diver_AcuteDZ_prev), na.rm = T)/sqrt(nrow(test.hawaii)))/mean(c(mean(test.hawaii$SfM_AcuteDZ_prev, na.rm = T), mean(test.hawaii$Diver_AcuteDZ_prev, na.rm = T)))
+(sd(abs(test.marian$SfM_AcuteDZ_prev - test.marian$Diver_AcuteDZ_prev), na.rm = T)/sqrt(nrow(test.marian)))/mean(c(mean(test.marian$SfM_AcuteDZ_prev, na.rm = T), mean(test.marian$Diver_AcuteDZ_prev, na.rm = T)))
+
+mean(abs(test.hawaii$SfM_ChronicDZ_prev - test.hawaii$Diver_ChronicDZ_prev), na.rm = T)/mean(c(mean(test.hawaii$SfM_ChronicDZ_prev, na.rm = T), mean(test.hawaii$Diver_ChronicDZ_prev, na.rm = T)))
+mean(abs(test.marian$SfM_ChronicDZ_prev - test.marian$Diver_ChronicDZ_prev), na.rm = T)/mean(c(mean(test.marian$SfM_ChronicDZ_prev, na.rm = T), mean(test.marian$Diver_ChronicDZ_prev, na.rm = T)))
+
+(sd(abs(test.hawaii$SfM_ChronicDZ_prev - test.hawaii$Diver_ChronicDZ_prev), na.rm = T)/sqrt(nrow(test.hawaii)))/mean(c(mean(test.hawaii$SfM_ChronicDZ_prev, na.rm = T), mean(test.hawaii$Diver_ChronicDZ_prev, na.rm = T)))
+(sd(abs(test.marian$SfM_ChronicDZ_prev - test.marian$Diver_ChronicDZ_prev), na.rm = T)/sqrt(nrow(test.marian)))/mean(c(mean(test.marian$SfM_ChronicDZ_prev, na.rm = T), mean(test.marian$Diver_ChronicDZ_prev, na.rm = T)))
+
+mean(abs(test.hawaii$SfM_BLE_prev - test.hawaii$Diver_BLE_prev), na.rm = T)/mean(c(mean(test.hawaii$SfM_BLE_prev, na.rm = T), mean(test.hawaii$Diver_BLE_prev, na.rm = T)))
+mean(abs(test.marian$SfM_BLE_prev - test.marian$Diver_BLE_prev), na.rm = T)/mean(c(mean(test.marian$SfM_BLE_prev, na.rm = T), mean(test.marian$Diver_BLE_prev, na.rm = T)))
+
+(sd(abs(test.hawaii$SfM_BLE_prev - test.hawaii$Diver_BLE_prev), na.rm = T)/sqrt(nrow(test.hawaii)))/mean(c(mean(test.hawaii$SfM_BLE_prev, na.rm = T), mean(test.hawaii$Diver_BLE_prev, na.rm = T)))
+(sd(abs(test.marian$SfM_BLE_prev - test.marian$Diver_BLE_prev), na.rm = T)/sqrt(nrow(test.marian)))/mean(c(mean(test.marian$SfM_BLE_prev, na.rm = T), mean(test.marian$Diver_BLE_prev, na.rm = T)))
+
+mean(abs(div.hawaii$SfM_Adult_Richness - div.hawaii$Diver_Adult_Richness), na.rm = T)/mean(c(mean(div.hawaii$SfM_Adult_Richness, na.rm = T), mean(div.hawaii$Diver_Adult_Richness, na.rm = T)))
+mean(abs(div.marian$SfM_Adult_Richness - div.marian$Diver_Adult_Richness), na.rm = T)/mean(c(mean(div.marian$SfM_Adult_Richness, na.rm = T), mean(div.marian$Diver_Adult_Richness, na.rm = T)))
+
+(sd(abs(div.hawaii$SfM_Adult_Richness - div.hawaii$Diver_Adult_Richness), na.rm = T)/sqrt(nrow(div.hawaii)))/mean(c(mean(div.hawaii$SfM_Adult_Richness, na.rm = T), mean(div.hawaii$Diver_Adult_Richness, na.rm = T)))
+(sd(abs(div.marian$SfM_Adult_Richness - div.marian$Diver_Adult_Richness), na.rm = T)/sqrt(nrow(div.marian)))/mean(c(mean(div.marian$SfM_Adult_Richness, na.rm = T), mean(div.marian$Diver_Adult_Richness, na.rm = T)))
+
+(sd(abs(div.hawaii$SfM_Adult_Shannon - div.hawaii$Diver_Adult_Shannon), na.rm = T)/sqrt(nrow(div.hawaii)))/mean(c(mean(div.hawaii$SfM_Adult_Shannon, na.rm = T), mean(div.hawaii$Diver_Adult_Shannon, na.rm = T)))
+(sd(abs(div.marian$SfM_Adult_Shannon - div.marian$Diver_Adult_Shannon), na.rm = T)/sqrt(nrow(div.marian)))/mean(c(mean(div.marian$SfM_Adult_Shannon, na.rm = T), mean(div.marian$Diver_Adult_Shannon, na.rm = T)))
+
+mean(abs(div.hawaii$SfM_Adult_Shannon - div.hawaii$Diver_Adult_Shannon), na.rm = T)/mean(c(mean(div.hawaii$SfM_Adult_Shannon, na.rm = T), mean(div.hawaii$Diver_Adult_Shannon, na.rm = T)))
+mean(abs(div.marian$SfM_Adult_Shannon - div.marian$Diver_Adult_Shannon), na.rm = T)/mean(c(mean(div.marian$SfM_Adult_Shannon, na.rm = T), mean(div.marian$Diver_Adult_Shannon, na.rm = T)))
 
 # 
 # # Plotting Regressions and Bland-Altman by Taxon --------------------------
@@ -745,7 +797,8 @@ anova(RED.MOD1, RED.MOD2) #LRT --> move forward w/ whichever model keeps/removes
 RED.MOD3 <- update(RED.MOD2, .~. -METHOD) #drop 2-way interaction term
 anova(RED.MOD2, RED.MOD3) #LRT --> move forward w/ whichever model keeps/removes term
 
-
+sapply(s[,6:20], function(x) (sd(x, na.rm=T)/sqrt(length(x)) / mean(x, na.rm=T))
+sapply(div[,4:7], function(x) sd(x, na.rm=T)/sqrt(length(x)) / mean(x, na.rm=T))
 
 #Extract predicted values for Adult density
 #https://aosmith.rbind.io/2018/11/16/plot-fitted-lines/
@@ -1450,8 +1503,8 @@ ggsave(plot<-allplots,file="T:/Benthic/Data/SfM/Method Comparision/Figures/JuvCo
 
 # DIVERSITY ---------------------------------------------------------------
 
-sfm_div<-subset(divS,METHOD=="SfM")
-diver_div<-subset(divS,METHOD=="Diver")
+sfm_div<-subset(div, METHOD=="SfM")
+diver_div<-subset(div, METHOD=="Diver")
 
 # #Set up in wide format
 colnames(sfm_div)[c(4:11,40:43)] <- paste("SfM_", colnames(sfm_div[,c(4:11,40:43)]), sep = "");sfm_div<-dplyr::select(sfm_div,-c(METHOD))
@@ -1459,6 +1512,7 @@ colnames(sfm_div)[c(4:11,40:43)] <- paste("SfM_", colnames(sfm_div[,c(4:11,40:43
 colnames(diver_div)[c(4:11,40:43)] <- paste("Diver_", colnames(diver_div[,c(4:11,40:43)]), sep = "");diver_div<-dplyr::select(diver_div,-c(METHOD))
 
 div.wide<-left_join(sfm_div,diver_div)
+div.hawaii <- div.wide
 
 hist(div$Adult_Shannon)
 m<-lmer(Adult_Shannon~METHOD + (1|SEC_NAME),data=div)

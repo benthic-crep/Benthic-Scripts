@@ -14,10 +14,14 @@ source("C:/Users/JOnathan.Charendoff/Documents/GitHub/fish-paste/lib/GIS_functio
 
 
 # SFM/ADULT: CLEAN ANALYSIS READY DATA ----------------------------------------------------
+<<<<<<< HEAD
+df<-read.csv("T:/Benthic/Data/SfM/QC/MARAMP2022_QCdsfm_ADULT_CALIB.csv")
+=======
 df<-read.csv("T:/Benthic/Data/SfM/Calibration QC/MARAMP2022_QCdsfm_ADULT_CALIB.csv")
+>>>>>>> parent of 4050125 (updates for maramp)
 
 x<-df
-head(x)
+tail(x)
 View(x)
 nrow(x)
 
@@ -95,7 +99,7 @@ nrow(x)
 
 #SfM/ADULT: Assign TAXONCODE --------------------------------------------------------
 #read in list of taxa that we feel comfortable identifying to species or genus level. Note, taxa lists vary by year and region. This will need to be updated through time.
-taxa<-read.csv("T:/Benthic/Data/Lookup Tables/2013-22_Taxa_MASTER.csv") #change when final name is made
+taxa<-read.csv("T:/Benthic/Data/Lookup Tables/2013-23_Taxa_MASTER.csv") #change when final name is made
 taxa$OBS_YEAR<-as.numeric(as.character(taxa$OBS_YEAR))
 
 x$REGION <- "MARIAN"
@@ -226,7 +230,7 @@ analyst.per.ss <- filter(analyst.per.ss, num.analyst>1)
 
 
 # SFM/JUVENILE: CLEAN ANALYSIS READY DATA -------------------------------------
-df<-read.csv("T:/Benthic/Data/SfM/Calibration QC/MARAMP2022_QCdsfm_JUV_CALIB.csv") #851 rows
+df<-read.csv("T:/Benthic/Data/SfM/QC/MARAMP2022_QCdsfm_JUV_CALIB.csv") #851 rows
 
 x<-df
 head(x)
@@ -277,7 +281,7 @@ nrow(x)
 
 #SFM/JUVENILE: Assign TAXONCODE --------------------------------------------------------
 #read in list of taxa that we feel comfortable identifying to species or genus level. Note, taxa lists vary by year and region. This will need to be updated through time.
-taxa<-read.csv("T:/Benthic/Data/Lookup Tables/2013-22_Taxa_MASTER.csv")
+taxa<-read.csv("T:/Benthic/Data/Lookup Tables/2013-23_Taxa_MASTER.csv")
 taxa$OBS_YEAR<-as.numeric(as.character(taxa$OBS_YEAR))
 x$SPCODE<-ifelse(x$NO_COLONY==-1,"AAAA",as.character(x$SPCODE))
 x$REGION <- "MARIAN"

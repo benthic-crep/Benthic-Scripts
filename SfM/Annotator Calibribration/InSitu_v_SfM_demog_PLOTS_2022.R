@@ -46,28 +46,50 @@ data.sum<-subset(data.sum,Metric %in% c("AdColDen","JuvColDen","Ave.cl","Ave.od"
 data.sum<-data.sum %>% mutate(ANALYST=dplyr::recode(TRANSECT,
                                           `1`="Jonny",
                                           `2`= "Mia",
+<<<<<<< HEAD
+                                          `3`="Corinne",
+                                          `4`="Isabelle"))
+=======
                                           `3`="Nico",
                                           `NA`="NA"))
+>>>>>>> parent of 4050125 (updates for maramp)
 
 data.gen<-data.gen %>% mutate(ANALYST=dplyr::recode(TRANSECT,
                                                     '1'="Jonny",
                                                     '2'= "Mia",
+<<<<<<< HEAD
+                                                    '3'="Corinne",
+                                                    '4'="Isabelle"))
+=======
                                                     '3'="Nico",
                                                     'NA'="NA"))
+>>>>>>> parent of 4050125 (updates for maramp)
 ##Generate plot by segment
 data.l<-data.l %>% mutate(ANALYST=dplyr::recode(TRANSECT,
                                                     '1'="Jonny",
                                                     '2'= "Mia",
+<<<<<<< HEAD
+                                                    '3'="Corinne",
+                                                    '4'="Isabelle"))
+segs <- data.frame("SS" = seglist, "Number" = rep(c(1,2),5))
+=======
                                                     '3'="Nico",
                                                     'NA'="NA"))
+>>>>>>> parent of 4050125 (updates for maramp)
 data.l<-left_join(data.l, segs, by = 'SS')
 data.l<-subset(data.l,Metric %in% c("AdColDen","JuvColDen","Ave.cl","Ave.od","Ave.rd","DZGN_G_prev","BLE_prev","CHRO_prev"))
 data.l$Number <- as.character(data.l$Number)
 
 #Plot between observer 
+<<<<<<< HEAD
+p1<-ggplot(data.l, aes(x=Number, y=Value, fill = ANALYST)) + 
+  geom_bar(position="dodge", stat="identity", color="black") + 
+  facet_grid(Metric~SITE, scales="free_y")+# , labeller=label_parsed) +
+=======
 p1<-ggplot(data.l[data.l$ANALYST!= "Nico",], aes(x=ANALYST, y=Value, fill = Number)) + 
   geom_bar(position="dodge", stat="identity", color="black") + 
   guides(fill=FALSE) + facet_grid(Metric~SITE, scales="free_y")+# , labeller=label_parsed) +
+>>>>>>> parent of 4050125 (updates for maramp)
   #geom_errorbar(aes(ymin=mean-se, ymax=mean+se),width=.15, position=position_dodge(.9)) +
   theme_bw() +
   theme(
@@ -76,10 +98,14 @@ p1<-ggplot(data.l[data.l$ANALYST!= "Nico",], aes(x=ANALYST, y=Value, fill = Numb
     ,panel.grid.minor = element_blank()
     ,axis.ticks.x = element_blank() # no x axis ticks
     ,axis.title.x = element_text( vjust = -.0001) # adjust x axis to lower the same amount as the genus labels
-    ,legend.position="none"
-  )
+    )+
+  labs(x = "Segment")
 
+<<<<<<< HEAD
+ggsave(p1,file="T:/Benthic/Data/SfM/Calibration Plots/MARAMP22/20230621_AllMetrics_SfM5segCalibration.pdf",width=12,height=10)
+=======
 ggsave(p1,file="T:/Benthic/Data/SfM/Calibration Plots/20220829_AllMetrics_SfM5segCalibration.pdf",width=12,height=10)
+>>>>>>> parent of 4050125 (updates for maramp)
 
 t<-read.csv("T:/Benthic/Data/SfM/Calibration QC/MARAMP22_SfMAdult_CLEANED.csv")
 
@@ -117,5 +143,10 @@ p2<-ggplot(con.all, aes(x=ANALYST, y=abundance, fill=CONDITION_1)) +
     ,legend.position="none"
   )
 
+<<<<<<< HEAD
+ggsave(p1,file="T:/Benthic/Data/SfM/Calibration Plots/MARAMP22/20220621_RDconditionsCalibration.pdf",width=12,height=10)
+ggsave(p2,file="T:/Benthic/Data/SfM/Calibration Plots/MARAMP22/20220621_ConditionsCalibration.pdf",width=12,height=10)
+=======
 ggsave(p3,file="T:/Benthic/Data/SfM/Calibration Plots/20220829_AdultSPCountsCalibration.pdf",width=12,height=10)
 ggsave(p4,file="T:/Benthic/Data/SfM/Calibration Plots/20220829_JuvSPCountsCalibration.pdf",width=12,height=10)
+>>>>>>> parent of 4050125 (updates for maramp)

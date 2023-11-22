@@ -33,7 +33,12 @@ t2
 ad_sfm<-ad_sfm %>% mutate(TRANSECT=recode(ANALYST,
                                         `JC`="1",
                                         `MSL`="2",
+<<<<<<< HEAD
+                                        `CA`="3",
+                                        'IGB' = "4",
+=======
                                         `NBO`="3",
+>>>>>>> parent of 4050125 (updates for maramp)
                                         `NA`="NA"))
 #Check that segments were changed correctly
 ad_sfm<-droplevels(ad_sfm)
@@ -43,7 +48,12 @@ table(ad_sfm$SITE,ad_sfm$TRANSECT)
 j_sfm<-j_sfm %>% mutate(TRANSECT=recode(ANALYST,
                                         `JC`="1",
                                         `MSL`="2",
+<<<<<<< HEAD
+                                        `CA`="3",
+                                        'IGB' = "4",
+=======
                                         `NBO`="3",
+>>>>>>> parent of 4050125 (updates for maramp)
                                         `NA`="NA"))
 #Check that segments were changed correctly
 j_sfm<-droplevels(j_sfm)
