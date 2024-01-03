@@ -552,7 +552,7 @@ colnames(x)[colnames(x)=="FID"]<-"COLONYID" #Change column name
 x<-subset(x,select=-c(MISSIONID)) #MISSION_ID not present within origional dataframe
 
 #Add column for method type
-x$METHOD<-"SfM"
+x$SURVEYMETHOD<-"SfM"
 
 if(DEBUG){head(x)}
 

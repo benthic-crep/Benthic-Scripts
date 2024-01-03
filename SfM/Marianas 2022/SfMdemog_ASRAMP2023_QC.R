@@ -525,6 +525,7 @@ j <- read.csv("T:/Benthic/Data/SfM/QC/ASRAMP2023_QCdsfm_JUV.csv")
 ad <- read.csv("T:/Benthic/Data/SfM/QC/ASRAMP2023_QCdsfm_ADULT.csv")
 ad<-subset(ad,select= -c(site_seg, MOSAIC_ISSUES, SEGAREA)) 
 survey_master<-read.csv("C:/Users/Jonathan.Charendoff/Documents/GitHub/Benthic-Scripts/SfM/Marianas 2022/SURVEY MASTER.csv")
+survey_master$SITE <- SiteNumLeadingZeros(as.factor(survey_master$OLD_SITE))
 
 stringi::stri_sub(ad$SITE[which(nchar(ad$SITE) == 7)], 5, 4) <- "00"
 stringi::stri_sub(ad$SITE[which(nchar(ad$SITE) == 8)], 5, 4) <- "0"
@@ -558,13 +559,19 @@ test[which(!(test %in% col_order))]
 colnames(ad)[colnames(ad)=="OLD_DEAD"]<-"OLDDEAD"
 colnames(ad)[colnames(ad)=="LATITUDE"]<-"LATITUDE_LOV"
 colnames(ad)[colnames(ad)=="LONGITUDE"]<-"LONGITUDE_LOV"
-ad <- ad[, col_order]
+comp.sites <- as.character(droplevels(survey_master$SITE[survey_master$TYPE == "Benthic"]))
+ad.comp <- ad[which(ad$SITE %in% comp.sites), col_order]
+ad.REA <- ad[-which(ad$SITE %in% comp.sites), col_order]
 
-write.csv(ad,file="T:/DataManagement/NCEI Archive Packages/SFM_Demography/SfM_Adult_demographic_AS-PRIA_2023.csv")
+ad.comp$Shape_Leng <-ad.comp$Shape_Leng*100
+ad.REA$Shape_Leng <-ad.REA$Shape_Leng*100
+
+write.csv(ad.comp,file="T:/DataManagement/NCEI Archive Packages/SFM_Demography/Data/2023/SfM_Adult_demographic_AS-PRIA_2023_comp.csv")
+write.csv(ad.REA,file="T:/DataManagement/NCEI Archive Packages/SFM_Demography/Data/2023/SfM_Adult_demographic_AS-PRIA_2023_REA_MERGE.csv")
 
 
 #JUV
-j <- read.csv("T:/Benthic/Data/SfM/QC/MARAMP2022_QCdsfm_JUV.csv")
+j <- read.csv("T:/Benthic/Data/SfM/QC/ASRAMP2023_QCdsfm_JUV.csv")
 j<-subset(j,select= -c(FRAGMENT.1))
 
 colnames(j)[colnames(j)=="Shape_Length"]<-"Shape_Leng" #Change column name
@@ -580,18 +587,20 @@ j<-left_join(j,survey_master[,c("REGION","OBS_YEAR","ISLAND","SITEVISITID","SITE
                                   "REEF_ZONE","DEPTH_BIN","HABITAT_CODE","LATITUDE","LONGITUDE","MIN_DEPTH_M","MAX_DEPTH_M")])
 
 
-col_order <- colnames(read.csv("T:/DataManagement/NCEI Archive Packages/SFM_Demography/SfM_Juvenile_demographic_MHI_2019.csv"))
+col_order <- colnames(read.csv("T:/DataManagement/NCEI Archive Packages/SFM_Demography/Data/2022/SfM_Juvenile_demographic_MARI_2022.csv"))
 test <- colnames(j)
 test[which(!(test %in% col_order))]
 colnames(j)[colnames(j)=="LATITUDE"]<-"LATITUDE_LOV"
 colnames(j)[colnames(j)=="LONGITUDE"]<-"LONGITUDE_LOV"
-j <- j[, col_order]
+j.comp <- j[which(j$SITE %in% comp.sites), col_order]
+j.REA <- j[-which(j$SITE %in% comp.sites), col_order]
+j.comp$Shape_Leng <-j.comp$Shape_Leng*100
+j.REA$Shape_Leng <-j.REA$Shape_Leng*100
 
-
-head(j)
+head(j.comp)
 if(nrow(j)!=nrow(j)) {cat("WARNING:Data were dropped")} #Check that adult data weren't dropped  
 
 #Write out dataframes
-write.csv(j,file="T:/DataManagement/NCEI Archive Packages/SFM_Demography/SfM_Juvenile_demographic_AS-PRIA_2023.csv")
-
+write.csv(j.comp,file="T:/DataManagement/NCEI Archive Packages/SFM_Demography/Data/2023/SfM_Juvenile_demographic_AS-PRIA_2023_comp.csv")
+write.csv(j.REA,file="T:/DataManagement/NCEI Archive Packages/SFM_Demography/Data/2023/SfM_Juvenile_demographic_AS-PRIA_2023_REA_MERGE.csv")
 
