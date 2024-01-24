@@ -1018,8 +1018,12 @@ Calc_Strata=function(site_data,grouping_field,metric_field,pres.abs_field="Adpre
   site_data$PRES.ABS<-site_data[,pres.abs_field]
 
   #For a Given ANALYSIS_SCHEMA, we need to pool N_h, and generate w_h
-  strat.temp<-ddply(subset(site_data,GROUP=="SSSS"),.(METHOD,REGION,ISLAND,ANALYSIS_YEAR,DOMAIN_SCHEMA,ANALYSIS_SCHEMA,NH),summarize,temp=sum(NH,na.rm=TRUE)) #calculate # of possible sites in a given stratum
-  Strata_NH<-ddply(strat.temp,.(METHOD,REGION,ISLAND,ANALYSIS_YEAR,DOMAIN_SCHEMA,ANALYSIS_SCHEMA),summarize,N_h.as=sum(NH,na.rm=TRUE)) #calculate # of possible sites in a given stratum
+  strat.temp<-ddply(subset(site_data,GROUP=="SSSS"),
+                    .(METHOD,REGION,ISLAND,ANALYSIS_YEAR,DOMAIN_SCHEMA,ANALYSIS_SCHEMA,NH),
+                    summarize,temp=sum(NH,na.rm=TRUE)) #calculate # of possible sites in a given stratum
+  Strata_NH<-ddply(strat.temp,
+                   .(METHOD,REGION,ISLAND,ANALYSIS_YEAR,DOMAIN_SCHEMA,ANALYSIS_SCHEMA),
+                   summarize,N_h.as=sum(NH,na.rm=TRUE)) #calculate # of possible sites in a given stratum
   Dom_NH<-ddply(Strata_NH,.(METHOD,REGION,ISLAND,ANALYSIS_YEAR,DOMAIN_SCHEMA),summarize,Dom_N_h=sum(N_h.as,na.rm=TRUE))#calculate # of possible sites in a given domain, use this to calculate weighting factor
   Strata_NH<-left_join(Strata_NH,Dom_NH) #add Dom_N_h into Strata_NH df
   Strata_NH$w_h.as<-Strata_NH$N_h.as/Strata_NH$Dom_N_h # add schema weighting factor to schema dataframe

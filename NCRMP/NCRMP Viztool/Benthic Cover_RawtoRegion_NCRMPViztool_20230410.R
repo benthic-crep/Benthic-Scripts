@@ -23,15 +23,17 @@ source("./Functions/Benthic_Functions_newApp_vTAOfork.R")
 source("../fish-paste/lib/core_functions.R")
 source("../fish-paste/lib/fish_team_functions.R")
 source("../fish-paste/lib/Islandwide Mean&Variance Functions.R")
+##############  Add generalized function to move from point-level classification and label set, outputting wide table of proportions.
 
 #Climate data - this is from CPCE
+#Will load "cli"
 load("T:/Benthic/Data/REA Coral Demography & Cover/Raw from Oracle/ALL_BIA_CLIMATE_PERM.rdata")   #bia
 
 cli$SITE<-SiteNumLeadingZeros(cli$SITE)
 
 #BIA data - this is from CPCE
+#Will load "bia"
 load("T:/Benthic/Data/REA Coral Demography & Cover/Raw from Oracle/ALL_BIA_STR_RAW_NEW.rdata")   #bia
-
 bia$SITE<-SiteNumLeadingZeros(bia$SITE)
 
 #CNET data - from CoralNet
@@ -39,7 +41,7 @@ bia$SITE<-SiteNumLeadingZeros(bia$SITE)
 #The robot annoations are included because the confidence threshold in CoralNet was set to 75-90% allowing the robot to annotate points when it was 90% certain.
 #2019 NWHI data not in these view because it was analyzed as part of a bleaching dataset
 load("T:/Benthic/Data/REA Coral Demography & Cover/Raw from Oracle/ALL_BIA_STR_CNET.rdata") #load data
-
+#Will load "bia"
 cnet$SITE<-SiteNumLeadingZeros(cnet$SITE)
 table(cnet$ISLAND,cnet$OBS_YEAR)
 
@@ -178,6 +180,7 @@ sites<-ddply(ab,.(METHOD,REGION,OBS_YEAR,ISLAND,PERM_SITE,CLIMATE_STATION_YN,SIT
 sites$x<-NULL
 dim(sites)
 
+##### UPDATE IN ORACLE?
 
 #We have some likely misidentified points in the Hawaiian Island (e.g. Acanthastrea in the MHI).
 #Read in list of hawaii codes and change everything that isn't in the list to UNKN
@@ -192,9 +195,11 @@ ab$T2b_DESC<-ifelse(ab$REGION %in% c("MHI","NWHI") & !(ab$TIER_3 %in% hawaiicode
 ab$TIER_3<-ifelse(ab$REGION %in% c("MHI","NWHI") & !(ab$TIER_3 %in% hawaiicodes$TIER_3),"UNK",ab$TIER_3)
 ab$GENERA_NAME<-ifelse(ab$REGION %in% c("MHI","NWHI") & !(ab$TIER_3 %in% hawaiicodes$TIER_3),"Unclassified/Unknown",ab$GENERA_NAME)
 
+#####
 
 # Generate Site-level Data at TIER 1 level--------------
 
+#####DCAST REWRITE#####
 photo<-dcast(ab, formula=METHOD + OBS_YEAR + SITEVISITID + SITE  ~ TIER_1, value.var="POINTS", sum, fill=0)
 head(photo)
 
@@ -226,6 +231,7 @@ T1data.cols<-c(r_levels)
 T1data.cols<-T1data.cols[!T1data.cols %in% c("TW","UC","MF")]
 
 
+#####MERGE REWRITE#####
 wsd<-merge(sites, photo, by=c("METHOD", "OBS_YEAR", "SITE"), all.y=T)
 
 #Make sure that you have the correct # of sites/region and year
@@ -238,8 +244,11 @@ full_join(test1,oracle.site)
 #Remember this will have all the sites ever surveyed not just StRS sites
 #You will need TRANSECT_PHOTOS, EXCLUDE FLAG and Oceanography from the SM file to be able to filter out OCC and Special Project sites
 
+##### We already did this - reading in sm twice #####
 sm<-read.csv("../fish-paste/data/SURVEY MASTER.csv")
 
+
+#####SOME DATE FORMAT FAIL REWRITE#####
 #Convert date formats
 sm$DATE_<-lubridate::mdy(sm$DATE_)
 class(sm$DATE_)
@@ -247,9 +256,12 @@ class(sm$DATE_)
 head(sm)
 
 sm<-sm[,c("DATE_","MISSIONID","SITEVISITID","SITE","OCC_SITEID","ANALYSIS_YEAR","OBS_YEAR","SEC_NAME","EXCLUDE_FLAG","TRANSECT_PHOTOS","Oceanography","LATITUDE_LOV","LONGITUDE_LOV")]
+#####MERGE REWRITE#####
 wsd_t1<-merge(sm,wsd,by=c("SITEVISITID","SITE","OBS_YEAR"),all.y=TRUE)
 head(wsd_t1)
 
+
+##############  Add generalized function to move from point-level classification and label set, outputting wide table of proportions.
 
 #Are there NAs in TRANSECT PHOTOS
 test<-wsd_t1[is.na(wsd_t1$TRANSECT_PHOTOS),]

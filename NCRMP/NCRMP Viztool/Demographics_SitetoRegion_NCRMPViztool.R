@@ -244,9 +244,9 @@ site.data.gen2.trends$ANALYSIS_YEAR<-ifelse(site.data.gen2.trends$REGION_YEAR %i
 data.test<-ddply(subset(site.data.gen2,GENUS_CODE=="SSSS"),.(REGION,PooledSector_Viztool,OBS_YEAR,STRATANAME),summarize,n=length(SITE))
 data.test.trends<-ddply(subset(site.data.gen2.trends,GENUS_CODE=="SSSS"),.(REGION,PooledSector_Viztool,OBS_YEAR,STRATANAME),summarize,n=length(SITE))
 sm.test<-ddply(subset(survey_master,Benthic=="1"&EXCLUDE_FLAG=="0"&OBS_YEAR>=2013),.(REGION,ISLAND,SEC_NAME,OBS_YEAR,REEF_ZONE,DEPTH_BIN),summarize,n=length(SITE))
-write.csv(data.test,"tmp_sitedataQC.csv")
-write.csv(data.test.trends,"tmp_sitedatatrendsQC.csv")
-write.csv(sm.test,"tmp_sitemasterQC.csv")
+#write.csv(data.test,"tmp_sitedataQC.csv")
+#write.csv(data.test.trends,"tmp_sitedatatrendsQC.csv")
+#write.csv(sm.test,"tmp_sitemasterQC.csv")
 
 # #Subset just Forereef Sites & just target taxa
 # site.data.gen2<-subset(site.data.gen2,REEF_ZONE=="Forereef")
@@ -262,10 +262,10 @@ sec.data.gen<-Calc_IslandorSector_Metrics(site.data.gen2,grouping_field="GENUS_C
 is.data.gen<-Calc_IslandorSector_Metrics(site.data.gen2,grouping_field="GENUS_CODE",a_schema ="STRATANAME",d_schema="ISLAND")
 r.data.gen<-Calc_Region_Metrics(site.data.gen2,grouping_field="GENUS_CODE",a_schema ="STRATANAME",d_schema = "REGION")
 
-write.csv(st.data.gen,file="T:/Benthic/Data/Data Requests/NCRMPViztool/2022/unformatted/BenthicREA_STRATA_Demo_Viztool_2023.csv",row.names=F)
-write.csv(is.data.gen,file="T:/Benthic/Data/Data Requests/NCRMPViztool/2022/unformatted/BenthicREA_ISLAND_Demo_Viztool_2023.csv",row.names=F)
-write.csv(sec.data.gen,file="T:/Benthic/Data/Data Requests/NCRMPViztool/2022/unformatted/BenthicREA_SECTOR_Demo_Viztool_2023.csv",row.names=F)
-write.csv(r.data.gen,file="T:/Benthic/Data/Data Requests/NCRMPViztool/2022/unformatted/BenthicREA_REGION_Demo_Viztool_2023.csv",row.names=F)
+#write.csv(st.data.gen,file="T:/Benthic/Data/Data Requests/NCRMPViztool/2022/unformatted/BenthicREA_STRATA_Demo_Viztool_2023.csv",row.names=F)
+#write.csv(is.data.gen,file="T:/Benthic/Data/Data Requests/NCRMPViztool/2022/unformatted/BenthicREA_ISLAND_Demo_Viztool_2023.csv",row.names=F)
+#write.csv(sec.data.gen,file="T:/Benthic/Data/Data Requests/NCRMPViztool/2022/unformatted/BenthicREA_SECTOR_Demo_Viztool_2023.csv",row.names=F)
+#write.csv(r.data.gen,file="T:/Benthic/Data/Data Requests/NCRMPViztool/2022/unformatted/BenthicREA_REGION_Demo_Viztool_2023.csv",row.names=F)
 
 #trends dataset
 st.data.gen.trends<-Calc_Strata_Metrics(site.data.gen2.trends,grouping_field="GENUS_CODE",a_schema ="STRATANAME",d_schema="PooledSector_Viztool")
@@ -277,10 +277,10 @@ removePRIA1617<-c("PRIAs_2016","PRIAs_2017")
 site.data.gen2.trends_nosp<-dplyr::filter(site.data.gen2.trends, !REGION_YEAR %in% removePRIA1617)
 r.data.gen.trends<-Calc_Region_Metrics(site.data.gen2.trends_nosp,grouping_field="GENUS_CODE",a_schema ="STRATANAME",d_schema = "REGION")
 
-write.csv(st.data.gen.trends,file="T:/Benthic/Data/Data Requests/NCRMPViztool/2022/unformatted/BenthicREA_STRATA_TRENDS_Demo_Viztool_2023.csv",row.names=F)
-write.csv(is.data.gen.trends,file="T:/Benthic/Data/Data Requests/NCRMPViztool/2022/unformatted/BenthicREA_ISLAND_TRENDS_Demo_Viztool_2023.csv",row.names=F)
-write.csv(sec.data.gen.trends,file="T:/Benthic/Data/Data Requests/NCRMPViztool/2022/unformatted/BenthicREA_SECTOR_TRENDS_Demo_Viztool_2023.csv",row.names=F)
-write.csv(r.data.gen.trends,file="T:/Benthic/Data/Data Requests/NCRMPViztool/2022/unformatted/BenthicREA_REGION_TRENDS_Demo_Viztool_2023.csv",row.names=F)
+#write.csv(st.data.gen.trends,file="T:/Benthic/Data/Data Requests/NCRMPViztool/2022/unformatted/BenthicREA_STRATA_TRENDS_Demo_Viztool_2023.csv",row.names=F)
+#write.csv(is.data.gen.trends,file="T:/Benthic/Data/Data Requests/NCRMPViztool/2022/unformatted/BenthicREA_ISLAND_TRENDS_Demo_Viztool_2023.csv",row.names=F)
+#write.csv(sec.data.gen.trends,file="T:/Benthic/Data/Data Requests/NCRMPViztool/2022/unformatted/BenthicREA_SECTOR_TRENDS_Demo_Viztool_2023.csv",row.names=F)
+#write.csv(r.data.gen.trends,file="T:/Benthic/Data/Data Requests/NCRMPViztool/2022/unformatted/BenthicREA_REGION_TRENDS_Demo_Viztool_2023.csv",row.names=F)
 
 
 #QC Checks
