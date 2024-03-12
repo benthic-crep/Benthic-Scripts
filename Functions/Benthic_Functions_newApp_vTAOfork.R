@@ -2,7 +2,7 @@
 library(reshape2)
 library(ggplot2) ## to create the diver vs diver graphs
 library(data.table)
-library(plyr)
+#library(plyr)
 library(dplyr)
 library(gdata)
 library(tidyr)
