@@ -11,6 +11,11 @@ library(tidyverse)
 source("./Functions/Benthic_Functions_newApp_vTAOfork.R")
 source("../fish-paste/lib/core_functions.R")
 source("../fish-paste/lib/GIS_functions.R")
+DEBUG_VIEW=F
+
+# Functions ---------------------------------------------------------------
+
+
 ChangeAnalysisYear_REG<-function(data){
   data <- data %>% mutate(data,
                           ANALYSIS_YEAR= case_when(
@@ -202,7 +207,8 @@ colnames(r_demo_TR)[colnames(r_demo_TR)=="n"]<-"N_Demo"
 ############ Read in COVER Data
 #Read in Tier 1 (functional groups) COVER data
 #Complete
-st_cover_CO<-read.csv("T:/Benthic/Data/Data Requests/NCRMPViztool/2022/unformatted/COMPLETE/BenthicCover_2010-2019_Tier1_STRATA_Complete_Viztool.csv")
+st_cover_CO<-read.csv("T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Stratum/BenthicCover_2010-2023_Tier1_STRATA_updated.csv")
+#st_cover_CO<-read.csv("T:/Benthic/Data/Data Requests/NCRMPViztool/2022/unformatted/COMPLETE/BenthicCover_2010-2019_Tier1_STRATA_Complete_Viztool.csv")
 st_cover_CO<-st_cover_CO[,c("REGION","ISLAND", "ANALYSIS_SEC","STRATA","ANALYSIS_YEAR","N","Mean.CORAL","Mean.CCA","Mean.MA","SE.CORAL","SE.CCA","SE.MA")]
 st_cover_CO$GENUS_CODE<-"SSSS"
 colnames(st_cover_CO)[colnames(st_cover_CO)=="N"]<-"N_Cover"

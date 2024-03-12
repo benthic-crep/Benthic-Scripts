@@ -8,6 +8,7 @@
 rm(list=ls())
 invisible(lapply(paste0('package:', names(sessionInfo()$otherPkgs)), detach, character.only=TRUE, unload=TRUE))
 WRITE=TRUE
+WRITE_EVEN_RIDICULOUS_STUFF=FALSE
 #setwd("C:/Users/Courtney.S.Couch/Documents/Courtney's Files/R Files/ESD/BIA")
 #setwd("T:/Benthic/Data/REA Coral Demography & Cover/Raw from Oracle/")
 
@@ -131,7 +132,7 @@ miss.from.smSITE<-ddply(miss.from.sm,.(SITEVISITID,REGION,ISLAND,SITE,REEF_ZONE,
                                        LATITUDE,LONGITUDE,MIN_DEPTH,MAX_DEPTH),summarize,tmp=length(REPLICATE));miss.from.smSITE
 
 if(WRITE){write.csv(miss.from.smSITE,file="../fish-paste/data/03082024_SitesmissingfromSM.csv")} #export list and manually add to SM
-if(WRITE){write.csv(ab, file="tmp All BIA BOTH METHODS.csv")}
+if(WRITE_EVEN_RIDICULOUS_STUFF){write.csv(ab, file="tmp All BIA BOTH METHODS.csv")}
 
 SURVEY_INFO<-c("OBS_YEAR", "REGION",  "ISLAND")
 survey_island<-Aggregate_InputTable(cnet, SURVEY_INFO)
