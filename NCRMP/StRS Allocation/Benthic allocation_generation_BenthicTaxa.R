@@ -35,29 +35,63 @@ sectors<-read.csv("BenthicSectorsforAllocation.csv")
 # load demographic site data
 #wsd_T<-read.csv("T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Site/BenthicREA_sitedata_TAXONCODE.csv")
 wsd_G<-read.csv("T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Site/BenthicREA_sitedata_GENUS.csv")
+wsd_SSSS=wsd_G %>% filter(GENUS_CODE=="SSSS")
+wsd_F=load("C:/Users/Thomas.Oliver/WORK/Projects/GitHub Projects/fish-paste/data/All BIA Sites.csv")
+cov=load("C:/Users/Thomas.Oliver/WORK/Projects/GitHub Projects/fish-paste/data/All BIA BOTH METHODS clean.RData")
+f=load("C:/Users/Thomas.Oliver/WORK/Projects/GitHub Projects/fish-paste/data/ALL_REA_FISH_RAW.rdata")
 
 #Specify Target Genera (see "Select Target Taxa" below)
 tgen=c("POSP","PAVS","POCS","MOSP","SSSS")
 
 # filter past data for region and nSPC surveys and the last few years/rounds
-AllRegSD<-wsd_G %>% filter(OBS_YEAR>"2010") %>% 
-  filter(GENUS_CODE%in%tgen) %>% # group by strata
-  filter(!SEC_NAME%in%c("Lahaina")) %>% #Resolve Problem Sectors (i.e. Lahaina)
-  group_by(REGION,ISLAND,SEC_NAME,REEF_ZONE,DEPTH_BIN,GENUS_CODE) %>% 
-  summarize(SD = sd(AdColDen)) %>% 
-  drop_na() # drop strata with no data
+# AllRegSD<-wsd_G %>% filter(OBS_YEAR>"2010") %>% 
+#   filter(GENUS_CODE%in%tgen) %>% # group by strata
+#   filter(!SEC_NAME%in%c("Lahaina")) %>% #Resolve Problem Sectors (i.e. Lahaina) ## Do this by ANYear/REGION selected 19 - 16
+#   group_by(REGION,ISLAND,SEC_NAME,REEF_ZONE,DEPTH_BIN,GENUS_CODE) %>% #Use most recent adequate survey year...
+#   summarize(SD = sd(AdColDen)) %>% 
+#   drop_na() # drop strata with no data
 
 # Focal Regions (i.e. in 24, NWHI and MHI) -------------------------------------------------------------------------
-REG = AllRegSD %>% filter(REGION %in% c("NWHI","MHI"))
+#Use most recent adequate survey year...
+REG1=wsd_G %>% filter(REGION=="MHI",ANALYSIS_YEAR%in%c("2013","2016","2019"))
+REG2=wsd_G %>% filter(REGION=="NWHI",ANALYSIS_YEAR%in%c("2013-15","2016","2017"))
+AYNlu=c(2013,2014,2016,2017,2019);names(AYNlu)=sort(unique(c(REG1$ANALYSIS_YEAR,REG2$ANALYSIS_YEAR)))
+REG_SD=rbind(REG1,REG2) %>%
+  mutate(ANALYSIS_YR_NUM=as.numeric(AYNlu[ANALYSIS_YEAR])) %>% 
+  group_by(REGION,ISLAND,SEC_NAME,REEF_ZONE,DEPTH_BIN,GENUS_CODE,ANALYSIS_YR_NUM) %>% 
+  filter(GENUS_CODE%in%tgen) %>% #focal taxa only
+  summarize(SD = sd(AdColDen)) %>% 
+  group_by(REGION,ISLAND,SEC_NAME,REEF_ZONE,DEPTH_BIN,GENUS_CODE) %>% #take most recent non-NA year
+  na.omit() %>% 
+  filter(ANALYSIS_YR_NUM == max(ANALYSIS_YR_NUM))
+
+#Add back strata with 0-1 samples per year (SD=NA)
+REG=rbind(REG1,REG2) %>%
+  mutate(ANALYSIS_YR_NUM=as.numeric(AYNlu[ANALYSIS_YEAR])) %>% 
+  select(setdiff(names(REG_SD),c("SD","ANALYSIS_YEAR_NUM")))%>% 
+  filter(GENUS_CODE%in%tgen) %>%
+  group_by(REGION,ISLAND,SEC_NAME,REEF_ZONE,DEPTH_BIN,GENUS_CODE) %>% #take most recent non-NA year
+  filter(ANALYSIS_YR_NUM == max(ANALYSIS_YR_NUM)) %>% 
+  distinct() %>% left_join(REG_SD)
+
+#Add variability estimates that are NA back at ISLAND-DEPTH_BIN mean SD
+ISL.GEN_mnSD<-REG %>% group_by(ISLAND,GENUS_CODE) %>%
+  summarise(MN_SD=mean(SD,na.rm=T)) 
+SD_FILLi=which(is.na(REG$SD))
+REG[SD_FILLi,"SD"]=left_join(REG[,setdiff(names(REG),c("SD","ANALYSIS_YEAR"))],ISL.GEN_mnSD)[SD_FILLi,"MN_SD"]
+REG[SD_FILLi,"ANALYSIS_YEAR"]="ISL-DB MN"
 
 # # !!!!!! filter for reef zones/islands NOT being surveyed here !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-# # for example, take out Lagoon and backreef
-REG<-REG %>% filter(REEF_ZONE != "Lagoon",REEF_ZONE != "Backreef")
-REG<-droplevels(REG)
+#Going to run across all habitats
+#REG<-REG %>% filter(REEF_ZONE != "Lagoon",REEF_ZONE != "Backreef")
+#REG<-droplevels(REG)
+
+#DROP ISLANDS NOT IN ALLOCATION
+REG=REG %>% filter(!ISLAND%in%c("Maro","Laysan","Midway"))
 
 # get total SD per island in order to get proportion of each genera's group's variance
 ISL.GEN_SD<-REG %>% group_by(ISLAND,GENUS_CODE) %>%
-  summarise(SUM_SD=sum(SD)) 
+  summarise(SUM_SD=sum(SD,na.rm=T)) 
 
 # join totals back to original dataframe to calculate proportion
 STR.GEN_pSD<-left_join(REG,ISL.GEN_SD,by=c("ISLAND","GENUS_CODE")) %>%
@@ -66,7 +100,7 @@ STR.GEN_pSD<-left_join(REG,ISL.GEN_SD,by=c("ISLAND","GENUS_CODE")) %>%
 # calculate average SD for each strata - first isloate proportion of SD, get rid of sd columns
 STR_pSD<-STR.GEN_pSD %>% #mean prop var across four rep. genera (POSP,MOSP,PAVS,POCS) and all taxa (SSSS)
   group_by(REGION,ISLAND,SEC_NAME,REEF_ZONE,DEPTH_BIN) %>% 
-  summarise(pSD=mean(pSD))  # get the mean at the strata level
+  summarise(pSD=mean(pSD,na.rm=T))  # get the mean at the strata level
 
 # get area values for each sector from the 'sectors' dataframe
 STR_pSD_A<-sectors %>% select(REGION,ISLAND, SEC_NAME, REEF_ZONE, DEPTH_BIN, AREA_HA)%>% 
@@ -101,7 +135,7 @@ test
 ##LOAD DAYS PER ISLAND ALLOCATION
 # get list of islands - helpful to build DpI .csv
 # data.frame(RI=unique(STR_pSDA[,c("REGION","ISLAND")]))
-DpI=read.csv("NCRMP24_DAYSperISLAND_20240208.csv")
+DpI=read.csv("NCRMP24_DAYSperISLAND_20240221.csv")
 
 #This gives small boat days per island, now need to assume 3, 4 or 5 sfm sites per day
 STR_ALLOC=STR_pSDA %>% 
@@ -113,7 +147,7 @@ STR_ALLOC=STR_pSDA %>%
   pivot_wider(names_from = "SITESpSBD",values_from = c("SDxA_ALLOC","AREA_ALLOC"))
 
 # save file
-write.csv(STR_ALLOC,file="NCRMP24_BOATDAYS_Allocation_20240208.csv",row.names = FALSE)
+write.csv(STR_ALLOC,file="./NCRMP24_BOATDAYS_Allocation_20240221_KAH.csv",row.names = FALSE)
 
 
 # #Select Target Taxa: ----------------------------------------------------

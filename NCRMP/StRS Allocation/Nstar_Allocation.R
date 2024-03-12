@@ -98,7 +98,9 @@ CV=function(x){return(SE(x)/mean(x))}
 
 ####Run lines 33 - 107 of Benthic Allocation Generation, returns StrataLevelData mhi_a; Imma call it DF_h
 # Get StrataLevelData with # Has N_h, n_h, D.._h, s_1h2, s_2h2=NA, and s_uh ~ sqrt(s_1h2)
-str=read.csv("../REA Coral Demography & Cover/Summary Data/Stratum/BenthicREA_stratadata_TAXONCODE.csv")
+setwd("T:/Benthic/Data/StRS Allocation/")
+str=read.csv("../REA Coral Demography & Cover/Summary Data/Stratum/BenthicREA_stratadata_GENUS.csv")
+site=read.csv("../REA Coral Demography & Cover/Summary Data/Site/BenthicREA_sitedata_GENUS.csv")
 
 ######################################
 HA2M2=10000
@@ -124,23 +126,26 @@ sec_N_h=sectors %>%
   select(REGION,ISLAND,SECTOR,REEF_ZONE,DEPTH_BIN,N_h)
 
 DBlu=c("Shallow","Mid","Deep");names(DBlu)=c("S","M","D")
+tgen=c("POSP","PAVS","POCS","MOSP","SSSS")
+
 DF_h=str %>% 
   filter(REGION%in%c("MHI","NWHI"))  # Has N_h, n_h, D.._h, s_1h2, s_2h2=NA, and s_uh ~ sqrt(s_1h2)
 DF_hl= DF_h %>% 
-  select(METHOD,REGION,ISLAND,ANALYSIS_YEAR,SECTOR,Stratum,REEF_ZONE,DB_RZ,TAXONCODE,n,Ntot,AdColDen,SE_AdColDen) %>% 
+  select(METHOD,REGION,ISLAND,ANALYSIS_YEAR,SECTOR,Stratum,REEF_ZONE,DB_RZ,GENUS_CODE,n,Ntot,AdColDen,SE_AdColDen) %>% 
   rename(D.._h=AdColDen,s_uh=SE_AdColDen,n_h=n) %>%
   mutate(s_1h2=s_uh^2,DEPTH_BIN=DBlu[substr(DB_RZ,2,2)]) %>%
   left_join(sec_N_h,by=c("REGION","ISLAND","SECTOR","REEF_ZONE","DEPTH_BIN")) %>% 
-  group_by(ISLAND,TAXONCODE,ANALYSIS_YEAR) %>% 
+  group_by(ISLAND,GENUS_CODE,ANALYSIS_YEAR) %>% 
   mutate(m._h=1,
          n_h.m_h=n_h*m._h,
          var.D.._h.= ((1-(n_h/N_h))/(n_h))*s_1h2,
          w_h=c_w_h(N_h = N_h,M_h=M_h))
 
 TargetCV=0.25
+
 #Domain scale estimates (ISLAND)
 DF_stl=DF_hl %>% 
-  group_by(REGION,ISLAND,TAXONCODE,ANALYSIS_YEAR) %>% 
+  group_by(REGION,ISLAND,GENUS_CODE,ANALYSIS_YEAR) %>% 
   reframe(
     n=sum(n_h),
     nm=sum(n_h.m_h),
@@ -203,21 +208,45 @@ DF_stl=DF_hl %>%
                      names_to = "Target_CV",values_to = "Nstar",names_prefix = "Nstar_")
 DF_stl$Target_CV=as.numeric(DF_stl$Target_CV)
 
-Old_Style_Neyman_Allocation=read.csv("./NCRMP24_BOATDAYS_Allocation_20240208_Manual.csv")
+#Generate Mean CV Across Target Taxa
+DF_stl.=DF_stl %>% 
+  filter(GENUS_CODE%in%tgen) %>%
+  filter(!ISLAND%in%c("Midway","Laysan","Maro")) %>% 
+  group_by(REGION,ISLAND,Target_CV) %>% 
+  filter(ANALYSIS_YEAR==max(ANALYSIS_YEAR)) %>% 
+  group_by(REGION,ISLAND,ANALYSIS_YEAR,Target_CV) %>% 
+  #mean across the 5 target taxa (akin to old school allocation)
+  summarize(n=mean(n,na.rm=T),
+            nm=mean(nm,na.rm=T),
+            D.._st=mean(D.._st,na.rm=T),
+            var.D.._st.=mean(var.D.._st.,na.rm=T),
+            SE.D.._st.=mean(SE.D.._st.,na.rm=T),
+            CV.D.._st.=mean(CV.D.._st.,na.rm=T),
+            V.D.._st.=mean(V.D.._st.,na.rm=T),
+            Nstar_obs=mean(Nstar_obs,na.rm=T),
+            Nstar=mean(Nstar,na.rm=T)
+  )
+
+
+
+Old_Style_Neyman_Allocation=read.csv("./NCRMP24_BOATDAYS_Allocation_20240221_KAH_Manual.csv")
+Old_Style_Neyman_Allocation=Old_Style_Neyman_Allocation%>% mutate(Stratum=paste(SEC_NAME,REEF_ZONE,DEPTH_BIN,sep="_"))
 ISL_OSNA=Old_Style_Neyman_Allocation %>%
   filter(REGION%in%c("MHI","NWHI")) %>%
   filter(!ISLAND%in%c("Midway","Laysan","Maro")) %>% 
   group_by(REGION,ISLAND) %>% 
-  reframe(N=sum(Manual_Allocation_4))
+  reframe(N=sum(MANUAL_ALLOC_4))
+
+
 
 RefCV=25
 RefCV2=10
-NstarPlots=DF_stl %>% filter(TAXONCODE=="SSSS") %>% filter(!ISLAND%in%c("Midway","Laysan","Maro")) %>% 
+NstarPlots=DF_stl. %>% 
   ggplot(aes(x=Nstar,y=Target_CV,color=ANALYSIS_YEAR))+
   geom_segment(aes(x=Nstar_obs,xend=n,y=CV.D.._st.*100,yend=CV.D.._st.*100))+
   geom_point(aes(x=Nstar_obs,y=CV.D.._st.*100),shape=8)+
   geom_point(aes(x=n,y=CV.D.._st.*100),shape=19)+
-  geom_line()+
+  geom_line(aes())+
   scale_shape_manual(values=c("Nstar @ observed CV"=8,"N Sampled"=19))+
   facet_wrap(c("REGION","ISLAND"),nrow=5)+
   geom_hline(yintercept = RefCV,color="purple",lty=2)+
@@ -227,47 +256,151 @@ NstarPlots=DF_stl %>% filter(TAXONCODE=="SSSS") %>% filter(!ISLAND%in%c("Midway"
   scale_x_log10(limits=c(1,200))+theme_bw()+
   scale_y_sqrt()+theme_bw()+
   ylab("Co. of Variation: Adult Colony Density")+
-  xlab("Nstar - Optimal Sampling for given CV target")
+  xlab("Nstar - Optimal Number of Sites for given CV target")+
+  ggtitle(paste0("Nstar Analysis - Island Scale, Mean of Total and 4 Target Genera"))
 sc=1.25
-ggsave(plot = NstarPlots,filename = "./NstarPlots_SSSS_withNeyman_NCRMP24.jpg",width=sc*11,height=sc*8.5)
-
-#ADD ISLAND DOMAIN ESTIMATES BACK INTO STRATA LEVEL
-DF_hl=DF_hl %>% left_join(DF_stl,by=c("ISLAND","TAXONCODE","ANALYSIS_YEAR"))
-
-SSSS_st=DF_hl %>% filter(TAXONCODE=="SSSS") %>% group_by("ISLAND","ANALYSIS_YEAR")
-View(SSSS_st)
-
-test=DF_hl %>% filter(TAXONCODE=="PCOM"&ANALYSIS_YEAR=="2019"&ISLAND=="Hawaii") %>% 
-  mutate(Nstar_obs=c_Nstar(w_h=w_h,
-                           s_uh = s_uh,
-                           s_1h2 = s_1h2,
-                           s_2h2 = 0,
-                           mstar_h = 1,
-                           V.D.._st = V.D.._st.,
-                           N_h = N_h)) 
-sum(test$w_h*test$s_uh)*(sum(test$w_h*test$s_uh) + sum((test$w_h^2*0)/(1*test$w_h*test$s_uh)))
-SSSS_st=SSSS_st %>% 
-  group_by(ISLAND,ANALYSIS_YEAR) %>% 
-  mutate(Nstar_h=c_Nstar_h(Nstar=Nstar,
-                           w_h=w_h,
-                           s_uh=s_uh))
-#View(SSSS_st)
-c_Nstar_h()
-SSSS_h = DF_hl %>% filter(TAXONCODE=="SSSS")
-#sum(SSSS_h$w_h) #check that all weighting factors (for a given taxon) sum to 1
+ggsave(plot = NstarPlots,filename = "./NstarPlots_SSSS_withNeyman_NCRMP24_20240221.jpg",width=sc*11,height=sc*8.5)
 
 
-V.D.._st.c=c_V.D.._st(D.._h = SSSS_h$D.._)
+#
+
+#Strata scale estimates (STRATA)
+DF_strata=DF_hl %>% 
+  group_by(REGION,ISLAND,SECTOR,Stratum,GENUS_CODE,ANALYSIS_YEAR) %>% 
+  reframe(
+    n=sum(n_h),
+    nm=sum(n_h.m_h),
+    D.._st=sum(w_h*D.._h),
+    var.D.._st.= sum(w_h^2*var.D.._h.),
+    SE.D.._st.=sqrt(var.D.._st.),
+    CV.D.._st.=SE.D.._st./D.._st,
+    V.D.._st.=(CV.D.._st.*D.._st)^2,
+    Nstar_obs=c_Nstar(w_h=w_h,
+                      s_uh = s_uh,
+                      s_1h2 = s_1h2,
+                      s_2h2 = 0,
+                      mstar_h = 1,
+                      V.D.._st = V.D.._st.,
+                      N_h = N_h),
+    Nstar_05=c_Nstar(w_h=w_h,
+                     s_uh = s_uh,
+                     s_1h2 = s_1h2,
+                     s_2h2 = 0,
+                     mstar_h = 1,
+                     V.D.._st = (.05*D.._st)^2,
+                     N_h = N_h),
+    Nstar_10=c_Nstar(w_h=w_h,
+                     s_uh = s_uh,
+                     s_1h2 = s_1h2,
+                     s_2h2 = 0,
+                     mstar_h = 1,
+                     V.D.._st = (.10*D.._st)^2,
+                     N_h = N_h),
+    Nstar_20=c_Nstar(w_h=w_h,
+                     s_uh = s_uh,
+                     s_1h2 = s_1h2,
+                     s_2h2 = 0,
+                     mstar_h = 1,
+                     V.D.._st = (.20*D.._st)^2,
+                     N_h = N_h),
+    Nstar_25=c_Nstar(w_h=w_h,
+                     s_uh = s_uh,
+                     s_1h2 = s_1h2,
+                     s_2h2 = 0,
+                     mstar_h = 1,
+                     V.D.._st = (.25*D.._st)^2,
+                     N_h = N_h),
+    Nstar_30=c_Nstar(w_h=w_h,
+                     s_uh = s_uh,
+                     s_1h2 = s_1h2,
+                     s_2h2 = 0,
+                     mstar_h = 1,
+                     V.D.._st = (.30*D.._st)^2,
+                     N_h = N_h),
+    Nstar_50=c_Nstar(w_h=w_h,
+                     s_uh = s_uh,
+                     s_1h2 = s_1h2,
+                     s_2h2 = 0,
+                     mstar_h = 1,
+                     V.D.._st = (.50*D.._st)^2,
+                     N_h = N_h),
+    Nstar_99=c_Nstar(w_h=w_h,
+                     s_uh = s_uh,
+                     s_1h2 = s_1h2,
+                     s_2h2 = 0,
+                     mstar_h = 1,
+                     V.D.._st = (.99*D.._st)^2,
+                     N_h = N_h)
+    
+  ) %>% pivot_longer(cols=all_of(c("Nstar_05","Nstar_10","Nstar_20","Nstar_25","Nstar_30","Nstar_50","Nstar_99")),
+                     names_to = "Target_CV",values_to = "Nstar",names_prefix = "Nstar_")
+DF_strata$Target_CV=as.numeric(DF_strata$Target_CV)
+class(DF_strata$Target_CV)
+
+#Generate Mean CV Across Target Taxa
+DF_strata.=DF_strata %>% 
+  filter(GENUS_CODE%in%tgen) %>%
+  filter(!ISLAND%in%c("Midway","Laysan","Maro")) %>% 
+  group_by(REGION,ISLAND,SECTOR,Stratum,Target_CV) %>% 
+  filter(ANALYSIS_YEAR==max(ANALYSIS_YEAR)) %>% 
+  group_by(REGION,ISLAND,SECTOR,Stratum,ANALYSIS_YEAR,Target_CV) %>% 
+  #mean across the 5 target taxa (akin to old school allocation)
+  summarize(n=mean(n,na.rm=T),
+            nm=mean(nm,na.rm=T),
+            D.._st=mean(D.._st,na.rm=T),
+            var.D.._st.=mean(var.D.._st.,na.rm=T),
+            SE.D.._st.=mean(SE.D.._st.,na.rm=T),
+            CV.D.._st.=mean(CV.D.._st.,na.rm=T),
+            V.D.._st.=mean(V.D.._st.,na.rm=T),
+            Nstar_obs=mean(Nstar_obs,na.rm=T),
+            Nstar=mean(Nstar,na.rm=T)
+  )
 
 
-Nstar_h.c=c_Nstar_h(Nstar = c_Nstar(w_h = ),
-                    w_h = ,
-                    s_uh =)
 
+RefCV=25
+RefCV2=10
+uI=DF_strata. %>% ungroup() %>% 
+  filter(!ISLAND%in%c("Midway","Laysan","Maro")) %>%
+  distinct(REGION,ISLAND) %>% select(REGION,ISLAND)
 
-regexp(names(DF_h))
+for (i in 1:nrow(uI)){
+  STR_OSNA=Old_Style_Neyman_Allocation %>% filter(ISLAND==uI$ISLAND[i]) 
+  NstarPlots_STR=DF_strata. %>% 
+    filter(ISLAND==uI$ISLAND[i]) %>% 
+    group_by() %>% 
+    droplevels() %>% 
+    ggplot(aes(x=Nstar,y=Target_CV,color=ANALYSIS_YEAR))+
+    geom_segment(aes(x=Nstar_obs,xend=n,y=CV.D.._st.*100,yend=CV.D.._st.*100))+
+    geom_point(aes(x=Nstar_obs,y=CV.D.._st.*100),shape=8)+
+    geom_point(aes(x=n,y=CV.D.._st.*100),shape=19)+
+    geom_line()+
+    scale_shape_manual(values=c("Nstar @ observed CV"=8,"N Sampled"=19))+
+    facet_wrap(c("REGION","ISLAND","Stratum"),scales="free",ncol=3)+
+    geom_hline(yintercept = RefCV,color="purple",lty=2)+
+    geom_hline(yintercept = RefCV2,color="gold",lty=2)+
+    geom_vline(aes(xintercept = MANUAL_ALLOC_4 ),color="black",data=STR_OSNA)+
+    geom_text(aes(x = MANUAL_ALLOC_4+5,y=RefCV+5,label=MANUAL_ALLOC_4),color="gray",data=STR_OSNA)+
+    scale_x_log10(limits=c(1,30),breaks=c(2:12,15,20,25,30))+theme_bw()+
+    scale_y_log10()+theme_bw()+
+    ylab("Co. of Variation: Adult Colony Density")+
+    xlab("Nstar - Optimal Number of Sites for given CV target")+
+    ggtitle(paste0("Nstar Analysis - Island Scale, Mean of Total and 4 Target Genera"))
+  
+  sc=1.25
+  ggsave(plot = NstarPlots_STR,
+         filename = paste0("./NCRMP2024_StrataNstar_By_Island/NstarPlots_TargetGenera_withNeyman_NCRMP24_",uI$ISLAND[i],"_20240221.jpg"),
+         width=sc*11,height=sc*8.5)
+  
+  
+}  
 
+DF_str25=DF_strata. %>% filter(Target_CV==25) %>% select(REGION,ISLAND,SECTOR,Stratum,Nstar)
+OSNA.nstar=Old_Style_Neyman_Allocation %>% left_join(DF_str25,by=join_by(REGION,ISLAND,SEC_NAME==SECTOR,Stratum)) %>% rename(Nstar_25=Nstar)
+write.csv(x = OSNA.nstar,file = "./NCRMP24_BOATDAYS_Allocation_20240221_KAH_Manual_Nstar25.csv")
 
+# #ADD ISLAND DOMAIN ESTIMATES BACK INTO STRATA LEVEL
+# DF_hl=DF_hl %>% left_join(DF_stl,by=c("ISLAND","GENUS_CODE","ANALYSIS_YEAR"))
 
 
 
