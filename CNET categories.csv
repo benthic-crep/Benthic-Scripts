@@ -1,0 +1,103 @@
+"","CATEGORY_CODE","CATEGORY_NAME","SUBCATEGORY_CODE","SUBCATEGORY_NAME","GENERA_CODE","GENERA_NAME","FUNCTIONAL_GROUP","count"
+"1","MA","Macroalga","UPMA","Upright macroalga","RDMA","Red macroalgae","Algae",6738
+"2","TURF","Turf Alga","TURFH","Turf growing on hard substrate","TURFH","Turf growing on hard substrate","Algae",585907
+"3","MA","Macroalga","UPMA","Upright macroalga","HALI","Halimeda sp","Algae",30157
+"4","CCA","Coralline Alga","CCAH","CCA growing on hard substrate","CCAH","CCA growing on hard substrate","Algae",148728
+"5","CORAL","Coral","FOL","Foliose hard coral","POFO","Porites foliose","Hard coral",9361
+"6","MA","Macroalga","UPMA","Upright macroalga","EMA","Encrusting macroalga","Algae",109124
+"7","MA","Macroalga","UPMA","Upright macroalga","BGMA","Blue-green macroalga","Algae",12614
+"8","TURF","Turf Alga","TURFR","Turf growing on rubble","TURFR","Turf growing on rubble","Algae",20654
+"9","MA","Macroalga","UPMA","Upright macroalga","BRMA","Brown macroalgae","Algae",357
+"10","CORAL","Coral","MASS","Massive hard coral","POMA","Porites massive","Hard coral",45670
+"11","CORAL","Coral","ENC","Encrusting hard coral","POEN","Porites encrusting","Hard coral",17827
+"12","MA","Macroalga","UPMA","Upright macroalga","PESP","Peyssonnelia sp","Algae",62914
+"13","CORAL","Coral","BR","Branching hard coral","POCS","Pocillopora sp","Hard coral",27603
+"14","CORAL","Coral","BR","Branching hard coral","POBR","Porites branching","Hard coral",11018
+"15","MA","Macroalga","UPMA","Upright macroalga","DICO","Dictyopteris/Dictyota","Algae",1234
+"16","SC","Soft Coral","OCTO","Octocoral","OCTO","Octocoral","Other Invertebrates",14658
+"17","UC","Unclassified","SHAD","Shadow","SHAD","Shadow","Other",35437
+"18","CORAL","Coral","ENC","Encrusting hard coral","ENC","Encrusting hard coral","Hard coral",14197
+"19","SED","Sediment","SAND","Sand","SAND","Sand","Soft Substrate",63519
+"20","MA","Macroalga","UPMA","Upright macroalga","CAUL","Caulerpa sp","Algae",790
+"21","MA","Macroalga","UPMA","Upright macroalga","ASPP","Asparagopsis sp","Algae",1531
+"22","CORAL","Coral","MASS","Massive hard coral","FASP","Favia sp","Hard coral",6868
+"23","TW","Tape and wand","TAPE","Tape","TAPE","Tape","Other",1393
+"24","TW","Tape and wand","WAND","Wand","WAND","Wand","Other",4310
+"25","CORAL","Coral","ENC","Encrusting hard coral","ASSP","Astreopora sp","Hard coral",8959
+"26","CORAL","Coral","ENC","Encrusting hard coral","LEPT","Leptastrea sp","Hard coral",2580
+"27","CORAL","Coral","ENC","Encrusting hard coral","GASP","Galaxea sp","Hard coral",1735
+"28","CORAL","Coral","MASS","Massive hard coral","GONS","Goniastrea sp","Hard coral",6532
+"29","CORAL","Coral","MASS","Massive hard coral","DISP","Diploastrea sp","Hard coral",786
+"30","CORAL","Coral","ENC","Encrusting hard coral","PSSP","Psammocora sp","Hard coral",651
+"31","CORAL","Coral","ENC","Encrusting hard coral","PHSP","Phymastrea sp.","Hard coral",326
+"32","CORAL","Coral","ENC","Encrusting hard coral","MOEN","Montipora encrusting","Hard coral",64337
+"33","I","Sessile Invertebrate","SP","Sponge","SP","Sponge","Other Invertebrates",2390
+"34","CORAL","Coral","ENC","Encrusting hard coral","PAEN","Pavona encrusting","Hard coral",4167
+"35","UC","Unclassified","UNK","Unclassified/Unknown","UNK","Unclassified/Unknown","Other",21462
+"36","CORAL","Coral","MASS","Massive hard coral","LPHY","Leptoria sp","Hard coral",2348
+"37","CCA","Coralline Alga","CCAR","CCA growing on rubble","CCAR","CCA growing on rubble","Algae",5909
+"38","CORAL","Coral","MASS","Massive hard coral","FAVS","Favites sp","Hard coral",2180
+"39","CORAL","Coral","ENC","Encrusting hard coral","CYPS","Cyphastrea sp","Hard coral",789
+"40","MA","Macroalga","UPMA","Upright macroalga","AVSP","Avrainvillea sp","Algae",122
+"41","CORAL","Coral","NS","Non-scleractinian hard coral","MISP","Millepora sp","Hard coral",1815
+"42","CORAL","Coral","FREE","Free-living hard coral","FREE","Free-living hard coral","Hard coral",945
+"43","CORAL","Coral","BR","Branching hard coral","ACBR","Acropora branching","Hard coral",28488
+"44","MA","Macroalga","UPMA","Upright macroalga","DICT","Dictyosphaeria sp","Algae",1453
+"45","TURF","Turf Alga","HARD","Hard substrate","HARD","Hard substrate","Hard Substrate",5618
+"46","CORAL","Coral","FOL","Foliose hard coral","MOFO","Montipora foliose","Hard coral",16214
+"47","MA","Macroalga","UPMA","Upright macroalga","MICR","Microdictyon sp","Algae",13321
+"48","CORAL","Coral","ENC","Encrusting hard coral","LESP","Leptoseris sp","Hard coral",112
+"49","CORAL","Coral","NS","Non-scleractinian hard coral","HCOE","Heliopora sp","Hard coral",360
+"50","TURF","Turf Alga","RUB","Rubble substrate","RUB","Rubble substrate","Hard Substrate",1643
+"51","CORAL","Coral","BR","Branching hard coral","STYS","Stylophora sp","Hard coral",752
+"52","I","Sessile Invertebrate","TUN","Tunicate","TUN","Tunicate","Other Invertebrates",1409
+"53","CORAL","Coral","MASS","Massive hard coral","PAMA","Pavona massive","Hard coral",2334
+"54","MA","Macroalga","UPMA","Upright macroalga","LOBO","Lobophora sp","Algae",4618
+"55","MA","Macroalga","UPMA","Upright macroalga","GRMA","Green macroalgae","Algae",1390
+"56","MA","Macroalga","UPMA","Upright macroalga","UPMA","Upright macroalga","Algae",7254
+"57","CORAL","Coral","FREE","Free-living hard coral","FUSP","Fungia sp","Hard coral",926
+"58","I","Sessile Invertebrate","CMOR","Corallimorph","CMOR","Corallimorph","Other Invertebrates",4986
+"59","CORAL","Coral","TAB","Tabulate hard coral","ACTA","Acropora tabulate","Hard coral",10999
+"60","CORAL","Coral","MASS","Massive hard coral","HYSP","Hydnophora sp","Hard coral",949
+"61","MF","Mobile Fauna","MOBF","Mobile fauna","MOBF","Mobile fauna","Other",2104
+"62","CORAL","Coral","MASS","Massive hard coral","MASS","Massive hard coral","Hard coral",3165
+"63","CORAL","Coral","MASS","Massive hard coral","MONS","Montastraea sp","Hard coral",1663
+"64","I","Sessile Invertebrate","UI","Unclassified sessile invertebrate","UI","Unclassified sessile invertebrate","Other Invertebrates",92
+"65","CORAL","Coral","ENC","Encrusting hard coral","COSP","Coscinaraea sp","Hard coral",685
+"66","I","Sessile Invertebrate","ZO","Zoanthid","ZO","Zoanthid","Other Invertebrates",1228
+"67","CORAL","Coral","MASS","Massive hard coral","LOBS","Lobophyllia sp","Hard coral",1884
+"68","I","Sessile Invertebrate","GC","Giant clam","GC","Giant clam","Other Invertebrates",403
+"69","CORAL","Coral","MASS","Massive hard coral","PLSP","Platygyra sp","Hard coral",1699
+"70","CORAL","Coral","ENC","Encrusting hard coral","GOAL","Goniopora/Alveopora sp","Hard coral",493
+"71","CORAL","Coral","BR","Branching hard coral","BR","Branching hard coral","Hard coral",1320
+"72","CORAL","Coral","FOL","Foliose hard coral","PACS","Pachyseris sp","Hard coral",229
+"73","CORAL","Coral","FOL","Foliose hard coral","FOL","Foliose hard coral","Hard coral",1533
+"74","CORAL","Coral","BR","Branching hard coral","MOBR","Montipora branching","Hard coral",2596
+"75","MA","Macroalga","UPMA","Upright macroalga","NEOM","Neomeris sp","Algae",19
+"76","CORAL","Coral","ENC","Encrusting hard coral","ISSP","Isopora sp","Hard coral",2374
+"77","SED","Sediment","FINE","Fine sediment","FINE","Fine sediment","Soft Substrate",1677
+"78","CORAL","Coral","FOL","Foliose hard coral","TURS","Turbinaria sp","Hard coral",2002
+"79","CORAL","Coral","FOL","Foliose hard coral","MESP","Merulina sp","Hard coral",357
+"80","CORAL","Coral","ENC","Encrusting hard coral","ECHP","Echinopora sp","Hard coral",565
+"81","CORAL","Coral","ENC","Encrusting hard coral","ACAS","Acanthastrea sp","Hard coral",344
+"82","CORAL","Coral","ENC","Encrusting hard coral","ECHL","Echinophyllia sp","Hard coral",163
+"83","CORAL","Coral","MASS","Massive hard coral","OUSP","Oulophyllia sp","Hard coral",77
+"84","I","Sessile Invertebrate","AMNE","Anemone","AMNE","Anemone","Other Invertebrates",144
+"85","CORAL","Coral","MASS","Massive hard coral","SYSP","Symphyllia sp","Hard coral",69
+"86","CORAL","Coral","BR","Branching hard coral","PLER","Plerogyra sp","Hard coral",74
+"87","I","Sessile Invertebrate","BRY","Bryozoan","BRY","Bryozoan","Other Invertebrates",14
+"88","CORAL","Coral","COL","Columnar hard coral","COL","Columnar hard coral","Hard coral",199
+"89","CORAL","Coral","FOL","Foliose hard coral","PAFO","Pavona foliose","Hard coral",60
+"90","MA","Macroalga","UPMA","Upright macroalga","PADI","Padina sp","Algae",2816
+"91","CORAL","Coral","NS","Non-scleractinian hard coral","HYCO","Hydrocoral","Other Invertebrates",72
+"92","CCA","Coralline Alga","CCAH","CCA growing on hard substrate","CCAH","CCA growing on hard substrate","Hard Substrate",65161
+"93","TURF","Turf Alga","TURFH","Turf growing on hard substrate","TURFH","Turf growing on hard substrate","Hard Substrate",159373
+"94","TURF","Turf Alga","TURFR","Turf growing on rubble","TURFR","Turf growing on rubble","Hard Substrate",12221
+"95","CCA","Coralline Alga","CCAR","CCA growing on rubble","CCAR","CCA growing on rubble","Hard Substrate",2387
+"96","CORAL","Coral","BR","Branching hard coral","EUSP","Euphyllia sp","Hard coral",11
+"97","I","Sessile Invertebrate","BI","Bivalve","BI","Bivalve","Other Invertebrates",26
+"98","SC","Soft Coral","USC","Unclassified soft coral","USC","Unclassified soft coral","Other Invertebrates",7
+"99","MA","Macroalga","UPMA","Upright macroalga","SG","Seagrass","Algae",119
+"100","CORAL","Coral","MASS","Massive hard coral","ASTS","Astrea sp.","Hard coral",965
+"101","SC","Soft Coral","ANTI","Wire and black coral","ANTI","Wire and black coral","Other Invertebrates",3
+"102","TURF","Turf Alga","HARD","Hard substrate","COTS","COTS predation hard substrate","Hard Substrate",9
