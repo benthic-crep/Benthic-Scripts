@@ -7,7 +7,7 @@
 
 rm(list=ls())
 invisible(lapply(paste0('package:', names(sessionInfo()$otherPkgs)), detach, character.only=TRUE, unload=TRUE))
-WRITE=TRUE
+WRITE=FALSE
 WRITE_EVEN_RIDICULOUS_STUFF=FALSE
 #setwd("C:/Users/Courtney.S.Couch/Documents/Courtney's Files/R Files/ESD/BIA")
 #setwd("T:/Benthic/Data/REA Coral Demography & Cover/Raw from Oracle/")
@@ -752,9 +752,12 @@ dpstT<-left_join(dpstT,ri)
 if(TIER==1){
   if(WRITE){write.csv(dpstC, file="T:/Benthic/Data/Data Requests/NCRMPViztool/2023/unformatted/BenthicCover_2010-2023_Tier1_STRATA_Complete_Viztool.csv",row.names = F)}
   if(WRITE){write.csv(dpstT, file="T:/Benthic/Data/Data Requests/NCRMPViztool/2023/unformatted/BenthicCover_2010-2023_Tier1_STRATA_Trends_Viztool.csv",row.names = F)}
-}else{
+}else if(TIER==2){
   if(WRITE){write.csv(dpstC, file="T:/Benthic/Data/Data Requests/NCRMPViztool/2023/unformatted/BenthicCover_2010-2023_Tier2b_STRATA_Complete_Viztool.csv",row.names = F)}
   if(WRITE){write.csv(dpstT, file="T:/Benthic/Data/Data Requests/NCRMPViztool/2023/unformatted/BenthicCover_2010-2023_Tier2b_STRATA_Trends_Viztool.csv",row.names = F)}
+}else{
+  if(WRITE){write.csv(dpstC, file="T:/Benthic/Data/Data Requests/NCRMPViztool/2023/unformatted/BenthicCover_2010-2023_Tier3_STRATA_Complete_Viztool.csv",row.names = F)}
+  if(WRITE){write.csv(dpstT, file="T:/Benthic/Data/Data Requests/NCRMPViztool/2023/unformatted/BenthicCover_2010-2023_Tier3_STRATA_Trends_Viztool.csv",row.names = F)}
 }
 
 #SAVE BY SECTOR PER YEAR
@@ -774,11 +777,13 @@ dpsecT<-left_join(dpsecT,ri)
 if(TIER==1){
   if(WRITE){write.csv(dpsecC, file="T:/Benthic/Data/Data Requests/NCRMPViztool/2023/unformatted/BenthicCover_2010-2023_Tier1_SECTOR_Complete_Viztool.csv",row.names = F)}
   if(WRITE){write.csv(dpsecT, file="T:/Benthic/Data/Data Requests/NCRMPViztool/2023/unformatted/BenthicCover_2010-2023_Tier1_SECTOR_Trends_Viztool.csv",row.names = F)}
-}else{
+}else if(TIER==2){
   if(WRITE){write.csv(dpsecC, file="T:/Benthic/Data/Data Requests/NCRMPViztool/2023/unformatted/BenthicCover_2010-2023_Tier2b_SECTOR_Complete_Viztool.csv",row.names = F)}
   if(WRITE){write.csv(dpsecT, file="T:/Benthic/Data/Data Requests/NCRMPViztool/2023/unformatted/BenthicCover_2010-2023_Tier2b_SECTOR_Trends_Viztool.csv",row.names = F)}
+}else{
+  if(WRITE){write.csv(dpsecC, file="T:/Benthic/Data/Data Requests/NCRMPViztool/2023/unformatted/BenthicCover_2010-2023_Tier3_SECTOR_Complete_Viztool.csv",row.names = F)}
+  if(WRITE){write.csv(dpsecT, file="T:/Benthic/Data/Data Requests/NCRMPViztool/2023/unformatted/BenthicCover_2010-2023_Tier3_SECTOR_Trends_Viztool.csv",row.names = F)}
 }
-
 
 # e.g. SAVE BY ISLAND PER YEAR
 OUTPUT_LEVEL<-c("REGION","ISLAND","ANALYSIS_YEAR") 
@@ -797,9 +802,12 @@ dpisT<-left_join(dpisT,ri)
 if(TIER==1){
   if(WRITE){write.csv(dpisC, file="T:/Benthic/Data/Data Requests/NCRMPViztool/2023/unformatted/BenthicCover_2010-2023_Tier1_ISLAND_Complete_Viztool.csv",row.names = F)}
   if(WRITE){write.csv(dpisT, file="T:/Benthic/Data/Data Requests/NCRMPViztool/2023/unformatted/BenthicCover_2010-2023_Tier1_ISLAND_Trends_Viztool.csv",row.names = F)}
-}else{
+}else if(TIER==2){
   if(WRITE){write.csv(dpisC, file="T:/Benthic/Data/Data Requests/NCRMPViztool/2023/unformatted/BenthicCover_2010-2023_Tier2b_ISLAND_Complete_Viztool.csv",row.names = F)}
   if(WRITE){write.csv(dpisT, file="T:/Benthic/Data/Data Requests/NCRMPViztool/2023/unformatted/BenthicCover_2010-2023_Tier2b_ISLAND_Trends_Viztool.csv",row.names = F)}
+}else{
+  if(WRITE){write.csv(dpisC, file="T:/Benthic/Data/Data Requests/NCRMPViztool/2023/unformatted/BenthicCover_2010-2023_Tier3_ISLAND_Complete_Viztool.csv",row.names = F)}
+  if(WRITE){write.csv(dpisT, file="T:/Benthic/Data/Data Requests/NCRMPViztool/2023/unformatted/BenthicCover_2010-2023_Tier3_ISLAND_Trends_Viztool.csv",row.names = F)}
 }
 
 # e.g. SAVE BY REGION PER YEAR
@@ -833,8 +841,11 @@ dprT<-left_join(dprT$Mean,dprT$PooledSE)
 if(TIER==1){
   if(WRITE){write.csv(dprC, file="T:/Benthic/Data/Data Requests/NCRMPViztool/2023/unformatted/BenthicCover_2010-2023_Tier1_REGION_Complete_Viztool.csv",row.names = F)}
   if(WRITE){write.csv(dprT, file="T:/Benthic/Data/Data Requests/NCRMPViztool/2023/unformatted/BenthicCover_2010-2023_Tier1_REGION_Trends_Viztool.csv",row.names = F)}
-}else{
+}else if(TIER==2){
   if(WRITE){write.csv(dprC, file="T:/Benthic/Data/Data Requests/NCRMPViztool/2023/unformatted/BenthicCover_2010-2023_Tier2b_REGION_Complete_Viztool.csv",row.names = F)}
   if(WRITE){write.csv(dprT, file="T:/Benthic/Data/Data Requests/NCRMPViztool/2023/unformatted/BenthicCover_2010-2023_Tier2b_REGION_Trends_Viztool.csv",row.names = F)}
+}else{
+  if(WRITE){write.csv(dprC, file="T:/Benthic/Data/Data Requests/NCRMPViztool/2023/unformatted/BenthicCover_2010-2023_Tier3_REGION_Complete_Viztool.csv",row.names = F)}
+  if(WRITE){write.csv(dprT, file="T:/Benthic/Data/Data Requests/NCRMPViztool/2023/unformatted/BenthicCover_2010-2023_Tier3_REGION_Trends_Viztool.csv",row.names = F)}
 }
 
