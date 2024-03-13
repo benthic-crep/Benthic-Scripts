@@ -132,6 +132,8 @@ miss.from.smSITE<-ddply(miss.from.sm,.(SITEVISITID,REGION,ISLAND,SITE,REEF_ZONE,
                                        LATITUDE,LONGITUDE,MIN_DEPTH,MAX_DEPTH),summarize,tmp=length(REPLICATE));miss.from.smSITE
 
 if(WRITE){write.csv(miss.from.smSITE,file="../fish-paste/data/03082024_SitesmissingfromSM.csv")} #export list and manually add to SM
+
+#Don't commit this file, too big!!!
 if(WRITE_EVEN_RIDICULOUS_STUFF){write.csv(ab, file="tmp All BIA BOTH METHODS.csv")}
 
 SURVEY_INFO<-c("OBS_YEAR", "REGION",  "ISLAND")
@@ -709,6 +711,9 @@ ADDITIONAL_POOLING_BY<-c("ANALYSIS_YEAR")                                    # a
 
 #generate within strata means and vars
 POOLING_LEVEL<-c(SPATIAL_POOLING_BASE, ADDITIONAL_POOLING_BY)
+################################################################################
+################################################################################
+################################################################################
 dpsComp<-Calc_PerStrata(wsdComp, data.cols, c(POOLING_LEVEL, "AREA_HA_correct"))
 
 #Clear out any Stratum-Year combo at N=1
