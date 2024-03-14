@@ -339,6 +339,7 @@ write.csv(r.data.gen.trends,file="T:/Benthic/Data/Data Requests/NCRMPViztool/202
 
 
 #QC Checks
+library(tidyverse)
 st.data.gen=read.csv(file="T:/Benthic/Data/Data Requests/NCRMPViztool/2022/unformatted/COMPLETE/BenthicREA_STRATA_Demo_Viztool_2023.csv")
 sec.data.gen=read.csv(file="T:/Benthic/Data/Data Requests/NCRMPViztool/2022/unformatted/COMPLETE/BenthicREA_SECTOR_Demo_Viztool_2023.csv")
 is.data.gen=read.csv(file="T:/Benthic/Data/Data Requests/NCRMPViztool/2022/unformatted/COMPLETE/BenthicREA_ISLAND_Demo_Viztool_2023.csv")
@@ -373,3 +374,24 @@ RepTabT=RepTabT[,c(names(RepTabT)[1:2],sort(names(RepTabT)[3:length(names(RepTab
 RepTabT %>% print(n=999)
 dim(RepTab)
 dim(RepTabT)
+
+#QC Values
+idcol=names(st.data.gen)[1:9]
+mncol=names(st.data.gen)[c(12,19,26,28,30,32,34,36,38)]
+secol=names(st.data.gen)[c(12,19,26,28,30,32,34,36,38)+1]
+
+mnsum=st.data.gen %>% select(all_of(c(idcol,mncol))) %>% 
+  pivot_longer(cols=c(mncol),names_to = "MN_Metric",values_to = "MN_Value") 
+sesum=st.data.gen %>% select(all_of(c(idcol,secol))) %>% 
+  pivot_longer(cols=c(secol),names_to = "SE_Metric",values_to = "SE_Value")  
+mnsesum=mnsum %>% cbind(sesum[c("SE_Metric", "SE_Value")])  
+tail(mnsesum)
+
+#QC Histograms
+MN_p=mnsesum %>% ggplot(aes(x=MN_Value))+geom_histogram()+facet_wrap("MN_Metric",scales="free")+scale_x_sqrt()
+MN_pNZ=mnsesum %>% filter(MN_Value>0) %>% ggplot(aes(x=MN_Value))+geom_histogram()+facet_wrap("MN_Metric",scales="free")+scale_x_sqrt()
+SE_p=mnsesum %>% ggplot(aes(x=SE_Value))+geom_histogram()+facet_wrap("SE_Metric",scales="free")+scale_x_sqrt()
+SE_pNZ=mnsesum %>% filter(SE_Value>0) %>% ggplot(aes(x=SE_Value))+geom_histogram()+facet_wrap("SE_Metric",scales="free")+scale_x_sqrt()
+library(patchwork)
+MN_p+SE_p
+MN_pNZ+SE_pNZ

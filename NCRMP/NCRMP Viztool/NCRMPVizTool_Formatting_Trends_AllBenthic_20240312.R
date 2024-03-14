@@ -170,88 +170,87 @@ st_demo_CO<-st_demo_CO[,c("REGION","ISLAND", "SECTOR","DB_RZ","ANALYSIS_YEAR","n
 colnames(st_demo_CO)[colnames(st_demo_CO)=="DB_RZ"]<-"STRATA"
 colnames(st_demo_CO)[colnames(st_demo_CO)=="n"]<-"N_Demo"
 #Trends
-st_demo_TR<-read.csv("T:/Benthic/Data/Data Requests/NCRMPViztool/2022/unformatted/TRENDS/BenthicREA_STRATA_TRENDS_Demo_Viztool_2023.csv")
+st_demo_TR<-read.csv("T:/Benthic/Data/Data Requests/NCRMPViztool/2023/unformatted/TRENDS/BenthicREA_STRATA_TRENDS_Demo_Viztool_2023.csv")
 st_demo_TR<-st_demo_TR[,c("REGION","ISLAND", "SECTOR","DB_RZ","ANALYSIS_YEAR","n","GENUS_CODE","AdColDen","JuvColDen","Mean_BLE_Prev","Mean_TotDZ_Prev","SE_AdColDen","SE_JuvColDen","SE_BLE_Prev","SE_TotDZ_Prev")]
 colnames(st_demo_TR)[colnames(st_demo_TR)=="DB_RZ"]<-"STRATA"
 colnames(st_demo_TR)[colnames(st_demo_TR)=="n"]<-"N_Demo"
 
 #Complete
-sec_demo_CO<-read.csv("T:/Benthic/Data/Data Requests/NCRMPViztool/2022/unformatted/COMPLETE/BenthicREA_SECTOR_Demo_Viztool_2023.csv")
+sec_demo_CO<-read.csv("T:/Benthic/Data/Data Requests/NCRMPViztool/2023/unformatted/COMPLETE/BenthicREA_SECTOR_Demo_Viztool_2023.csv")
 sec_demo_CO<-sec_demo_CO[,c("REGION","PooledSector_Viztool","ANALYSIS_YEAR","n","GENUS_CODE","Mean_AdColDen","Mean_JuvColDen","Mean_BLE_Prev","Mean_TotDZ_Prev","SE_AdColDen","SE_JuvColDen","SE_BLE_Prev","SE_TotDZ_Prev")]
 colnames(sec_demo_CO)[colnames(sec_demo_CO)=="PooledSector_Viztool"]<-"SECTOR"
 colnames(sec_demo_CO)[colnames(sec_demo_CO)=="n"]<-"N_Demo"
 #Trends
-sec_demo_TR<-read.csv("T:/Benthic/Data/Data Requests/NCRMPViztool/2022/unformatted/TRENDS/BenthicREA_SECTOR_TRENDS_Demo_Viztool_2023.csv")
+sec_demo_TR<-read.csv("T:/Benthic/Data/Data Requests/NCRMPViztool/2023/unformatted/TRENDS/BenthicREA_SECTOR_TRENDS_Demo_Viztool_2023.csv")
 sec_demo_TR<-sec_demo_TR[,c("REGION","PooledSector_Viztool","ANALYSIS_YEAR","n","GENUS_CODE","Mean_AdColDen","Mean_JuvColDen","Mean_BLE_Prev","Mean_TotDZ_Prev","SE_AdColDen","SE_JuvColDen","SE_BLE_Prev","SE_TotDZ_Prev")]
 colnames(sec_demo_TR)[colnames(sec_demo_TR)=="PooledSector_Viztool"]<-"SECTOR"
 colnames(sec_demo_TR)[colnames(sec_demo_TR)=="n"]<-"N_Demo"
 
 #Complete
-isl_demo_CO<-read.csv("T:/Benthic/Data/Data Requests/NCRMPViztool/2022/unformatted/COMPLETE/BenthicREA_ISLAND_Demo_Viztool_2023.csv")
+isl_demo_CO<-read.csv("T:/Benthic/Data/Data Requests/NCRMPViztool/2023/unformatted/COMPLETE/BenthicREA_ISLAND_Demo_Viztool_2023.csv")
 isl_demo_CO<-isl_demo_CO[,c("REGION","ISLAND","ANALYSIS_YEAR","n","GENUS_CODE","Mean_AdColDen","Mean_JuvColDen","Mean_BLE_Prev","Mean_TotDZ_Prev","SE_AdColDen","SE_JuvColDen","SE_BLE_Prev","SE_TotDZ_Prev")]
 colnames(isl_demo_CO)[colnames(isl_demo_CO)=="n"]<-"N_Demo"
 #Trends
-isl_demo_TR<-read.csv("T:/Benthic/Data/Data Requests/NCRMPViztool/2022/unformatted/TRENDS/BenthicREA_ISLAND_TRENDS_Demo_Viztool_2023.csv")
+isl_demo_TR<-read.csv("T:/Benthic/Data/Data Requests/NCRMPViztool/2023/unformatted/TRENDS/BenthicREA_ISLAND_TRENDS_Demo_Viztool_2023.csv")
 isl_demo_TR<-isl_demo_TR[,c("REGION","ISLAND","ANALYSIS_YEAR","n","GENUS_CODE","Mean_AdColDen","Mean_JuvColDen","Mean_BLE_Prev","Mean_TotDZ_Prev","SE_AdColDen","SE_JuvColDen","SE_BLE_Prev","SE_TotDZ_Prev")]
 colnames(isl_demo_TR)[colnames(isl_demo_TR)=="n"]<-"N_Demo"
 
 #Complete
-r_demo_CO<-read.csv("T:/Benthic/Data/Data Requests/NCRMPViztool/2022/unformatted/COMPLETE/BenthicREA_REGION_Demo_Viztool_2023.csv")
+r_demo_CO<-read.csv("T:/Benthic/Data/Data Requests/NCRMPViztool/2023/unformatted/COMPLETE/BenthicREA_REGION_Demo_Viztool_2023.csv")
 r_demo_CO<-r_demo_CO[,c("REGION","ANALYSIS_YEAR","n","GENUS_CODE","Mean_AdColDen","Mean_JuvColDen","Mean_BLE_Prev","Mean_TotDZ_Prev","SE_AdColDen","SE_JuvColDen","SE_BLE_Prev","SE_TotDZ_Prev")]
 colnames(r_demo_CO)[colnames(r_demo_CO)=="n"]<-"N_Demo"
 #Trends
-r_demo_TR<-read.csv("T:/Benthic/Data/Data Requests/NCRMPViztool/2022/unformatted/TRENDS/BenthicREA_REGION_TRENDS_Demo_Viztool_2023.csv")
+r_demo_TR<-read.csv("T:/Benthic/Data/Data Requests/NCRMPViztool/2023/unformatted/TRENDS/BenthicREA_REGION_TRENDS_Demo_Viztool_2023.csv")
 r_demo_TR<-r_demo_TR[,c("REGION","ANALYSIS_YEAR","n","GENUS_CODE","Mean_AdColDen","Mean_JuvColDen","Mean_BLE_Prev","Mean_TotDZ_Prev","SE_AdColDen","SE_JuvColDen","SE_BLE_Prev","SE_TotDZ_Prev")]
 colnames(r_demo_TR)[colnames(r_demo_TR)=="n"]<-"N_Demo"
 
 ############ Read in COVER Data
 #Read in Tier 1 (functional groups) COVER data
 #Complete
-st_cover_CO<-read.csv("T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Stratum/BenthicCover_2010-2023_Tier1_STRATA_updated.csv")
-#st_cover_CO<-read.csv("T:/Benthic/Data/Data Requests/NCRMPViztool/2022/unformatted/COMPLETE/BenthicCover_2010-2019_Tier1_STRATA_Complete_Viztool.csv")
+st_cover_CO<-read.csv("T:/Benthic/Data/Data Requests/NCRMPViztool/2023/unformatted/COMPLETE/BenthicCover_2010-2023_Tier1_STRATA_Complete_Viztool.csv")
 st_cover_CO<-st_cover_CO[,c("REGION","ISLAND", "ANALYSIS_SEC","STRATA","ANALYSIS_YEAR","N","Mean.CORAL","Mean.CCA","Mean.MA","SE.CORAL","SE.CCA","SE.MA")]
 st_cover_CO$GENUS_CODE<-"SSSS"
 colnames(st_cover_CO)[colnames(st_cover_CO)=="N"]<-"N_Cover"
 colnames(st_cover_CO)[colnames(st_cover_CO)=="ANALYSIS_SEC"]<-"SECTOR"
 
 #Trends
-st_cover_TR<-read.csv("T:/Benthic/Data/Data Requests/NCRMPViztool/2022/unformatted/TRENDS/BenthicCover_2010-2019_Tier1_STRATA_Trends_Viztool.csv")
+st_cover_TR<-read.csv("T:/Benthic/Data/Data Requests/NCRMPViztool/2023/unformatted/TRENDS/BenthicCover_2010-2023_Tier1_STRATA_Trends_Viztool.csv")
 st_cover_TR<-st_cover_TR[,c("REGION","ISLAND", "ANALYSIS_SEC","STRATA","ANALYSIS_YEAR","N","Mean.CORAL","Mean.CCA","Mean.MA","SE.CORAL","SE.CCA","SE.MA")]
 st_cover_TR$GENUS_CODE<-"SSSS"
 colnames(st_cover_TR)[colnames(st_cover_TR)=="N"]<-"N_Cover"
 colnames(st_cover_TR)[colnames(st_cover_TR)=="ANALYSIS_SEC"]<-"SECTOR"
 
 #Complete
-sec_cover_CO<-read.csv("T:/Benthic/Data/Data Requests/NCRMPViztool/2022/unformatted/COMPLETE/BenthicCover_2010-2019_Tier1_SECTOR_Complete_Viztool.csv")
+sec_cover_CO<-read.csv("T:/Benthic/Data/Data Requests/NCRMPViztool/2023/unformatted/COMPLETE/BenthicCover_2010-2023_Tier1_SECTOR_Complete_Viztool.csv")
 sec_cover_CO<-sec_cover_CO[,c("REGION","ANALYSIS_SEC","ANALYSIS_YEAR","N","Mean.CORAL","Mean.CCA","Mean.MA","SE.CORAL","SE.CCA","SE.MA")]
 sec_cover_CO$GENUS_CODE<-"SSSS"
 colnames(sec_cover_CO)[colnames(sec_cover_CO)=="N"]<-"N_Cover"
 colnames(sec_cover_CO)[colnames(sec_cover_CO)=="ANALYSIS_SEC"]<-"SECTOR"
 #Trends
-sec_cover_TR<-read.csv("T:/Benthic/Data/Data Requests/NCRMPViztool/2022/unformatted/TRENDS/BenthicCover_2010-2019_Tier1_SECTOR_Trends_Viztool.csv")
+sec_cover_TR<-read.csv("T:/Benthic/Data/Data Requests/NCRMPViztool/2023/unformatted/TRENDS/BenthicCover_2010-2023_Tier1_SECTOR_Trends_Viztool.csv")
 sec_cover_TR<-sec_cover_TR[,c("REGION","ANALYSIS_SEC","ANALYSIS_YEAR","N","Mean.CORAL","Mean.CCA","Mean.MA","SE.CORAL","SE.CCA","SE.MA")]
 sec_cover_TR$GENUS_CODE<-"SSSS"
 colnames(sec_cover_TR)[colnames(sec_cover_TR)=="N"]<-"N_Cover"
 colnames(sec_cover_TR)[colnames(sec_cover_TR)=="ANALYSIS_SEC"]<-"SECTOR"
 
 #Complete
-isl_cover_CO<-read.csv("T:/Benthic/Data/Data Requests/NCRMPViztool/2022/unformatted/COMPLETE/BenthicCover_2010-2019_Tier1_ISLAND_Complete_Viztool.csv")
+isl_cover_CO<-read.csv("T:/Benthic/Data/Data Requests/NCRMPViztool/2023/unformatted/COMPLETE/BenthicCover_2010-2023_Tier1_ISLAND_Complete_Viztool.csv")
 isl_cover_CO<-isl_cover_CO[,c("REGION","ISLAND","ANALYSIS_YEAR","N","Mean.CORAL","Mean.CCA","Mean.MA","SE.CORAL","SE.CCA","SE.MA")]
 isl_cover_CO$GENUS_CODE<-"SSSS"
 colnames(isl_cover_CO)[colnames(isl_cover_CO)=="N"]<-"N_Cover"
 #Trends
-isl_cover_TR<-read.csv("T:/Benthic/Data/Data Requests/NCRMPViztool/2022/unformatted/TRENDS/BenthicCover_2010-2019_Tier1_ISLAND_Trends_Viztool.csv")
+isl_cover_TR<-read.csv("T:/Benthic/Data/Data Requests/NCRMPViztool/2023/unformatted/TRENDS/BenthicCover_2010-2023_Tier1_ISLAND_Trends_Viztool.csv")
 isl_cover_TR<-isl_cover_TR[,c("REGION","ISLAND","ANALYSIS_YEAR","N","Mean.CORAL","Mean.CCA","Mean.MA","SE.CORAL","SE.CCA","SE.MA")]
 isl_cover_TR$GENUS_CODE<-"SSSS"
 colnames(isl_cover_TR)[colnames(isl_cover_TR)=="N"]<-"N_Cover"
 
 #Complete
-r_cover_CO<-read.csv("T:/Benthic/Data/Data Requests/NCRMPViztool/2022/unformatted/COMPLETE/BenthicCover_2010-2019_Tier1_REGION_Complete_Viztool.csv")
+r_cover_CO<-read.csv("T:/Benthic/Data/Data Requests/NCRMPViztool/2023/unformatted/COMPLETE/BenthicCover_2010-2023_Tier1_REGION_Complete_Viztool.csv")
 r_cover_CO<-r_cover_CO[,c("REGION","ANALYSIS_YEAR","N","Mean.CORAL","Mean.CCA","Mean.MA","SE.CORAL","SE.CCA","SE.MA")]
 r_cover_CO$GENUS_CODE<-"SSSS"
 colnames(r_cover_CO)[colnames(r_cover_CO)=="N"]<-"N_Cover"
 #Trends
-r_cover_TR<-read.csv("T:/Benthic/Data/Data Requests/NCRMPViztool/2022/unformatted/TRENDS/BenthicCover_2010-2019_Tier1_REGION_Trends_Viztool.csv")
+r_cover_TR<-read.csv("T:/Benthic/Data/Data Requests/NCRMPViztool/2023/unformatted/TRENDS/BenthicCover_2010-2023_Tier1_REGION_Trends_Viztool.csv")
 r_cover_TR<-r_cover_TR[,c("REGION","ANALYSIS_YEAR","N","Mean.CORAL","Mean.CCA","Mean.MA","SE.CORAL","SE.CCA","SE.MA")]
 r_cover_TR$GENUS_CODE<-"SSSS"
 colnames(r_cover_TR)[colnames(r_cover_TR)=="N"]<-"N_Cover"
@@ -259,7 +258,7 @@ colnames(r_cover_TR)[colnames(r_cover_TR)=="N"]<-"N_Cover"
 
 #Read in Tier 2b (Genus level) COVER data
 #STRATA - Complete
-st_cover2w_CO<-read.csv("T:/Benthic/Data/Data Requests/NCRMPViztool/2022/unformatted/COMPLETE/BenthicCover_2010-2019_Tier2b_STRATA_Complete_Viztool.csv")
+st_cover2w_CO<-read.csv("T:/Benthic/Data/Data Requests/NCRMPViztool/2023/unformatted/COMPLETE/BenthicCover_2010-2023_Tier2b_STRATA_Complete_Viztool.csv")
 #st_cover2w_CO<-dplyr::select(st_cover2w_CO,-c(Mean.TOT_AREA_WT))
 #convert wide to long
 st_cover2_CO<-pivot_longer(st_cover2w_CO,cols = Mean.ACAS:SE.TURS,
@@ -277,7 +276,7 @@ st_cover2_CO$SE.MA<-NA
 st_cover2_CO$SE.CCA<-NA
 
 #STRATA - Trends
-st_cover2w_TR<-read.csv("T:/Benthic/Data/Data Requests/NCRMPViztool/2022/unformatted/TRENDS/BenthicCover_2010-2019_Tier2b_STRATA_Trends_Viztool.csv")
+st_cover2w_TR<-read.csv("T:/Benthic/Data/Data Requests/NCRMPViztool/2023/unformatted/TRENDS/BenthicCover_2010-2023_Tier2b_STRATA_Trends_Viztool.csv")
 #st_cover2w_TR<-dplyr::select(st_cover2w_TR,-c(Mean.TOT_AREA_WT))
 #convert wide to long
 st_cover2_TR<-pivot_longer(st_cover2w_TR,cols = Mean.ACAS:SE.TURS,
@@ -297,7 +296,7 @@ st_cover2_TR$SE.CCA<-NA
 
 
 #SECTOR - Complete
-sec_cover2w_CO<-read.csv("T:/Benthic/Data/Data Requests/NCRMPViztool/2022/unformatted/COMPLETE/BenthicCover_2010-2019_Tier2b_SECTOR_Complete_Viztool.csv")
+sec_cover2w_CO<-read.csv("T:/Benthic/Data/Data Requests/NCRMPViztool/2023/unformatted/COMPLETE/BenthicCover_2010-2023_Tier2b_SECTOR_Complete_Viztool.csv")
 sec_cover2w_CO<-dplyr::select(sec_cover2w_CO,-c(Mean.TOT_AREA_WT))
 #convert wide to long
 sec_cover2_CO<-pivot_longer(sec_cover2w_CO,cols = Mean.ACAS:SE.TURS,
@@ -314,7 +313,7 @@ sec_cover2_CO$SE.MA<-NA
 sec_cover2_CO$SE.CCA<-NA
 
 #SECTOR - Trend
-sec_cover2w_TR<-read.csv("T:/Benthic/Data/Data Requests/NCRMPViztool/2022/unformatted/TRENDS/BenthicCover_2010-2019_Tier2b_SECTOR_Trends_Viztool.csv")
+sec_cover2w_TR<-read.csv("T:/Benthic/Data/Data Requests/NCRMPViztool/2023/unformatted/TRENDS/BenthicCover_2010-2023_Tier2b_SECTOR_Trends_Viztool.csv")
 sec_cover2w_TR<-dplyr::select(sec_cover2w_TR,-c(Mean.TOT_AREA_WT))
 #convert wide to long
 sec_cover2_TR<-pivot_longer(sec_cover2w_TR,cols = Mean.ACAS:SE.TURS,
@@ -332,7 +331,7 @@ sec_cover2_TR$SE.CCA<-NA
 
 
 #ISLAND - Complete
-isl_cover2w_CO<-read.csv("T:/Benthic/Data/Data Requests/NCRMPViztool/2022/unformatted/COMPLETE/BenthicCover_2010-2019_Tier2b_ISLAND_Complete_Viztool.csv")
+isl_cover2w_CO<-read.csv("T:/Benthic/Data/Data Requests/NCRMPViztool/2023/unformatted/COMPLETE/BenthicCover_2010-2023_Tier2b_ISLAND_Complete_Viztool.csv")
 isl_cover2w_CO<-dplyr::select(isl_cover2w_CO,-c(Mean.TOT_AREA_WT))
 isl_cover2_CO<-pivot_longer(isl_cover2w_CO,cols = Mean.ACAS:SE.TURS,
                             names_to = c(".value","GENUS_CODE"),
@@ -347,7 +346,7 @@ isl_cover2_CO$SE.MA<-NA
 isl_cover2_CO$SE.CCA<-NA
 
 #ISLAND - Trend
-isl_cover2w_TR<-read.csv("T:/Benthic/Data/Data Requests/NCRMPViztool/2022/unformatted/TRENDS/BenthicCover_2010-2019_Tier2b_ISLAND_Trends_Viztool.csv")
+isl_cover2w_TR<-read.csv("T:/Benthic/Data/Data Requests/NCRMPViztool/2023/unformatted/TRENDS/BenthicCover_2010-2023_Tier2b_ISLAND_Trends_Viztool.csv")
 isl_cover2w_TR<-dplyr::select(isl_cover2w_TR,-c(Mean.TOT_AREA_WT))
 isl_cover2_TR<-pivot_longer(isl_cover2w_TR,cols = Mean.ACAS:SE.TURS,
                             names_to = c(".value","GENUS_CODE"),
@@ -364,7 +363,7 @@ isl_cover2_TR$SE.CCA<-NA
 
 
 #REGION - Complete
-r_cover2w_CO<-read.csv("T:/Benthic/Data/Data Requests/NCRMPViztool/2022/unformatted/COMPLETE/BenthicCover_2010-2019_Tier2b_REGION_Complete_Viztool.csv")
+r_cover2w_CO<-read.csv("T:/Benthic/Data/Data Requests/NCRMPViztool/2023/unformatted/COMPLETE/BenthicCover_2010-2023_Tier2b_REGION_Complete_Viztool.csv")
 r_cover2w_CO<-dplyr::select(r_cover2w_CO,-c(Mean.TOT_AREA_WT))
 r_cover2_CO<-pivot_longer(r_cover2w_CO,cols = Mean.ACAS:SE.TURS,
                           names_to = c(".value","GENUS_CODE"),
@@ -378,7 +377,7 @@ r_cover2_CO$Mean.CCA<-NA
 r_cover2_CO$SE.MA<-NA
 r_cover2_CO$SE.CCA<-NA
 #REGION - Trends
-r_cover2w_TR<-read.csv("T:/Benthic/Data/Data Requests/NCRMPViztool/2022/unformatted/TRENDS/BenthicCover_2010-2019_Tier2b_REGION_Trends_Viztool.csv")
+r_cover2w_TR<-read.csv("T:/Benthic/Data/Data Requests/NCRMPViztool/2023/unformatted/TRENDS/BenthicCover_2010-2023_Tier2b_REGION_Trends_Viztool.csv")
 r_cover2w_TR<-dplyr::select(r_cover2w_TR,-c(Mean.TOT_AREA_WT))
 r_cover2_TR<-pivot_longer(r_cover2w_TR,cols = Mean.ACAS:SE.TURS,
                           names_to = c(".value","GENUS_CODE"),
@@ -621,7 +620,7 @@ demo_r_TR<-left_join(demo_r_TR,genlu,by="GENUS_CODE")
 
 
 #remove years before 2013
-years<-c("2013","2013-15","2014-15","2014","2015","2016","2015-16","2017-18","2017","2018","2019")
+years<-c("2013","2013-15","2014-15","2014","2015","2016","2015-16","2017-18","2017","2018","2019","2022","2023")
 
 demo_st_CO<-subset(demo_st_CO,ANALYSIS_YEAR %in% years);#View(demo_st_CO)
 demo_sec_CO<-subset(demo_sec_CO,ANALYSIS_YEAR %in% years);#View(demo_sec)
@@ -993,9 +992,9 @@ output_ST_Fjoin=output_ST_Fjoin[,OutputCols]
 
 
 write.csv(x = output_ST_Ljoin,row.names = FALSE,
-          file="T:/Benthic/Data/Data Requests/NCRMPViztool/2022/For Submission/April 2023 Submission/PacificBenthicDataSummaryTable_STRATA_LEFTJOIN_byGenus_26May2023.csv")
+          file="T:/Benthic/Data/Data Requests/NCRMPViztool/2023/For Submission/March 2024 Submission/PacificBenthicDataSummaryTable_STRATA_LEFTJOIN_byGenus_26May2023.csv")
 write.csv(x = output_ST_Fjoin,row.names = FALSE,
-          file="T:/Benthic/Data/Data Requests/NCRMPViztool/2022/For Submission/April 2023 Submission/PacificBenthicDataSummaryTable_STRATA_FULLJOIN_byGenus_26May2023.csv")
+          file="T:/Benthic/Data/Data Requests/NCRMPViztool/2023/For Submission/March 2024 Submission/PacificBenthicDataSummaryTable_STRATA_FULLJOIN_byGenus_26May2023.csv")
 
 #######
 #Prep Sector Level Data For Join
@@ -1113,9 +1112,9 @@ output_SEC_Fjoin= full_join(x=sec_both_rn_CO[,c(join_cols,COMPLETE_cols)],
 output_SEC_Ljoin=output_SEC_Ljoin[,OutputCols]
 output_SEC_Fjoin=output_SEC_Fjoin[,OutputCols]
 write.csv(x = output_SEC_Ljoin,row.names = FALSE,
-          file="T:/Benthic/Data/Data Requests/NCRMPViztool/2022/For Submission/April 2023 Submission/PacificBenthicDataSummaryTable_SECTOR_LEFTJOIN_byGenus_26May2023.csv")
+          file="T:/Benthic/Data/Data Requests/NCRMPViztool/2023/For Submission/March 2024 Submission/PacificBenthicDataSummaryTable_SECTOR_LEFTJOIN_byGenus_26May2023.csv")
 write.csv(x = output_SEC_Fjoin,row.names = FALSE,
-          file="T:/Benthic/Data/Data Requests/NCRMPViztool/2022/For Submission/April 2023 Submission/PacificBenthicDataSummaryTable_SECTOR_FULLJOIN_byGenus_26May2023.csv")
+          file="T:/Benthic/Data/Data Requests/NCRMPViztool/2023/For Submission/March 2024 Submission/PacificBenthicDataSummaryTable_SECTOR_FULLJOIN_byGenus_26May2023.csv")
 
 #######
 #Prep Island Level Data For Join
@@ -1238,9 +1237,9 @@ output_isl_Fjoin= full_join(x=isl_both_rn_CO[,c(join_cols,COMPLETE_cols)],
 output_isl_Ljoin=output_isl_Ljoin[,OutputCols]
 output_isl_Fjoin=output_isl_Fjoin[,OutputCols]
 write.csv(x = output_isl_Ljoin,row.names = FALSE,
-          file="T:/Benthic/Data/Data Requests/NCRMPViztool/2022/For Submission/April 2023 Submission/PacificBenthicDataSummaryTable_ISLAND_LEFTJOIN_byGenus_26May2023.csv")
+          file="T:/Benthic/Data/Data Requests/NCRMPViztool/2023/For Submission/March 2024 Submission/PacificBenthicDataSummaryTable_ISLAND_LEFTJOIN_byGenus_26May2023.csv")
 write.csv(x = output_isl_Fjoin,row.names = FALSE,
-          file="T:/Benthic/Data/Data Requests/NCRMPViztool/2022/For Submission/April 2023 Submission/PacificBenthicDataSummaryTable_ISLAND_FULLJOIN_byGenus_26May2023.csv")
+          file="T:/Benthic/Data/Data Requests/NCRMPViztool/2023/For Submission/March 2024 Submission/PacificBenthicDataSummaryTable_ISLAND_FULLJOIN_byGenus_26May2023.csv")
 
 #######
 #Prep Region Level Data For Join
@@ -1363,9 +1362,9 @@ output_r_Fjoin= full_join(x=r_both_rn_CO[,c(join_cols,COMPLETE_cols)],
 output_r_Ljoin=output_r_Ljoin[,OutputCols]
 output_r_Fjoin=output_r_Fjoin[,OutputCols]
 write.csv(x = output_r_Ljoin,row.names = FALSE,
-          file="T:/Benthic/Data/Data Requests/NCRMPViztool/2022/For Submission/April 2023 Submission/PacificBenthicDataSummaryTable_REGION_LEFTJOIN_byGenus_26May2023.csv")
+          file="T:/Benthic/Data/Data Requests/NCRMPViztool/2023/For Submission/March 2024 Submission/PacificBenthicDataSummaryTable_REGION_LEFTJOIN_byGenus_26May2023.csv")
 write.csv(x = output_r_Fjoin,row.names = FALSE,
-          file="T:/Benthic/Data/Data Requests/NCRMPViztool/2022/For Submission/April 2023 Submission/PacificBenthicDataSummaryTable_REGION_FULLJOIN_byGenus_26May2023.csv")
+          file="T:/Benthic/Data/Data Requests/NCRMPViztool/2023/For Submission/March 2024 Submission/PacificBenthicDataSummaryTable_REGION_FULLJOIN_byGenus_26May2023.csv")
 
 ##############################################################################################################################################################################################
 ##############################################################################################################################################################################################
@@ -1391,7 +1390,7 @@ new_r
 I_purgenew_r=which(output_r_Ljoin$JoinKey_SSSS%in%new_r)
 output_r_Ljoin_PN=output_r_Ljoin[-I_purgenew_r,]
 write.csv(x = output_r_Ljoin_PN,row.names = FALSE,
-          file="T:/Benthic/Data/Data Requests/NCRMPViztool/2022/For Submission/April 2023 Submission/PacificBenthicDataSummaryTable_REGION_LEFTJOIN_byGenus_PurgeNewJK_26May2023.csv")
+          file="T:/Benthic/Data/Data Requests/NCRMPViztool/2023/For Submission/March 2024 Submission/PacificBenthicDataSummaryTable_REGION_LEFTJOIN_byGenus_PurgeNewJK_26May2023.csv")
 
 
 #Pull taxon out of the join key  -- ISLAND
@@ -1407,7 +1406,7 @@ new_i
 I_purgenew_i=which(output_isl_Ljoin$JoinKey_SSSS%in%new_i)
 output_isl_Ljoin_PN=output_isl_Ljoin[-I_purgenew_i,]
 write.csv(x = output_isl_Ljoin_PN,row.names = FALSE,
-          file="T:/Benthic/Data/Data Requests/NCRMPViztool/2022/For Submission/April 2023 Submission/PacificBenthicDataSummaryTable_ISLAND_LEFTJOIN_byGenus_PurgeNewJK_26May2023.csv")
+          file="T:/Benthic/Data/Data Requests/NCRMPViztool/2023/For Submission/March 2024 Submission/PacificBenthicDataSummaryTable_ISLAND_LEFTJOIN_byGenus_PurgeNewJK_26May2023.csv")
 
 
 #Pull taxon out of the join key  -- SECTOR
@@ -1461,7 +1460,7 @@ os_D %>% print(n=99)
 I_purgenew_sc=which(output_SEC_Ljoin$JoinKey_SSSS%in%new_sc)
 output_SEC_Ljoin_PN=output_SEC_Ljoin[-I_purgenew_sc,]
 write.csv(x = output_SEC_Ljoin_PN,row.names = FALSE,
-          file="T:/Benthic/Data/Data Requests/NCRMPViztool/2022/For Submission/April 2023 Submission/PacificBenthicDataSummaryTable_SECTOR_LEFTJOIN_byGenus_PurgeNewJK_26May2023.csv")
+          file="T:/Benthic/Data/Data Requests/NCRMPViztool/2023/For Submission/March 2024 Submission/PacificBenthicDataSummaryTable_SECTOR_LEFTJOIN_byGenus_PurgeNewJK_26May2023.csv")
 
 
 
@@ -1477,18 +1476,18 @@ new_st
 ##############################################################################################################################################################################################
 ##############################################################################################################################################################################################
 ##############################################################################################################################################################################################
-# write.csv(st_all,file="T:/Benthic/Data/Data Requests/NCRMPViztool/2022/formatted/PacificNCRMPviztool2022_STRATA_All_Taxa_TRENDS_Apr2023.csv",row.names = F)
-# write.csv(sec_all,file="T:/Benthic/Data/Data Requests/NCRMPViztool/2022/formatted/PacificNCRMPviztool2022_SECTOR_All_Taxa_TRENDS_Apr2023.csv",row.names = F)
-# write.csv(isl_all,file="T:/Benthic/Data/Data Requests/NCRMPViztool/2022/formatted/PacificNCRMPviztool2022_ISLAND_All_Taxa_TRENDS_Apr2023.csv",row.names = F)
-# write.csv(r_all,file="T:/Benthic/Data/Data Requests/NCRMPViztool/2022/formatted/PacificNCRMPviztool2022_REGION_All_Taxa_TRENDS_Apr2023.csv",row.names = F)
+# write.csv(st_all,file="T:/Benthic/Data/Data Requests/NCRMPViztool/2023/formatted/PacificNCRMPviztool2022_STRATA_All_Taxa_TRENDS_Apr2023.csv",row.names = F)
+# write.csv(sec_all,file="T:/Benthic/Data/Data Requests/NCRMPViztool/2023/formatted/PacificNCRMPviztool2022_SECTOR_All_Taxa_TRENDS_Apr2023.csv",row.names = F)
+# write.csv(isl_all,file="T:/Benthic/Data/Data Requests/NCRMPViztool/2023/formatted/PacificNCRMPviztool2022_ISLAND_All_Taxa_TRENDS_Apr2023.csv",row.names = F)
+# write.csv(r_all,file="T:/Benthic/Data/Data Requests/NCRMPViztool/2023/formatted/PacificNCRMPviztool2022_REGION_All_Taxa_TRENDS_Apr2023.csv",row.names = F)
 # 
-# write.csv(st_gen,file="T:/Benthic/Data/Data Requests/NCRMPViztool/2022/formatted/PacificNCRMPviztool2022_STRATA_By_Genus_TRENDS_Apr2023.csv",row.names = F)
-# write.csv(sec_gen,file="T:/Benthic/Data/Data Requests/NCRMPViztool/2022/formatted/PacificNCRMPviztool2022_SECTOR_By_Genus_TRENDS_Apr2023.csv",row.names = F)
-# write.csv(isl_gen,file="T:/Benthic/Data/Data Requests/NCRMPViztool/2022/formatted/PacificNCRMPviztool2022_ISLAND_By_Genus_TRENDS_Apr2023.csv",row.names = F)
-# write.csv(r_gen,file="T:/Benthic/Data/Data Requests/NCRMPViztool/2022/formatted/PacificNCRMPviztool2022_REGION_By_Genus_TRENDS_Apr2023.csv",row.names = F)
+# write.csv(st_gen,file="T:/Benthic/Data/Data Requests/NCRMPViztool/2023/formatted/PacificNCRMPviztool2022_STRATA_By_Genus_TRENDS_Apr2023.csv",row.names = F)
+# write.csv(sec_gen,file="T:/Benthic/Data/Data Requests/NCRMPViztool/2023/formatted/PacificNCRMPviztool2022_SECTOR_By_Genus_TRENDS_Apr2023.csv",row.names = F)
+# write.csv(isl_gen,file="T:/Benthic/Data/Data Requests/NCRMPViztool/2023/formatted/PacificNCRMPviztool2022_ISLAND_By_Genus_TRENDS_Apr2023.csv",row.names = F)
+# write.csv(r_gen,file="T:/Benthic/Data/Data Requests/NCRMPViztool/2023/formatted/PacificNCRMPviztool2022_REGION_By_Genus_TRENDS_Apr2023.csv",row.names = F)
 
-# write.csv(site.demo,file="T:/Benthic/Data/Data Requests/NCRMPViztool/2022/formatted/PacificNCRMPviztool2022_SITE_demo.csv",row.names = F)
-# write.csv(site.cover,file="T:/Benthic/Data/Data Requests/NCRMPViztool/2022/formatted/PacificNCRMPviztool2022_SITE_cover.csv",row.names = F)
+# write.csv(site.demo,file="T:/Benthic/Data/Data Requests/NCRMPViztool/2023/formatted/PacificNCRMPviztool2022_SITE_demo.csv",row.names = F)
+# write.csv(site.cover,file="T:/Benthic/Data/Data Requests/NCRMPViztool/2023/formatted/PacificNCRMPviztool2022_SITE_cover.csv",row.names = F)
 # 
 # # Check out distinctions
 # LL=templ_reg_Ljoin %>% filter(TaxonomicRes=="Com")
