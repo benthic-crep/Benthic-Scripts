@@ -742,6 +742,11 @@ sec_gen_TR<-filter(demo_sec_TR,TaxonomicCode !="SSSS")
 isl_gen_TR<-filter(demo_isl_TR,TaxonomicCode !="SSSS")
 r_gen_TR<-filter(demo_r_TR,TaxonomicCode !="SSSS")
 
+##### SAVE STATE 4.17.2024
+#save(file = "T:/Benthic/Data/Data Requests/NCRMPViztool/2023/DATA2024_READY_FOR_JOINKEY.rdata")
+save.image(file = "T:/Benthic/Data/Data Requests/NCRMPViztool/2023/DATA2024_READY_FOR_JOINKEY.rdata")
+load("T:/Benthic/Data/Data Requests/NCRMPViztool/2023/DATA2024_READY_FOR_JOINKEY.Rdata")
+
 
 #QC Checks
 
@@ -773,7 +778,8 @@ QCcheck(r_all_TR)
 
 ####Add JoinKey
 ####
-templ_str=read.csv("C:/Users/Thomas.Oliver/WORK/Projects/FY23/Viztool/PacBenthicStrat_Trend_NJK.csv")
+templ_str0=read.csv("T:/Benthic/Data/Data Requests/NCRMPViztool/2023/For Submission/BenthicDataSummaryTable_TEMPLATE_DataTable.csv")
+templ_str=read.csv("C:/Users/Thomas.Oliver/WORK/Projects/FY23/Viztool/PacBenthicSec_Trend_NJK.csv")
 templ_sec=read.csv("C:/Users/Thomas.Oliver/WORK/Projects/FY23/Viztool/PacBenthicSec_Trend_NJK.csv")
 templ_isl=read.csv("C:/Users/Thomas.Oliver/WORK/Projects/FY23/Viztool/PacBenthicSubjur_Trend_NJK.csv")
 templ_reg=read.csv("C:/Users/Thomas.Oliver/WORK/Projects/FY23/Viztool/PacBenthicJur_Trend_NJK.csv")
@@ -806,14 +812,19 @@ templ_reg=read.csv("C:/Users/Thomas.Oliver/WORK/Projects/FY23/Viztool/PacBenthic
 ##################################################
 #Develop Lookup Tables
 ##################################################
+#AOI Convention Table
+AOItab=read.csv("T:/Benthic/Data/Data Requests/NCRMPViztool/2023/unformatted/AOI Naming Convention_Pacific_Edited.csv")
+
 #REGION aka jurisdiction
-REGION_JKlu=sort(c(unique(st_all_CO$JURISDICTIONname)))
-REGION_JKlu[5]="Northwest Hawaiian Islands"
+REGION_JKlu=sort(c(unique(AOItab$Jurisdiction.Name)))
 names(REGION_JKlu)=sort(c(unique(st_all_CO$JURISDICTIONname)))
 
 #Island aka subjurisdiction
-ISLAND_JKlu=sort(unique(templ_isl$AOI))
-names(ISLAND_JKlu)=sort(c(unique(st_all_CO$SUBJURISDICTIONname)))
+ISLAND_JKlu=sort(unique(AOItab$Subjurisdiction.Name))
+sj=sort(c(unique(st_all_CO$SUBJURISDICTIONname)))
+dropLM_i=which(sj%in%c("Laysan","Midway"))
+if(length(dropLM_i)>0) {sj=sj[-dropLM_i]}# Drop Laysan and Midway
+names(ISLAND_JKlu)=sj
 
 #Sector: Lehua continues to be a pain
 # SEC_JKlu=sort(c(unique(templ_sec$AOI),"Maui; Hana",
@@ -821,9 +832,27 @@ names(ISLAND_JKlu)=sort(c(unique(st_all_CO$SUBJURISDICTIONname)))
 #                 "Tutuila; PagoPago"),na.last = T)
 # names(SEC_JKlu)=sort(c(unique(st_all_CO$SECTORname)))
 #Move Lehua Manually
-SEC_JKlu.df=read.csv("./NCRMP Viztool/JoinKeySectorLookup_25May2023.csv",header = F)
-SEC_JKlu=SEC_JKlu.df[,2]
-names(SEC_JKlu)=SEC_JKlu.df[,1]
+#SEC_JKlu.df=read.csv("./NCRMP Viztool/JoinKeySectorLookup_25May2023.csv",header = F)
+SEC_JKlu.df=AOItab[,c("Subjurisdiction.Name","Sector.Name")] %>% arrange(Subjurisdiction.Name,Sector.Name)
+#SEC_JKlu.df[which(SEC_JKlu.df$Sector.Name=="Achang"),"Sector.Name"]="Marine Protected Areas"
+#SEC_JKlu.df=SEC_JKlu.df[-which(SEC_JKlu.df$Sector.Name%in%c("Pati Point","Piti Bomb","Tumon Bay")),]%>% arrange(Subjurisdiction.Name,Sector.Name)
+#SEC_JKlu.df=SEC_JKlu.df[-which(SEC_JKlu.df$Sector.Name%in%c("Sanctuary")),]%>% arrange(Subjurisdiction.Name,Sector.Name)
+#SEC_JKlu.df[which(SEC_JKlu.df$Sector.Name%in%c("Aunuu A")),"Sector.Name"] = "Aunuu"
+#SEC_JKlu.df=SEC_JKlu.df[-which(SEC_JKlu.df$Sector.Name%in%c("Aunuu B")),]%>% arrange(Subjurisdiction.Name,Sector.Name)
+#SEC_JKlu.df[which(SEC_JKlu.df$Sector.Name%in%c("Fagalua")),"Sector.Name"] = "Fagalua and Fagatele"
+#SEC_JKlu.df=SEC_JKlu.df[-which(SEC_JKlu.df$Sector.Name%in%c("Fagatele")),]%>% arrange(Subjurisdiction.Name,Sector.Name)
+
+#SEC_JKlu.df[SEC_JKlu.df$Subjurisdiction.Name=="Tau","Sector.Name"]="All"
+#SEC_JKlu.df[SEC_JKlu.df$Subjurisdiction.Name=="Swains","Sector.Name"]="All"
+
+sec=unique(st_all_CO[,c("SUBJURISDICTIONname","SECTORname")]) %>% arrange(SUBJURISDICTIONname,SECTORname)
+sec=sec[-which(sec$SECTORname%in%c("Laysan","Midway","Maui_Molokini","Tutuila_PagoPago")),]
+
+cbind(SEC_JKlu.df,sec)
+
+#Do it
+SEC_JKlu=SEC_JKlu.df$Sector.Name
+names(SEC_JKlu)=sec$SECTORname
 
 #Strata (i.e. hab and depth)
 STRATA_JKlu=c("Back reef, deep (18-30m)","Back reef, mid (6-18m)","Back reef, shallow (0-6m)",
@@ -991,10 +1020,11 @@ output_ST_Ljoin=output_ST_Ljoin[,OutputCols]
 output_ST_Fjoin=output_ST_Fjoin[,OutputCols]
 
 
+beep()
 write.csv(x = output_ST_Ljoin,row.names = FALSE,
-          file="T:/Benthic/Data/Data Requests/NCRMPViztool/2023/For Submission/March 2024 Submission/PacificBenthicDataSummaryTable_STRATA_LEFTJOIN_byGenus_26May2023.csv")
+          file="T:/Benthic/Data/Data Requests/NCRMPViztool/2023/For Submission/March 2024 Submission/PacificBenthicDataSummaryTable_STRATA_LEFTJOIN_byGenus_03May2024.csv")
 write.csv(x = output_ST_Fjoin,row.names = FALSE,
-          file="T:/Benthic/Data/Data Requests/NCRMPViztool/2023/For Submission/March 2024 Submission/PacificBenthicDataSummaryTable_STRATA_FULLJOIN_byGenus_26May2023.csv")
+          file="T:/Benthic/Data/Data Requests/NCRMPViztool/2023/For Submission/March 2024 Submission/PacificBenthicDataSummaryTable_STRATA_FULLJOIN_byGenus_19April2024.csv")
 
 #######
 #Prep Sector Level Data For Join
@@ -1112,10 +1142,10 @@ output_SEC_Fjoin= full_join(x=sec_both_rn_CO[,c(join_cols,COMPLETE_cols)],
 output_SEC_Ljoin=output_SEC_Ljoin[,OutputCols]
 output_SEC_Fjoin=output_SEC_Fjoin[,OutputCols]
 write.csv(x = output_SEC_Ljoin,row.names = FALSE,
-          file="T:/Benthic/Data/Data Requests/NCRMPViztool/2023/For Submission/March 2024 Submission/PacificBenthicDataSummaryTable_SECTOR_LEFTJOIN_byGenus_26May2023.csv")
-write.csv(x = output_SEC_Fjoin,row.names = FALSE,
-          file="T:/Benthic/Data/Data Requests/NCRMPViztool/2023/For Submission/March 2024 Submission/PacificBenthicDataSummaryTable_SECTOR_FULLJOIN_byGenus_26May2023.csv")
-
+          file="T:/Benthic/Data/Data Requests/NCRMPViztool/2023/For Submission/March 2024 Submission/PacificBenthicDataSummaryTable_SECTOR_LEFTJOIN_byGenus_03May2024.csv")
+# write.csv(x = output_SEC_Fjoin,row.names = FALSE,
+#           file="T:/Benthic/Data/Data Requests/NCRMPViztool/2023/For Submission/March 2024 Submission/PacificBenthicDataSummaryTable_SECTOR_FULLJOIN_byGenus_19April2024.csv")
+# 
 #######
 #Prep Island Level Data For Join
 #######
@@ -1237,9 +1267,9 @@ output_isl_Fjoin= full_join(x=isl_both_rn_CO[,c(join_cols,COMPLETE_cols)],
 output_isl_Ljoin=output_isl_Ljoin[,OutputCols]
 output_isl_Fjoin=output_isl_Fjoin[,OutputCols]
 write.csv(x = output_isl_Ljoin,row.names = FALSE,
-          file="T:/Benthic/Data/Data Requests/NCRMPViztool/2023/For Submission/March 2024 Submission/PacificBenthicDataSummaryTable_ISLAND_LEFTJOIN_byGenus_26May2023.csv")
-write.csv(x = output_isl_Fjoin,row.names = FALSE,
-          file="T:/Benthic/Data/Data Requests/NCRMPViztool/2023/For Submission/March 2024 Submission/PacificBenthicDataSummaryTable_ISLAND_FULLJOIN_byGenus_26May2023.csv")
+          file="T:/Benthic/Data/Data Requests/NCRMPViztool/2023/For Submission/March 2024 Submission/PacificBenthicDataSummaryTable_ISLAND_LEFTJOIN_byGenus_03May2024.csv")
+# write.csv(x = output_isl_Fjoin,row.names = FALSE,
+#           file="T:/Benthic/Data/Data Requests/NCRMPViztool/2023/For Submission/March 2024 Submission/PacificBenthicDataSummaryTable_ISLAND_FULLJOIN_byGenus_19April2024.csv")
 
 #######
 #Prep Region Level Data For Join
@@ -1362,117 +1392,117 @@ output_r_Fjoin= full_join(x=r_both_rn_CO[,c(join_cols,COMPLETE_cols)],
 output_r_Ljoin=output_r_Ljoin[,OutputCols]
 output_r_Fjoin=output_r_Fjoin[,OutputCols]
 write.csv(x = output_r_Ljoin,row.names = FALSE,
-          file="T:/Benthic/Data/Data Requests/NCRMPViztool/2023/For Submission/March 2024 Submission/PacificBenthicDataSummaryTable_REGION_LEFTJOIN_byGenus_26May2023.csv")
-write.csv(x = output_r_Fjoin,row.names = FALSE,
-          file="T:/Benthic/Data/Data Requests/NCRMPViztool/2023/For Submission/March 2024 Submission/PacificBenthicDataSummaryTable_REGION_FULLJOIN_byGenus_26May2023.csv")
+          file="T:/Benthic/Data/Data Requests/NCRMPViztool/2023/For Submission/March 2024 Submission/PacificBenthicDataSummaryTable_REGION_LEFTJOIN_byGenus_19April2024.csv")
+# write.csv(x = output_r_Fjoin,row.names = FALSE,
+#           file="T:/Benthic/Data/Data Requests/NCRMPViztool/2023/For Submission/March 2024 Submission/PacificBenthicDataSummaryTable_REGION_FULLJOIN_byGenus_19April2024.csv")
 
 ##############################################################################################################################################################################################
 ##############################################################################################################################################################################################
 #Run final join key filter...
 
-
-
-#Purge Join Keys from old data
-#things in A not in B
-# setdiff(c(1,2,3,4,5),c(3,4,5,6,7))
-# setdiff(c(3,4,5,6,7),c(1,2,3,4,5))
-
-#Pull taxon out of the join key  -- REGION
-templ_reg$JoinKey_SSSS=templ_reg$JoinKey %>% str_remove("_[A-Z ]{3,}+")
-output_r_Ljoin$JoinKey_SSSS=output_r_Ljoin$JoinKey %>% str_remove("_[A-Z ]{3,}+")
-# Check for new or missing JoinKeys
-missing_r=sort(setdiff(unique(templ_reg$JoinKey_SSSS),unique(output_r_Ljoin$JoinKey_SSSS)))
-new_r=sort(setdiff(unique(output_r_Ljoin$JoinKey_SSSS),unique(templ_reg$JoinKey_SSSS)))
-missing_r
-new_r
-
-#Purge new JoinKeys
-I_purgenew_r=which(output_r_Ljoin$JoinKey_SSSS%in%new_r)
-output_r_Ljoin_PN=output_r_Ljoin[-I_purgenew_r,]
-write.csv(x = output_r_Ljoin_PN,row.names = FALSE,
-          file="T:/Benthic/Data/Data Requests/NCRMPViztool/2023/For Submission/March 2024 Submission/PacificBenthicDataSummaryTable_REGION_LEFTJOIN_byGenus_PurgeNewJK_26May2023.csv")
-
-
-#Pull taxon out of the join key  -- ISLAND
-templ_isl$JoinKey_SSSS=templ_isl$JoinKey %>% str_remove("_[A-Z ]{3,}+")
-output_isl_Ljoin$JoinKey_SSSS=output_isl_Ljoin$JoinKey %>% str_remove("_[A-Z ]{3,}+")
-# Check for new or missing JoinKeys
-missing_i=sort(setdiff(unique(templ_isl$JoinKey_SSSS),unique(output_isl_Ljoin$JoinKey_SSSS)))
-new_i=sort(setdiff(unique(output_isl_Ljoin$JoinKey_SSSS),unique(templ_isl$JoinKey_SSSS)))
-missing_i
-new_i
-
-#Purge new JoinKeys
-I_purgenew_i=which(output_isl_Ljoin$JoinKey_SSSS%in%new_i)
-output_isl_Ljoin_PN=output_isl_Ljoin[-I_purgenew_i,]
-write.csv(x = output_isl_Ljoin_PN,row.names = FALSE,
-          file="T:/Benthic/Data/Data Requests/NCRMPViztool/2023/For Submission/March 2024 Submission/PacificBenthicDataSummaryTable_ISLAND_LEFTJOIN_byGenus_PurgeNewJK_26May2023.csv")
-
-
-#Pull taxon out of the join key  -- SECTOR
-templ_sec$JoinKey_SSSS=templ_sec$JoinKey %>% str_remove("_[A-Z ]{3,}+")
-output_SEC_Ljoin$JoinKey_SSSS=output_SEC_Ljoin$JoinKey %>% str_remove("_[A-Z ]{3,}+")
-# Check for new or missing JoinKeys
-missing_sc=sort(setdiff(unique(templ_sec$JoinKey_SSSS),unique(output_SEC_Ljoin$JoinKey_SSSS)))
-new_sc=sort(setdiff(unique(output_SEC_Ljoin$JoinKey_SSSS),unique(templ_sec$JoinKey_SSSS)))
-missing_sc
-new_sc
-
-secAOI2Region=c("CNMI","CNMI","CNMI","CNMI","PRIAs","CNMI",
-                "NWHI","GUA","GUA","GUA","CNMI","MHI",
-                "MHI","MHI","MHI","PRIAs","PRIAs","PRIAs",
-                "MHI","MHI","MHI","MHI","PRIAs","NWHI",
-                "MHI","MHI","MHI","NWHI","CNMI","MHI",
-                "MHI","MHI","MHI","MHI","MHI","MHI",
-                "MHI","MHI","MHI","MHI","MHI","MHI",
-                "MHI","MHI","MHI","SAMOA","CNMI","PRIAs",
-                "NWHI","SAMOA","CNMI","CNMI","CNMI","SAMOA",
-                "SAMOA","CNMI","SAMOA","SAMOA","SAMOA","SAMOA",
-                "SAMOA","SAMOA","PRIAs","MHI","MHI","MHI")
-names(secAOI2Region)=c(sort(unique(templ_sec$AOILabel)),c("Maui; Hana","Maui; Molokini","Maui; Northwest"))
-
-templ_sec$ANALYSIS_YEAR=paste(templ_sec$SurveyYearStart,"-",templ_sec$SurveyYearEnd)
-templ_sec$ANALYSIS_YEAR=factor(templ_sec$ANALYSIS_YEAR,levels=sort(unique(templ_sec$ANALYSIS_YEAR)))
-templ_sec$REGION=secAOI2Region[templ_sec$AOILabel]
-ts_D=templ_sec %>% filter(TaxonomicRes=="Com") %>% group_by(REGION,AOILabel,ANALYSIS_YEAR) %>% summarize(N=sum(N_demo)) %>% pivot_wider(names_from = ANALYSIS_YEAR,values_from = N)
-ts_C=templ_sec %>% filter(TaxonomicRes=="Com") %>% group_by(REGION,AOILabel,ANALYSIS_YEAR) %>% summarize(N=sum(N_cover)) %>% pivot_wider(names_from = ANALYSIS_YEAR,values_from = N)
-
-ts_D=ts_D[,c(names(ts_D)[1:2],sort(names(ts_D)[3:length(names(ts_D))]))]
-ts_C=ts_C[,c(names(ts_C)[1:2],sort(names(ts_C)[3:length(names(ts_C))]))]
-
-output_SEC_Ljoin$ANALYSIS_YEAR=paste(output_SEC_Ljoin$SurveyYearStart,"-",output_SEC_Ljoin$SurveyYearEnd)
-output_SEC_Ljoin$ANALYSIS_YEAR=factor(output_SEC_Ljoin$ANALYSIS_YEAR,levels=sort(unique(output_SEC_Ljoin$ANALYSIS_YEAR)))
-output_SEC_Ljoin$REGION=secAOI2Region[output_SEC_Ljoin$AOILabel]
-os_D=output_SEC_Ljoin %>% filter(TaxonomicRes=="Com") %>% group_by(REGION,AOILabel,ANALYSIS_YEAR) %>% summarize(N=sum(N_demo)) %>% pivot_wider(names_from = ANALYSIS_YEAR,values_from = N)
-os_C=output_SEC_Ljoin %>% filter(TaxonomicRes=="Com") %>% group_by(REGION,AOILabel,ANALYSIS_YEAR) %>% summarize(N=sum(N_cover)) %>% pivot_wider(names_from = ANALYSIS_YEAR,values_from = N)
-
-os_D=os_D[,c(names(os_D)[1:2],sort(names(os_D)[3:length(names(os_D))]))]
-os_C=os_C[,c(names(os_C)[1:2],sort(names(os_C)[3:length(names(os_C))]))]
-
-ts_C %>% print(n=99)
-os_C %>% print(n=99)
-ts_D %>% print(n=99)
-os_D %>% print(n=99)
-
-
-########################Starting HERE!!!!!!
-#Purge new JoinKeys
-I_purgenew_sc=which(output_SEC_Ljoin$JoinKey_SSSS%in%new_sc)
-output_SEC_Ljoin_PN=output_SEC_Ljoin[-I_purgenew_sc,]
-write.csv(x = output_SEC_Ljoin_PN,row.names = FALSE,
-          file="T:/Benthic/Data/Data Requests/NCRMPViztool/2023/For Submission/March 2024 Submission/PacificBenthicDataSummaryTable_SECTOR_LEFTJOIN_byGenus_PurgeNewJK_26May2023.csv")
-
-
-
-
-#Pull taxon out of the join key  -- STRATA
-templ_str$JoinKey_SSSS=templ_str$JoinKey %>% str_remove("_[A-Z ]{3,}+")
-output_ST_Ljoin$JoinKey_SSSS=output_ST_Ljoin$JoinKey %>% str_remove("_[A-Z ]{3,}+")
-# Check for new or missing JoinKeys
-missing_st=sort(setdiff(unique(templ_str$JoinKey_SSSS),unique(output_ST_Ljoin$JoinKey_SSSS)))
-new_st=sort(setdiff(unique(output_ST_Ljoin$JoinKey_SSSS),unique(templ_str$JoinKey_SSSS)))
-missing_st
-new_st
+# 
+# 
+# #Purge Join Keys from old data
+# #things in A not in B
+# # setdiff(c(1,2,3,4,5),c(3,4,5,6,7))
+# # setdiff(c(3,4,5,6,7),c(1,2,3,4,5))
+# 
+# #Pull taxon out of the join key  -- REGION
+# templ_reg$JoinKey_SSSS=templ_reg$JoinKey %>% str_remove("_[A-Z ]{3,}+")
+# output_r_Ljoin$JoinKey_SSSS=output_r_Ljoin$JoinKey %>% str_remove("_[A-Z ]{3,}+")
+# # Check for new or missing JoinKeys
+# missing_r=sort(setdiff(unique(templ_reg$JoinKey_SSSS),unique(output_r_Ljoin$JoinKey_SSSS)))
+# new_r=sort(setdiff(unique(output_r_Ljoin$JoinKey_SSSS),unique(templ_reg$JoinKey_SSSS)))
+# missing_r
+# new_r
+# 
+# #Purge new JoinKeys
+# I_purgenew_r=which(output_r_Ljoin$JoinKey_SSSS%in%new_r)
+# output_r_Ljoin_PN=output_r_Ljoin[-I_purgenew_r,]
+# write.csv(x = output_r_Ljoin_PN,row.names = FALSE,
+#           file="T:/Benthic/Data/Data Requests/NCRMPViztool/2023/For Submission/March 2024 Submission/PacificBenthicDataSummaryTable_REGION_LEFTJOIN_byGenus_PurgeNewJK_19April2024.csv")
+# 
+# 
+# #Pull taxon out of the join key  -- ISLAND
+# templ_isl$JoinKey_SSSS=templ_isl$JoinKey %>% str_remove("_[A-Z ]{3,}+")
+# output_isl_Ljoin$JoinKey_SSSS=output_isl_Ljoin$JoinKey %>% str_remove("_[A-Z ]{3,}+")
+# # Check for new or missing JoinKeys
+# missing_i=sort(setdiff(unique(templ_isl$JoinKey_SSSS),unique(output_isl_Ljoin$JoinKey_SSSS)))
+# new_i=sort(setdiff(unique(output_isl_Ljoin$JoinKey_SSSS),unique(templ_isl$JoinKey_SSSS)))
+# missing_i
+# new_i
+# 
+# #Purge new JoinKeys
+# I_purgenew_i=which(output_isl_Ljoin$JoinKey_SSSS%in%new_i)
+# output_isl_Ljoin_PN=output_isl_Ljoin[-I_purgenew_i,]
+# write.csv(x = output_isl_Ljoin_PN,row.names = FALSE,
+#           file="T:/Benthic/Data/Data Requests/NCRMPViztool/2023/For Submission/March 2024 Submission/PacificBenthicDataSummaryTable_ISLAND_LEFTJOIN_byGenus_PurgeNewJK_19April2024.csv")
+# 
+# 
+# #Pull taxon out of the join key  -- SECTOR
+# templ_sec$JoinKey_SSSS=templ_sec$JoinKey %>% str_remove("_[A-Z ]{3,}+")
+# output_SEC_Ljoin$JoinKey_SSSS=output_SEC_Ljoin$JoinKey %>% str_remove("_[A-Z ]{3,}+")
+# # Check for new or missing JoinKeys
+# missing_sc=sort(setdiff(unique(templ_sec$JoinKey_SSSS),unique(output_SEC_Ljoin$JoinKey_SSSS)))
+# new_sc=sort(setdiff(unique(output_SEC_Ljoin$JoinKey_SSSS),unique(templ_sec$JoinKey_SSSS)))
+# missing_sc
+# new_sc
+# 
+# secAOI2Region=c("CNMI","CNMI","CNMI","CNMI","PRIAs","CNMI",
+#                 "NWHI","GUA","GUA","GUA","CNMI","MHI",
+#                 "MHI","MHI","MHI","PRIAs","PRIAs","PRIAs",
+#                 "MHI","MHI","MHI","MHI","PRIAs","NWHI",
+#                 "MHI","MHI","MHI","NWHI","CNMI","MHI",
+#                 "MHI","MHI","MHI","MHI","MHI","MHI",
+#                 "MHI","MHI","MHI","MHI","MHI","MHI",
+#                 "MHI","MHI","MHI","SAMOA","CNMI","PRIAs",
+#                 "NWHI","SAMOA","CNMI","CNMI","CNMI","SAMOA",
+#                 "SAMOA","CNMI","SAMOA","SAMOA","SAMOA","SAMOA",
+#                 "SAMOA","SAMOA","PRIAs","MHI","MHI","MHI")
+# names(secAOI2Region)=c(sort(unique(templ_sec$AOILabel)),c("Maui; Hana","Maui; Molokini","Maui; Northwest"))
+# 
+# templ_sec$ANALYSIS_YEAR=paste(templ_sec$SurveyYearStart,"-",templ_sec$SurveyYearEnd)
+# templ_sec$ANALYSIS_YEAR=factor(templ_sec$ANALYSIS_YEAR,levels=sort(unique(templ_sec$ANALYSIS_YEAR)))
+# templ_sec$REGION=secAOI2Region[templ_sec$AOILabel]
+# ts_D=templ_sec %>% filter(TaxonomicRes=="Com") %>% group_by(REGION,AOILabel,ANALYSIS_YEAR) %>% dplyr::summarize(N=sum(N_demo)) %>% pivot_wider(names_from = ANALYSIS_YEAR,values_from = N)
+# ts_C=templ_sec %>% filter(TaxonomicRes=="Com") %>% group_by(REGION,AOILabel,ANALYSIS_YEAR) %>% dplyr::summarize(N=sum(N_cover)) %>% pivot_wider(names_from = ANALYSIS_YEAR,values_from = N)
+# 
+# ts_D=ts_D[,c(names(ts_D)[1:2],sort(names(ts_D)[3:length(names(ts_D))]))]
+# ts_C=ts_C[,c(names(ts_C)[1:2],sort(names(ts_C)[3:length(names(ts_C))]))]
+# 
+# output_SEC_Ljoin$ANALYSIS_YEAR=paste(output_SEC_Ljoin$SurveyYearStart,"-",output_SEC_Ljoin$SurveyYearEnd)
+# output_SEC_Ljoin$ANALYSIS_YEAR=factor(output_SEC_Ljoin$ANALYSIS_YEAR,levels=sort(unique(output_SEC_Ljoin$ANALYSIS_YEAR)))
+# output_SEC_Ljoin$REGION=secAOI2Region[output_SEC_Ljoin$AOILabel]
+# os_D=output_SEC_Ljoin %>% filter(TaxonomicRes=="Com") %>% group_by(REGION,AOILabel,ANALYSIS_YEAR) %>% dplyr::summarize(N=sum(N_demo)) %>% pivot_wider(names_from = ANALYSIS_YEAR,values_from = N)
+# os_C=output_SEC_Ljoin %>% filter(TaxonomicRes=="Com") %>% group_by(REGION,AOILabel,ANALYSIS_YEAR) %>% dplyr::summarize(N=sum(N_cover)) %>% pivot_wider(names_from = ANALYSIS_YEAR,values_from = N)
+# 
+# os_D=os_D[,c(names(os_D)[1:2],sort(names(os_D)[3:length(names(os_D))]))]
+# os_C=os_C[,c(names(os_C)[1:2],sort(names(os_C)[3:length(names(os_C))]))]
+# 
+# ts_C %>% print(n=99)
+# os_C %>% print(n=99)
+# ts_D %>% print(n=99)
+# os_D %>% print(n=99)
+# 
+# 
+# ########################Starting HERE!!!!!!
+# #Purge new JoinKeys
+# I_purgenew_sc=which(output_SEC_Ljoin$JoinKey_SSSS%in%new_sc)
+# output_SEC_Ljoin_PN=output_SEC_Ljoin[-I_purgenew_sc,]
+# write.csv(x = output_SEC_Ljoin_PN,row.names = FALSE,
+#           file="T:/Benthic/Data/Data Requests/NCRMPViztool/2023/For Submission/March 2024 Submission/PacificBenthicDataSummaryTable_SECTOR_LEFTJOIN_byGenus_PurgeNewJK_19April2024.csv")
+# 
+# 
+# 
+# 
+# #Pull taxon out of the join key  -- STRATA
+# templ_str$JoinKey_SSSS=templ_str$JoinKey %>% str_remove("_[A-Z ]{3,}+")
+# output_ST_Ljoin$JoinKey_SSSS=output_ST_Ljoin$JoinKey %>% str_remove("_[A-Z ]{3,}+")
+# # Check for new or missing JoinKeys
+# missing_st=sort(setdiff(unique(templ_str$JoinKey_SSSS),unique(output_ST_Ljoin$JoinKey_SSSS)))
+# new_st=sort(setdiff(unique(output_ST_Ljoin$JoinKey_SSSS),unique(templ_str$JoinKey_SSSS)))
+# missing_st
+# new_st
 ##############################################################################################################################################################################################
 ##############################################################################################################################################################################################
 ##############################################################################################################################################################################################
