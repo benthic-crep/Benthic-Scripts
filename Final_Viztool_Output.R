@@ -1,10 +1,10 @@
 indir="T:/Benthic/Data/Data Requests/NCRMPViztool/2023/For Submission/March 2024 Submission/"
 outdir="T:/Benthic/Data/Data Requests/NCRMPViztool/2023/For Submission/March 2024 Submission/Files_Split_By_Tier_Region_MonitoringCycle/"
 infiles=list.files(indir)
-L_files=infiles[1+c(5,2,8,11)]
+L_files=sort(infiles[grep(pattern = "PacificBenthic",x = infiles)])
 
-RL_=read.csv(paste0(indir,L_files[1]))
-IL_=read.csv(paste0(indir,L_files[2]))
+RL_=read.csv(paste0(indir,L_files[2]))
+IL_=read.csv(paste0(indir,L_files[1]))
 SecL_=read.csv(paste0(indir,L_files[3]))
 StrL_=read.csv(paste0(indir,L_files[4]))
 
@@ -25,8 +25,12 @@ uAOITier=c("REGION","ISLAND","SECTOR","STRATA")
 uJUR=sort(unique(RL_$AOILabel))
 uMC=sort(unique(StrL_$MonitoringCycle))
 
-AOIlu=read.csv("T:/Benthic/Data/Data Requests/NCRMPViztool/2023/unformatted/AOI Naming Convention_Pacific.csv")
-
+AOIlu=read.csv("T:/Benthic/Data/Data Requests/NCRMPViztool/2023/unformatted/AOI Naming Convention_Pacific_Edited.csv")########################
+#AOIluUE=read.csv("T:/Benthic/Data/Data Requests/NCRMPViztool/2023/unformatted/AOI Naming Convention_Pacific.csv")########################
+#library(data.table)
+# ssl=str_split(StrL_$AOILabel,pattern = ";")
+# jj <- (as.data.frame(do.call(rbind, ssl)))
+# StrL_[which(jj$V1=="Marine Protected Areas"),]
 for(j in 1:length(uJUR)){
   for(m in 1:length(uMC)){
     #j=1;m=3

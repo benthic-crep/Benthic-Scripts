@@ -20,6 +20,10 @@
 
 # set up  -----------------------------------------------------------------------------------------
 rm(list=ls())      # clean working environment
+if(!is.null(names(sessionInfo()$otherPkgs))){
+  invisible(lapply(paste0('package:', names(sessionInfo()$otherPkgs)), detach, character.only=TRUE, unload=TRUE))
+}
+
 
 # Load libraries
 library(tidyverse) # for summarizing/orgainzing data
@@ -31,13 +35,40 @@ setwd("T:/Benthic/Data/StRS Allocation")
 
 # load sector data
 sectors<-read.csv("BenthicSectorsforAllocation.csv")
+strataarea=read.csv("C:/Users/Thomas.Oliver/WORK/Projects/GitHub Projects/fish-paste/data/Sectors-Strata-Areas.csv")
+NWHIstrataarea=read.csv("C:/Users/Thomas.Oliver/Downloads/strata_table_NWHI.csv") #original Area in km2 (100 HA)
+NWHIstrataarea=NWHIstrataarea %>% mutate(AREA_HA_2024.B=100*strat_area) %>% select( REGION,ISLAND,SEC_NAME,REEF_ZONE,DEPTH_BIN,AREA_HA_2024.B)
+strataarea=strataarea %>% left_join(NWHIstrataarea) %>% filter(REGION=="NWHI")
 
+#Changes
+RZlu=c("F","B","L","S")
+names(RZlu)=unique(strataarea$REEF_ZONE)
+DBlu=c("M","S","D")
+names(DBlu)=unique(strataarea$DEPTH_BIN)
+delarea=strataarea %>% filter(REGION%in%c("MHI","NWHI")) %>% 
+  filter(!is.na(AREA_HA_2024)) %>% 
+  mutate(A2324delta=AREA_HA_2024-AREA_HA_2023,
+         A2324deltaB=AREA_HA_2024.B-AREA_HA_2023,
+         STR_NAME=paste0(SEC_NAME,"_",RZlu[REEF_ZONE],DBlu[DEPTH_BIN])) 
+
+DAplot=delarea %>% 
+  ggplot(aes(x=AREA_HA_2023,label=STR_NAME,color=A2324delta))+
+  geom_point(aes(y=AREA_HA_2024,color=A2324delta),shape=4,size=6)+
+  geom_point(aes(y=AREA_HA_2024.B,color=A2324deltaB),shape=20,size=6)+
+  facet_wrap("ISLAND",scales="free")+
+  geom_abline()+theme_bw()+
+  geom_text_repel(aes(y=AREA_HA_2024),size=3)+
+  geom_text_repel(aes(y=AREA_HA_2024.B),size=3)+
+  scale_color_viridis_c()#+scale_x_log10()+scale_y_log10()
+ggsave(plot = DAplot,filename = "C:/Users/Thomas.Oliver/Downloads/DAplot.jpg",width=16,height=8)
 # load demographic site data
-#wsd_T<-read.csv("T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Site/BenthicREA_sitedata_TAXONCODE.csv")
-wsd_G<-read.csv("T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Site/BenthicREA_sitedata_GENUS.csv")
+# raw<-read.csv("T:/Benthic/Data/REA Coral Demography & Cover/Analysis Ready Raw data/CoralBelt_Adults_raw_CLEANED_2023.csv")
+# rawraw<-load("T:/Benthic/Data/REA Coral Demography & Cover/Raw from Oracle/ALL_REA_ADULTCORAL_RAW_2013-2023.rdata")
+# wsd_T<-read.csv("T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Site/BenthicREA_sitedata_TAXONCODE_2023.csv")
+wsd_G<-read.csv("T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Site/BenthicREA_sitedata_GENUS_2023.csv")
 wsd_SSSS=wsd_G %>% filter(GENUS_CODE=="SSSS")
-wsd_F=load("C:/Users/Thomas.Oliver/WORK/Projects/GitHub Projects/fish-paste/data/All BIA Sites.csv")
-cov=load("C:/Users/Thomas.Oliver/WORK/Projects/GitHub Projects/fish-paste/data/All BIA BOTH METHODS clean.RData")
+#wsd_F=load("C:/Users/Thomas.Oliver/WORK/Projects/GitHub Projects/fish-paste/data/All")
+cov=read.csv("T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Stratum/BenthicCover_2010-2023_Tier1_STRATA_updated.csv")
 f=load("C:/Users/Thomas.Oliver/WORK/Projects/GitHub Projects/fish-paste/data/ALL_REA_FISH_RAW.rdata")
 
 #Specify Target Genera (see "Select Target Taxa" below)
@@ -60,7 +91,7 @@ REG_SD=rbind(REG1,REG2) %>%
   mutate(ANALYSIS_YR_NUM=as.numeric(AYNlu[ANALYSIS_YEAR])) %>% 
   group_by(REGION,ISLAND,SEC_NAME,REEF_ZONE,DEPTH_BIN,GENUS_CODE,ANALYSIS_YR_NUM) %>% 
   filter(GENUS_CODE%in%tgen) %>% #focal taxa only
-  summarize(SD = sd(AdColDen)) %>% 
+  dplyr::summarize(SD = sd(AdColDen)) %>% 
   group_by(REGION,ISLAND,SEC_NAME,REEF_ZONE,DEPTH_BIN,GENUS_CODE) %>% #take most recent non-NA year
   na.omit() %>% 
   filter(ANALYSIS_YR_NUM == max(ANALYSIS_YR_NUM))
@@ -68,7 +99,7 @@ REG_SD=rbind(REG1,REG2) %>%
 #Add back strata with 0-1 samples per year (SD=NA)
 REG=rbind(REG1,REG2) %>%
   mutate(ANALYSIS_YR_NUM=as.numeric(AYNlu[ANALYSIS_YEAR])) %>% 
-  select(setdiff(names(REG_SD),c("SD","ANALYSIS_YEAR_NUM")))%>% 
+  dplyr::select(setdiff(names(REG_SD),c("SD","ANALYSIS_YEAR_NUM")))%>% 
   filter(GENUS_CODE%in%tgen) %>%
   group_by(REGION,ISLAND,SEC_NAME,REEF_ZONE,DEPTH_BIN,GENUS_CODE) %>% #take most recent non-NA year
   filter(ANALYSIS_YR_NUM == max(ANALYSIS_YR_NUM)) %>% 
@@ -87,7 +118,7 @@ REG[SD_FILLi,"ANALYSIS_YEAR"]="ISL-DB MN"
 #REG<-droplevels(REG)
 
 #DROP ISLANDS NOT IN ALLOCATION
-REG=REG %>% filter(!ISLAND%in%c("Maro","Laysan","Midway"))
+REG=REG %>% filter(!ISLAND%in%c("Maro","Laysan","Midway")) %>% filter(ISLAND=="Oahu")
 
 # get total SD per island in order to get proportion of each genera's group's variance
 ISL.GEN_SD<-REG %>% group_by(ISLAND,GENUS_CODE) %>%
@@ -103,32 +134,32 @@ STR_pSD<-STR.GEN_pSD %>% #mean prop var across four rep. genera (POSP,MOSP,PAVS,
   summarise(pSD=mean(pSD,na.rm=T))  # get the mean at the strata level
 
 # get area values for each sector from the 'sectors' dataframe
-STR_pSD_A<-sectors %>% select(REGION,ISLAND, SEC_NAME, REEF_ZONE, DEPTH_BIN, AREA_HA)%>% 
+STR_pSD_A<-strataarea %>% dplyr::select(REGION,ISLAND, SEC_NAME, REEF_ZONE, DEPTH_BIN, AREA_HA_2024)%>% 
   right_join(STR_pSD, by=c("REGION","ISLAND", "SEC_NAME", "REEF_ZONE", "DEPTH_BIN")) # right joining to the previous dataframe selects values for just this region
 
-ISL_AREA<-sectors %>% group_by(REGION,ISLAND) %>%
-  summarize(ISLAND_AREA=sum(AREA_HA)) # summarize area by island
+ISL_AREA<-strataarea %>% group_by(REGION,ISLAND) %>%
+  dplyr::summarize(ISLAND_AREA=sum(AREA_HA_2024)) # summarize area by island
 
 STR_pSD_pA_prodSDA<-STR_pSD_A %>% 
   left_join(ISL_AREA,by=c("REGION","ISLAND")) %>% 
-  mutate(pAREA=AREA_HA/ISLAND_AREA) %>% 
-  select(REGION,ISLAND, SEC_NAME, REEF_ZONE, DEPTH_BIN,pSD,pAREA) %>% 
+  mutate(pAREA=AREA_HA_2024/ISLAND_AREA) %>% 
+  dplyr::select(REGION,ISLAND, SEC_NAME, REEF_ZONE, DEPTH_BIN,pSD,pAREA) %>% 
   group_by(REGION,ISLAND, SEC_NAME, REEF_ZONE, DEPTH_BIN) %>% 
   mutate(prodSDA=prod(c(pSD,pAREA)))# calculate proportional area for each strata
 
 ISL_prodSDA<-STR_pSD_pA_prodSDA %>%
   group_by(ISLAND) %>% 
-  summarize(prodSDA_ISL=sum(prodSDA))
+  dplyr::summarize(prodSDA_ISL=sum(prodSDA))
 
 STR_pSDA<-STR_pSD_pA_prodSDA %>% 
   left_join(ISL_prodSDA,by="ISLAND") %>% 
   mutate(pSDA=prodSDA/prodSDA_ISL) %>% # calculate the proportional weight for each strata
-  select(REGION,ISLAND, SEC_NAME, REEF_ZONE, DEPTH_BIN,pSD,pAREA,pSDA) # clean up dataframe
+  dplyr::select(REGION,ISLAND, SEC_NAME, REEF_ZONE, DEPTH_BIN,pSD,pAREA,pSDA) # clean up dataframe
 
 # JUST A CHECK: does total variance for each island add up to 1?
 test<-STR_pSDA %>% 
   group_by(ISLAND) %>% 
-  summarize(sum=sum(pSDA))
+  dplyr::summarize(sum=sum(pSDA))
 test
 
 # to calculate allocation based on weights:
@@ -140,21 +171,22 @@ DpI=read.csv("NCRMP24_DAYSperISLAND_20240221.csv")
 #This gives small boat days per island, now need to assume 3, 4 or 5 sfm sites per day
 STR_ALLOC=STR_pSDA %>% 
   left_join(DpI,by=c("REGION","ISLAND")) %>% 
-  mutate(SpSBD.3=3,SpSBD.4=4,SpSBD.5=5) %>% 
-  pivot_longer(cols=c("SpSBD.3","SpSBD.4","SpSBD.5"),values_to = "SITESpSBD",names_to=NULL) %>% 
+  mutate(SpSBD.2=2,SpSBD.2.5=2.5,SpSBD.3=3,SpSBD.4=4,SpSBD.5=5) %>% 
+  pivot_longer(cols=c("SpSBD.2","SpSBD.2.5","SpSBD.3","SpSBD.4","SpSBD.5"),values_to = "SITESpSBD",names_to=NULL) %>% 
   mutate(SDxA_ALLOC=round(SMALL_BOAT_DAYS*SITESpSBD*pSDA),
          AREA_ALLOC=round(SMALL_BOAT_DAYS*SITESpSBD*pAREA)) %>% 
   pivot_wider(names_from = "SITESpSBD",values_from = c("SDxA_ALLOC","AREA_ALLOC"))
 
 # save file
-write.csv(STR_ALLOC,file="./NCRMP24_BOATDAYS_Allocation_20240221_KAH.csv",row.names = FALSE)
+write.csv(STR_ALLOC,file="./NCRMP24_BOATDAYS_Allocation_20240514_OAH.csv",row.names = FALSE)
+
 
 
 # #Select Target Taxa: ----------------------------------------------------
-NsitesPregion=wsd_G %>% group_by(REGION)  %>% summarize(nSpR=length(unique(SITEVISITID)))
+NsitesPregion=wsd_G %>% group_by(REGION)  %>% dplyr::summarize(nSpR=length(unique(SITEVISITID)))
 TaxChoice=wsd_T %>% group_by(REGION,TAXONCODE) %>%
   filter(AdColDen>0) %>% 
-  summarize(nS=length(AdColDen),mnDen=mean(AdColDen,na.rm=T)) %>% 
+  dplyr::summarize(nS=length(AdColDen),mnDen=mean(AdColDen,na.rm=T)) %>% 
   left_join(NsitesPregion,by="REGION") %>% 
   mutate(pS=nS/nSpR)
 
@@ -172,7 +204,7 @@ TaxChoice %>% filter(TAXONCODE!="SSSS") %>%
 
 GenChoice=wsd_G %>% group_by(REGION,GENUS_CODE) %>%
   filter(AdColDen>0) %>% 
-  summarize(nS=length(AdColDen),mnDen=mean(AdColDen,na.rm=T)) %>% 
+  dplyr::summarize(nS=length(AdColDen),mnDen=mean(AdColDen,na.rm=T)) %>% 
   left_join(NsitesPregion,by="REGION") %>% 
   mutate(pS=nS/nSpR)
 

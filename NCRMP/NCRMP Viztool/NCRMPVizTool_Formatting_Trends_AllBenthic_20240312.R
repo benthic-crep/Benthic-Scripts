@@ -5,6 +5,7 @@ rm(list=ls())
 #LOAD LIBRARY FUNCTIONS ...
 library(stringr)
 library(tidyverse)
+library(beepr)
 # source("C:/Users/Courtney.S.Couch/Documents/GitHub/Benthic-Scripts/Functions/Benthic_Functions_newApp_vTAOfork.R")
 # source("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/lib/core_functions.R")
 # source("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/lib/GIS_functions.R")
@@ -602,11 +603,24 @@ demo_r_TR<-r_TR %>% mutate(REGION_NAME=recode(REGION,
 
 #Final formatting tweaks ####
 
-#Add scientific name
+#Add scientific name # Check Lookup for Viztool purposes
 genlu<-read.csv("T:/Benthic/Data/Lookup Tables/Genus_lookup.csv")
 genlu<-genlu[,c("SPCODE","TAXONNAME")]
 colnames(genlu)[colnames(genlu)=="SPCODE"]<-"GENUS_CODE"
 colnames(genlu)[colnames(genlu)=="TAXONNAME"]<-"ScientificName"
+
+#Make sure it makes sense with taxonmic issues
+#LEPT and LPHY ==> LEPT
+#ALSP and GOSP and GOAL ==> GOSP
+#ASTS and MONS ==> ASTS
+#  N_cover column: In the strata, sector and island datasets, the genera that aren't annotated in CoralNet (e.g. Caulastrea) are listed as 0, but these taxa are listed as NA in the region datasets
+genviz=unique(data.frame(GENUS_CODE_IN= sort(unique(genlu$GENUS_CODE)),
+                         GENUS_CODE_OUT=sort(unique(genlu$GENUS_CODE))))
+genviz[which(genviz$GENUS_CODE_IN=="MONS"),"GENUS_CODE_OUT"]="ASTS"
+genviz[which(genviz$GENUS_CODE_IN=="ALSP"),"GENUS_CODE_OUT"]="GOSP"
+genviz[which(genviz$GENUS_CODE_IN=="LPHY"),"GENUS_CODE_OUT"]="LEPT"
+#write.csv(x = genviz,file = "T:/Benthic/Data/Lookup Tables/Genus_Viztool_Pooling.csv")
+
 
 #ADDS ScientificName
 demo_st_CO<-left_join(demo_st_CO,genlu,by="GENUS_CODE")
@@ -742,10 +756,13 @@ sec_gen_TR<-filter(demo_sec_TR,TaxonomicCode !="SSSS")
 isl_gen_TR<-filter(demo_isl_TR,TaxonomicCode !="SSSS")
 r_gen_TR<-filter(demo_r_TR,TaxonomicCode !="SSSS")
 
+
+
+
 ##### SAVE STATE 4.17.2024
 #save(file = "T:/Benthic/Data/Data Requests/NCRMPViztool/2023/DATA2024_READY_FOR_JOINKEY.rdata")
-save.image(file = "T:/Benthic/Data/Data Requests/NCRMPViztool/2023/DATA2024_READY_FOR_JOINKEY.rdata")
-load("T:/Benthic/Data/Data Requests/NCRMPViztool/2023/DATA2024_READY_FOR_JOINKEY.Rdata")
+#save.image(file = "T:/Benthic/Data/Data Requests/NCRMPViztool/2023/DATA2024_READY_FOR_JOINKEY.rdata")
+#load("T:/Benthic/Data/Data Requests/NCRMPViztool/2023/DATA2024_READY_FOR_JOINKEY.Rdata")
 
 
 #QC Checks
@@ -822,8 +839,8 @@ names(REGION_JKlu)=sort(c(unique(st_all_CO$JURISDICTIONname)))
 #Island aka subjurisdiction
 ISLAND_JKlu=sort(unique(AOItab$Subjurisdiction.Name))
 sj=sort(c(unique(st_all_CO$SUBJURISDICTIONname)))
-dropLM_i=which(sj%in%c("Laysan","Midway"))
-if(length(dropLM_i)>0) {sj=sj[-dropLM_i]}# Drop Laysan and Midway
+dropLM_i=which(sj%in%c("Laysan","Midway","Maro"))
+if(length(dropLM_i)>0) {sj=sj[-dropLM_i]}# Drop Laysan and Midway and Maro
 names(ISLAND_JKlu)=sj
 
 #Sector: Lehua continues to be a pain
@@ -862,8 +879,12 @@ STRATA_JKlu=c("Back reef, deep (18-30m)","Back reef, mid (6-18m)","Back reef, sh
 names(STRATA_JKlu)=sort(unique(st_all_CO$STRATAname))
 
 #Scientific Name
-SciName_JKlu=sort(c(unique(templ_str$ScientificName),"Millepora sp."))
-names(SciName_JKlu)=sort(unique(c(st_all_CO$ScientificName,st_gen_CO$ScientificName)))
+VizToolNames=sort(unique(c(templ_str$ScientificName,"Millepora sp.")))
+DataSetNames=sort(unique(c(st_all_CO$ScientificName,st_gen_CO$ScientificName,"Alveopora sp.","Montastraea sp.")))
+data.frame(DataSetNames,VizToolNames)
+SciName_JKlu=VizToolNames
+names(SciName_JKlu)=DataSetNames
+#View(SciName_JKlu)
 
 #######
 #Prep Strata Level Data For Join
@@ -961,6 +982,7 @@ st_both_rn_CO= st_both_CO %>% dplyr::rename(
   MacroalgaeCover_SE=MacroalgaeCover_error,
   CCA_Pct=CrustoseCoralineAlgaeCover_Pct,
   CCA_SE=CrustoseCoralineAlgaeCover_error)
+
 # Drop any rows with NA/O in all N columns
 st_both_rn_CO=st_both_rn_CO %>% filter(!(N_demo==0&N_cover==0))
 
@@ -986,6 +1008,9 @@ st_both_rn_TR= st_both_TR %>% dplyr::rename(
 # Drop any rows with NA/O in all N columns
 st_both_rn_TR=st_both_rn_TR %>% filter(!(N_demoTREND==0&N_coverTREND==0))
 
+#Final Purge of any Laysan, Midway, Maro
+st_both_rn_CO=st_both_rn_CO %>% filter(!SUBJURISDICTIONname %in% c("Midway","Laysan","Maro"))
+st_both_rn_TR=st_both_rn_TR %>% filter(!SUBJURISDICTIONname %in% c("Midway","Laysan","Maro"))
 
 #Get Column Names in and Out For Join
 #Output Columns
@@ -1010,21 +1035,22 @@ COMPLETE_cols=setdiff(OutputCols,c(join_cols,TREND_cols))
 # st_both_rn_CO %>% filter(JoinKey%in%names(whichrepCO))
 
 
+
 output_ST_Ljoin= left_join(x=st_both_rn_CO[,c(join_cols,COMPLETE_cols)],
                            y=st_both_rn_TR[,c(join_cols,TREND_cols)],
                            by=join_cols);dim(output_ST_Ljoin)
-output_ST_Fjoin= full_join(x=st_both_rn_CO[,c(join_cols,COMPLETE_cols)],
-                           y=st_both_rn_TR[,c(join_cols,TREND_cols)],
-                           by=join_cols);dim(output_ST_Fjoin)
+# output_ST_Fjoin= full_join(x=st_both_rn_CO[,c(join_cols,COMPLETE_cols)],
+#                            y=st_both_rn_TR[,c(join_cols,TREND_cols)],
+#                            by=join_cols);dim(output_ST_Fjoin)
 output_ST_Ljoin=output_ST_Ljoin[,OutputCols]
-output_ST_Fjoin=output_ST_Fjoin[,OutputCols]
+#output_ST_Fjoin=output_ST_Fjoin[,OutputCols]
 
 
-beep()
 write.csv(x = output_ST_Ljoin,row.names = FALSE,
           file="T:/Benthic/Data/Data Requests/NCRMPViztool/2023/For Submission/March 2024 Submission/PacificBenthicDataSummaryTable_STRATA_LEFTJOIN_byGenus_03May2024.csv")
-write.csv(x = output_ST_Fjoin,row.names = FALSE,
-          file="T:/Benthic/Data/Data Requests/NCRMPViztool/2023/For Submission/March 2024 Submission/PacificBenthicDataSummaryTable_STRATA_FULLJOIN_byGenus_19April2024.csv")
+# write.csv(x = output_ST_Fjoin,row.names = FALSE,
+#           file="T:/Benthic/Data/Data Requests/NCRMPViztool/2023/For Submission/March 2024 Submission/PacificBenthicDataSummaryTable_STRATA_FULLJOIN_byGenus_19April2024.csv")
+beep()
 
 #######
 #Prep Sector Level Data For Join
@@ -1119,6 +1145,11 @@ sec_both_rn_TR= sec_both_TR %>% dplyr::rename(
 # Drop any rows with NA/O in all N columns
 sec_both_rn_TR=sec_both_rn_TR %>% filter(!(N_demoTREND==0&N_coverTREND==0))
 
+#Final Purge of any Laysan, Midway, Maro
+sec_both_rn_CO=sec_both_rn_CO %>% filter(!SUBJURISDICTIONname %in% c("Midway","Laysan","Maro"))
+sec_both_rn_TR=sec_both_rn_TR %>% filter(!SUBJURISDICTIONname %in% c("Midway","Laysan","Maro"))
+
+
 # # #Note there are many Repeated Join Keys In Both Data and the Template - i.e. Strata that should be pooled, not pooled
 # #Before the join
 COSSSS= sec_both_rn_CO %>% filter(TaxonomicResolution=="Com")
@@ -1136,16 +1167,17 @@ sec_both_rn_CO %>% filter(JoinKey%in%names(whichrepCO))
 output_SEC_Ljoin= left_join(x=sec_both_rn_CO[,c(join_cols,COMPLETE_cols)],
                             y=sec_both_rn_TR[,c(join_cols,TREND_cols)],
                             by=join_cols);dim(output_SEC_Ljoin)
-output_SEC_Fjoin= full_join(x=sec_both_rn_CO[,c(join_cols,COMPLETE_cols)],
-                            y=sec_both_rn_TR[,c(join_cols,TREND_cols)],
-                            by=join_cols);dim(output_SEC_Fjoin)
+# output_SEC_Fjoin= full_join(x=sec_both_rn_CO[,c(join_cols,COMPLETE_cols)],
+#                             y=sec_both_rn_TR[,c(join_cols,TREND_cols)],
+#                             by=join_cols);dim(output_SEC_Fjoin)
 output_SEC_Ljoin=output_SEC_Ljoin[,OutputCols]
-output_SEC_Fjoin=output_SEC_Fjoin[,OutputCols]
+# output_SEC_Fjoin=output_SEC_Fjoin[,OutputCols]
 write.csv(x = output_SEC_Ljoin,row.names = FALSE,
           file="T:/Benthic/Data/Data Requests/NCRMPViztool/2023/For Submission/March 2024 Submission/PacificBenthicDataSummaryTable_SECTOR_LEFTJOIN_byGenus_03May2024.csv")
 # write.csv(x = output_SEC_Fjoin,row.names = FALSE,
 #           file="T:/Benthic/Data/Data Requests/NCRMPViztool/2023/For Submission/March 2024 Submission/PacificBenthicDataSummaryTable_SECTOR_FULLJOIN_byGenus_19April2024.csv")
 # 
+beep()
 #######
 #Prep Island Level Data For Join
 #######
@@ -1244,6 +1276,11 @@ isl_both_rn_TR= isl_both_TR %>% dplyr::rename(
 # Drop any rows with NA/O in all N columns
 isl_both_rn_TR=isl_both_rn_TR %>% filter(!(N_demoTREND==0&N_coverTREND==0))
 
+#Final Purge of any Laysan, Midway, Maro
+isl_both_rn_CO=isl_both_rn_CO %>% filter(!SUBJURISDICTIONname %in% c("Midway","Laysan","Maro"))
+isl_both_rn_TR=isl_both_rn_TR %>% filter(!SUBJURISDICTIONname %in% c("Midway","Laysan","Maro"))
+
+
 # # #Note there are many Repeated Join Keys In Both Data and the Template - i.e. Strata that should be pooled, not pooled
 # #Before the join
 COSSSS= isl_both_rn_CO %>% filter(TaxonomicResolution=="Com")
@@ -1261,11 +1298,11 @@ isl_both_rn_CO %>% filter(JoinKey%in%names(whichrepCO))
 output_isl_Ljoin= left_join(x=isl_both_rn_CO[,c(join_cols,COMPLETE_cols)],
                             y=isl_both_rn_TR[,c(join_cols,TREND_cols)],
                             by=join_cols);dim(output_isl_Ljoin)
-output_isl_Fjoin= full_join(x=isl_both_rn_CO[,c(join_cols,COMPLETE_cols)],
-                            y=isl_both_rn_TR[,c(join_cols,TREND_cols)],
-                            by=join_cols);dim(output_isl_Fjoin)
+# output_isl_Fjoin= full_join(x=isl_both_rn_CO[,c(join_cols,COMPLETE_cols)],
+#                             y=isl_both_rn_TR[,c(join_cols,TREND_cols)],
+#                             by=join_cols);dim(output_isl_Fjoin)
 output_isl_Ljoin=output_isl_Ljoin[,OutputCols]
-output_isl_Fjoin=output_isl_Fjoin[,OutputCols]
+# output_isl_Fjoin=output_isl_Fjoin[,OutputCols]
 write.csv(x = output_isl_Ljoin,row.names = FALSE,
           file="T:/Benthic/Data/Data Requests/NCRMPViztool/2023/For Submission/March 2024 Submission/PacificBenthicDataSummaryTable_ISLAND_LEFTJOIN_byGenus_03May2024.csv")
 # write.csv(x = output_isl_Fjoin,row.names = FALSE,
@@ -1369,6 +1406,7 @@ r_both_rn_TR= r_both_TR %>% dplyr::rename(
 # Drop any rows with NA/O in all N columns
 r_both_rn_TR=r_both_rn_TR %>% filter(!(N_demoTREND==0&N_coverTREND==0))
 
+
 # # #Note there are many Repeated Join Keys In Both Data and the Template - i.e. Strata that should be pooled, not pooled
 # #Before the join
 COSSSS= r_both_rn_CO %>% filter(TaxonomicResolution=="Com")
@@ -1386,15 +1424,16 @@ r_both_rn_CO %>% filter(JoinKey%in%names(whichrepCO))
 output_r_Ljoin= left_join(x=r_both_rn_CO[,c(join_cols,COMPLETE_cols)],
                           y=r_both_rn_TR[,c(join_cols,TREND_cols)],
                           by=join_cols);dim(output_r_Ljoin)
-output_r_Fjoin= full_join(x=r_both_rn_CO[,c(join_cols,COMPLETE_cols)],
-                          y=r_both_rn_TR[,c(join_cols,TREND_cols)],
-                          by=join_cols);dim(output_r_Fjoin)
+# output_r_Fjoin= full_join(x=r_both_rn_CO[,c(join_cols,COMPLETE_cols)],
+#                           y=r_both_rn_TR[,c(join_cols,TREND_cols)],
+#                           by=join_cols);dim(output_r_Fjoin)
 output_r_Ljoin=output_r_Ljoin[,OutputCols]
-output_r_Fjoin=output_r_Fjoin[,OutputCols]
+# output_r_Fjoin=output_r_Fjoin[,OutputCols]
 write.csv(x = output_r_Ljoin,row.names = FALSE,
-          file="T:/Benthic/Data/Data Requests/NCRMPViztool/2023/For Submission/March 2024 Submission/PacificBenthicDataSummaryTable_REGION_LEFTJOIN_byGenus_19April2024.csv")
+          file="T:/Benthic/Data/Data Requests/NCRMPViztool/2023/For Submission/March 2024 Submission/PacificBenthicDataSummaryTable_REGION_LEFTJOIN_byGenus_03May2024.csv")
 # write.csv(x = output_r_Fjoin,row.names = FALSE,
 #           file="T:/Benthic/Data/Data Requests/NCRMPViztool/2023/For Submission/March 2024 Submission/PacificBenthicDataSummaryTable_REGION_FULLJOIN_byGenus_19April2024.csv")
+beep()
 
 ##############################################################################################################################################################################################
 ##############################################################################################################################################################################################

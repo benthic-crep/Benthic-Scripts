@@ -204,6 +204,16 @@ ab$T2b_DESC<-ifelse(ab$REGION %in% c("MHI","NWHI") & !(ab$TIER_3 %in% hawaiicode
 ab$TIER_3<-ifelse(ab$REGION %in% c("MHI","NWHI") & !(ab$TIER_3 %in% hawaiicodes$TIER_3),"UNK",ab$TIER_3)
 ab$GENERA_NAME<-ifelse(ab$REGION %in% c("MHI","NWHI") & !(ab$TIER_3 %in% hawaiicodes$TIER_3),"Unclassified/Unknown",ab$GENERA_NAME)
 
+#LEPT and LPHY ==> LEPT
+#ALSP and GOSP ==> GOSP
+#ASTS and MONS ==> ASTS
+ab$TIER_3[which(ab$TIER_3=="LPHY")]="LEPS"
+ab$TIER_3[which(ab$TIER_3=="ALSP")]="GOSP"
+ab$TIER_3[which(ab$TIER_3=="MONS")]="ASTS"
+ab$TIER_2b[which(ab$TIER_2b=="LPHY")]="LEPS"
+ab$TIER_2b[which(ab$TIER_2b=="ALSP")]="GOSP"
+ab$TIER_2b[which(ab$TIER_2b=="MONS")]="ASTS"
+
 #####
 
 
@@ -222,6 +232,7 @@ dim(sites)
 # Annotated Point (ab) Data are now clean...
 # Generate Site-level Data at TIER 1 level--------------
 ########################################################################################################################################
+
 #####DCAST REWRITE - Re-written TAO 3/7/2024#####
 levels(ab$TIER_1)
 #photo.<-dcast(ab, formula=METHOD + OBS_YEAR + SITEVISITID + SITE  ~ TIER_1, value.var="POINTS", sum, fill=0)
@@ -484,8 +495,8 @@ if(WRITE){write.csv(wsd_t3, file="T:/Benthic/Data/REA Coral Demography & Cover/S
 
 #Identify which taxonomic level you would like to summarize
 #WRITE=TRUE
-for (TIER in 1:3){#TIER=1#2#2#
-  
+for (TIER in 1:2){#TIER=1#2#2#
+#TIER=2  
   if(TIER==1){
     wsd<-wsd_t1
   }else if(TIER==2){
@@ -498,7 +509,7 @@ for (TIER in 1:3){#TIER=1#2#2#
   if(TIER==1){
     data.cols<-T1data.cols
   }else if(TIER==2){
-    data.cols<-colnames(taxa.cols)
+    data.cols<-T2data.cols#colnames(taxa.cols)
   }else{
     data.cols<-T3data.cols
   }
@@ -553,9 +564,9 @@ for (TIER in 1:3){#TIER=1#2#2#
   # sectors[sectors$SEC_NAME %in% SGA,]$SEC_NAME<-"SGA"
   
   
-  #Remove NWHI islands only surveyed by PMNM - Don't remove these anymore (March 15 2024, TAO CSC)
-#  remove<-c("Laysan","Maro","Midway")
-#  wsd<-dplyr::filter(wsd, !PooledSector_Viztool %in% remove)
+  #Remove NWHI islands only surveyed by PMNM -  Don't remove these anymore (March 15 2024, TAO CSC); We will still remove these.
+ remove<-c("Laysan","Maro","Midway")
+ wsd<-dplyr::filter(wsd, !PooledSector_Viztool %in% remove)
   
   #Separating Guam and CNMI in MARIAN for Viztool
   wsd <- wsd %>% mutate(wsd,

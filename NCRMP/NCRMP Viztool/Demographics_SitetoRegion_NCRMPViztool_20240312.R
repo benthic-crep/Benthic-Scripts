@@ -28,6 +28,17 @@ site.data.gen2<-read.csv("T:/Benthic/Data/REA Coral Demography & Cover/Summary D
 
 #site.data.gen2<-subset(site.data.gen2,ISLAND=="Alamagan")
 
+# Assign appropriate Genera from Lookup -------------------------------------------------
+#LEPT and LPHY ==> LEPT
+#ALSP and GOSP ==> GOSP
+#ASTS and MONS ==> ASTS
+
+#which(site.data.gen2$GENUS_CODE=="CASP")
+genviz<-read.csv("T:/Benthic/Data/Lookup Tables/Genus_Viztool_Pooling.csv")
+gc=genviz$GENUS_CODE_OUT[match(site.data.gen2$GENUS_CODE,genviz$GENUS_CODE_IN)]
+site.data.gen2$GENUS_CODE=gc
+
+
 # Remove special missions -------------------------------------------------
 
 #Change all special missions to exclude flag =-1, right now they are 0. Then exclude these sites
@@ -340,14 +351,14 @@ write.csv(r.data.gen.trends,file="T:/Benthic/Data/Data Requests/NCRMPViztool/202
 
 #QC Checks
 library(tidyverse)
-st.data.gen=read.csv(file="T:/Benthic/Data/Data Requests/NCRMPViztool/2022/unformatted/COMPLETE/BenthicREA_STRATA_Demo_Viztool_2023.csv")
-sec.data.gen=read.csv(file="T:/Benthic/Data/Data Requests/NCRMPViztool/2022/unformatted/COMPLETE/BenthicREA_SECTOR_Demo_Viztool_2023.csv")
-is.data.gen=read.csv(file="T:/Benthic/Data/Data Requests/NCRMPViztool/2022/unformatted/COMPLETE/BenthicREA_ISLAND_Demo_Viztool_2023.csv")
-r.data.gen=read.csv(file="T:/Benthic/Data/Data Requests/NCRMPViztool/2022/unformatted/COMPLETE/BenthicREA_REGION_Demo_Viztool_2023.csv")
-st.data.gen.trends=read.csv(file="T:/Benthic/Data/Data Requests/NCRMPViztool/2022/unformatted/TRENDS/BenthicREA_STRATA_TRENDS_Demo_Viztool_2023.csv")
-sec.data.gen.trends=read.csv(file="T:/Benthic/Data/Data Requests/NCRMPViztool/2022/unformatted/TRENDS/BenthicREA_SECTOR_TRENDS_Demo_Viztool_2023.csv")
-is.data.gen.trends=read.csv(file="T:/Benthic/Data/Data Requests/NCRMPViztool/2022/unformatted/TRENDS/BenthicREA_ISLAND_TRENDS_Demo_Viztool_2023.csv")
-r.data.gen.trends=read.csv(file="T:/Benthic/Data/Data Requests/NCRMPViztool/2022/unformatted/TRENDS/BenthicREA_REGION_TRENDS_Demo_Viztool_2023.csv")
+st.data.gen=read.csv(file="T:/Benthic/Data/Data Requests/NCRMPViztool/2023/unformatted/COMPLETE/BenthicREA_STRATA_Demo_Viztool_2023.csv")
+sec.data.gen=read.csv(file="T:/Benthic/Data/Data Requests/NCRMPViztool/2023/unformatted/COMPLETE/BenthicREA_SECTOR_Demo_Viztool_2023.csv")
+is.data.gen=read.csv(file="T:/Benthic/Data/Data Requests/NCRMPViztool/2023/unformatted/COMPLETE/BenthicREA_ISLAND_Demo_Viztool_2023.csv")
+r.data.gen=read.csv(file="T:/Benthic/Data/Data Requests/NCRMPViztool/2023/unformatted/COMPLETE/BenthicREA_REGION_Demo_Viztool_2023.csv")
+st.data.gen.trends=read.csv(file="T:/Benthic/Data/Data Requests/NCRMPViztool/2023/unformatted/TRENDS/BenthicREA_STRATA_TRENDS_Demo_Viztool_2023.csv")
+sec.data.gen.trends=read.csv(file="T:/Benthic/Data/Data Requests/NCRMPViztool/2023/unformatted/TRENDS/BenthicREA_SECTOR_TRENDS_Demo_Viztool_2023.csv")
+is.data.gen.trends=read.csv(file="T:/Benthic/Data/Data Requests/NCRMPViztool/2023/unformatted/TRENDS/BenthicREA_ISLAND_TRENDS_Demo_Viztool_2023.csv")
+r.data.gen.trends=read.csv(file="T:/Benthic/Data/Data Requests/NCRMPViztool/2023/unformatted/TRENDS/BenthicREA_REGION_TRENDS_Demo_Viztool_2023.csv")
 
 summary(st.data.gen)
 levels(as.factor(st.data.gen$ANALYSIS_YEAR))
