@@ -109,26 +109,18 @@ codes_lu<-read.csv("T:/Benthic/Data/Lookup Tables/All_Photoquad_codes.csv")
 codes_lu<-codes_lu[,c("T2b_DESC","TIER_2b","CODE")];colnames(codes_lu)[which(names(codes_lu) =="CODE")]<-"TIER_3"
 ab<-left_join(ab,codes_lu)
 
-#Flag sites that have more than 33 and less than 15 images
-#With the exception of OCC 2012 sites, there should be 30 images/site/10 points/image
-test<-ddply(ab,.(OBS_YEAR,SITEVISITID,SITE),summarize,count=sum(POINTS))
-test2<-test[test$count<150 |test$count>330,]
-#View(test2)
-#Ignore 2012 OCC sites. They analyzed 50 points per images 
-
 #Remove sites with less than 150 points -These really should be removed from Oracle eventually
 test3<-test[test$count<150,];test3
 ab<-ab[!(ab$SITE %in% test3$SITE),];head(ab)
-subset(ab,SITE %in% c("TUT-00210","TUT-00275","OAH-00558")) #double check that sites were dropped properly
+#subset(ab,SITE %in% c("TUT-00210","TUT-00275","OAH-00558")) #double check that sites were dropped properly
 
 #Generate a table of # of sites/region and year from original datasets before data cleaning takes place
 #use this later in the script to make sure sites haven't been dropped after data clean up.
 oracle.site<-ddply(ab,.(REGION,OBS_YEAR),summarize,nSite=length(unique(SITE)))
-oracle.site
-
+oracle.site %>% pivot_wider(names_from = OBS_YEAR,values_from = nSite)
 #Check this against site master list
 table(sm_all$REGION,sm_all$OBS)
-ab.site<-ddply(subset(cnet,OBS_YEAR=="2019"),.(REGION,OBS_YEAR),summarize,nSite=length(unique(SITE)));ab.site
+#ab.site<-ddply(subset(cnet,OBS_YEAR=="2019"),.(REGION,OBS_YEAR),summarize,nSite=length(unique(SITE)));ab.site
 
 #identify which new sites are in the CoralNet data, but still need to be integrated into the SURVEY MASTER file
 miss.from.sm<-cnet[!(cnet$SITEVISITID %in% sm$SITEVISITID),]
@@ -139,9 +131,6 @@ if(WRITE){write.csv(miss.from.smSITE,file="../fish-paste/data/03082024_Sitesmiss
 
 #Don't commit this file, too big!!!
 if(WRITE_EVEN_RIDICULOUS_STUFF){write.csv(ab, file="tmp All BIA BOTH METHODS.csv")}
-
-SURVEY_INFO<-c("OBS_YEAR", "REGION",  "ISLAND")
-survey_island<-Aggregate_InputTable(cnet, SURVEY_INFO)
 
 #There are some missing Tier3 information for pre 2013 data. If these data are missing then fill it with tier2 code
 ab$TIER_2<-ifelse(ab$TIER_2=="HAL","HALI",as.character(ab$TIER_2)) #change to match the Tier 3 halimeda code
@@ -174,13 +163,8 @@ ab$CATEGORY_NAME<-ifelse(ab$TIER_3=="HALI","Halimeda sp",as.character(ab$CATEGOR
 hal<-subset(ab,TIER_1=="HALI")
 head(hal)
 
-#Sampling Effort Check
-test<-ddply(ab,.(REGION,OBS_YEAR),summarize,nSite=length(unique(SITE)))
-test %>% ggplot(aes(OBS_YEAR,nSite))+geom_point()+geom_line()+stat_smooth(method="loess",span=3,se = FALSE)+facet_grid(REGION~.)
-
 #We are missing depth bin, reef zone and habitat_code information from some sites.
 #This information is also missing from the SURVEY MASTER file
-
 levels(ab$DEPTH_BIN)<-c(levels(ab$DEPTH_BIN), "UNKNOWN")
 levels(ab$REEF_ZONE)<-c(levels(ab$REEF_ZONE), "UNKNOWN")
 levels(ab$HABITAT_CODE)<-c(levels(ab$HABITAT_CODE), "UNKNOWN")
@@ -205,13 +189,15 @@ ab$TIER_3<-ifelse(ab$REGION %in% c("MHI","NWHI") & !(ab$TIER_3 %in% hawaiicodes$
 ab$GENERA_NAME<-ifelse(ab$REGION %in% c("MHI","NWHI") & !(ab$TIER_3 %in% hawaiicodes$TIER_3),"Unclassified/Unknown",ab$GENERA_NAME)
 
 #LEPT and LPHY ==> LEPT
-#ALSP and GOSP ==> GOSP
+#ALSP,GOAL and GOSP ==> GOSP
 #ASTS and MONS ==> ASTS
 ab$TIER_3[which(ab$TIER_3=="LPHY")]="LEPS"
 ab$TIER_3[which(ab$TIER_3=="ALSP")]="GOSP"
+ab$TIER_3[which(ab$TIER_3=="GOAL")]="GOSP"
 ab$TIER_3[which(ab$TIER_3=="MONS")]="ASTS"
 ab$TIER_2b[which(ab$TIER_2b=="LPHY")]="LEPS"
 ab$TIER_2b[which(ab$TIER_2b=="ALSP")]="GOSP"
+ab$TIER_2b[which(ab$TIER_2b=="GOAL")]="GOSP"
 ab$TIER_2b[which(ab$TIER_2b=="MONS")]="ASTS"
 
 #####
@@ -310,7 +296,6 @@ wsd_t1<-left_join(wsd,sm,by=c("SITEVISITID","SITE","OBS_YEAR"))
 test<-wsd_t1[is.na(wsd_t1$TRANSECT_PHOTOS),]
 #View(test) # none of the 2010 imagery has TRANSECT_PHOTOS assigned - ASK MICHAEL TO FIX
 wsd_t1$TRANSECT_PHOTOS<-"-1" #make sure that all rows = -1
-
 
 #Remove the unknowns and TWS columns
 wsd_t1<-subset(wsd_t1,select= -c(MF,UC,TW))
@@ -492,11 +477,17 @@ if(WRITE){write.csv(wsd_t3, file="T:/Benthic/Data/REA Coral Demography & Cover/S
 
 
 # CHECK THAT DATA IS READY FOR POOLING AND DO SOME FINAL CLEAN UPS --------
+# Final clean up before pooling -------------------------------------------
+sectors<-read.csv("../fish-paste/data/Sectors-Strata-Areas.csv")
+seclu<-read.csv("T:/Benthic/Data/Lookup Tables/PacificNCRMP_Benthic_Sectors_Lookup_v4.csv") #list of SEC_NAME (smallest sector) and corresponding pooled sector scheme
+## check whether we have ISLANDS that arent in the sectors file- should be 0
+setdiff(unique(wsd$ISLAND),unique(sectors$ISLAND))
+
 
 #Identify which taxonomic level you would like to summarize
 #WRITE=TRUE
-for (TIER in 1:2){#TIER=1#2#2#
-#TIER=2  
+for (TIER in 1:3){#TIER=1#2#2#
+  #TIER=2  
   if(TIER==1){
     wsd<-wsd_t1
   }else if(TIER==2){
@@ -509,7 +500,7 @@ for (TIER in 1:2){#TIER=1#2#2#
   if(TIER==1){
     data.cols<-T1data.cols
   }else if(TIER==2){
-    data.cols<-T2data.cols#colnames(taxa.cols)
+    data.cols<-colnames(taxa.cols)#T2data.cols#
   }else{
     data.cols<-T3data.cols
   }
@@ -524,38 +515,28 @@ for (TIER in 1:2){#TIER=1#2#2#
   
   #Check analysis sector names & make sure number of sites match SURVEY master file
   wsd<-droplevels(wsd)
-  levels(wsd$MISSIONID)
-  table(wsd$SEC_NAME, wsd$OBS_YEAR)
-  
+  #levels(wsd$MISSIONID)
+  #table(wsd$SEC_NAME, wsd$OBS_YEAR)
   #View(wsd)
-  
-  
-  # Final clean up before pooling -------------------------------------------
-  sectors<-read.csv("../fish-paste/data/Sectors-Strata-Areas.csv")
-  seclu<-read.csv("T:/Benthic/Data/Lookup Tables/PacificNCRMP_Benthic_Sectors_Lookup_v4.csv") #list of SEC_NAME (smallest sector) and corresponding pooled sector scheme
-  
-  ## check whether we have ISLANDS that arent in the sectors file- should be 0
-  setdiff(unique(wsd$ISLAND),unique(sectors$ISLAND))
-  
   
   #Merge site data with Sector look up table. This table indicates how sectors should be pooled or not
   #For NCRMP viztool data- Keep pooling scheme the same across years
   wsd<-left_join(wsd,seclu)
   wsd<-left_join(wsd,sectors)
   
-  
   #Create Strata column
   wsd$STRATA<-paste(substring(wsd$REEF_ZONE,1,1), substring(wsd$DEPTH_BIN,1,1), sep="")
   wsd$STRATANAME_TRENDS<-paste(wsd$PooledSector_Viztool,wsd$REEF_ZONE,wsd$DEPTH_BIN,sep="_")
   sectors$STRATA<-paste(substring(sectors$REEF_ZONE,1,1), substring(sectors$DEPTH_BIN,1,1), sep="")
   
-  
   ## TREAT GUGUAN, ALAMAGAN, SARIGAN AS ONE ISLAND  (REALLY ONE BASE REPORTING UNIT .. BUT SIMPLER TO STICK TO 'ISLAND')
   SGA<-c("Guguan", "Alamagan", "Sarigan")
-  levels(wsd$ISLAND)<-c(levels(wsd$ISLAND), "Sarigan, Alamagan, Guguan")
-  levels(sectors$ISLAND)<-c(levels(sectors$ISLAND), "Sarigan, Alamagan, Guguan")
+  wsd$ISLAND=factor(wsd$ISLAND)
+  levels(wsd$ISLAND)<-unique(c(levels(wsd$ISLAND), "Sarigan, Alamagan, Guguan"))
   wsd[wsd$ISLAND %in% SGA,]$ISLAND<-"Sarigan, Alamagan, Guguan"
-  sectors[sectors$ISLAND %in% SGA,]$ISLAND<-"Sarigan, Alamagan, Guguan"
+  # sectors$ISLAND=factor(sectors$ISLAND)
+  # levels(sectors$ISLAND)<-unique(c(levels(sectors$ISLAND), "Sarigan, Alamagan, Guguan"))
+  # sectors[sectors$ISLAND %in% SGA,]$ISLAND<-"Sarigan, Alamagan, Guguan"
   # 
   # SGA<-c("Guguan", "Alamagan", "Sarigan")
   # levels(wsd$SEC_NAME)<-c(levels(wsd$SEC_NAME), "SGA")
@@ -563,10 +544,9 @@ for (TIER in 1:2){#TIER=1#2#2#
   # wsd[wsd$SEC_NAME %in% SGA,]$SEC_NAME<-"SGA"
   # sectors[sectors$SEC_NAME %in% SGA,]$SEC_NAME<-"SGA"
   
-  
   #Remove NWHI islands only surveyed by PMNM -  Don't remove these anymore (March 15 2024, TAO CSC); We will still remove these.
- remove<-c("Laysan","Maro","Midway")
- wsd<-dplyr::filter(wsd, !PooledSector_Viztool %in% remove)
+  remove<-c("Laysan","Maro","Midway")
+  wsd<-dplyr::filter(wsd, !PooledSector_Viztool %in% remove)
   
   #Separating Guam and CNMI in MARIAN for Viztool
   wsd <- wsd %>% mutate(wsd,
@@ -604,21 +584,21 @@ for (TIER in 1:2){#TIER=1#2#2#
   
   #Define Analysis Sector-some sectors are pooled together - we are using the demographic pooled sectors because the cover and demographic data will need to be merged into 1 file
   wsd$ANALYSIS_SEC<-wsd$PooledSector_Viztool
-  sectors$AREA_HA<-as.numeric(sectors$AREA_HA)
+  sectors$AREA_HA<-as.numeric(sectors$AREA_HA_2023)
   
   #NOW CHECK HOW MANY REPS WE HAVE PER STRATA
   #a.<-dcast(wsd, ISLAND + ANALYSIS_SEC + OBS_YEAR ~ STRATA, value.var="AREA_HA", length); a.
   a=wsd %>% group_by(ISLAND,ANALYSIS_SEC,OBS_YEAR,STRATA) %>%
-    dplyr::summarize(AREA_HA=length(AREA_HA)) %>% 
+    dplyr::summarize(AREA_HA=length(AREA_HA_2023)) %>% 
     dplyr::arrange(STRATA) %>% 
     pivot_wider(names_from = STRATA,values_from = AREA_HA,values_fill = 0) %>% 
     dplyr::arrange(ISLAND,ANALYSIS_SEC,OBS_YEAR) 
   # a==a.
-  View(a)
+  #View(a)
   
-  RepTab=wsd %>% group_by(REGION,ANALYSIS_SEC) %>% filter(OBS_YEAR>=2013)%>% dplyr::count(ANALYSIS_YEAR) %>% pivot_wider(names_from=ANALYSIS_YEAR,values_from = n)
-  RepTab=RepTab[,c(names(RepTab)[1:2],sort(names(RepTab)[3:10]))]
-  RepTab %>% print(n=999)
+  # RepTab=wsd %>% group_by(REGION,ANALYSIS_SEC) %>% filter(OBS_YEAR>=2013)%>% dplyr::count(ANALYSIS_YEAR) %>% pivot_wider(names_from=ANALYSIS_YEAR,values_from = n)
+  # RepTab=RepTab[,c(names(RepTab)[1:2],sort(names(RepTab)[3:10]))]
+  # RepTab %>% print(n=999)
   ####################################################################################################################################################################
   #
   #     POOL WSD (WORKING SITE DATA TO STRATA THEN TO HIGHER LEVELS
@@ -629,8 +609,8 @@ for (TIER in 1:2){#TIER=1#2#2#
   
   
   #Some sectors are pooled together, this will ensure that strata area is pooled correctly
-  area.tmp<-ddply(wsd,.(REGION,ISLAND,ANALYSIS_YEAR,ANALYSIS_SEC,STRATA,AREA_HA),summarize,temp=sum(AREA_HA,na.rm=TRUE)) #calculate # of possible sites in a given stratum
-  new.area<-ddply(area.tmp,.(REGION,ISLAND,ANALYSIS_YEAR,ANALYSIS_SEC,STRATA),summarize,AREA_HA_correct=sum(AREA_HA,na.rm=TRUE)) #calculate # of possible sites in a given stratum
+  area.tmp<-ddply(wsd,.(REGION,ISLAND,ANALYSIS_YEAR,ANALYSIS_SEC,STRATA,AREA_HA_2023),summarize,temp=sum(AREA_HA_2023,na.rm=TRUE)) #calculate # of possible sites in a given stratum
+  new.area<-ddply(area.tmp,.(REGION,ISLAND,ANALYSIS_YEAR,ANALYSIS_SEC,STRATA),summarize,AREA_HA_correct=sum(AREA_HA_2023,na.rm=TRUE)) #calculate # of possible sites in a given stratum
   
   wsd<-left_join(wsd,new.area)
   
@@ -865,4 +845,9 @@ for (TIER in 1:2){#TIER=1#2#2#
     if(WRITE){write.csv(dprC, file="T:/Benthic/Data/Data Requests/NCRMPViztool/2023/unformatted/BenthicCover_2010-2023_Tier3_REGION_Complete_Viztool.csv",row.names = F)}
     if(WRITE){write.csv(dprT, file="T:/Benthic/Data/Data Requests/NCRMPViztool/2023/unformatted/BenthicCover_2010-2023_Tier3_REGION_Trends_Viztool.csv",row.names = F)}
   }
+  
+  print(paste0("###################################"))
+  print(paste0("Done with Tier ",TIER," Cover data!"))
+  print(paste0("###################################"))
+  
 }

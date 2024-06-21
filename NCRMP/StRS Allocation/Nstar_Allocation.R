@@ -100,7 +100,7 @@ CV=function(x){return(SE(x)/mean(x))}
 # Get StrataLevelData with # Has N_h, n_h, D.._h, s_1h2, s_2h2=NA, and s_uh ~ sqrt(s_1h2)
 setwd("T:/Benthic/Data/StRS Allocation/")
 str=read.csv("../REA Coral Demography & Cover/Summary Data/Stratum/BenthicREA_stratadata_GENUS.csv")
-site=read.csv("../REA Coral Demography & Cover/Summary Data/Site/BenthicREA_sitedata_GENUS.csv")
+site=read.csv("../REA Coral Demography & Cover/Summary Data/Site/BenthicREA_sitedata_GENUS_2023.csv")
 
 ######################################
 HA2M2=10000
@@ -126,12 +126,14 @@ sec_N_h=sectors %>%
   select(REGION,ISLAND,SECTOR,REEF_ZONE,DEPTH_BIN,N_h)
 
 DBlu=c("Shallow","Mid","Deep");names(DBlu)=c("S","M","D")
+str$DEPTH_BIN=DBlu[substr(str$DB_RZ,2,2)]
+
 tgen=c("POSP","PAVS","POCS","MOSP","SSSS")
 
 DF_h=str %>% 
   filter(REGION%in%c("MHI","NWHI"))  # Has N_h, n_h, D.._h, s_1h2, s_2h2=NA, and s_uh ~ sqrt(s_1h2)
 DF_hl= DF_h %>% 
-  select(METHOD,REGION,ISLAND,ANALYSIS_YEAR,SECTOR,Stratum,REEF_ZONE,DB_RZ,GENUS_CODE,n,Ntot,AdColDen,SE_AdColDen) %>% 
+  select(METHOD,REGION,ISLAND,ANALYSIS_YEAR,SECTOR,Stratum,REEF_ZONE,DEPTH_BIN,DB_RZ,GENUS_CODE,n,Ntot,AdColDen,SE_AdColDen) %>% 
   rename(D.._h=AdColDen,s_uh=SE_AdColDen,n_h=n) %>%
   mutate(s_1h2=s_uh^2,DEPTH_BIN=DBlu[substr(DB_RZ,2,2)]) %>%
   left_join(sec_N_h,by=c("REGION","ISLAND","SECTOR","REEF_ZONE","DEPTH_BIN")) %>% 
@@ -229,13 +231,13 @@ DF_stl.=DF_stl %>%
 
 
 
-Old_Style_Neyman_Allocation=read.csv("./NCRMP24_BOATDAYS_Allocation_20240221_KAH_Manual.csv")
+Old_Style_Neyman_Allocation=read.csv("./NCRMP24_SITES_Allocation_2024-06-20_Extra.csv")
 Old_Style_Neyman_Allocation=Old_Style_Neyman_Allocation%>% mutate(Stratum=paste(SEC_NAME,REEF_ZONE,DEPTH_BIN,sep="_"))
 ISL_OSNA=Old_Style_Neyman_Allocation %>%
   filter(REGION%in%c("MHI","NWHI")) %>%
   filter(!ISLAND%in%c("Midway","Laysan","Maro")) %>% 
   group_by(REGION,ISLAND) %>% 
-  reframe(N=sum(MANUAL_ALLOC_4))
+  reframe(N=sum(SDxA_ALLOC ))
 
 
 
@@ -358,7 +360,7 @@ DF_strata.=DF_strata %>%
 
 
 
-RefCV=25
+RefCV=30
 RefCV2=10
 uI=DF_strata. %>% ungroup() %>% 
   filter(!ISLAND%in%c("Midway","Laysan","Maro")) %>%
@@ -379,13 +381,13 @@ for (i in 1:nrow(uI)){
     facet_wrap(c("REGION","ISLAND","Stratum"),scales="free",ncol=3)+
     geom_hline(yintercept = RefCV,color="purple",lty=2)+
     geom_hline(yintercept = RefCV2,color="gold",lty=2)+
-    geom_vline(aes(xintercept = MANUAL_ALLOC_4 ),color="black",data=STR_OSNA)+
-    geom_text(aes(x = MANUAL_ALLOC_4+5,y=RefCV+5,label=MANUAL_ALLOC_4),color="gray",data=STR_OSNA)+
+    geom_vline(aes(xintercept = SDxA_ALLOC ),color="black",data=STR_OSNA)+
+    geom_text(aes(x = SDxA_ALLOC+5,y=RefCV+5,label=SDxA_ALLOC),color="gray",data=STR_OSNA)+
     scale_x_log10(limits=c(1,30),breaks=c(2:12,15,20,25,30))+theme_bw()+
     scale_y_log10()+theme_bw()+
     ylab("Co. of Variation: Adult Colony Density")+
     xlab("Nstar - Optimal Number of Sites for given CV target")+
-    ggtitle(paste0("Nstar Analysis - Island Scale, Mean of Total and 4 Target Genera"))
+    ggtitle(paste0("Nstar Analysis - Strata Scale, Mean of Total and 4 Target Genera"))
   
   sc=1.25
   ggsave(plot = NstarPlots_STR,
@@ -395,13 +397,22 @@ for (i in 1:nrow(uI)){
   
 }  
 
-DF_str25=DF_strata. %>% filter(Target_CV==25) %>% select(REGION,ISLAND,SECTOR,Stratum,Nstar)
-OSNA.nstar=Old_Style_Neyman_Allocation %>% left_join(DF_str25,by=join_by(REGION,ISLAND,SEC_NAME==SECTOR,Stratum)) %>% rename(Nstar_25=Nstar)
-write.csv(x = OSNA.nstar,file = "./NCRMP24_BOATDAYS_Allocation_20240221_KAH_Manual_Nstar25.csv")
+DF_str30=DF_strata. %>% filter(Target_CV==30) %>% select(REGION,ISLAND,SECTOR,Stratum,Nstar)
+OSNA.nstar=Old_Style_Neyman_Allocation %>% 
+  left_join(DF_str30,by=join_by(REGION,ISLAND,SEC_NAME==SECTOR,Stratum)) %>% 
+  rename(Nstar_30=Nstar)
+write.csv(x = OSNA.nstar,file = paste0("./NCRMP24_SITES_Allocation_",Sys.Date(),"_ExtraMaui_NWHIall_Nstar30.csv"))
 
 # #ADD ISLAND DOMAIN ESTIMATES BACK INTO STRATA LEVEL
 # DF_hl=DF_hl %>% left_join(DF_stl,by=c("ISLAND","GENUS_CODE","ANALYSIS_YEAR"))
 
-
-
-
+#Merge Both Back
+NoEx=read.csv("./NCRMP24_SITES_Allocation_2024-06-20_NoExtra.csv")
+names(NoEx)
+OSNA.2.nstar=OSNA.nstar %>% 
+  left_join(NoEx[,c("REGION","ISLAND","SEC_NAME","REEF_ZONE","DEPTH_BIN","SDxA_ALLOC","AREA_ALLOC")],by=c("REGION","ISLAND","SEC_NAME","REEF_ZONE","DEPTH_BIN")) %>% 
+  rename(AREA_ALLOC_Ex=AREA_ALLOC.x,
+         SDxA_ALLOC_Ex=SDxA_ALLOC.x,
+         AREA_ALLOC_NoEx=AREA_ALLOC.y,
+         SDxA_ALLOC_NoEx=SDxA_ALLOC.y)
+write.csv(x = OSNA.2.nstar,file = paste0("./NCRMP24_SITES_Allocation_",Sys.Date(),"_AllScenarios_Nstar30.csv"))

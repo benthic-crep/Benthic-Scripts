@@ -11,3 +11,6 @@ thisone %>% filter(TaxonomicCode=="ALL CORALS") %>% group_by(AOILabel) %>% dplyr
 
 
 length(VT23fl)
+
+IL_ %>% filter(TaxonomicCode=="MISP")
+unique(SecL_[,c("AOILabel")])

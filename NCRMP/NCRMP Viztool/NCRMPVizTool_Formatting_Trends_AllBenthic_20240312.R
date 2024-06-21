@@ -502,6 +502,10 @@ seclu$ISLANDCODE<-ifelse(seclu$ISLAND %in% c("Sarigan, Alamagan, Guguan"),"SGA",
 #Remove Maro, Midway and Laysan since they aren't part of the NCRMP islands
 remove<-c("Maro","Midway","Laysan")
 seclu<-filter(seclu,! ISLAND %in% remove)
+#and drop molokini and pagopago
+remove2sec<-c("TUT_PAGOPAGO","MAI_MOLOKINI")
+seclu<-filter(seclu,! SEC_NAME %in% remove2sec)
+#
 secname <- secname %>% mutate(secname,
                               REGION=case_when(
                                 ISLAND=="Guam"~"GUA",
@@ -850,7 +854,7 @@ names(ISLAND_JKlu)=sj
 # names(SEC_JKlu)=sort(c(unique(st_all_CO$SECTORname)))
 #Move Lehua Manually
 #SEC_JKlu.df=read.csv("./NCRMP Viztool/JoinKeySectorLookup_25May2023.csv",header = F)
-SEC_JKlu.df=AOItab[,c("Subjurisdiction.Name","Sector.Name")] %>% arrange(Subjurisdiction.Name,Sector.Name)
+SEC_JKlu.df=AOItab[,c("Subjurisdiction.Name","Island.Sector.Name")] %>% arrange(Subjurisdiction.Name,Island.Sector.Name)
 #SEC_JKlu.df[which(SEC_JKlu.df$Sector.Name=="Achang"),"Sector.Name"]="Marine Protected Areas"
 #SEC_JKlu.df=SEC_JKlu.df[-which(SEC_JKlu.df$Sector.Name%in%c("Pati Point","Piti Bomb","Tumon Bay")),]%>% arrange(Subjurisdiction.Name,Sector.Name)
 #SEC_JKlu.df=SEC_JKlu.df[-which(SEC_JKlu.df$Sector.Name%in%c("Sanctuary")),]%>% arrange(Subjurisdiction.Name,Sector.Name)
@@ -863,12 +867,13 @@ SEC_JKlu.df=AOItab[,c("Subjurisdiction.Name","Sector.Name")] %>% arrange(Subjuri
 #SEC_JKlu.df[SEC_JKlu.df$Subjurisdiction.Name=="Swains","Sector.Name"]="All"
 
 sec=unique(st_all_CO[,c("SUBJURISDICTIONname","SECTORname")]) %>% arrange(SUBJURISDICTIONname,SECTORname)
-sec=sec[-which(sec$SECTORname%in%c("Laysan","Midway","Maui_Molokini","Tutuila_PagoPago")),]
+dropi=which(sec$SECTORname%in%c("Laysan","Midway","Maui_Molokini","Tutuila_PagoPago"))
+if(length(dropi)>0){sec=sec[-dropi,]}
 
 cbind(SEC_JKlu.df,sec)
 
 #Do it
-SEC_JKlu=SEC_JKlu.df$Sector.Name
+SEC_JKlu=SEC_JKlu.df$Island.Sector.Name
 names(SEC_JKlu)=sec$SECTORname
 
 #Strata (i.e. hab and depth)
@@ -881,7 +886,16 @@ names(STRATA_JKlu)=sort(unique(st_all_CO$STRATAname))
 #Scientific Name
 VizToolNames=sort(unique(c(templ_str$ScientificName,"Millepora sp.")))
 DataSetNames=sort(unique(c(st_all_CO$ScientificName,st_gen_CO$ScientificName,"Alveopora sp.","Montastraea sp.")))
+# sp.end=which(substr(DataSetNames,nchar(DataSetNames)-2,nchar(DataSetNames))==" sp")
+# DataSetNames[sp.end]=paste0(DataSetNames[sp.end],".")
+# DataSetNames[which(DataSetNames=="Gardineroseris")]="Gardineroseris sp."
+# DataSetNames[which(DataSetNames=="Tubastraea/Balanophyllia")]="Tubastraea/Balanophyllia sp."
+# DataSetNames[which(DataSetNames=="Unknown Scleractinian")]="unidentified corals"
+#DataSetNames=DataSetNames[-which(DataSetNames=="Heliopora coerulea")]
+setdiff(VizToolNames,DataSetNames)
+setdiff(DataSetNames,VizToolNames)
 data.frame(DataSetNames,VizToolNames)
+
 SciName_JKlu=VizToolNames
 names(SciName_JKlu)=DataSetNames
 #View(SciName_JKlu)

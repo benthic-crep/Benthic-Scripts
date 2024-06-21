@@ -240,6 +240,7 @@ site.data.gen2 <- site.data.gen2 %>% mutate(site.data.gen2,
 remove<-c("Laysan","Maro","Midway")
 site.data.gen2<-dplyr::filter(site.data.gen2, !PooledSector_Viztool %in% remove)
 
+
 # #Remove PRIA 2016 and 2017 surveys- done off cycle for the bleaching response, and do not have all metrics, but keep Wake
 site.data.gen2$REGION_YEAR<-paste(site.data.gen2$REGION,site.data.gen2$ANALYSIS_YEAR,sep = "_")
 site.data.gen2$REGION_YEAR<-ifelse((site.data.gen2$ISLAND=="Wake" & site.data.gen2$ANALYSIS_YEAR=="2017"),"PRIAs_2017w",site.data.gen2$REGION_YEAR) #This will help you keep wake 2017 data
