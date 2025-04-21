@@ -4,8 +4,11 @@
 #Note- CRED/CREP/ESD made the switch from CPC to CoralNet in 2015, but some of the legacy 2012 imagery was analyzed in CoralNet
 
 
+
+
 rm(list=ls())
-invisible(lapply(paste0('package:', names(sessionInfo()$otherPkgs)), detach, character.only=TRUE, unload=TRUE))
+if(!is.null(names(sessionInfo()$otherPkgs))){
+  invisible(lapply(paste0('package:', names(sessionInfo()$otherPkgs)), detach, character.only=TRUE, unload=TRUE))}
 
 
 library(gdata)             # needed for drop_levels()
@@ -39,8 +42,13 @@ cnet<- cnet %>% dplyr::select(!TYPE)
 cnet$SITE<-as.factor(cnet$SITE)
 cnet$SITE<-SiteNumLeadingZeros(cnet$SITE)
 
+#Handle issue in mis-assigned region in 2023 data
+BH_ASi=which(cnet$ISLAND %in% c("Baker","Howland") & cnet$REGION=="SAMOA")
+cnet$REGION[BH_ASi]="PRIAs"
+cnet$REGION_NAME[BH_ASi]="Pacific Remote Island Areas"
+
 #Read in survey master and sector files
-#sm<-read.csv("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/data/SURVEY MASTER.csv")
+#sm<-read.csv("C:/Users/Thomas.Oliver/WORK/Projects/GitHub Projects/fish-paste/data/SURVEY MASTER.csv")
 sm<-read.csv("../fish-paste/data/SURVEY MASTER.csv")
 
 sectors<-read.csv("../fish-paste/data/Sectors-Strata-Areas.csv")
@@ -276,7 +284,7 @@ wsd_t1<-subset(wsd_t1,select= -c(MF,UC,TW))
 wsd_t1<-subset(wsd_t1,new.N >=150)
 
 #Save Tier 1 site data to t drive. This file has all sites (fish, benthic and OCC) that were annoated between 2010 and 2023
-write.csv(wsd_t1, file="T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Site/BenthicCover_2010-2023_Tier1_SITE.csv",row.names=F)
+#write.csv(wsd_t1, file="T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Site/BenthicCover_2010-2023_Tier1_SITE.csv",row.names=F)
 
 
 # Generate Site-level Data at TIER 3 level--------------
@@ -316,8 +324,8 @@ wsd_t3<-subset(wsd_t3,select= -c(WAND,UNK,TAPE,MOBF,SHAD))
 #Remove sites that have less than 150 points after removing MF,UC, TW (a lot of our early imagery was poor quality and will be removed)
 wsd_t3<-subset(wsd_t3,new.N >=150)
 
-#Save Tier 1 site data to t drive. This file has all sites (fish, benthic and OCC) that were annoated between 2010 and 2023
-write.csv(wsd_t3, file="T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Site/BenthicCover_2010-2023_Tier3_SITE.csv",row.names = F)
+#Save Tier 3 site data to t drive. This file has all sites (fish, benthic and OCC) that were annoated between 2010 and 2023
+#write.csv(wsd_t3, file="T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Site/BenthicCover_2010-2023_Tier3_SITE.csv",row.names = F)
 
 
 
@@ -347,7 +355,7 @@ table(wsd$SEC_NAME, wsd$OBS_YEAR)
 
 View(wsd)
 
-## check whether we have ISLANDS that arent in the sectors file- should be 0
+## check whether we have ISLANDS that aren't in the sectors file- should be 0
 setdiff(unique(wsd$ISLAND),unique(sectors$ISLAND))
 
 #set all Backreef to a single DEPTH_ZONE ("All") 
@@ -390,7 +398,7 @@ wsd$ANALYSIS_SCHEME<-ifelse(wsd$ANALYSIS_SCHEME %in% c("RAMP_BASIC","AS_SANCTUAR
 
 
 ## generate a complete list of all ANALYSIS STRATA and their size
-sectors$AREA_HA<-as.numeric(sectors$AREA_HA)
+sectors$AREA_HA<-as.numeric(sectors$AREA_HA_2023)
 SCHEMES<-c("RAMP_CURRENT","MARI2011","MARI2014","TUT10_12")
 for(i in 1:length(SCHEMES)){
   tmp2<-sectors[,c("SEC_NAME", SCHEMES[i])]

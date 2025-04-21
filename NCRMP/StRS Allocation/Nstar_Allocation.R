@@ -99,7 +99,7 @@ CV=function(x){return(SE(x)/mean(x))}
 ####Run lines 33 - 107 of Benthic Allocation Generation, returns StrataLevelData mhi_a; Imma call it DF_h
 # Get StrataLevelData with # Has N_h, n_h, D.._h, s_1h2, s_2h2=NA, and s_uh ~ sqrt(s_1h2)
 setwd("T:/Benthic/Data/StRS Allocation/")
-str=read.csv("../REA Coral Demography & Cover/Summary Data/Stratum/BenthicREA_stratadata_GENUS.csv")
+str=read.csv("../REA Coral Demography & Cover/Summary Data/Stratum/BenthicREA_stratadata_GENUS_updated.csv")
 site=read.csv("../REA Coral Demography & Cover/Summary Data/Site/BenthicREA_sitedata_GENUS_2023.csv")
 
 ######################################
@@ -131,7 +131,7 @@ str$DEPTH_BIN=DBlu[substr(str$DB_RZ,2,2)]
 tgen=c("POSP","PAVS","POCS","MOSP","SSSS")
 
 DF_h=str %>% 
-  filter(REGION%in%c("MHI","NWHI"))  # Has N_h, n_h, D.._h, s_1h2, s_2h2=NA, and s_uh ~ sqrt(s_1h2)
+  filter(REGION%in%c("MARIAN","PRIAs"))  # Has N_h, n_h, D.._h, s_1h2, s_2h2=NA, and s_uh ~ sqrt(s_1h2)
 DF_hl= DF_h %>% 
   select(METHOD,REGION,ISLAND,ANALYSIS_YEAR,SECTOR,Stratum,REEF_ZONE,DEPTH_BIN,DB_RZ,GENUS_CODE,n,Ntot,AdColDen,SE_AdColDen) %>% 
   rename(D.._h=AdColDen,s_uh=SE_AdColDen,n_h=n) %>%
@@ -213,9 +213,9 @@ DF_stl$Target_CV=as.numeric(DF_stl$Target_CV)
 #Generate Mean CV Across Target Taxa
 DF_stl.=DF_stl %>% 
   filter(GENUS_CODE%in%tgen) %>%
-  filter(!ISLAND%in%c("Midway","Laysan","Maro")) %>% 
+  filter(!ISLAND%in%c("Baker","Howland","Jarvis","Johnston","Palmyra","Kingman")) %>% 
   group_by(REGION,ISLAND,Target_CV) %>% 
-  filter(ANALYSIS_YEAR==max(ANALYSIS_YEAR)) %>% 
+  filter(ANALYSIS_YEAR%in%c(2018,2022)) %>% #==max(ANALYSIS_YEAR)) %>% 
   group_by(REGION,ISLAND,ANALYSIS_YEAR,Target_CV) %>% 
   #mean across the 5 target taxa (akin to old school allocation)
   summarize(n=mean(n,na.rm=T),
@@ -342,9 +342,10 @@ class(DF_strata$Target_CV)
 #Generate Mean CV Across Target Taxa
 DF_strata.=DF_strata %>% 
   filter(GENUS_CODE%in%tgen) %>%
-  filter(!ISLAND%in%c("Midway","Laysan","Maro")) %>% 
+  filter(!ISLAND%in%c("Baker","Howland","Jarvis","Johnston","Palmyra","Kingman")) %>% 
+# filter(!ISLAND%in%c("Midway","Laysan","Maro")) %>% 
   group_by(REGION,ISLAND,SECTOR,Stratum,Target_CV) %>% 
-  filter(ANALYSIS_YEAR==max(ANALYSIS_YEAR)) %>% 
+  filter(ANALYSIS_YEAR%in%c(2017)) %>% 
   group_by(REGION,ISLAND,SECTOR,Stratum,ANALYSIS_YEAR,Target_CV) %>% 
   #mean across the 5 target taxa (akin to old school allocation)
   summarize(n=mean(n,na.rm=T),
@@ -363,7 +364,7 @@ DF_strata.=DF_strata %>%
 RefCV=30
 RefCV2=10
 uI=DF_strata. %>% ungroup() %>% 
-  filter(!ISLAND%in%c("Midway","Laysan","Maro")) %>%
+#  filter(!ISLAND%in%c("Midway","Laysan","Maro")) %>%
   distinct(REGION,ISLAND) %>% select(REGION,ISLAND)
 
 for (i in 1:nrow(uI)){
@@ -401,7 +402,7 @@ DF_str30=DF_strata. %>% filter(Target_CV==30) %>% select(REGION,ISLAND,SECTOR,St
 OSNA.nstar=Old_Style_Neyman_Allocation %>% 
   left_join(DF_str30,by=join_by(REGION,ISLAND,SEC_NAME==SECTOR,Stratum)) %>% 
   rename(Nstar_30=Nstar)
-write.csv(x = OSNA.nstar,file = paste0("./NCRMP24_SITES_Allocation_",Sys.Date(),"_ExtraMaui_NWHIall_Nstar30.csv"))
+write.csv(x = OSNA.nstar,file = paste0("./NCRMP25_SITES_Allocation_",Sys.Date(),"_ExtraMaui_NWHIall_Nstar30.csv"))
 
 # #ADD ISLAND DOMAIN ESTIMATES BACK INTO STRATA LEVEL
 # DF_hl=DF_hl %>% left_join(DF_stl,by=c("ISLAND","GENUS_CODE","ANALYSIS_YEAR"))
@@ -415,4 +416,4 @@ OSNA.2.nstar=OSNA.nstar %>%
          SDxA_ALLOC_Ex=SDxA_ALLOC.x,
          AREA_ALLOC_NoEx=AREA_ALLOC.y,
          SDxA_ALLOC_NoEx=SDxA_ALLOC.y)
-write.csv(x = OSNA.2.nstar,file = paste0("./NCRMP24_SITES_Allocation_",Sys.Date(),"_AllScenarios_Nstar30.csv"))
+write.csv(x = DF_str30,file = paste0("./NCRMP25_Nstar_Allocation_",Sys.Date(),"_Nstar30.csv"))

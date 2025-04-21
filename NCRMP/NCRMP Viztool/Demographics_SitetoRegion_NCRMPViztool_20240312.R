@@ -141,7 +141,7 @@ REGIONAL_SAMPLING_EFFORT_YEARS_CANON=rbind(REGIONAL_SAMPLING_EFFORT_YEARS_CANON,
 REGIONAL_SAMPLING_EFFORT_YEARS_SP=REGIONAL_SAMPLING_EFFORT_YEARS %>% filter(Freq<=50&Freq>0) 
 #Drop low effort Cannonical Sampling from PRIA 2023
 REGIONAL_SAMPLING_EFFORT_YEARS_SP=REGIONAL_SAMPLING_EFFORT_YEARS_SP %>% filter(SR_YR!="PRIAs_2023") 
-  
+
 ISLAND_SAMPLING_EFFORT_YEARS=table(strat2drop[,c("SAMPLING_REGION","ISLAND","ANALYSIS_YEAR")],useNA = "ifany") %>%
   as.data.frame() %>%   
   mutate(SR_YR=paste0(SAMPLING_REGION,"_",ANALYSIS_YEAR)) %>% 
@@ -171,7 +171,7 @@ Low_Freq_STR_SP=Actual_Sample_Table %>%
 #Add back Island and ISL_YR
 Low_Freq_STR_SP=Low_Freq_STR_SP %>% 
   mutate(ISLAND=substr(Low_Freq_STR_SP$STRATANAME_TRENDS,1,
-                              regexpr("_", Low_Freq_STR_SP$STRATANAME_TRENDS, fixed = TRUE) - 1),
+                       regexpr("_", Low_Freq_STR_SP$STRATANAME_TRENDS, fixed = TRUE) - 1),
          ISL_YR=paste0(ISLAND,"_",ANALYSIS_YEAR))
 SPEC_TARGETS=Low_Freq_STR_SP %>% group_by(ISL_YR) %>% dplyr::summarize(ISL_N=sum(Freq)) %>% filter(ISL_N>0)
 Low_Freq_STR_SP=Low_Freq_STR_SP %>% filter(ISL_YR %in% SPEC_TARGETS$ISL_YR) %>% filter(Freq<=1)
@@ -373,7 +373,7 @@ RepTab=sec.data.gen %>%
   filter(GENUS_CODE=="SSSS") %>% 
   dplyr::select(REGION,PooledSector_Viztool,ANALYSIS_YEAR,n) %>% 
   group_by(REGION,PooledSector_Viztool) %>% 
-   pivot_wider(names_from=ANALYSIS_YEAR,values_from = n)
+  pivot_wider(names_from=ANALYSIS_YEAR,values_from = n)
 RepTab=RepTab[,c(names(RepTab)[1:2],sort(names(RepTab)[3:length(names(RepTab))]))]
 RepTab %>% print(n=999)
 

@@ -42,6 +42,8 @@ load("T:/Benthic/Data/REA Coral Demography & Cover/Raw from Oracle/ALL_CNET_Anno
 cnet$SITE=factor(cnet$SITE)
 cnet$SITE<-SiteNumLeadingZeros(cnet$SITE)
 
+#Fix 2023 Howland,Baker assignment to SAMOA
+cnet$REGION[which(cnet$ISLAND%in%c("Baker","Howland"))]="PRIAs"
 
 ##Generate Table of all the bia categories to review
 bia_tab<-ddply(bia,.(TIER_1, CATEGORY_NAME, TIER_2, SUBCATEGORY_NAME, TIER_3, GENERA_NAME),summarize,count=sum(POINTS))
@@ -64,7 +66,7 @@ sm$DATE_.[is.na(sm$DATE_.)]=mdy_hms(sm$DATE_[is.na(sm$DATE_.)])
 sm$DATE_=sm$DATE_.
 sm<-sm[,c("DATE_","MISSIONID","SITEVISITID","SITE","OCC_SITEID","ANALYSIS_YEAR","OBS_YEAR","SEC_NAME","EXCLUDE_FLAG","TRANSECT_PHOTOS","Oceanography","LATITUDE_LOV","LONGITUDE_LOV")]
 
-test<-subset(sm,OBS_YEAR=="2019"&TRANSECT_PHOTOS=="-1");nrow(test)
+#test<-subset(sm,OBS_YEAR=="2019"&TRANSECT_PHOTOS=="-1");nrow(test)
 
 # Merge together all Photoquad Datasets & make sure columns match ---------------------------------------
 bia$METHOD<-"CPCE"
@@ -110,8 +112,11 @@ codes_lu<-codes_lu[,c("T2b_DESC","TIER_2b","CODE")];colnames(codes_lu)[which(nam
 ab<-left_join(ab,codes_lu)
 
 #Remove sites with less than 150 points -These really should be removed from Oracle eventually
+test=ab %>% group_by(SITEVISITID,SITE) %>% dplyr::summarize(count=sum(POINTS))
 test3<-test[test$count<150,];test3
+dim(ab)
 ab<-ab[!(ab$SITE %in% test3$SITE),];head(ab)
+dim(ab)
 #subset(ab,SITE %in% c("TUT-00210","TUT-00275","OAH-00558")) #double check that sites were dropped properly
 
 #Generate a table of # of sites/region and year from original datasets before data cleaning takes place
@@ -203,7 +208,7 @@ ab$TIER_2b[which(ab$TIER_2b=="MONS")]="ASTS"
 #####
 
 
-#### WORKING WITH CLEAN DATA FILE AT THIS POINT  
+#### WORKING WITH CLEAN DATA FILE AT THIS POINT  ab=site-image-category in rows
 ab<-droplevels(ab)
 if(WRITE){save(ab, file="T:/Benthic/Data/REA Coral Demography & Cover/Analysis Ready Raw data/BIA_2010-2023_CLEANED.RData")}
 #ablist=load("T:/Benthic/Data/REA Coral Demography & Cover/Analysis Ready Raw data/BIA_2010-2023_CLEANED.RData")
@@ -244,6 +249,7 @@ photo$BSR<-(photo$CCA + photo$CORAL)/(photo$TURF+ photo$MA)
 #Change Inf to NA
 photo<-photo%>% mutate_if(is.numeric, ~ifelse(abs(.) == Inf,NA,.))
 
+# This double-round of r_levels is curious...
 r_levels<-c(unique(as.character(ab$TIER_1)),"CCA_CORAL","BSR")
 data.cols<-c(r_levels)
 data.cols
@@ -252,14 +258,15 @@ data.cols
 photo[,data.cols]<-(photo[,data.cols]/photo$new.N)*100
 head(photo)
 
+# This double-round of r_levels is curious... AND HERE
 r_levels<-c(unique(as.character(ab$TIER_1)))
 T1data.cols<-c(r_levels)
 T1data.cols<-T1data.cols[!T1data.cols %in% c("TW","UC","MF")]
 
 #####MERGE REWRITE - Re-written TAO 3/8/2024#####
 #wsd.<-merge(sites, photo, by=c("METHOD", "OBS_YEAR", "SITE"), all.y=T)
-wsd<-left_join(photo, sites, by=c("METHOD", "OBS_YEAR", "SITE"))
-# wsd.=wsd.[,names(wsd)]
+#wsd<-left_join(photo, sites, by=c("METHOD", "OBS_YEAR", "SITE")) # WHy is this left join while other Tiers are Inner Join?
+wsd<-left_join(sites, photo,  by=c("METHOD", "OBS_YEAR", "SITE")) # Reviewed - changed for consistency TAO 2025/1/27# wsd.=wsd.[,names(wsd)]
 # wsd=arrange(wsd,SITEVISITID,METHOD,OBS_YEAR,SITE)
 # wsd.=arrange(wsd.,SITEVISITID,METHOD,OBS_YEAR,SITE)
 # dim(wsd);dim(wsd.)
@@ -384,7 +391,9 @@ if(WRITE){write.csv(wsd_t2, file="T:/Benthic/Data/REA Coral Demography & Cover/S
 
 
 ########################################################################################################################################
-#Keep just the coral genera columns and metadata
+#Keep just the coral genera columns and metadata - 
+# TAO 2025/01/27 Why are we doing this? Preferred for VizTool?
+# Answer, we don't serve site level data for the VizTool, but we only want to report Genus-Level i.e. Tier2b not TRUE Tier2
 taxa.cols<-wsd_t2 %>% dplyr::select(ACAS:ZO)
 coral.genera<-read.csv("T:/Benthic/Data/Lookup Tables/Genus_lookup.csv")
 coral.genera<-coral.genera %>% dplyr::filter(!SPCODE %in%c("AAAA","SSSS","WIRE","CALG","ZOSP","ZOPA","UNKN","TUBA"))
@@ -479,7 +488,8 @@ if(WRITE){write.csv(wsd_t3, file="T:/Benthic/Data/REA Coral Demography & Cover/S
 # CHECK THAT DATA IS READY FOR POOLING AND DO SOME FINAL CLEAN UPS --------
 # Final clean up before pooling -------------------------------------------
 sectors<-read.csv("../fish-paste/data/Sectors-Strata-Areas.csv")
-seclu<-read.csv("T:/Benthic/Data/Lookup Tables/PacificNCRMP_Benthic_Sectors_Lookup_v4.csv") #list of SEC_NAME (smallest sector) and corresponding pooled sector scheme
+#list of SEC_NAME (smallest sector) and corresponding pooled sector scheme - THIS SHOULD BE THE TARGET FOR STRATEGIC POOLING...
+seclu<-read.csv("T:/Benthic/Data/Lookup Tables/PacificNCRMP_Benthic_Sectors_Lookup_2025v1.csv") 
 ## check whether we have ISLANDS that arent in the sectors file- should be 0
 setdiff(unique(wsd$ISLAND),unique(sectors$ISLAND))
 
@@ -487,7 +497,7 @@ setdiff(unique(wsd$ISLAND),unique(sectors$ISLAND))
 #Identify which taxonomic level you would like to summarize
 #WRITE=TRUE
 for (TIER in 1:3){#TIER=1#2#2#
-  #TIER=2  
+  #TIER=1  
   if(TIER==1){
     wsd<-wsd_t1
   }else if(TIER==2){
@@ -529,6 +539,7 @@ for (TIER in 1:3){#TIER=1#2#2#
   wsd$STRATANAME_TRENDS<-paste(wsd$PooledSector_Viztool,wsd$REEF_ZONE,wsd$DEPTH_BIN,sep="_")
   sectors$STRATA<-paste(substring(sectors$REEF_ZONE,1,1), substring(sectors$DEPTH_BIN,1,1), sep="")
   
+  #Do this for strata in the sector lookup table 2025v1, but still need to pool island here?
   ## TREAT GUGUAN, ALAMAGAN, SARIGAN AS ONE ISLAND  (REALLY ONE BASE REPORTING UNIT .. BUT SIMPLER TO STICK TO 'ISLAND')
   SGA<-c("Guguan", "Alamagan", "Sarigan")
   wsd$ISLAND=factor(wsd$ISLAND)
@@ -570,9 +581,10 @@ for (TIER in 1:3){#TIER=1#2#2#
   remove<-c("PRIAs_2016","PRIAs_2017")
   wsd<-dplyr::filter(wsd, !REGION_YEAR %in% remove)
   
-  #Change Analysis year according to desired pooling
+  #Change ANALYSIS_YEAR according to desired pooling
   wsd[is.na(wsd$ANALYSIS_YEAR),]
   levels(wsd$ANALYSIS_YEAR)<-sort(unique(c(unique(wsd$ANALYSIS_YEAR),"2015-16","2014-15","2017-18")))
+  #Set 2010,2012 HI data to pooled 2010-2012
   i_1012_hi=which(wsd$REGION %in% c("MHI", "NWHI") & wsd$OBS_YEAR %in% seq(2010,2012))
   if(length(i_1012_hi)>0) {wsd[i_1012_hi,]$ANALYSIS_YEAR<-"2010-12"}
   wsd[wsd$REGION %in% c("MHI", "NWHI") & wsd$OBS_YEAR %in% seq(2013,2015),]$ANALYSIS_YEAR<-"2013-15"
@@ -596,6 +608,9 @@ for (TIER in 1:3){#TIER=1#2#2#
   # a==a.
   #View(a)
   
+  #Note issue with Howland # All good now 2025/01/25
+  wsd %>% dplyr::select(REGION,ISLAND) %>% filter(ISLAND%in%c("Baker","Howland")) %>%  distinct()
+  
   # RepTab=wsd %>% group_by(REGION,ANALYSIS_SEC) %>% filter(OBS_YEAR>=2013)%>% dplyr::count(ANALYSIS_YEAR) %>% pivot_wider(names_from=ANALYSIS_YEAR,values_from = n)
   # RepTab=RepTab[,c(names(RepTab)[1:2],sort(names(RepTab)[3:10]))]
   # RepTab %>% print(n=999)
@@ -608,8 +623,11 @@ for (TIER in 1:3){#TIER=1#2#2#
   if(WRITE){write.csv(wsd,"T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Site/2023ViztoolSites_Cover.csv")}
   
   
-  #Some sectors are pooled together, this will ensure that strata area is pooled correctly
-  area.tmp<-ddply(wsd,.(REGION,ISLAND,ANALYSIS_YEAR,ANALYSIS_SEC,STRATA,AREA_HA_2023),summarize,temp=sum(AREA_HA_2023,na.rm=TRUE)) #calculate # of possible sites in a given stratum
+  #Some sectors are pooled together, meaning that some areas in wsd have the same ANALYSIS_SEC, but different stated areas,
+  #this will ensure that strata area is pooled correctly
+  #this aggregation will keep a single instance of any strata/year with diff areas, then we sum those
+  #it does mean that strata areas unsampled in a year, don't count into the pooled area that year...
+  area.tmp<-ddply(wsd,.(REGION,ISLAND,ANALYSIS_YEAR,ANALYSIS_SEC,STRATA,AREA_HA_2023),summarize,n=length(na.omit(AREA_HA_2023))) #temp=sum(AREA_HA_2023,na.rm=TRUE),#calculate # of possible sites in a given stratum
   new.area<-ddply(area.tmp,.(REGION,ISLAND,ANALYSIS_YEAR,ANALYSIS_SEC,STRATA),summarize,AREA_HA_correct=sum(AREA_HA_2023,na.rm=TRUE)) #calculate # of possible sites in a given stratum
   
   wsd<-left_join(wsd,new.area)
@@ -630,7 +648,7 @@ for (TIER in 1:3){#TIER=1#2#2#
       REGION =="GUA" ~ "MARIAN",
       TRUE ~ as.character(REGION)))
   
-  #Let's Not TAO MArch 14 2024
+  #Let's Not for Tier 1 TAO MArch 14 2024 (already dropped from T2)
   ###Drop Data before 2013 #Do we really want to, even for Tier 1 data?
   ###wsd=wsd %>% filter(OBS_YEAR>=2013)
   
@@ -685,7 +703,7 @@ for (TIER in 1:3){#TIER=1#2#2#
     mutate(ISLAND=substr(Low_Freq_STR_SP$STRATANAME_TRENDS,1,
                          regexpr("_", Low_Freq_STR_SP$STRATANAME_TRENDS, fixed = TRUE) - 1),
            ISL_YR=paste0(ISLAND,"_",ANALYSIS_YEAR))
-  SPEC_TARGETS=Low_Freq_STR_SP %>% group_by(ISL_YR) %>% summarize(ISL_N=sum(Freq)) %>% filter(ISL_N>0)
+  SPEC_TARGETS=Low_Freq_STR_SP %>% group_by(ISL_YR) %>% dplyr::summarize(ISL_N=sum(Freq)) %>% filter(ISL_N>0)
   Low_Freq_STR_SP=Low_Freq_STR_SP %>% filter(ISL_YR %in% SPEC_TARGETS$ISL_YR) %>% filter(Freq<=1)
   
   DropSTR_SP=Low_Freq_STR_SP$STRATANAME_TRENDS
@@ -711,7 +729,7 @@ for (TIER in 1:3){#TIER=1#2#2#
   ################################################################################
   ################################################################################
   ################################################################################
-  dpsComp<-Calc_PerStrata(wsdComp, data.cols, c(POOLING_LEVEL, "AREA_HA_correct"))
+  dpsComp<-Calc_PerStrata_2025(wsdComp, data.cols, c(POOLING_LEVEL, "AREA_HA_correct"))
   
   #Clear out any Stratum-Year combo at N=1
   dpsComp$Mean=dpsComp$Mean %>% filter(N>1)
@@ -719,7 +737,7 @@ for (TIER in 1:3){#TIER=1#2#2#
   dpsComp$SampleVar=dpsComp$SampleVar %>% filter(N>1)
   min(dpsComp$Mean$N)
   
-  dpsTrend<-Calc_PerStrata(wsdTrend, data.cols, c(POOLING_LEVEL, "AREA_HA_correct"))
+  dpsTrend<-Calc_PerStrata_2025(wsdTrend, data.cols, c(POOLING_LEVEL, "AREA_HA_correct"))
   min(dpsTrend$Mean$N)
   
   #Complete
@@ -766,6 +784,8 @@ for (TIER in 1:3){#TIER=1#2#2#
   dpsecC<-left_join(dpsecC,ri)
   
   dpsecT<-Calc_Pooled_Simple(dpsTrend$Mean, dpsTrend$SampleVar, data.cols, OUTPUT_LEVEL, "AREA_HA_correct")
+  dpsecT_2025<-Calc_Pooled_Simple_2025(dpsTrend$Mean, dpsTrend$SampleVar, data.cols, OUTPUT_LEVEL, "AREA_HA_correct")
+  dpsecT$Mean==dpsecT_2025$Mean
   colnames(dpsecT$Mean)[6:ncol(dpsecT$Mean)] <- paste("Mean.", colnames(dpsecT$Mean[,6:ncol(dpsecT$Mean)]), sep = "")
   colnames(dpsecT$PooledSE)[6:ncol(dpsecT$PooledSE)] <- paste("SE.", colnames(dpsecT$PooledSE[,6:ncol(dpsecT$PooledSE)]), sep = "")
   dpsecT<-left_join(dpsecT$Mean,dpsecT$PooledSE)
