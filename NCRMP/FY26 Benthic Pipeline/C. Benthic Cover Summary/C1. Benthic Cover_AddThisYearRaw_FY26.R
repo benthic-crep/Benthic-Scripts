@@ -77,12 +77,6 @@ PointCountDrop=PointCount %>% filter(count<150) %>% filter(OBS_YEAR!=2012) #|cou
 #Remove "Drop" sites from bia24
 bia24=bia24 %>% filter(!(SITE %in% PointCountDrop$SITE))
 
-#Generate a table of # of sites/region and year from original datasets before data cleaning takes place
-#use this later in the script to make sure sites haven't been dropped after data clean up.
-#oracle.site<-ddply(bia24,.(REGION,OBS_YEAR),summarize,nSite=length(unique(SITE)))
-oracle.site=bia24 %>% group_by(REGION,OBS_YEAR) %>% summarize(nSite=length(unique(SITE)))
-oracle.site
-
 #Check this against site master list
 table(sm$REGION,sm$OBS_YEAR)
 sm %>% group_by(REGION,OBS_YEAR) %>% filter(OBS_YEAR==2024) %>%  summarize(nSite=length(unique(SITE))) %>%
@@ -126,12 +120,31 @@ bia24$CATEGORY_NAME<-ifelse(bia24$TIER_3=="HALI","Halimeda sp",as.character(bia2
 hal<-subset(bia24,TIER_1=="HALI")
 head(hal)
 
+#LEPT and LPHY ==> LEPT
+#ALSP,GOAL and GOSP ==> GOSP
+#ASTS and MONS ==> ASTS
+bia24$TIER_3[which(bia24$TIER_3=="LPHY")]="LEPS"
+bia24$TIER_3[which(bia24$TIER_3=="ALSP")]="GOSP"
+bia24$TIER_3[which(bia24$TIER_3=="GOAL")]="GOSP"
+bia24$TIER_3[which(bia24$TIER_3=="MONS")]="ASTS"
+bia24$TIER_2b[which(bia24$TIER_2b=="LPHY")]="LEPS"
+bia24$TIER_2b[which(bia24$TIER_2b=="ALSP")]="GOSP"
+bia24$TIER_2b[which(bia24$TIER_2b=="GOAL")]="GOSP"
+bia24$TIER_2b[which(bia24$TIER_2b=="MONS")]="ASTS"
+
+########################################################################################################################################
+# Annotated Point (ab) Data are now clean...
+# Generate Site-level Data at TIER 1 level--------------
+########################################################################################################################################
+
 # (2) Pulls Old "Clean" Benthic Cover Data and adds new data to it
 BIA10_23_name=load(file="T:/Benthic/Data/REA Coral Demography & Cover/Analysis Ready Raw data/BIA_2010-2023_CLEANED.RData")
 bia23=eval(parse(text=BIA10_23_name))
 BIA10_24<-rbind(bia23,bia24)
 
 #Write it out
+#### WORKING WITH CLEAN DATA FILE AT THIS POINT  ab=site-image-category in rows
+BIA10_24<-droplevels(BIA10_24)
 save(BIA10_24, file="T:/Benthic/Data/REA Coral Demography & Cover/Analysis Ready Raw data/BIA_2010-2024_CLEANED.RData")
 
 

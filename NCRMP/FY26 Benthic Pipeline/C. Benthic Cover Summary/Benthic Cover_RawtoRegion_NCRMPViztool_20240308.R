@@ -1,20 +1,18 @@
-# This script follows from C1. "AddThisYearRaw"
-#Drawn from "Benthic Cover_RawtoRegion_NCRMPViztool_20230410"
+#This script generates data for the NCRMP Viztool
+#It's a modification from Benthic_Cover_RawtoEstimates_v2
+#This script reads in the raw point level data and generates site, strata, sector, island and regional roll ups at the Tier 1 and Tier 2b (genus) level
+#Updates: 
+#1. No longer combining all backreef depths and Lagoon depths into "Backreef_All" and "Lagoon_All"
+#2. Adding script to calculate regional estimates of cover
 
-#This script 
-#generates site-level % cover for all sites then generates strata and weighed means at the sector and island-level
-#in v3, we've made several updates to the pooling scheme and added in the 2022 data. 
-#Note- CRED/CREP/ESD made the switch from CPC to CoralNet in 2015, but some of the legacy 2012 imagery was analyzed in CoralNet
-
+#Clear out memory and packages
 rm(list=ls())
-pkgs <- names(sessionInfo()$otherPkgs)
-for (package in pkgs) {
-  detach(paste0("package:", package), unload = TRUE, character.only = TRUE)
+if(!is.null(names(sessionInfo()$otherPkgs))){
+  invisible(lapply(paste0('package:', names(sessionInfo()$otherPkgs)), detach, character.only=TRUE, unload=TRUE))
 }
-
-library(gdata)             # needed for drop_levels()
-library(reshape)           # reshape library inclues the cast() function used below
-library(RODBC)            # to connect to oracle
+#Set WRITE Booleans
+WRITE=TRUE
+WRITE_EVEN_RIDICULOUS_STUFF=FALSE
 
 #LOAD LIBRARY FUNCTIONS ... 
 library(lubridate)
@@ -22,18 +20,209 @@ source("./Functions/Benthic_Functions_newApp_vTAOfork.R")
 source("../fish-paste/lib/core_functions.R")
 source("../fish-paste/lib/fish_team_functions.R")
 source("../fish-paste/lib/Islandwide Mean&Variance Functions.R")
+library(dplyr)#to avert plyr/dplyr issues
+##############  Add generalized function to move from point-level classification and label set, outputting wide table of proportions.
 
-#Bool flags
-WRITE=TRUE
+#Climate data - this is from CPCE
+#Will load "cli"
+load("T:/Benthic/Data/REA Coral Demography & Cover/Raw from Oracle/ALL_BIA_CLIMATE_PERM.rdata")   #bia
+cli$SITE<-SiteNumLeadingZeros(cli$SITE)
 
-ab24_name=load("T:/Benthic/Data/REA Coral Demography & Cover/Analysis Ready Raw data/BIA_2010-2024_CLEANED.RData")
-ab=eval(parse(text=ab24_name));rm(list=ab24_name)
+#BIA data - this is from CPCE
+#Will load "bia"
+load("T:/Benthic/Data/REA Coral Demography & Cover/Raw from Oracle/ALL_BIA_STR_RAW_NEW.rdata")   #bia
+bia$SITE<-SiteNumLeadingZeros(bia$SITE)
+
+#CNET data - from CoralNet
+#These data contain human annotated data. There may be a small subset of robot annotated data. 
+#The robot annoations are included because the confidence threshold in CoralNet was set to 75-90% allowing the robot to annotate points when it was 90% certain.
+#2019 NWHI data not in these view because it was analyzed as part of a bleaching dataset
+load("T:/Benthic/Data/REA Coral Demography & Cover/Raw from Oracle/ALL_CNET_Annotations.rdata") #load data
+#Will load "cnet", need to make sure SITE is a factor
+cnet$SITE=factor(cnet$SITE)
+cnet$SITE<-SiteNumLeadingZeros(cnet$SITE)
+
+#Fix 2023 Howland,Baker assignment to SAMOA
+cnet$REGION[which(cnet$ISLAND%in%c("Baker","Howland"))]="PRIAs"
+
+##Generate Table of all the bia categories to review
+bia_tab<-ddply(bia,.(TIER_1, CATEGORY_NAME, TIER_2, SUBCATEGORY_NAME, TIER_3, GENERA_NAME),summarize,count=sum(POINTS))
+if(WRITE){write.csv(bia_tab, file="BIA categories.csv")}
+
+##Generate Table of all the bia categories to review
+cnet_tab<-ddply(cnet,.(CATEGORY_CODE,CATEGORY_NAME,SUBCATEGORY_CODE,SUBCATEGORY_NAME,GENERA_CODE,GENERA_NAME,FUNCTIONAL_GROUP),summarize,count=length(ROUNDID))
+if(WRITE){write.csv(cnet_tab, file="CNET categories.csv")}
+
+sm_all<-read.csv("../fish-paste/data/SURVEY MASTER.csv")
+sm=sm_all
+sm$SITE=factor(sm$SITE)#make it a factor
+sm$SITE<-SiteNumLeadingZeros(sm$SITE)
+
+#####SOME DATE FORMAT FAIL REWRITE - Re-written TAO 3/8/2024#####
+#Convert date formats
+sm$DATE_.<-lubridate::mdy(sm$DATE_)
+sm$DATE_.[is.na(sm$DATE_.)]=mdy_hms(sm$DATE_[is.na(sm$DATE_.)])
+#which(is.na(sm$DATE_.))
+sm$DATE_=sm$DATE_.
+sm<-sm[,c("DATE_","MISSIONID","SITEVISITID","SITE","OCC_SITEID","ANALYSIS_YEAR","OBS_YEAR","SEC_NAME","EXCLUDE_FLAG","TRANSECT_PHOTOS","Oceanography","LATITUDE_LOV","LONGITUDE_LOV")]
+
+#test<-subset(sm,OBS_YEAR=="2019"&TRANSECT_PHOTOS=="-1");nrow(test)
+
+# Merge together all Photoquad Datasets & make sure columns match ---------------------------------------
+bia$METHOD<-"CPCE"
+cli$METHOD<-"CPCE"
+#bia$FUNCTIONAL_GROUP<-"BIA"    #ACTUALLY FUNCTIONAL_GROUP SEEMS A BIT MIXED UP ... FROM QUICK LOOK AT CNET FILE, IT CAN TAKE DIFFERENT VALUES FOR SAME CODES (eg ALGAE or Hare Substrate) - SO GOING TO IGNORE IT!
+
+#Make cnet play nice
+cnet$POINTS<-1
+cnet$METHOD<-"CNET"
+cnet$REP<-cnet$REPLICATE
+cnet$IMAGE_NAME<-cnet$ORIGINAL_FILE_NAME
+cnet$PHOTOID<-cnet$IMAGE_NUMBER
+cnet$TIER_1<-cnet$CATEGORY_CODE
+cnet$TIER_2<-cnet$SUBCATEGORY_CODE
+cnet$TIER_3<-cnet$GENERA_CODE
+
+#Combine cpc and coralnet
+FIELDS_TO_RETAIN<-c("MISSIONID","METHOD", "REGION", "OBS_YEAR","ISLAND", "SITEVISITID","SITE", "LATITUDE", "LONGITUDE", "REEF_ZONE", "DEPTH_BIN", "PERM_SITE", "CLIMATE_STATION_YN", "MIN_DEPTH", "MAX_DEPTH", "HABITAT_CODE", "REP", "IMAGE_NAME", "PHOTOID", "ANALYST", "TIER_1", "CATEGORY_NAME", "TIER_2", "SUBCATEGORY_NAME", "TIER_3", "GENERA_NAME", "POINTS")
+x<-bia[,FIELDS_TO_RETAIN]; head(x)
+y<-cnet[,FIELDS_TO_RETAIN]; head(y)
+z<-cli[,FIELDS_TO_RETAIN]; head(z)
+
+#add NWHI Special Cruise Data 2014,2015,2019
+nw=read.csv("T:/Benthic/Data/REA Coral Demography & Cover/Raw Data from CoralNet/2014-2017_NWHI_CnetAnnotations_formatted.csv")
+nw$SITE=factor(nw$SITE)
+nw$SITE<-SiteNumLeadingZeros(nw$SITE)
+nw$POINTS<-1
+nw$METHOD<-"CNET"
+nw$REP<-nw$REPLICATE
+nw$IMAGE_NAME<-nw$ORIGINAL_FILE_NAME
+nw$PHOTOID<-nw$IMAGE_NUMBER
+nw$TIER_1<-nw$CATEGORY_CODE
+nw$TIER_2<-nw$SUBCATEGORY_CODE
+nw$TIER_3<-nw$GENERA_CODE
+
+n457=nw[,FIELDS_TO_RETAIN]
+
+ab<-rbind(x,y,z,n457)
+
+#Add Tier 2b (genus for corals, order for macroalgae)
+codes_lu<-read.csv("T:/Benthic/Data/Lookup Tables/All_Photoquad_codes.csv")
+codes_lu<-codes_lu[,c("T2b_DESC","TIER_2b","CODE")];colnames(codes_lu)[which(names(codes_lu) =="CODE")]<-"TIER_3"
+ab<-left_join(ab,codes_lu)
+
+#Remove sites with less than 150 points -These really should be removed from Oracle eventually
+test=ab %>% group_by(SITEVISITID,SITE) %>% dplyr::summarize(count=sum(POINTS))
+test3<-test[test$count<150,];test3
+dim(ab)
+ab<-ab[!(ab$SITE %in% test3$SITE),];head(ab)
+dim(ab)
+#subset(ab,SITE %in% c("TUT-00210","TUT-00275","OAH-00558")) #double check that sites were dropped properly
+
+#Generate a table of # of sites/region and year from original datasets before data cleaning takes place
+#use this later in the script to make sure sites haven't been dropped after data clean up.
+oracle.site<-ddply(ab,.(REGION,OBS_YEAR),summarize,nSite=length(unique(SITE)))
+oracle.site %>% pivot_wider(names_from = OBS_YEAR,values_from = nSite)
+#Check this against site master list
+table(sm_all$REGION,sm_all$OBS)
+#ab.site<-ddply(subset(cnet,OBS_YEAR=="2019"),.(REGION,OBS_YEAR),summarize,nSite=length(unique(SITE)));ab.site
+
+#identify which new sites are in the CoralNet data, but still need to be integrated into the SURVEY MASTER file
+miss.from.sm<-cnet[!(cnet$SITEVISITID %in% sm$SITEVISITID),]
+miss.from.smSITE<-ddply(miss.from.sm,.(SITEVISITID,REGION,ISLAND,SITE,REEF_ZONE,DEPTH_BIN,ROUNDID,MISSIONID,OBS_YEAR, DATE_,HABITAT_CODE,
+                                       LATITUDE,LONGITUDE,MIN_DEPTH,MAX_DEPTH),summarize,tmp=length(REPLICATE));miss.from.smSITE
+
+if(WRITE){write.csv(miss.from.smSITE,file="../fish-paste/data/03082024_SitesmissingfromSM.csv")} #export list and manually add to SM
+
+#Don't commit this file, too big!!!
+if(WRITE_EVEN_RIDICULOUS_STUFF){write.csv(ab, file="tmp All BIA BOTH METHODS.csv")}
+
+#There are some missing Tier3 information for pre 2013 data. If these data are missing then fill it with tier2 code
+ab$TIER_2<-ifelse(ab$TIER_2=="HAL","HALI",as.character(ab$TIER_2)) #change to match the Tier 3 halimeda code
+
+ab<-ab %>% dplyr::mutate(TIER_3=coalesce(TIER_3,TIER_2))
+ab<-ab %>% dplyr::mutate(GENERA_NAME=coalesce(GENERA_NAME,SUBCATEGORY_NAME))
+ab<-ab %>% dplyr::mutate(TIER_2b=coalesce(TIER_2b,TIER_2))
+ab<-ab %>% dplyr::mutate(T2b_DESC=coalesce(T2b_DESC,SUBCATEGORY_NAME))
+
+head(ab)
+
+# Drop Swains CPCE 2010 and 2012 (we reanalyzed these using CNET in 2023) #TAO 3/8/24--------------------------------------------
+sw10.12i=which(ab$ISLAND=="Swains"&ab$OBS_YEAR%in%c(2010,2012)&ab$METHOD=="CPCE")
+ab=ab[-sw10.12i,]
+
+# Reclassify EMA and Halimeda --------------------------------------------
+
+#CREATING CLASS EMA "Encrusting Macroalgae
+levels(ab$TIER_1)<-c(levels(ab$TIER_1), "EMA")
+levels(ab$CATEGORY_NAME)<-c(levels(ab$CATEGORY_NAME), "Encrusting macroalga")
+ab[ab$GENERA_NAME %in% c("Lobophora sp","Peyssonnelia sp", "Encrusting macroalga"),]$TIER_1<-"EMA"
+ab[ab$GENERA_NAME %in% c("Lobophora sp","Peyssonnelia sp", "Encrusting macroalga"),]$TIER_2<-"EMA"
+ab[ab$GENERA_NAME %in% c("Lobophora sp","Peyssonnelia sp", "Encrusting macroalga"),]$SUBCATEGORY_NAME<-"Encrusting macroalga"
+ab[ab$GENERA_NAME %in% c("Lobophora sp","Peyssonnelia sp", "Encrusting macroalga"),]$CATEGORY_NAME<-"Encrusting macroalga"
+
+###Create a Halimeda class
+ab$TIER_3<-ifelse(ab$TIER_3=="HALI","HALI",as.character(ab$TIER_3))
+ab$TIER_1<-ifelse(ab$TIER_3=="HALI","HALI",as.character(ab$TIER_1))
+ab$CATEGORY_NAME<-ifelse(ab$TIER_3=="HALI","Halimeda sp",as.character(ab$CATEGORY_NAME))
+hal<-subset(ab,TIER_1=="HALI")
+head(hal)
+
+#We are missing depth bin, reef zone and habitat_code information from some sites.
+#This information is also missing from the SURVEY MASTER file
+levels(ab$DEPTH_BIN)<-c(levels(ab$DEPTH_BIN), "UNKNOWN")
+levels(ab$REEF_ZONE)<-c(levels(ab$REEF_ZONE), "UNKNOWN")
+levels(ab$HABITAT_CODE)<-c(levels(ab$HABITAT_CODE), "UNKNOWN")
+
+ab[is.na(ab$DEPTH_BIN),]$DEPTH_BIN<-"UNKNOWN"
+ab[is.na(ab$REEF_ZONE),]$REEF_ZONE<-"UNKNOWN"
+ab[is.na(ab$HABITAT_CODE),]$HABITAT_CODE<-"UNKNOWN"
+
+##### UPDATE IN ORACLE?
+
+#We have some likely misidentified points in the Hawaiian Island (e.g. Acanthastrea in the MHI).
+#Read in list of hawaii codes and change everything that isn't in the list to UNKN
+hawaiicodes<-read.csv("T:/Benthic/Data/Lookup Tables/Hawaii_Photoquad_codes.csv")
+
+ab$TIER_1<-ifelse(ab$REGION %in% c("MHI","NWHI") & !(ab$TIER_3 %in% hawaiicodes$TIER_3),"UC",ab$TIER_1)
+ab$CATEGORY_NAME<-ifelse(ab$REGION %in% c("MHI","NWHI") & !(ab$TIER_3 %in% hawaiicodes$TIER_3),"Unclassified",ab$CATEGORY_NAME)
+ab$TIER_2<-ifelse(ab$REGION %in% c("MHI","NWHI") & !(ab$TIER_3 %in% hawaiicodes$TIER_3),"UNK",ab$TIER_2)
+ab$SUBCATEGORY_NAME<-ifelse(ab$REGION %in% c("MHI","NWHI") & !(ab$TIER_3 %in% hawaiicodes$TIER_3),"Unclassified/Unknown",ab$SUBCATEGORY_NAME)
+ab$TIER_2b<-ifelse(ab$REGION %in% c("MHI","NWHI") & !(ab$TIER_3 %in% hawaiicodes$TIER_3),"Unclassified/Unknown",ab$TIER_2b)
+ab$T2b_DESC<-ifelse(ab$REGION %in% c("MHI","NWHI") & !(ab$TIER_3 %in% hawaiicodes$TIER_3),"UC",ab$T2b_DESC)
+ab$TIER_3<-ifelse(ab$REGION %in% c("MHI","NWHI") & !(ab$TIER_3 %in% hawaiicodes$TIER_3),"UNK",ab$TIER_3)
+ab$GENERA_NAME<-ifelse(ab$REGION %in% c("MHI","NWHI") & !(ab$TIER_3 %in% hawaiicodes$TIER_3),"Unclassified/Unknown",ab$GENERA_NAME)
+
+#LEPT and LPHY ==> LEPT
+#ALSP,GOAL and GOSP ==> GOSP
+#ASTS and MONS ==> ASTS
+ab$TIER_3[which(ab$TIER_3=="LPHY")]="LEPS"
+ab$TIER_3[which(ab$TIER_3=="ALSP")]="GOSP"
+ab$TIER_3[which(ab$TIER_3=="GOAL")]="GOSP"
+ab$TIER_3[which(ab$TIER_3=="MONS")]="ASTS"
+ab$TIER_2b[which(ab$TIER_2b=="LPHY")]="LEPS"
+ab$TIER_2b[which(ab$TIER_2b=="ALSP")]="GOSP"
+ab$TIER_2b[which(ab$TIER_2b=="GOAL")]="GOSP"
+ab$TIER_2b[which(ab$TIER_2b=="MONS")]="ASTS"
+
+#####
+
+
+#### WORKING WITH CLEAN DATA FILE AT THIS POINT  ab=site-image-category in rows
+ab<-droplevels(ab)
+if(WRITE){save(ab, file="T:/Benthic/Data/REA Coral Demography & Cover/Analysis Ready Raw data/BIA_2010-2023_CLEANED.RData")}
+#ablist=load("T:/Benthic/Data/REA Coral Demography & Cover/Analysis Ready Raw data/BIA_2010-2023_CLEANED.RData")
 
 #Generate a SITE table- excluding lat and long for now because there are issues that we need to address with Michael- use lat and long from SM below
 sites<-ddply(ab,.(METHOD,REGION,OBS_YEAR,ISLAND,PERM_SITE,CLIMATE_STATION_YN,SITE,REEF_ZONE,DEPTH_BIN),
              summarize,x=sum(POINTS))
 sites$x<-NULL
 dim(sites)
+
+########################################################################################################################################
+# Annotated Point (ab) Data are now clean...
+# Generate Site-level Data at TIER 1 level--------------
+########################################################################################################################################
 
 #####DCAST REWRITE - Re-written TAO 3/7/2024#####
 levels(ab$TIER_1)
@@ -61,7 +250,7 @@ photo$BSR<-(photo$CCA + photo$CORAL)/(photo$TURF+ photo$MA)
 photo<-photo%>% mutate_if(is.numeric, ~ifelse(abs(.) == Inf,NA,.))
 
 # This double-round of r_levels is curious...
-r_levels<-c(unique(as.character(ab$TIER_1)),"CCA_CORAL")#leave BSR out of the proportion calc
+r_levels<-c(unique(as.character(ab$TIER_1)),"CCA_CORAL","BSR")
 data.cols<-c(r_levels)
 data.cols
 
@@ -91,30 +280,15 @@ wsd<-left_join(sites, photo,  by=c("METHOD", "OBS_YEAR", "SITE")) # Reviewed - c
 test1<-ddply(wsd,.(REGION,OBS_YEAR),summarize,nSite_wsd=length(unique(SITE)))
 
 #check against original number of sites pulled from oracle
-#Generate a table of # of sites/region and year from original datasets before data cleaning takes place
-#use this later in the script to make sure sites haven't been dropped after data clean up.
-#oracle.site<-ddply(bia24,.(REGION,OBS_YEAR),summarize,nSite=length(unique(SITE)))
-oracle.site=ab %>% group_by(REGION,OBS_YEAR) %>% summarize(nSite=length(unique(SITE)))
-oracle.site
-
-full_join(test1,oracle.site) %>% arrange(OBS_YEAR)
+full_join(test1,oracle.site)
 
 #Merge Tier 1 data with SURVEY MASTER FILE
 #Remember this will have all the sites ever surveyed not just StRS sites
 #You will need TRANSECT_PHOTOS, EXCLUDE FLAG and Oceanography from the SM file to be able to filter out OCC and Special Project sites
-#Load Survey Master and Assign SiteVisitID to the CPCE data, clean up dates
-sm<-read.csv("./NCRMP/FY26 Benthic Pipeline/A. Survey Master Prep/SURVEY_MASTER_2024_benthic.csv")
-sm$SITE<-SiteNumLeadingZeros(as.factor(sm$SITE))
-sm$DATE_RAW=sm$DATE_
-sm$DATE_=mdy(sm$DATE_)
-sm$DATE_[which(is.na(sm$DATE_))]=mdy_hms(sm$DATE_RAW[which(is.na(sm$DATE_))])
-sm$DATE_[which(is.na(sm$DATE_))]=ymd_hms(sm$DATE_RAW[which(is.na(sm$DATE_))])
-length(which(is.na(sm$DATE_)))
 
 #####MERGE REWRITE  - Re-written TAO 3/8/2024#####
 #wsd_t1.<-merge(sm,wsd,by=c("SITEVISITID","SITE","OBS_YEAR"),all.y=TRUE)
-
-wsd_t1<-left_join(wsd,sm,by=intersect(names(wsd),names(sm)))#c("SITEVISITID","SITE","OBS_YEAR"))
+wsd_t1<-left_join(wsd,sm,by=c("SITEVISITID","SITE","OBS_YEAR"))
 # wsd_t1.=wsd_t1.[,names(wsd_t1)]
 # wsd_t1=arrange(wsd_t1,SITEVISITID,METHOD,OBS_YEAR,SITE)
 # wsd_t1.=arrange(wsd_t1.,SITEVISITID,METHOD,OBS_YEAR,SITE)
@@ -134,8 +308,8 @@ wsd_t1$TRANSECT_PHOTOS<-"-1" #make sure that all rows = -1
 wsd_t1<-subset(wsd_t1,select= -c(MF,UC,TW))
 
 wsd_t1[which(is.na(wsd_t1$SITEVISITID)),]
-#Save Tier 1 site data to t drive. This file has all sites (fish, benthic and OCC) that were annotated between 2010 and 2024
-if(WRITE){write.csv(wsd_t1, file="T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Site/BenthicCover_2010-2024_Tier1_SITE.csv",row.names=F)}
+#Save Tier 1 site data to t drive. This file has all sites (fish, benthic and OCC) that were annotated between 2010 and 2023
+if(WRITE){write.csv(wsd_t1, file="T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Site/BenthicCover_2010-2023_Tier1_SITE.csv",row.names=F)}
 
 
 ########################################################################################################################################
@@ -192,7 +366,7 @@ full_join(test1,oracle.site)
 #Remember this will have all the sites ever surveyed not just StRS sites
 #You will need TRANSECT_PHOTOS, EXCLUDE FLAG and Oceanography from the SM file to be able to filter out OCC and Special Project sites
 #wsd_t2.<-merge(sm,wsd,by=c("SITEVISITID","SITE","OBS_YEAR"),all.y=TRUE)
-wsd_t2<-left_join(wsd,sm,by=intersect(names(wsd),names(sm)))#c("SITEVISITID","SITE","OBS_YEAR"))
+wsd_t2<-left_join(wsd,sm,by=c("SITEVISITID","SITE","OBS_YEAR"))
 # wsd_t2.=wsd_t2.[,names(wsd_t2)]
 # wsd_t2=arrange(wsd_t2,SITEVISITID,METHOD,OBS_YEAR,SITE)
 # wsd_t2.=arrange(wsd_t2.,SITEVISITID,METHOD,OBS_YEAR,SITE)
@@ -213,7 +387,7 @@ wsd_t2$TRANSECT_PHOTOS<-"-1" #make sure that all rows = -1
 wsd_t2<-subset(wsd_t2,select= -c(WAND,UNK,TAPE,MOBF,SHAD))
 
 #Save Tier 1 site data to t drive. This file has all sites (fish, benthic and OCC) that were annoated between 2010 and 2018
-if(WRITE){write.csv(wsd_t2, file="T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Site/BenthicCover_2010-2024_Tier2b_SITE.csv",row.names=F)}
+if(WRITE){write.csv(wsd_t2, file="T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Site/BenthicCover_2010-2023_Tier2b_SITE.csv",row.names=F)}
 
 
 ########################################################################################################################################
@@ -284,7 +458,7 @@ full_join(test1,oracle.site)
 #Remember this will have all the sites ever surveyed not just StRS sites
 #You will need TRANSECT_PHOTOS, EXCLUDE FLAG and Oceanography from the SM file to be able to filter out OCC and Special Project sites
 #wsd_t3.<-merge(sm,wsd,by=c("SITEVISITID","SITE","OBS_YEAR"),all.y=TRUE)
-wsd_t3<-left_join(wsd,sm,by=intersect(names(wsd),names(sm)))#c("SITEVISITID","SITE","OBS_YEAR"))
+wsd_t3<-left_join(wsd,sm,by=c("SITEVISITID","SITE","OBS_YEAR"))
 # wsd_t3.=wsd_t3.[,names(wsd_t3)]
 # wsd_t3=arrange(wsd_t3,SITEVISITID,METHOD,OBS_YEAR,SITE)
 # wsd_t3.=arrange(wsd_t3.,SITEVISITID,METHOD,OBS_YEAR,SITE)
@@ -304,8 +478,8 @@ wsd_t3$TRANSECT_PHOTOS<-"-1" #make sure that all rows = -1
 #Remove the unknowns and TWS columns
 wsd_t3<-subset(wsd_t3,select= -c(WAND,UNK,TAPE,MOBF,SHAD))
 
-#Save Tier 1 site data to t drive. This file has all sites (fish, benthic and OCC) that were annoated between 2010 and 2024
-if(WRITE){write.csv(wsd_t3, file="T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Site/BenthicCover_2010-2024_Tier3_SITE.csv",row.names=F)}
+#Save Tier 1 site data to t drive. This file has all sites (fish, benthic and OCC) that were annoated between 2010 and 2018
+if(WRITE){write.csv(wsd_t3, file="T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Site/BenthicCover_2010-2023_Tier3_SITE.csv",row.names=F)}
 
 ########################################################################################################################################
 #wsd_t1 %>% group_by(REGION,ISLAND,ANALYSIS_YEAR) %>% dplyr::summarize(N=length(N)) %>% filter(REGION %in% c("NWHI")) %>% print(n=9999)
@@ -446,7 +620,7 @@ for (TIER in 1:3){#TIER=1#2#2#
   ##
   ###################################################################################################################################################################
   #Save site level data - need to send site, lat and long to Viztool
-  if(WRITE){write.csv(wsd,"T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Site/2024ViztoolSites_Cover.csv")}
+  if(WRITE){write.csv(wsd,"T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Site/2023ViztoolSites_Cover.csv")}
   
   
   #Some sectors are pooled together, meaning that some areas in wsd have the same ANALYSIS_SEC, but different stated areas,
@@ -591,14 +765,14 @@ for (TIER in 1:3){#TIER=1#2#2#
   dpstC<-left_join(dpstC,ri)
   dpstT<-left_join(dpstT,ri)
   if(TIER==1){
-    if(WRITE){write.csv(dpstC, file="T:/Benthic/Data/Data Requests/NCRMPViztool/2024/unformatted/BenthicCover_2010-2024_Tier1_STRATA_Complete_Viztool.csv",row.names = F)}
-    if(WRITE){write.csv(dpstT, file="T:/Benthic/Data/Data Requests/NCRMPViztool/2024/unformatted/BenthicCover_2010-2024_Tier1_STRATA_Trends_Viztool.csv",row.names = F)}
+    if(WRITE){write.csv(dpstC, file="T:/Benthic/Data/Data Requests/NCRMPViztool/2023/unformatted/BenthicCover_2010-2023_Tier1_STRATA_Complete_Viztool.csv",row.names = F)}
+    if(WRITE){write.csv(dpstT, file="T:/Benthic/Data/Data Requests/NCRMPViztool/2023/unformatted/BenthicCover_2010-2023_Tier1_STRATA_Trends_Viztool.csv",row.names = F)}
   }else if(TIER==2){
-    if(WRITE){write.csv(dpstC, file="T:/Benthic/Data/Data Requests/NCRMPViztool/2024/unformatted/BenthicCover_2010-2024_Tier2b_STRATA_Complete_Viztool.csv",row.names = F)}
-    if(WRITE){write.csv(dpstT, file="T:/Benthic/Data/Data Requests/NCRMPViztool/2024/unformatted/BenthicCover_2010-2024_Tier2b_STRATA_Trends_Viztool.csv",row.names = F)}
+    if(WRITE){write.csv(dpstC, file="T:/Benthic/Data/Data Requests/NCRMPViztool/2023/unformatted/BenthicCover_2010-2023_Tier2b_STRATA_Complete_Viztool.csv",row.names = F)}
+    if(WRITE){write.csv(dpstT, file="T:/Benthic/Data/Data Requests/NCRMPViztool/2023/unformatted/BenthicCover_2010-2023_Tier2b_STRATA_Trends_Viztool.csv",row.names = F)}
   }else{
-    if(WRITE){write.csv(dpstC, file="T:/Benthic/Data/Data Requests/NCRMPViztool/2024/unformatted/BenthicCover_2010-2024_Tier3_STRATA_Complete_Viztool.csv",row.names = F)}
-    if(WRITE){write.csv(dpstT, file="T:/Benthic/Data/Data Requests/NCRMPViztool/2024/unformatted/BenthicCover_2010-2024_Tier3_STRATA_Trends_Viztool.csv",row.names = F)}
+    if(WRITE){write.csv(dpstC, file="T:/Benthic/Data/Data Requests/NCRMPViztool/2023/unformatted/BenthicCover_2010-2023_Tier3_STRATA_Complete_Viztool.csv",row.names = F)}
+    if(WRITE){write.csv(dpstT, file="T:/Benthic/Data/Data Requests/NCRMPViztool/2023/unformatted/BenthicCover_2010-2023_Tier3_STRATA_Trends_Viztool.csv",row.names = F)}
   }
   
   #SAVE BY SECTOR PER YEAR
@@ -618,14 +792,14 @@ for (TIER in 1:3){#TIER=1#2#2#
   dpsecT<-left_join(dpsecT,ri)
   
   if(TIER==1){
-    if(WRITE){write.csv(dpsecC, file="T:/Benthic/Data/Data Requests/NCRMPViztool/2024/unformatted/BenthicCover_2010-2024_Tier1_SECTOR_Complete_Viztool.csv",row.names = F)}
-    if(WRITE){write.csv(dpsecT, file="T:/Benthic/Data/Data Requests/NCRMPViztool/2024/unformatted/BenthicCover_2010-2024_Tier1_SECTOR_Trends_Viztool.csv",row.names = F)}
+    if(WRITE){write.csv(dpsecC, file="T:/Benthic/Data/Data Requests/NCRMPViztool/2023/unformatted/BenthicCover_2010-2023_Tier1_SECTOR_Complete_Viztool.csv",row.names = F)}
+    if(WRITE){write.csv(dpsecT, file="T:/Benthic/Data/Data Requests/NCRMPViztool/2023/unformatted/BenthicCover_2010-2023_Tier1_SECTOR_Trends_Viztool.csv",row.names = F)}
   }else if(TIER==2){
-    if(WRITE){write.csv(dpsecC, file="T:/Benthic/Data/Data Requests/NCRMPViztool/2024/unformatted/BenthicCover_2010-2024_Tier2b_SECTOR_Complete_Viztool.csv",row.names = F)}
-    if(WRITE){write.csv(dpsecT, file="T:/Benthic/Data/Data Requests/NCRMPViztool/2024/unformatted/BenthicCover_2010-2024_Tier2b_SECTOR_Trends_Viztool.csv",row.names = F)}
+    if(WRITE){write.csv(dpsecC, file="T:/Benthic/Data/Data Requests/NCRMPViztool/2023/unformatted/BenthicCover_2010-2023_Tier2b_SECTOR_Complete_Viztool.csv",row.names = F)}
+    if(WRITE){write.csv(dpsecT, file="T:/Benthic/Data/Data Requests/NCRMPViztool/2023/unformatted/BenthicCover_2010-2023_Tier2b_SECTOR_Trends_Viztool.csv",row.names = F)}
   }else{
-    if(WRITE){write.csv(dpsecC, file="T:/Benthic/Data/Data Requests/NCRMPViztool/2024/unformatted/BenthicCover_2010-2024_Tier3_SECTOR_Complete_Viztool.csv",row.names = F)}
-    if(WRITE){write.csv(dpsecT, file="T:/Benthic/Data/Data Requests/NCRMPViztool/2024/unformatted/BenthicCover_2010-2024_Tier3_SECTOR_Trends_Viztool.csv",row.names = F)}
+    if(WRITE){write.csv(dpsecC, file="T:/Benthic/Data/Data Requests/NCRMPViztool/2023/unformatted/BenthicCover_2010-2023_Tier3_SECTOR_Complete_Viztool.csv",row.names = F)}
+    if(WRITE){write.csv(dpsecT, file="T:/Benthic/Data/Data Requests/NCRMPViztool/2023/unformatted/BenthicCover_2010-2023_Tier3_SECTOR_Trends_Viztool.csv",row.names = F)}
   }
   
   # e.g. SAVE BY ISLAND PER YEAR
@@ -643,14 +817,14 @@ for (TIER in 1:3){#TIER=1#2#2#
   dpisT<-left_join(dpisT,ri)
   
   if(TIER==1){
-    if(WRITE){write.csv(dpisC, file="T:/Benthic/Data/Data Requests/NCRMPViztool/2024/unformatted/BenthicCover_2010-2024_Tier1_ISLAND_Complete_Viztool.csv",row.names = F)}
-    if(WRITE){write.csv(dpisT, file="T:/Benthic/Data/Data Requests/NCRMPViztool/2024/unformatted/BenthicCover_2010-2024_Tier1_ISLAND_Trends_Viztool.csv",row.names = F)}
+    if(WRITE){write.csv(dpisC, file="T:/Benthic/Data/Data Requests/NCRMPViztool/2023/unformatted/BenthicCover_2010-2023_Tier1_ISLAND_Complete_Viztool.csv",row.names = F)}
+    if(WRITE){write.csv(dpisT, file="T:/Benthic/Data/Data Requests/NCRMPViztool/2023/unformatted/BenthicCover_2010-2023_Tier1_ISLAND_Trends_Viztool.csv",row.names = F)}
   }else if(TIER==2){
-    if(WRITE){write.csv(dpisC, file="T:/Benthic/Data/Data Requests/NCRMPViztool/2024/unformatted/BenthicCover_2010-2024_Tier2b_ISLAND_Complete_Viztool.csv",row.names = F)}
-    if(WRITE){write.csv(dpisT, file="T:/Benthic/Data/Data Requests/NCRMPViztool/2024/unformatted/BenthicCover_2010-2024_Tier2b_ISLAND_Trends_Viztool.csv",row.names = F)}
+    if(WRITE){write.csv(dpisC, file="T:/Benthic/Data/Data Requests/NCRMPViztool/2023/unformatted/BenthicCover_2010-2023_Tier2b_ISLAND_Complete_Viztool.csv",row.names = F)}
+    if(WRITE){write.csv(dpisT, file="T:/Benthic/Data/Data Requests/NCRMPViztool/2023/unformatted/BenthicCover_2010-2023_Tier2b_ISLAND_Trends_Viztool.csv",row.names = F)}
   }else{
-    if(WRITE){write.csv(dpisC, file="T:/Benthic/Data/Data Requests/NCRMPViztool/2024/unformatted/BenthicCover_2010-2024_Tier3_ISLAND_Complete_Viztool.csv",row.names = F)}
-    if(WRITE){write.csv(dpisT, file="T:/Benthic/Data/Data Requests/NCRMPViztool/2024/unformatted/BenthicCover_2010-2024_Tier3_ISLAND_Trends_Viztool.csv",row.names = F)}
+    if(WRITE){write.csv(dpisC, file="T:/Benthic/Data/Data Requests/NCRMPViztool/2023/unformatted/BenthicCover_2010-2023_Tier3_ISLAND_Complete_Viztool.csv",row.names = F)}
+    if(WRITE){write.csv(dpisT, file="T:/Benthic/Data/Data Requests/NCRMPViztool/2023/unformatted/BenthicCover_2010-2023_Tier3_ISLAND_Trends_Viztool.csv",row.names = F)}
   }
   
   # e.g. SAVE BY REGION PER YEAR
@@ -682,14 +856,14 @@ for (TIER in 1:3){#TIER=1#2#2#
   dprT<-left_join(dprT$Mean,dprT$PooledSE)
   
   if(TIER==1){
-    if(WRITE){write.csv(dprC, file="T:/Benthic/Data/Data Requests/NCRMPViztool/2024/unformatted/BenthicCover_2010-2024_Tier1_REGION_Complete_Viztool.csv",row.names = F)}
-    if(WRITE){write.csv(dprT, file="T:/Benthic/Data/Data Requests/NCRMPViztool/2024/unformatted/BenthicCover_2010-2024_Tier1_REGION_Trends_Viztool.csv",row.names = F)}
+    if(WRITE){write.csv(dprC, file="T:/Benthic/Data/Data Requests/NCRMPViztool/2023/unformatted/BenthicCover_2010-2023_Tier1_REGION_Complete_Viztool.csv",row.names = F)}
+    if(WRITE){write.csv(dprT, file="T:/Benthic/Data/Data Requests/NCRMPViztool/2023/unformatted/BenthicCover_2010-2023_Tier1_REGION_Trends_Viztool.csv",row.names = F)}
   }else if(TIER==2){
-    if(WRITE){write.csv(dprC, file="T:/Benthic/Data/Data Requests/NCRMPViztool/2024/unformatted/BenthicCover_2010-2024_Tier2b_REGION_Complete_Viztool.csv",row.names = F)}
-    if(WRITE){write.csv(dprT, file="T:/Benthic/Data/Data Requests/NCRMPViztool/2024/unformatted/BenthicCover_2010-2024_Tier2b_REGION_Trends_Viztool.csv",row.names = F)}
+    if(WRITE){write.csv(dprC, file="T:/Benthic/Data/Data Requests/NCRMPViztool/2023/unformatted/BenthicCover_2010-2023_Tier2b_REGION_Complete_Viztool.csv",row.names = F)}
+    if(WRITE){write.csv(dprT, file="T:/Benthic/Data/Data Requests/NCRMPViztool/2023/unformatted/BenthicCover_2010-2023_Tier2b_REGION_Trends_Viztool.csv",row.names = F)}
   }else{
-    if(WRITE){write.csv(dprC, file="T:/Benthic/Data/Data Requests/NCRMPViztool/2024/unformatted/BenthicCover_2010-2024_Tier3_REGION_Complete_Viztool.csv",row.names = F)}
-    if(WRITE){write.csv(dprT, file="T:/Benthic/Data/Data Requests/NCRMPViztool/2024/unformatted/BenthicCover_2010-2024_Tier3_REGION_Trends_Viztool.csv",row.names = F)}
+    if(WRITE){write.csv(dprC, file="T:/Benthic/Data/Data Requests/NCRMPViztool/2023/unformatted/BenthicCover_2010-2023_Tier3_REGION_Complete_Viztool.csv",row.names = F)}
+    if(WRITE){write.csv(dprT, file="T:/Benthic/Data/Data Requests/NCRMPViztool/2023/unformatted/BenthicCover_2010-2023_Tier3_REGION_Trends_Viztool.csv",row.names = F)}
   }
   
   print(paste0("###################################"))
