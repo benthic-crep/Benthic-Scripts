@@ -1,22 +1,20 @@
-#This script generates data for the NCRMP Viztool and is set to be the cannonical roll up script 
-#For Benthic Cover starting in FY26
-#It's a modification from Benthic_Cover_RawtoEstimates_v2
-#This script reads in the raw point level data and generates site, strata, sector, island and regional roll ups at the Tier 1 and Tier 2b (genus) level
-#Updates: 
-#1. No longer combining all backreef depths and Lagoon depths into "Backreef_All" and "Lagoon_All"
-#2. Adding script to calculate regional estimates of cover
+# This script follows from C1. "AddThisYearRaw"
+#Drawn from "Benthic Cover_RawtoRegion_NCRMPViztool_20230410"
 
-
+#This script 
+#generates site-level % cover for all sites then generates strata and weighed means at the sector and island-level
+#in v3, we've made several updates to the pooling scheme and added in the 2022 data. 
+#Note- CRED/CREP/ESD made the switch from CPC to CoralNet in 2015, but some of the legacy 2012 imagery was analyzed in CoralNet
 
 rm(list=ls())
+pkgs <- names(sessionInfo()$otherPkgs)
+for (package in pkgs) {
+  detach(paste0("package:", package), unload = TRUE, character.only = TRUE)
+}
 
-#setwd("C:/Users/Courtney.S.Couch/Documents/Courtney's Files/R Files/ESD/BIA")
-#setwd("T:/Benthic/Data/REA Coral Demography & Cover/Raw from Oracle/")
-
-# 
-# library(gdata)             # needed for drop_levels()
-# library(reshape)           # reshape library inclues the cast() function used below
-# library(RODBC)            # to connect to oracle
+library(gdata)             # needed for drop_levels()
+library(reshape)           # reshape library inclues the cast() function used below
+library(RODBC)            # to connect to oracle
 
 #LOAD LIBRARY FUNCTIONS ... 
 library(lubridate)
@@ -25,135 +23,8 @@ source("../fish-paste/lib/core_functions.R")
 source("../fish-paste/lib/fish_team_functions.R")
 source("../fish-paste/lib/Islandwide Mean&Variance Functions.R")
 
-#Climate data - this is from CPCE
-load("T:/Benthic/Data/REA Coral Demography & Cover/Raw from Oracle/ALL_BIA_CLIMATE_PERM.rdata")   #bia
-
-cli$SITE<-SiteNumLeadingZeros(cli$SITE)
-
-#BIA data - this is from CPCE
-load("T:/Benthic/Data/REA Coral Demography & Cover/Raw from Oracle/ALL_BIA_STR_RAW_NEW.rdata")   #bia
-
-bia$SITE<-SiteNumLeadingZeros(bia$SITE)
-
-#CNET data - from CoralNet
-#These data contain human annotated data. There may be a small subset of robot annotated data. 
-#The robot annoations are included because the confidence threshold in CoralNet was set to 75-90% allowing the robot to annotate points when it was 90% certain.
-#2019 NWHI data not in these view because it was analyzed as part of a bleaching dataset
-load("T:/Benthic/Data/REA Coral Demography & Cover/Raw from Oracle/ALL_BIA_STR_CNET.rdata") #load data
-
-cnet$SITE<-SiteNumLeadingZeros(cnet$SITE)
-table(cnet$ISLAND,cnet$OBS_YEAR)
-
-
-##Generate Table of all the bia categories to review
-head(bia)
-bia_tab<-ddply(bia,.(TIER_1, CATEGORY_NAME, TIER_2, SUBCATEGORY_NAME, TIER_3, GENERA_NAME),summarize,count=sum(POINTS))
-#write.csv(bia_tab, file="BIA categories.csv")
-table(bia$TIER_1)
-table(bia$TIER_2)
-
-##Generate Table of all the bia categories to review
-head(cnet)
-cnet_tab<-ddply(cnet,.(CATEGORY_CODE,CATEGORY_NAME,SUBCATEGORY_CODE,SUBCATEGORY_NAME,GENERA_CODE,GENERA_NAME,FUNCTIONAL_GROUP),summarize,count=length(ROUNDID))
-#write.csv(cnet_tab, file="CNET categories.csv")
-
-sm<-read.csv("../fish-paste/data/SURVEY MASTER.csv")
-sm$SITE=factor(sm$SITE)#make it a factor
-sm$SITE<-SiteNumLeadingZeros(sm$SITE)
-
-test<-subset(sm,OBS_YEAR=="2019",TRANSECT_PHOTOS=="-1");nrow(test)
-
-# Merge together all Photoquad Datasets & make sure columns match ---------------------------------------
-bia$METHOD<-"CPCE"
-cli$METHOD<-"CPCE"
-#bia$FUNCTIONAL_GROUP<-"BIA"    #ACTUALLY FUNCTIONAL_GROUP SEEMS A BIT MIXED UP ... FROM QUICK LOOK AT CNET FILE, IT CAN TAKE DIFFERENT VALUES FOR SAME CODES (eg ALGAE or Hare Substrate) - SO GOING TO IGNORE IT!
-
-cnet$POINTS<-1
-cnet$METHOD<-"CNET"
-cnet$REP<-cnet$REPLICATE
-cnet$IMAGE_NAME<-cnet$ORIGINAL_FILE_NAME
-cnet$PHOTOID<-cnet$IMAGE_NUMBER
-cnet$TIER_1<-cnet$CATEGORY_CODE
-cnet$TIER_2<-cnet$SUBCATEGORY_CODE
-cnet$TIER_3<-cnet$GENERA_CODE
-
-
-#Combine cpc and coralnet
-FIELDS_TO_RETAIN<-c("MISSIONID","METHOD", "REGION", "OBS_YEAR","ISLAND", "SITEVISITID","SITE", "LATITUDE", "LONGITUDE", "REEF_ZONE", "DEPTH_BIN", "PERM_SITE", "CLIMATE_STATION_YN", "MIN_DEPTH", "MAX_DEPTH", "HABITAT_CODE", "REP", "IMAGE_NAME", "PHOTOID", "ANALYST", "TIER_1", "CATEGORY_NAME", "TIER_2", "SUBCATEGORY_NAME", "TIER_3", "GENERA_NAME", "POINTS")
-x<-bia[,FIELDS_TO_RETAIN]; head(x)
-y<-cnet[,FIELDS_TO_RETAIN]; head(y)
-z<-cli[,FIELDS_TO_RETAIN]; head(z)
-
-ab<-rbind(x,y,z)
-
-#Add Tier 2b (genus for corals, order for macroalgae)
-codes_lu<-read.csv("T:/Benthic/Data/Lookup Tables/All_Photoquad_codes.csv")
-codes_lu<-codes_lu[,c("T2b_DESC","TIER_2b","CODE")];colnames(codes_lu)[which(names(codes_lu) =="CODE")]<-"TIER_3"
-ab<-left_join(ab,codes_lu)
-
-#Flag sites that have more than 33 and less than 15 images
-#With the exception of OCC 2012 sites, there should be 30 images/site/10 points/image
-test<-ddply(ab,.(OBS_YEAR,SITEVISITID,SITE),summarize,count=sum(POINTS))
-test2<-test[test$count<150 |test$count>330,]
-#View(test2)
-#Ignore 2012 OCC sites. They analyzed 50 points per images 
-
-#Remove sites with less than 150 points -These really should be removed from Oracle eventually
-test3<-test[test$count<150,];test3
-ab<-ab[!(ab$SITE %in% test3$SITE),];head(ab)
-subset(ab,SITE %in% c("TUT-00210","TUT-00275","OAH-00558")) #double check that sites were dropped properly
-
-#Generate a table of # of sites/region and year from original datasets before data cleaning takes place
-#use this later in the script to make sure sites haven't been dropped after data clean up.
-oracle.site<-ddply(ab,.(REGION,OBS_YEAR),summarize,nSite=length(unique(SITE)))
-oracle.site
-
-#Check this against site master list
-table(sm$REGION,sm$OBS)
-ab.site<-ddply(subset(cnet,OBS_YEAR=="2019"),.(REGION,OBS_YEAR),summarize,nSite=length(unique(SITE)));ab.site
-
-#identify which new sites are in the CoralNet data, but still need to be integrated into the SURVEY MASTER file
-miss.from.sm<-cnet[!(cnet$SITEVISITID %in% sm$SITEVISITID),]
-miss.from.smSITE<-ddply(miss.from.sm,.(SITEVISITID,REGION,ISLAND,SITE,REEF_ZONE,DEPTH_BIN,ROUNDID,MISSIONID,OBS_YEAR, DATE_,HABITAT_CODE,
-                                       LATITUDE,LONGITUDE,MIN_DEPTH,MAX_DEPTH),summarize,tmp=length(REPLICATE));miss.from.smSITE
-
-#write.csv(miss.from.smSITE,file="../fish-paste/data/121120_SitesmissingfromSM.csv") #export list and manually add to SM
-#write.csv(ab, file="tmp All BIA BOTH METHODS.csv")
-
-SURVEY_INFO<-c("OBS_YEAR", "REGION",  "ISLAND")
-survey_island<-Aggregate_InputTable(cnet, SURVEY_INFO)
-
-#There are some missing Tier3 information for pre 2013 data. If these data are missing then fill it with tier2 code
-ab$TIER_2<-ifelse(ab$TIER_2=="HAL","HALI",as.character(ab$TIER_2)) #change to match the Tier 3 halimeda code
-
-ab<-ab %>% dplyr::mutate(TIER_3=coalesce(TIER_3,TIER_2))
-ab<-ab %>% dplyr::mutate(GENERA_NAME=coalesce(GENERA_NAME,SUBCATEGORY_NAME))
-ab<-ab %>% dplyr::mutate(TIER_2b=coalesce(TIER_2b,TIER_2))
-ab<-ab %>% dplyr::mutate(T2b_DESC=coalesce(T2b_DESC,SUBCATEGORY_NAME))
-
-head(ab)
-
-# Reclassify EMA and Halimeda --------------------------------------------
-
-#CREATING CLASS EMA "Encrusting Macroalgae
-levels(ab$TIER_1)<-c(levels(ab$TIER_1), "EMA")
-levels(ab$CATEGORY_NAME)<-c(levels(ab$CATEGORY_NAME), "Encrusting macroalga")
-ab[ab$GENERA_NAME %in% c("Lobophora sp","Peyssonnelia sp", "Encrusting macroalga"),]$TIER_1<-"EMA"
-ab[ab$GENERA_NAME %in% c("Lobophora sp","Peyssonnelia sp", "Encrusting macroalga"),]$TIER_2<-"EMA"
-ab[ab$GENERA_NAME %in% c("Lobophora sp","Peyssonnelia sp", "Encrusting macroalga"),]$SUBCATEGORY_NAME<-"Encrusting macroalga"
-ab[ab$GENERA_NAME %in% c("Lobophora sp","Peyssonnelia sp", "Encrusting macroalga"),]$CATEGORY_NAME<-"Encrusting macroalga"
-
-###Create a Halimeda class
-ab$TIER_3<-ifelse(ab$TIER_3=="HALI","HALI",as.character(ab$TIER_3))
-ab$TIER_1<-ifelse(ab$TIER_3=="HALI","HALI",as.character(ab$TIER_1))
-ab$CATEGORY_NAME<-ifelse(ab$TIER_3=="HALI","Halimeda sp",as.character(ab$CATEGORY_NAME))
-hal<-subset(ab,TIER_1=="HALI")
-head(hal)
-
-#save(ab, file="T:/Benthic/Data/REA Coral Demography & Cover/Analysis Ready Raw data/BIA_2010-2020_CLEANED.RData")
-
-test<-ddply(ab,.(REGION,OBS_YEAR),summarize,nSite=length(unique(SITE)))
-test
+ab24_name=load("T:/Benthic/Data/REA Coral Demography & Cover/Analysis Ready Raw data/BIA_2010-2024_CLEANED.RData")
+ab=eval(parse(text=ab24_name));rm(list=ab24_name)
 
 #### WORKING WITH CLEAN DATA FILE AT THIS POINT  
 ab<-droplevels(ab)
@@ -195,37 +66,30 @@ ab$GENERA_NAME<-ifelse(ab$REGION %in% c("MHI","NWHI") & !(ab$TIER_3 %in% hawaiic
 
 
 # Generate Site-level Data at TIER 1 level--------------
-
-photo<-dcast(ab, formula=METHOD + OBS_YEAR + SITEVISITID + SITE  ~ TIER_1, value.var="POINTS", sum, fill=0)
+#photo_dcast<-reshape2::dcast(ab, formula=METHOD + OBS_YEAR + SITEVISITID + SITE  ~ TIER_1, value.var="POINTS", sum, fill=0)
+photo = ab %>% pivot_wider(id_cols = c(METHOD,OBS_YEAR,SITEVISITID,SITE),
+                           names_from=TIER_1,values_from = POINTS,values_fill = 0,values_fn = sum)
 head(photo)
 
-r_levels<-c(unique(as.character(ab$TIER_1)))
-photo$N<-rowSums(photo[,r_levels])
-
+#Add N points
+Tier1_Levels<-c((unique(as.character(ab$TIER_1))))
+photo$N<-rowSums(photo[,Tier1_Levels])
 #Subtract mobile inverts and tape wand shallow and unclassified
 photo$new.N<-photo$N-(photo$MF+photo$UC+photo$TW)
-
 #Add CCA + Coral
 photo$CCA_CORAL<-photo$CCA + photo$CORAL
-
 #Add Reef Builder Ratio: BSR (Benthic Substrate Ratio)
-photo$BSR<-(photo$CCA + photo$CORAL)/(photo$TURF+ photo$MA)
-
+photo$BSR<-(photo$CCA + photo$CORAL)/(photo$TURF+ photo$MA) #This is bad. Should be calculated
 #Change Inf to NA
 photo<-photo%>% mutate_if(is.numeric, ~ifelse(abs(.) == Inf,NA,.))
-
-r_levels<-c(unique(as.character(ab$TIER_1)),"CCA_CORAL","BSR")
-data.cols<-c(r_levels)
-data.cols
-
+#Regenerate Tier1 Levels
+data.cols<-c(unique(as.character(ab$TIER_1)),"CCA_CORAL")#leave BSR out of division by N 
 #Calculate proportion
 photo[,data.cols]<-(photo[,data.cols]/photo$new.N)*100
 head(photo)
 
-r_levels<-c(unique(as.character(ab$TIER_1)))
-T1data.cols<-c(r_levels)
+T1data.cols<-c(unique(as.character(ab$TIER_1)))
 T1data.cols<-T1data.cols[!T1data.cols %in% c("TW","UC","MF")]
-
 
 wsd<-merge(sites, photo, by=c("METHOD", "OBS_YEAR", "SITE"), all.y=T)
 
