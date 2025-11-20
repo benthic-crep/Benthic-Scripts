@@ -6,11 +6,14 @@
 #in v3, we've made several updates to the pooling scheme and added in the 2022 data. 
 #Note- CRED/CREP/ESD made the switch from CPC to CoralNet in 2015, but some of the legacy 2012 imagery was analyzed in CoralNet
 
+#Clear out memory and packages
 rm(list=ls())
-pkgs <- names(sessionInfo()$otherPkgs)
-for (package in pkgs) {
-  detach(paste0("package:", package), unload = TRUE, character.only = TRUE)
+if(!is.null(names(sessionInfo()$otherPkgs))){
+  invisible(lapply(paste0('package:', names(sessionInfo()$otherPkgs)), detach, character.only=TRUE, unload=TRUE))
 }
+#Set WRITE Booleans
+WRITE=TRUE
+WRITE_EVEN_RIDICULOUS_STUFF=FALSE
 
 library(gdata)             # needed for drop_levels()
 library(reshape)           # reshape library inclues the cast() function used below
@@ -19,12 +22,12 @@ library(RODBC)            # to connect to oracle
 #LOAD LIBRARY FUNCTIONS ... 
 library(lubridate)
 source("./Functions/Benthic_Functions_newApp_vTAOfork.R")
+source("./Functions/Core_Benthic_Aggregation_Functions_2025.R")
 source("../fish-paste/lib/core_functions.R")
 source("../fish-paste/lib/fish_team_functions.R")
 source("../fish-paste/lib/Islandwide Mean&Variance Functions.R")
+library(dplyr)#to avert plyr/dplyr issues
 
-#Bool flags
-WRITE=TRUE
 
 ab24_name=load("T:/Benthic/Data/REA Coral Demography & Cover/Analysis Ready Raw data/BIA_2010-2024_CLEANED.RData")
 ab=eval(parse(text=ab24_name));rm(list=ab24_name)
@@ -58,7 +61,7 @@ photo$CCA_CORAL<-photo$CCA + photo$CORAL
 photo$BSR<-(photo$CCA + photo$CORAL)/(photo$TURF+ photo$MA)
 
 #Change Inf to NA
-photo<-photo%>% mutate_if(is.numeric, ~ifelse(abs(.) == Inf,NA,.))
+photo<-photo%>% mutate_if(is.numeric, ~ifelse(abs(.) == Inf,NA,.)) #change to "across"
 
 # This double-round of r_levels is curious...
 r_levels<-c(unique(as.character(ab$TIER_1)),"CCA_CORAL")#leave BSR out of the proportion calc
@@ -163,7 +166,7 @@ photo$N<-rowSums(photo[,r_levels])
 photo$new.N<-photo$N-(photo$WAND+photo$UNK+photo$TAPE+photo$MOBF+photo$SHAD)
 
 #Change Inf to NA
-photo<-photo%>% mutate_if(is.numeric, ~ifelse(abs(.) == Inf,NA,.))
+photo<-photo%>% mutate_if(is.numeric, ~ifelse(abs(.) == Inf,NA,.)) #change to "across"
 
 r_levels<-c(unique(as.character(ab$TIER_2b)))
 data.cols<-c(r_levels)
@@ -255,7 +258,7 @@ photo$N<-rowSums(photo[,r_levels])
 photo$new.N<-photo$N-(photo$WAND+photo$UNK+photo$TAPE+photo$MOBF+photo$SHAD)
 
 #Change Inf to NA
-photo<-photo%>% mutate_if(is.numeric, ~ifelse(abs(.) == Inf,NA,.))
+photo<-photo%>% mutate_if(is.numeric, ~ifelse(abs(.) == Inf,NA,.)) #change to "across"
 
 r_levels<-c(unique(as.character(ab$TIER_3)))
 data.cols<-c(r_levels)
@@ -609,9 +612,14 @@ for (TIER in 1:3){#TIER=1#2#2#
   dpsecC<-left_join(dpsecC$Mean,dpsecC$PooledSE)
   dpsecC<-left_join(dpsecC,ri)
   
-  dpsecT<-Calc_Pooled_Simple(dpsTrend$Mean, dpsTrend$SampleVar, data.cols, OUTPUT_LEVEL, "AREA_HA_correct")
-  dpsecT_2025<-Calc_Pooled_Simple_2025(dpsTrend$Mean, dpsTrend$SampleVar, data.cols, OUTPUT_LEVEL, "AREA_HA_correct")
-  dpsecT$Mean==dpsecT_2025$Mean
+  dpsecT<-Calc_Pooled_Simple(means_data = dpsTrend$Mean,
+                             var_data = dpsTrend$SampleVar,
+                             data_cols = data.cols,
+                             output_level = OUTPUT_LEVEL,
+                             weighting_field =  "AREA_HA_correct")
+#TAO:2025/11/20:aside from moving away from aggregate, CalcPooledSimple vs CalcPooledSimple2025 show little difference in performance. Keeping Calc_PooledSimple
+#  dpsecT_2025<-Calc_Pooled_Simple_2025(dpsTrend$Mean, dpsTrend$SampleVar, data.cols, OUTPUT_LEVEL, "AREA_HA_correct") %>% arrange(OUTPUT_LEVEL)
+#  dpsecT$Mean==dpsecT_2025$Mean
   colnames(dpsecT$Mean)[6:ncol(dpsecT$Mean)] <- paste("Mean.", colnames(dpsecT$Mean[,6:ncol(dpsecT$Mean)]), sep = "")
   colnames(dpsecT$PooledSE)[6:ncol(dpsecT$PooledSE)] <- paste("SE.", colnames(dpsecT$PooledSE[,6:ncol(dpsecT$PooledSE)]), sep = "")
   dpsecT<-left_join(dpsecT$Mean,dpsecT$PooledSE)
@@ -697,3 +705,4 @@ for (TIER in 1:3){#TIER=1#2#2#
   print(paste0("###################################"))
   
 }
+

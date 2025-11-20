@@ -15,7 +15,7 @@ for (package in pkgs) {
 library(lubridate)
 source("./Functions/Benthic_Functions_newApp_vTAOfork.R")
 source("../fish-paste/lib/core_functions.R")
-
+library(dplyr)#to avert plyr/dplyr issues
 
 ### (1) Cleans the most recent year's benthic cover data (e.g. 2024)
 
