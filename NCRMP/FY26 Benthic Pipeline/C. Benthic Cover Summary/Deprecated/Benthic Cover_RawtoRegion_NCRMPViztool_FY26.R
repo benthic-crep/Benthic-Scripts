@@ -1,22 +1,20 @@
-#This script generates data for the NCRMP Viztool and is set to be the cannonical roll up script 
-#For Benthic Cover starting in FY26
-#It's a modification from Benthic_Cover_RawtoEstimates_v2
+#This Script Accesses all NCRMP Data from 2010-2024
+#And generates pooled estimates across Geographic and Taxonomic Tiers
+#Prepping for VizTool and Archival Formatting and Submission
+
+#It's a modification from Benthic_Cover_RawtoEstimates_v2 (checked against v3)
+
 #This script reads in the raw point level data and generates site, strata, sector, island and regional roll ups at the Tier 1 and Tier 2b (genus) level
 #Updates: 
 #1. No longer combining all backreef depths and Lagoon depths into "Backreef_All" and "Lagoon_All"
 #2. Adding script to calculate regional estimates of cover
 
-
-
+#Clear Data and Packages
 rm(list=ls())
-
-#setwd("C:/Users/Courtney.S.Couch/Documents/Courtney's Files/R Files/ESD/BIA")
-#setwd("T:/Benthic/Data/REA Coral Demography & Cover/Raw from Oracle/")
-
-# 
-# library(gdata)             # needed for drop_levels()
-# library(reshape)           # reshape library inclues the cast() function used below
-# library(RODBC)            # to connect to oracle
+pkgs <- names(sessionInfo()$otherPkgs)
+for (package in pkgs) {
+  detach(paste0("package:", package), unload = TRUE, character.only = TRUE)
+}
 
 #LOAD LIBRARY FUNCTIONS ... 
 library(lubridate)
@@ -25,103 +23,124 @@ source("../fish-paste/lib/core_functions.R")
 source("../fish-paste/lib/fish_team_functions.R")
 source("../fish-paste/lib/Islandwide Mean&Variance Functions.R")
 
-#Climate data - this is from CPCE
-load("T:/Benthic/Data/REA Coral Demography & Cover/Raw from Oracle/ALL_BIA_CLIMATE_PERM.rdata")   #bia
-
-cli$SITE<-SiteNumLeadingZeros(cli$SITE)
-
-#BIA data - this is from CPCE
-load("T:/Benthic/Data/REA Coral Demography & Cover/Raw from Oracle/ALL_BIA_STR_RAW_NEW.rdata")   #bia
-
-bia$SITE<-SiteNumLeadingZeros(bia$SITE)
-
-#CNET data - from CoralNet
-#These data contain human annotated data. There may be a small subset of robot annotated data. 
-#The robot annoations are included because the confidence threshold in CoralNet was set to 75-90% allowing the robot to annotate points when it was 90% certain.
-#2019 NWHI data not in these view because it was analyzed as part of a bleaching dataset
-load("T:/Benthic/Data/REA Coral Demography & Cover/Raw from Oracle/ALL_BIA_STR_CNET.rdata") #load data
-
-cnet$SITE<-SiteNumLeadingZeros(cnet$SITE)
-table(cnet$ISLAND,cnet$OBS_YEAR)
+#Load Random Benthic Cover Data from "Access Raw Cover and REA Data From Oracle.r" 
+CRE=load("T:/Benthic/Data/REA Coral Demography & Cover/Raw from Oracle/FY26/Raw_COV_RANDOM_CPCE_2010-2014.rdata")
+CFE=load("T:/Benthic/Data/REA Coral Demography & Cover/Raw from Oracle/FY26/Raw_COV_FIXED_CPCE_2010-2014.rdata")
+CRC=load("T:/Benthic/Data/REA Coral Demography & Cover/Raw from Oracle/FY26/Raw_COV_RANDOM_CNET_2010-2024.rdata")
+CFC=load("T:/Benthic/Data/REA Coral Demography & Cover/Raw from Oracle/FY26/Raw_COV_FIXED_CNET_2010-2024.rdata")
+COV_FE=COV_FIX_CPCE_2010_2024
+COV_RE=COV_RAN_CPCE_2010_2024
+COV_FC=COV_FIX_2010_2024
+COV_RC=COV_RAN_2010_2024
 
 
-##Generate Table of all the bia categories to review
-head(bia)
-bia_tab<-ddply(bia,.(TIER_1, CATEGORY_NAME, TIER_2, SUBCATEGORY_NAME, TIER_3, GENERA_NAME),summarize,count=sum(POINTS))
-#write.csv(bia_tab, file="BIA categories.csv")
-table(bia$TIER_1)
-table(bia$TIER_2)
+#Random Site Cover Data
+COV_RE$SITE<-SiteNumLeadingZeros(as.factor(COV_RE$SITE))
+COV_RE$METHOD="CPCE";COV_RE$FIXED_OR_RANDOM="RANDOM";COV_RE$POINTS=1
+COV_RE$OBS_YEAR=as.numeric(COV_RE$OBS_YEAR);COV_RE$DATE_=ymd_hms(COV_RE$DATE_);
+COV_RE$OBS_MONTH=month(COV_RE$DATE_);COV_RE$OBS_DAY=day(COV_RE$DATE_);
 
-##Generate Table of all the bia categories to review
-head(cnet)
-cnet_tab<-ddply(cnet,.(CATEGORY_CODE,CATEGORY_NAME,SUBCATEGORY_CODE,SUBCATEGORY_NAME,GENERA_CODE,GENERA_NAME,FUNCTIONAL_GROUP),summarize,count=length(ROUNDID))
-#write.csv(cnet_tab, file="CNET categories.csv")
+COV_RC$SITE<-SiteNumLeadingZeros(as.factor(COV_RC$SITE))
+COV_RC$METHOD="CNET";COV_RC$FIXED_OR_RANDOM="RANDOM";COV_RC$POINTS=1
+COV_RC$OBS_YEAR=as.numeric(COV_RC$OBS_YEAR);COV_RC$DATE_=ymd_hms(COV_RC$DATE_);
 
-sm<-read.csv("../fish-paste/data/SURVEY MASTER.csv")
-sm$SITE=factor(sm$SITE)#make it a factor
-sm$SITE<-SiteNumLeadingZeros(sm$SITE)
+#Fixed Site Cover Data
+COV_FE$SITE<-SiteNumLeadingZeros(as.factor(COV_FE$SITE))
+COV_FE$METHOD="CPCE";COV_FE$FIXED_OR_RANDOM="FIXED";COV_FE$POINTS=1
+COV_FE$OBS_YEAR=as.numeric(COV_FE$OBS_YEAR);COV_FE$DATE_=ymd_hms(COV_FE$DATE_);
+COV_FE$OBS_MONTH=month(COV_FE$DATE_);COV_FE$OBS_DAY=day(COV_FE$DATE_);
 
-test<-subset(sm,OBS_YEAR=="2019",TRANSECT_PHOTOS=="-1");nrow(test)
-
-# Merge together all Photoquad Datasets & make sure columns match ---------------------------------------
-bia$METHOD<-"CPCE"
-cli$METHOD<-"CPCE"
-#bia$FUNCTIONAL_GROUP<-"BIA"    #ACTUALLY FUNCTIONAL_GROUP SEEMS A BIT MIXED UP ... FROM QUICK LOOK AT CNET FILE, IT CAN TAKE DIFFERENT VALUES FOR SAME CODES (eg ALGAE or Hare Substrate) - SO GOING TO IGNORE IT!
-
-cnet$POINTS<-1
-cnet$METHOD<-"CNET"
-cnet$REP<-cnet$REPLICATE
-cnet$IMAGE_NAME<-cnet$ORIGINAL_FILE_NAME
-cnet$PHOTOID<-cnet$IMAGE_NUMBER
-cnet$TIER_1<-cnet$CATEGORY_CODE
-cnet$TIER_2<-cnet$SUBCATEGORY_CODE
-cnet$TIER_3<-cnet$GENERA_CODE
+COV_FC$SITE<-SiteNumLeadingZeros(as.factor(COV_FC$SITE))
+COV_FC$METHOD="CNET";COV_FC$FIXED_OR_RANDOM="FIXED";COV_FC$POINTS=1
+COV_FC$OBS_YEAR=as.numeric(COV_FC$OBS_YEAR);COV_FC$DATE_=ymd_hms(COV_FC$DATE_);
 
 
-#Combine cpc and coralnet
-FIELDS_TO_RETAIN<-c("MISSIONID","METHOD", "REGION", "OBS_YEAR","ISLAND", "SITEVISITID","SITE", "LATITUDE", "LONGITUDE", "REEF_ZONE", "DEPTH_BIN", "PERM_SITE", "CLIMATE_STATION_YN", "MIN_DEPTH", "MAX_DEPTH", "HABITAT_CODE", "REP", "IMAGE_NAME", "PHOTOID", "ANALYST", "TIER_1", "CATEGORY_NAME", "TIER_2", "SUBCATEGORY_NAME", "TIER_3", "GENERA_NAME", "POINTS")
-x<-bia[,FIELDS_TO_RETAIN]; head(x)
-y<-cnet[,FIELDS_TO_RETAIN]; head(y)
-z<-cli[,FIELDS_TO_RETAIN]; head(z)
+#Making Assumption Here that TIER_1 = CATEGORY_CODE,TIER_2 = SUBCATEGORY_CODE,TIER_3 = GENERA_CODE,
+COV_RE=COV_RE %>% dplyr::rename(ROW_ = X_POS,COL = Y_POS)
+COV_RC=COV_RC %>% dplyr::rename(TIER_1 = CATEGORY_CODE,TIER_2 = SUBCATEGORY_CODE,TIER_3 = GENERA_CODE,
+                                IMAGE_NAME=ORIGINAL_FILE_NAME,REP=REPLICATE,PHOTOID=IMAGE_NUMBER)
+COV_FE=COV_FE %>% dplyr::rename(ROW_ = X_POS,COL = Y_POS)
+COV_FC=COV_FC %>% dplyr::rename(TIER_1 = CATEGORY_CODE,TIER_2 = SUBCATEGORY_CODE,TIER_3 = GENERA_CODE,
+                                IMAGE_NAME=ORIGINAL_FILE_NAME,REP=REPLICATE,PHOTOID=IMAGE_NUMBER)
 
-ab<-rbind(x,y,z)
+#Load Survey Master and Assign SiteVisitID to the CPCE data, clean up dates
+sm<-read.csv("./NCRMP/FY26 Benthic Pipeline/A. Survey Master Prep/SURVEY_MASTER_2024_benthic.csv")
+sm$SITE<-SiteNumLeadingZeros(as.factor(sm$SITE))
+sm$DATE_RAW=sm$DATE_
+sm$DATE_=mdy(sm$DATE_)
+sm$DATE_[which(is.na(sm$DATE_))]=mdy_hms(sm$DATE_RAW[which(is.na(sm$DATE_))])
+sm$DATE_[which(is.na(sm$DATE_))]=ymd_hms(sm$DATE_RAW[which(is.na(sm$DATE_))])
+length(which(is.na(sm$DATE_)))
 
+#Add SVID to CPCE Data
+smcols=c("SITE","DATE_","SITEVISITID","OCC_SITEID")
+COV_FE=COV_FE %>%
+  dplyr::left_join(sm[sm$TRANSECT_PHOTOS==-1,smcols],by=c("SITE","DATE_"))
+COV_RE=COV_RE %>%
+  dplyr::left_join(sm[sm$TRANSECT_PHOTOS==-1,smcols],by=c("SITE","DATE_"))
+
+setdiff(names(COV_FC),names(COV_FE))
+setdiff(names(COV_FE),names(COV_FC))
+
+#Combine cpce and coralnet, fixed and random
+FIELDS_TO_RETAIN<-c("MISSIONID","METHOD", "FIXED_OR_RANDOM","REGION", "OBS_YEAR","ISLAND",
+                    "SITEVISITID","SITE", "LATITUDE", "LONGITUDE", "REEF_ZONE", "DEPTH_BIN",
+                    "PERM_SITE", "CLIMATE_STATION_YN", "MIN_DEPTH", "MAX_DEPTH",
+                    "HABITAT_CODE","REP", "IMAGE_NAME", "PHOTOID", "ANALYST",
+                    "TIER_1", "CATEGORY_NAME", "TIER_2", "SUBCATEGORY_NAME", "TIER_3", "GENERA_NAME", "POINTS")
+setdiff(FIELDS_TO_RETAIN,names(COV_FC))
+w<-COV_FE[,FIELDS_TO_RETAIN]; head(w)
+x<-COV_RE[,FIELDS_TO_RETAIN]; head(x)
+y<-COV_FC[,FIELDS_TO_RETAIN]; head(y)
+z<-COV_RC[,FIELDS_TO_RETAIN]; head(z)
+
+ab<-rbind(w,x,y,z)
+#################################### Unified Cover Data Set - ab
+
+#################################### Add Tier 2b
 #Add Tier 2b (genus for corals, order for macroalgae)
 codes_lu<-read.csv("T:/Benthic/Data/Lookup Tables/All_Photoquad_codes.csv")
 codes_lu<-codes_lu[,c("T2b_DESC","TIER_2b","CODE")];colnames(codes_lu)[which(names(codes_lu) =="CODE")]<-"TIER_3"
-ab<-left_join(ab,codes_lu)
+ab<-left_join(ab,codes_lu,by="TIER_3")
 
+#################################### Add Tier 2b
 #Flag sites that have more than 33 and less than 15 images
 #With the exception of OCC 2012 sites, there should be 30 images/site/10 points/image
-test<-ddply(ab,.(OBS_YEAR,SITEVISITID,SITE),summarize,count=sum(POINTS))
-test2<-test[test$count<150 |test$count>330,]
-#View(test2)
 #Ignore 2012 OCC sites. They analyzed 50 points per images 
+PointCount=ab %>% group_by(OBS_YEAR,SITEVISITID,SITE) %>% summarize(count=sum(POINTS))
+PointCountDrop=PointCount %>% filter(count<150) %>% filter(OBS_YEAR!=2012) #|count>330 keep abnormally high sites
 
-#Remove sites with less than 150 points -These really should be removed from Oracle eventually
-test3<-test[test$count<150,];test3
-ab<-ab[!(ab$SITE %in% test3$SITE),];head(ab)
+#Remove "Drop" sites from ab
+#ab<-ab[!(ab$SITE %in% test3$SITE),];head(ab)
+dim(ab)
+ab=ab %>% filter(!(SITE %in% PointCountDrop$SITE))
 subset(ab,SITE %in% c("TUT-00210","TUT-00275","OAH-00558")) #double check that sites were dropped properly
+dim(ab)
 
 #Generate a table of # of sites/region and year from original datasets before data cleaning takes place
 #use this later in the script to make sure sites haven't been dropped after data clean up.
-oracle.site<-ddply(ab,.(REGION,OBS_YEAR),summarize,nSite=length(unique(SITE)))
+#oracle.site<-ddply(ab,.(REGION,OBS_YEAR),summarize,nSite=length(unique(SITE)))
+oracle.site=ab %>% group_by(REGION,OBS_YEAR) %>% summarize(nSite=length(unique(SITE)))
 oracle.site
 
 #Check this against site master list
-table(sm$REGION,sm$OBS)
-ab.site<-ddply(subset(cnet,OBS_YEAR=="2019"),.(REGION,OBS_YEAR),summarize,nSite=length(unique(SITE)));ab.site
+table(sm$REGION,sm$OBS_YEAR)
+sm %>% group_by(REGION,OBS_YEAR) %>% summarize(nSite=length(unique(SITE))) %>%
+  pivot_wider(names_from=OBS_YEAR,values_from = nSite)
+#ab.site<-ddply(subset(cnet,OBS_YEAR=="2019"),.(REGION,OBS_YEAR),summarize,nSite=length(unique(SITE)));ab.site
+ab.site=ab %>% filter(OBS_YEAR=="2019") %>% group_by(REGION,OBS_YEAR) %>% summarize(nSite=length(unique(SITE)))
+ab.site
 
 #identify which new sites are in the CoralNet data, but still need to be integrated into the SURVEY MASTER file
-miss.from.sm<-cnet[!(cnet$SITEVISITID %in% sm$SITEVISITID),]
-miss.from.smSITE<-ddply(miss.from.sm,.(SITEVISITID,REGION,ISLAND,SITE,REEF_ZONE,DEPTH_BIN,ROUNDID,MISSIONID,OBS_YEAR, DATE_,HABITAT_CODE,
-                                       LATITUDE,LONGITUDE,MIN_DEPTH,MAX_DEPTH),summarize,tmp=length(REPLICATE));miss.from.smSITE
+miss.from.sm<-COV_RC[!(COV_RC$SITEVISITID %in% sm$SITEVISITID),]
+# miss.from.smSITE<-ddply(miss.from.sm,.(SITEVISITID,REGION,ISLAND,SITE,REEF_ZONE,DEPTH_BIN,ROUNDID,MISSIONID,OBS_YEAR, DATE_,HABITAT_CODE,
+#                                        LATITUDE,LONGITUDE,MIN_DEPTH,MAX_DEPTH),summarize,tmp=length(REPLICATE));miss.from.smSITE
 
 #write.csv(miss.from.smSITE,file="../fish-paste/data/121120_SitesmissingfromSM.csv") #export list and manually add to SM
 #write.csv(ab, file="tmp All BIA BOTH METHODS.csv")
 
 SURVEY_INFO<-c("OBS_YEAR", "REGION",  "ISLAND")
-survey_island<-Aggregate_InputTable(cnet, SURVEY_INFO)
+survey_island<-Aggregate_InputTable(ab, SURVEY_INFO)
 
 #There are some missing Tier3 information for pre 2013 data. If these data are missing then fill it with tier2 code
 ab$TIER_2<-ifelse(ab$TIER_2=="HAL","HALI",as.character(ab$TIER_2)) #change to match the Tier 3 halimeda code
@@ -150,7 +169,7 @@ ab$CATEGORY_NAME<-ifelse(ab$TIER_3=="HALI","Halimeda sp",as.character(ab$CATEGOR
 hal<-subset(ab,TIER_1=="HALI")
 head(hal)
 
-#save(ab, file="T:/Benthic/Data/REA Coral Demography & Cover/Analysis Ready Raw data/BIA_2010-2020_CLEANED.RData")
+#save(ab, file="T:/Benthic/Data/REA Coral Demography & Cover/Analysis Ready Raw data/BIA_2010-2024_CLEANED.RData")
 
 test<-ddply(ab,.(REGION,OBS_YEAR),summarize,nSite=length(unique(SITE)))
 test
