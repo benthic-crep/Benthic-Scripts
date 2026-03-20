@@ -13,8 +13,8 @@ source("C:/Users/Jonathan.Charendoff/Documents/GitHub/fish-paste/lib/GIS_functio
 source("C:/Users/jonathan.charendoff/Downloads/core_functions.R")
 
 #Read in files
-ad_sfm<-read.csv("T:/Benthic/Data/SfM/Calibration QC/MARAMP22_SfMAdult_CLEANED.csv")
-j_sfm<-read.csv("T:/Benthic/Data/SfM/Calibration QC/MARAMP22_SfMJuv_CLEANED.csv") 
+ad_sfm<-read.csv("T:/Benthic/Data/SfM/Calibration QC/2025/MARAMP25_SfMAdult_CLEANED.csv")
+j_sfm<-read.csv("T:/Benthic/Data/SfM/Calibration QC/2025/MARAMP25_SfMJuv_CLEANED.csv") 
 
 
 #Check number of unique site-segments
@@ -23,9 +23,7 @@ t2<-ddply(j_sfm,.(SITE,SEGMENT),summarize,n=length(unique(ANALYST)))
 t1
 t2
 
-#We are missing some annotator data from seg HAW-4294 5 and 10, remove these for now.
-#ad_sfm<-subset(ad_sfm,SITE != c("HAW-04294"))
-#j_sfm<-subset(j_sfm,SITE != "HAW-04294")
+
 
 
 ###FOR CALIBRATION: Use this script to assign transect
@@ -33,13 +31,9 @@ t2
 ad_sfm<-ad_sfm %>% mutate(TRANSECT=recode(ANALYST,
                                         `JC`="1",
                                         `MSL`="2",
-<<<<<<< HEAD
                                         `CA`="3",
-                                        'IGB' = "4",
-=======
-                                        `NBO`="3",
->>>>>>> parent of 4050125 (updates for maramp)
-                                        `NA`="NA"))
+                                        `RML` = "4",
+                                        `SJD`="5"))
 #Check that segments were changed correctly
 ad_sfm<-droplevels(ad_sfm)
 table(ad_sfm$SITE,ad_sfm$TRANSECT)
@@ -48,13 +42,9 @@ table(ad_sfm$SITE,ad_sfm$TRANSECT)
 j_sfm<-j_sfm %>% mutate(TRANSECT=recode(ANALYST,
                                         `JC`="1",
                                         `MSL`="2",
-<<<<<<< HEAD
                                         `CA`="3",
-                                        'IGB' = "4",
-=======
-                                        `NBO`="3",
->>>>>>> parent of 4050125 (updates for maramp)
-                                        `NA`="NA"))
+                                        `RML` = "4",
+                                        `SJD`="5"))
 #Check that segments were changed correctly
 j_sfm<-droplevels(j_sfm)
 table(j_sfm$SITE,j_sfm$TRANSECT)
@@ -63,14 +53,14 @@ table(j_sfm$SITE,j_sfm$TRANSECT)
 
 
 ##Calcuate segment and transect area and add column for transect area
-ad_sfm$MISSIONID<-"RA2201"
-j_sfm$MISSIONID<-"RA2201"
+ad_sfm$MISSIONID<-"SE2503"
+j_sfm$MISSIONID<-"SE2503"
 
-ad_sfm$TRANSECTAREA<-Transectarea(ad_sfm) #check if needed
-j_sfm$TRANSECTAREA<-Transectarea(j_sfm) #check if needed
+ad_sfm$TRANSECTAREA<-ad_sfm$SEGAREA #check if needed
+j_sfm$TRANSECTAREA<-j_sfm$SEGAREA #check if needed
 
-colnames(ad_sfm)[colnames(ad_sfm)=="FRAGMENT"]<-"Fragment"
-colnames(j_sfm)[colnames(j_sfm)=="FRAGMENT"]<-"Fragment"
+ad_sfm$Fragment <- 0
+j_sfm$Fragment <- 0
 
 #Check if any site-segments have been dropped 
 t1<-ddply(ad_sfm,.(SITE,SEGMENT),summarize,n=length(unique(ANALYST)));nrow(t1[t1$n>1,])
@@ -78,16 +68,16 @@ t2<-ddply(j_sfm,.(SITE,SEGMENT),summarize,n=length(unique(ANALYST)));nrow(t1[t1$
 
 ########################### 8/25/22
 #Create a look up table of all of the colony attributes- you will need this for the functions below
-SURVEY_COL<-c("METHOD","SITEVISITID", "OBS_YEAR", "REGION", "ISLAND","SEC_NAME", "SITE", "REEF_ZONE",
-              "DEPTH_BIN", "LATITUDE", "LONGITUDE","MIN_DEPTH_M","MAX_DEPTH_M","TRANSECT","SEGMENT","COLONYID","GENUS_CODE","TAXONCODE","SPCODE","COLONYLENGTH")
+SURVEY_COL<-c("SITEVISITID", "OBS_YEAR", "REGION", "ISLAND","SEC_NAME", "SITE", "REEF_ZONE",
+              "DEPTH_BIN", "LATITUDE", "LONGITUDE","new_MIN_DEPTH_M","new_MAX_DEPTH_M","SEGMENT","COLONYID","GENUS_CODE","TAXONCODE","SPCODE","COLONYLENGTH")
 survey_colony<-unique(ad_sfm[,SURVEY_COL])
 
-SURVEY_SITE<-c("METHOD","SITEVISITID", "OBS_YEAR", "REGION", "ISLAND","SEC_NAME", "SITE", "REEF_ZONE",
-               "DEPTH_BIN", "LATITUDE", "LONGITUDE","MIN_DEPTH_M","MAX_DEPTH_M")
+SURVEY_SITE<-c("SITEVISITID", "OBS_YEAR", "REGION", "ISLAND","SEC_NAME", "SITE", "REEF_ZONE",
+               "DEPTH_BIN", "LATITUDE", "LONGITUDE","new_MIN_DEPTH_M","new_MAX_DEPTH_M")
 survey_site<-unique(ad_sfm[,SURVEY_SITE])
 
-SURVEY_Seg<-c("METHOD","SITEVISITID", "OBS_YEAR", "REGION", "ISLAND","SEC_NAME", "SITE", "REEF_ZONE",
-              "DEPTH_BIN","HABITAT_CODE", "LATITUDE", "LONGITUDE","MIN_DEPTH_M","MAX_DEPTH_M","METHOD","TRANSECT","SEGMENT")
+SURVEY_Seg<-c("SITEVISITID", "OBS_YEAR", "REGION", "ISLAND","SEC_NAME", "SITE", "REEF_ZONE",
+              "DEPTH_BIN","HABITAT_CODE", "LATITUDE", "LONGITUDE","new_MIN_DEPTH_M","new_MAX_DEPTH_M","SEGMENT")
 survey_segment<-unique(ad_sfm[,SURVEY_Seg])
 
 #Combine juvenile and adult data
@@ -100,8 +90,6 @@ aj_sfm$SS <- paste0(aj_sfm$SITE,"_",aj_sfm$SEGMENT)
 
 seglist <- as.data.frame.matrix(table(aj_sfm$SS, aj_sfm$MethodRep));dim(seglist)
 seglist$SS <-rownames(seglist)
-seglist<-seglist %>% filter(seglist$DIVER_1!=0);dim(seglist)
-seglist<-seglist %>% filter(seglist$DIVER_2!=0);dim(seglist)
 seglist<-seglist %>% filter(seglist$SfM_1!=0);dim(seglist)
 seglist<-seglist %>% filter(seglist$SfM_2!=0);dim(seglist)
 #Once filtering is completed, nrow should = 43 (FOR COMPARISON)
@@ -120,9 +108,8 @@ write.csv(seglist,file="T:/Benthic/Data/SfM/Calibration QC/Comparison_seglist.cs
 
 
 # GENERATE SUMMARY METRICS at the Segment-leveL BY GENUS--------------------------------------------------
-#REMOVE COLONIES THAT COULD'T BE FULLY ANNOTATED IN SFM
-ad_sfm<-subset(ad_sfm,EX_BOUND==0) #don't worry about for now
-
+ad_sfm$METHOD <- "SfM"
+j_sfm$METHOD <- "SfM"
 
 #Calc_ColDen_Transect
 acd.gen<-Calc_ColDen_Seg(data = ad_sfm,grouping_field = "GENUS_CODE");colnames(acd.gen)[colnames(acd.gen)=="ColCount"]<-"AdColCount";colnames(acd.gen)[colnames(acd.gen)=="ColDen"]<-"AdColDen";colnames(acd.gen)[colnames(acd.gen)=="SEGAREA"]<-"SEGAREA_ad"# calculate density at genus level as well as total
@@ -142,8 +129,8 @@ rd.gen<-Calc_ColMetric_Seg(data = ad_sfm,grouping_field = "GENUS_CODE",pool_fiel
 
 ##Create prevalence for all of the different conditions/DZs look at density for each dZ then create prevalence values for each disease and condition
 
-rdden.gen<-Calc_RDden_Seg(data=ad_sfm,grouping_field ="GENUS_CODE") # Density of recent dead colonies by condition, you will need to subset which ever condition you want. The codes ending in "S" are the general categories
-acutedz.gen<-subset(rdden.gen,select = c(METHOD,SITEVISITID,SITE,TRANSECT,SEGMENT,GENUS_CODE,DZGN_G));colnames(acutedz.gen)[colnames(acutedz.gen)=="DZGN_G"]<-"DZGN_G_den" #subset just acute diseased colonies
+rdden.gen<-Calc_RDden_Transect(data=ad_sfm,grouping_field ="GENUS_CODE") # Density of recent dead colonies by condition, you will need to subset which ever condition you want. The codes ending in "S" are the general categories
+acutedz.gen<-subset(rdden.gen,select = c(METHOD,SITEVISITID,SITE,TRANSECT,GENUS_CODE,DZGN_G));colnames(acutedz.gen)[colnames(acutedz.gen)=="DZGN_G"]<-"DZGN_G_den" #subset just acute diseased colonies
 
 
 #Calc_CONDden_Transect
@@ -156,8 +143,17 @@ chronicdz.gen<-subset(condden.gen,select = c(METHOD,SITEVISITID,SITE,TRANSECT,SE
 
 
 #Join density and partial moratlity data together.You will need to replace the DUMMY field with the one you want
-data.gen <- join_all(list(acd.gen,jcd.gen,cl.gen,od.gen,rd.gen,chronicdz.gen,ble.gen), 
-                by=c("METHOD","SITE","SITEVISITID","TRANSECT","SEGMENT","GENUS_CODE"), type='full')
+data.gen <- join_all(list(acd.gen,
+                          jcd.gen,
+                          cl.gen,
+                          od.gen,
+                          rd.gen,
+                          rdden.gen,
+                          acutedz.gen,
+                          condden.gen,
+                          chronicdz.gen,
+                          ble.gen), 
+                by=c("METHOD","SITE","SITEVISITID","TRANSECT","GENUS_CODE"), type='full')
 head(data.gen)
 
 
@@ -192,6 +188,6 @@ data.gen2<-left_join(data.gen,survey_segment)
 if(nrow(data.gen)!=nrow(data.gen2)) {cat("WARNING: Dfs didn't merge properly")}
 
 #Save file for segment calibration
-write.csv(data.gen,file="T:/Benthic/Data/SfM/Calibration QC/MARAMP_repeats_GENUS_Summarized Data-CALIBRATION.csv",row.names = F)
+write.csv(data.gen,file="T:/Benthic/Data/SfM/Calibration QC/2025/MARAMP25_GENUS_Summarized Data-CALIBRATION.csv",row.names = F)
 
 

@@ -1,6 +1,6 @@
 rm(list=ls())
 
-setwd("C:/Users/Courtney.S.Couch/Documents/GitHub/Benthic-Scripts/Photoquad Calibration")
+setwd("C:/Users/Jonathan.Charendoff/Documents/GitHub/Benthic-Scripts/Photoquad Calibration")
 
 library(gdata)             # needed for drop_levels()
 library(reshape)           # reshape library inclues the cast() function used below
@@ -10,14 +10,14 @@ library(dplyr)
 library(tidyr)
 
 #LOAD LIBRARY FUNCTIONS ... 
-source("C:/Users/Courtney.S.Couch/Documents/GitHub/Benthic-Scripts/Functions/Benthic_Functions_newApp_vTAOfork.R")
-source("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/lib/core_functions.R")
-source("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/lib/fish_team_functions.R")
-source("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/lib/Islandwide Mean&Variance Functions.R")
+source("C:/Users/Jonathan.Charendoff/Documents/GitHub/Benthic-Scripts/Functions/Benthic_Functions_newApp_vTAOfork.R")
+source("C:/Users/Jonathan.Charendoff/Documents/GitHub/fish-paste/lib/core_functions.R")
+source("C:/Users/Jonathan.Charendoff/Documents/GitHub/fish-paste/lib/fish_team_functions.R")
+source("C:/Users/Jonathan.Charendoff/Documents/GitHub/fish-paste/lib/Islandwide Mean&Variance Functions.R")
 
-cnet<-read.csv("OSBORNE_CalibrationTest.csv")
+cnet<-read.csv("./Data/MARAMP25_Calibration_Annotations.csv")
 lu<-read.csv("T:/Benthic/Data/Lookup Tables/All_Photoquad_codes.csv")
-cnet$SHORT_CODE<-cnet$Cnet_SHORT_CODE
+cnet$Cnet_SHORT_CODE<-cnet$Label.code
 
 
 # Clean-up ----------------------------------------------------------------
@@ -66,7 +66,7 @@ miss.annot<-subset(all.tab2,npoints<10);miss.annot #This dataframe should be emp
 UNIDENTIFIED_T1<-c("TW", "MF", "UC")
 UNIDENTIFIED_T2<-c("MOBF", "TAPE", "UNK", "WAND", "SHAD")
 
-length(unique(ab$SITE))
+length(unique(ab$Site))
 
 
 # GENERATE DATA AT ANNOTATOR LEVEL FOR TIER 1 CATEGORIES ------------------
@@ -98,15 +98,15 @@ photoT1[,data.colsT1]<-photoT1[,data.colsT1]/photoT1$new.N
 head(photoT1)
 
 
-#Substract mobile inverts and tape wand shallow and uclassified
-photoT3$new.N<-photoT3$N-(photoT3$WAND+photoT3$UNK+photoT3$SHAD)
+#Substract mobile inverts and tape wand shallow and uclassified MAY HAVE TO CHANGE THESE COLUMNS
+photoT3$new.N<-photoT3$N-(photoT3$UNK+photoT3$SHAD+photoT3$TAPE+photoT3$MOBF)
 
 #Calculate proportion
 photoT3[,data.colsT3]<-photoT3[,data.colsT3]/photoT3$new.N
-photoT3<-subset(photoT3,select = -c(WAND,UNK,SHAD,N,new.N))
+photoT3<-subset(photoT3,select = -c(SHAD,UNK,TAPE, MOBF,N,new.N))
 head(photoT3)
 
-T3long<-gather(photoT3,TIER_3,cover,ACBR:ZO,factor_key = TRUE) #remove unidenitfied columns
+T3long<-gather(photoT3,TIER_3,cover,ACAS:ZO,factor_key = TRUE) #remove unidenitfied columns
 #create a look up table to cover codes to full names
 lookup<-ddply(ab,.(TIER_3,T3_DESC),
                      summarize,
@@ -122,6 +122,28 @@ T3sum<-ddply(T3long,.(Annotator,T3_DESC),
              se=se(cover*100))
 head(T3sum)
 
+##T1
+
+
+#Calculate proportion
+photoT1<-subset(photoT1,select = -c(MF, UC, TW ,N,new.N))
+head(photoT1)
+
+T1long<-gather(photoT1,TIER_1,cover,CCA:TURF,factor_key = TRUE) #remove unidenitfied columns
+#create a look up table to cover codes to full names
+lookup<-ddply(ab,.(TIER_1,T1_DESC),
+              summarize,
+              count=length(TIER_1))
+
+T1long<-merge(T1long,lookup,by="TIER_1",all.x=TRUE)
+se<-function(e) {sd(e)/sqrt(length(e))}
+
+#summary of mean  and se cover
+T1sum<-ddply(T1long,.(Annotator,T1_DESC),
+             summarize,
+             mean=mean(cover*100),
+             se=se(cover*100))
+
 #Plot Bar graphs of % cover across annotators and tier 3 categories
 p1<-ggplot(T3sum, aes(x=T3_DESC, y=mean, fill=Annotator)) + geom_bar(position=position_dodge(), stat="identity", color="black") + 
   facet_wrap(~T3_DESC,scales="free") +
@@ -136,17 +158,35 @@ p1<-ggplot(T3sum, aes(x=T3_DESC, y=mean, fill=Annotator)) + geom_bar(position=po
     ,legend.position="bottom")+  geom_errorbar(aes(ymin=mean-se, ymax=mean+se),width=.15, position=position_dodge(.9)) + 
   ylab("% Cover") + xlab("Category") 
 
-print(p1)
-ggsave("ASRAMP2018_Calibration_barplots_v2.pdf",width=12,height=8,p1)
+p2<-ggplot(T1sum, aes(x=T1_DESC, y=mean, fill=Annotator)) + geom_bar(position=position_dodge(), stat="identity", color="black") + 
+  facet_wrap(~T1_DESC,scales="free") +
+  theme_bw() +
+  theme(
+    plot.background = element_blank()
+    ,panel.grid.major = element_blank()
+    ,panel.grid.minor = element_blank()
+    ,axis.ticks.x = element_blank() # no x axis ticks
+    ,axis.title.x = element_text( vjust = -.0001) # adjust x axis to lower the same amount as the genus labels
+    ,axis.text.x=element_blank()
+    ,legend.position="bottom")+  geom_errorbar(aes(ymin=mean-se, ymax=mean+se),width=.15, position=position_dodge(.9)) + 
+  ylab("% Cover") + xlab("Category") 
 
+
+print(p1)
+print(p2)
+ggsave("C:/Users/Jonathan.Charendoff/Documents/GitHub/Benthic-Scripts/Photoquad Calibration/Output/MARAMP2025_Calibration_barplots_T3.png",width=12,height=8,p1)
+ggsave("C:/Users/Jonathan.Charendoff/Documents/GitHub/Benthic-Scripts/Photoquad Calibration/Output/MARAMP2025_Calibration_barplots_T1.png",width=12,height=8,p2)
 
 # Confusion Matrix --------------------------------------------------------
 
 
 ## READ THE DATA FILE - AND PULL OUT BASIC COLUMNS
-bdata<-read.csv("ASRAMP2018_CalibrationTest.csv"); head(bdata)
-bdata<-bdata[,c("Cnet_SHORT_CODE", "Annotator", "Unique_point")]
+bdata<-read.csv("./Data/MARAMP25_Calibration_Annotations.csv"); head(bdata)
 head(bdata)
+
+bdata$Name <- sub("_[^_]*$", "",bdata$Name)
+bdata$unique <- paste(bdata$Name, bdata$Row, bdata$Column, sep = "_")
+bdata.wide <- pivot_wider(bdata[,c(8,9,11)], values_from = Label.code, names_from = Annotator)
 
 ## READ THE CNET CATEGORIES FILE - SORT IT AND ADD FIELD "order"
 cats<-read.csv("T:/Benthic/Data/Lookup Tables/All_Photoquad_codes.csv"); head(cats)
@@ -154,36 +194,24 @@ cats<-cats[with(cats, order(TIER_1, TIER_2, TIER_3)),]
 cats$order<-seq(1,dim(cats)[1])
 
 #MERGE THE DATA FILE WITH THE CATEGORIES, AND add a "DUMMY" field for use in cast function below 
+bdata$Cnet_SHORT_CODE<-bdata$Label.code
 bd<-left_join(bdata, cats)
 bd$DUMMY<-"x"
 head(bd)
 
+
 ## FUNCTION TO GENERATE CONFUSION MATRIX
-GenerateCM<-function(x1, x2, comp_level="T3_DESC"){
-  
-  x1$DLEV<-x1[,comp_level]
-  x2$DLEV<-x2[,comp_level]
-  
-  xx<-cast(rbind(x1, x2), DLEV ~ DUMMY, value="order", min)
-  xx<-xx[with(xx, order(x)),]
-  x1$DLEV<-factor(x1$DLEV, levels = as.character(xx$DLEV))
-  x2$DLEV<-factor(x2$DLEV, levels = as.character(xx$DLEV))
-  
-  x<-data.frame(T1=x1$TIER_1, T2=x1$TIER_2, GOOD=x1$DLEV, TEST=x2$DLEV, filler=1)
-  return(table(x$GOOD, x$TEST))
-  
-} #end GenerateCM 
 
 GenerateCM<-function(data,gold, test, lev="TIER_3"){
   x1<-data[data$Annotator==gold,]
   x2<-data[data$Annotator==test,]
-  tmp<-merge(x1[c(2,3,8)],x2[c(2,3,8)],by="Unique_point")
-  colnames(tmp)<-c("Unique_point","Gold","Gold_Tier","Test","Test_Tier")
-  tmp$comb<-paste(tmp$Gold_Tier,tmp$Test_Tier,sep="_")
+  tmp<-merge(x1[c("Label.code","Annotator","unique")],x2[c("Label.code","Annotator","unique")],by="unique")
+  colnames(tmp)<-c("Unique_point","Gold_Tier","Gold","Test_Tier","Test")
+  tmp$comb<-paste(tmp$Gold_Tier,tmp$Test_Tier,sep=" _")
   tmp2<-ddply(tmp,.(comb),
-               summarize,
-               count=length(comb))
-
+              summarize,
+              count=length(comb))
+  
   spl <-cSplit(tmp2, 'comb', sep="_", type.convert=FALSE)
   colnames(spl)<-c("count","Gold","Test")
   spl<-as.data.frame(spl)
@@ -193,36 +221,13 @@ GenerateCM<-function(data,gold, test, lev="TIER_3"){
 } #end GenerateCM 
 
 
-# GenerateCM<-function(x1,x2, lev){
-#   test<-merge(x1[c(2,3,8)],x2[c(2,3,8)],by="Unique_point")
-#   colnames(test)<-c("Unique_point","Gold","Gold_Tier","Test","Test_Tier")
-#   test$comb<-paste(test$Gold_Tier,test$Test_Tier,sep="_")
-#   test2<-ddply(test,.(comb),
-#                summarize,
-#                count=length(comb))
-#   
-#   spl <-cSplit(test2, 'comb', sep="_", type.convert=FALSE)
-#   colnames(spl)<-c("count","Gold","Test")
-#   spl<-as.data.frame(spl)
-#   ca<-dcast(spl, formula=Gold ~ Test, value.var="count",fill=0)
-#   return(ca)
-#   
-# } #end GenerateCM 
-
-
-
-table(bd$Annotator)
-
 #PLOT CONFUSION MATRIX
 plotCM<-function(data,gold, test,test2, lev="TIER_3"){
-  
-  # RUN the function - then everyhting below is just to add some additional information to make the outputs cleaner
-  # a<-GenerateCM(data[data$Annotator==gold,], data[data$Annotator==test,], lev) #gold is rows, test is columns
-  # a<-GenerateCM(bd[bd$Annotator=="cs389",], bd[bd$Annotator=="hatsueb",], lev="TIER_3") #gold is rows, test is columns
+
   a<-GenerateCM(data,gold, test, lev="TIER_3") #gold is rows, test is columns
   
   #Convert cells to % of points
-  a$totpoints<-rowSums(a[2:(ncol(a)-1)])
+  a$totpoints<-rowSums(a[2:ncol(a)])
   c<-cbind(a[1],a[, 2:(ncol(a)-1)]/a$totpoints*100) # selects every row and 2nd to last columns
   c[is.na(c)]<-0
   d<-a[1:(ncol(a)-1)] 
@@ -243,8 +248,8 @@ plotCM<-function(data,gold, test,test2, lev="TIER_3"){
   
   
   
-  ggsave(p1,file=paste(lev, "_", gold, "_", test, "percentpoints.pdf", sep=""),width=10,height=8)
-  ggsave(p2,file=paste(lev, "_", gold, "_", test, "totalpoints.pdf", sep=""),width=10,height=8)
+  ggsave(p1,file=paste(lev, "_", gold, "_", test, "percentpoints.png", sep=""),width=10,height=8)
+  ggsave(p2,file=paste(lev, "_", gold, "_", test, "totalpoints.png", sep=""),width=10,height=8)
   
   return(p1)
   return(p2)
@@ -252,22 +257,29 @@ plotCM<-function(data,gold, test,test2, lev="TIER_3"){
 
 #Plot Data
 #Answer Key (cs389) vs. Hatsue
-plotCM(bd,gold="cs389",test="hatsueb",test2="Hatsue",lev="TIER_3") #create plots
-plotCM(bd,gold="cs389",test="elooney12",test2="Erin",lev="TIER_3") #create plots
-plotCM(bd,gold="cs389",test="paulamisa",test2="Paula",lev="TIER_3") #create plots
-plotCM(bd,gold="cs389",test="cristirichards",test2="Cristi",lev="TIER_3") #create plots
-plotCM(bd,gold="cs389",test="mskye13",test2="Mia",lev="TIER_3") #create plots
+plotCM(bd,gold="jonathan.charendoff",test="leerm",test2="Ro",lev="TIER_3") #create plots
+plotCM(bd,gold="jonathan.charendoff",test="Bex.Turner",test2="Erin",lev="TIER_3") #create plots
+plotCM(bd,gold="jonathan.charendoff",test="mskye13",test2="Paula",lev="TIER_3") #create plots
+plotCM(bd,gold="jonathan.charendoff",test="ed0ard0sena",test2="Cristi",lev="TIER_3") #create plots
+plotCM(bd,gold="jonathan.charendoff",test="samantha.darin",test2="Sam",lev="TIER_3") #create plots
 
 
 #Transpose Long to Wide to identify which points we have issues with
-wide<-dcast(bd,formula=Unique_point~Annotator,value.var="TIER_3",fill=NA)
+wide<-dcast(bd,formula=unique~Annotator,value.var="TIER_3",fill=NA)
 
-wide$count <- apply(wide[,2:6], 1, function(x)length(unique(x))) # count number of unique categories for each row.
+wide$count <- apply(wide[,-1], 1, function(x)length(unique(x))) # count number of unique categories for each row.
 nrow(wide)
 wide1<-subset(wide,count==1);nrow(wide1) #subset points where all annotators agreed on classifications
-wide2<-subset(wide,count<=2);nrow(wide2) #subset points were 3 of 4 annotators agreed
+wide2<-subset(wide,count==2);nrow(wide2) #subset points were 3 of 4 annotators agreed
 wide4<-subset(wide,count>=4);nrow(wide4) #subset points where there was no agreement on classification
 head(wide4)
 
-write.csv(wide4,"ASRAMPcalib_4.csv")
-write.csv(wide2,"ASRAMPcalib_2.csv")
+
+write.csv(wide4,"./Output/MARAMP25_calib_4.csv")
+write.csv(wide2,"./Output/MARAMP25_calib_2.csv")
+
+
+PM <- read.csv("C:/Users/Jonathan.Charendoff/Downloads/PaulaMisaMontiImages.csv")
+metadata <- read.csv("C:/Users/Jonathan.Charendoff/Downloads/metadata.csv")
+
+PM.meta <- metadata[metadata$Name %in% PM$Name,]
