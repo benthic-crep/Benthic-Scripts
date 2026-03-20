@@ -1,0 +1,522 @@
+"","REGION","PooledSector_Viztool","OBS_YEAR","STRATANAME","n"
+"1","CNMI","Agrihan",2017,"Agrihan_Forereef_Deep",2
+"2","CNMI","Agrihan",2017,"Agrihan_Forereef_Mid",2
+"3","CNMI","Agrihan",2017,"Agrihan_Forereef_Shallow",3
+"4","CNMI","Aguijan",2014,"Aguijan_Forereef_Mid",2
+"5","CNMI","Aguijan",2014,"Aguijan_Forereef_Shallow",3
+"6","CNMI","Aguijan",2017,"Aguijan_Forereef_Deep",3
+"7","CNMI","Aguijan",2017,"Aguijan_Forereef_Mid",5
+"8","CNMI","Aguijan",2017,"Aguijan_Forereef_Shallow",2
+"9","CNMI","Alamagan",2014,"Alamagan_Forereef_Deep",2
+"10","CNMI","Alamagan",2014,"Alamagan_Forereef_Mid",2
+"11","CNMI","Alamagan",2014,"Alamagan_Forereef_Shallow",2
+"12","CNMI","Alamagan",2017,"Alamagan_Forereef_Shallow",2
+"13","CNMI","Asuncion",2014,"Asuncion_Forereef_Deep",3
+"14","CNMI","Asuncion",2014,"Asuncion_Forereef_Mid",6
+"15","CNMI","Asuncion",2014,"Asuncion_Forereef_Shallow",3
+"16","CNMI","Asuncion",2017,"Asuncion_Forereef_Deep",4
+"17","CNMI","Asuncion",2017,"Asuncion_Forereef_Mid",4
+"18","CNMI","Asuncion",2017,"Asuncion_Forereef_Shallow",4
+"19","CNMI","Asuncion",2022,"Asuncion_Forereef_Deep",4
+"20","CNMI","Asuncion",2022,"Asuncion_Forereef_Mid",8
+"21","CNMI","Asuncion",2022,"Asuncion_Forereef_Shallow",5
+"22","CNMI","Farallon de Pajaros",2014,"Farallon de Pajaros_Forereef_Deep",2
+"23","CNMI","Farallon de Pajaros",2014,"Farallon de Pajaros_Forereef_Mid",3
+"24","CNMI","Farallon de Pajaros",2014,"Farallon de Pajaros_Forereef_Shallow",2
+"25","CNMI","Farallon de Pajaros",2017,"Farallon de Pajaros_Forereef_Deep",3
+"26","CNMI","Farallon de Pajaros",2017,"Farallon de Pajaros_Forereef_Mid",5
+"27","CNMI","Farallon de Pajaros",2017,"Farallon de Pajaros_Forereef_Shallow",4
+"28","CNMI","Guguan",2014,"Guguan_Forereef_Deep",2
+"29","CNMI","Guguan",2014,"Guguan_Forereef_Shallow",2
+"30","CNMI","Maug",2014,"Maug_Forereef_Deep",6
+"31","CNMI","Maug",2014,"Maug_Forereef_Mid",11
+"32","CNMI","Maug",2014,"Maug_Forereef_Shallow",5
+"33","CNMI","Maug",2017,"Maug_Forereef_Deep",6
+"34","CNMI","Maug",2017,"Maug_Forereef_Mid",13
+"35","CNMI","Maug",2017,"Maug_Forereef_Shallow",8
+"36","CNMI","Maug",2022,"Maug_Forereef_Deep",7
+"37","CNMI","Maug",2022,"Maug_Forereef_Mid",12
+"38","CNMI","Maug",2022,"Maug_Forereef_Shallow",5
+"39","CNMI","Pagan",2014,"Pagan_Forereef_Deep",8
+"40","CNMI","Pagan",2014,"Pagan_Forereef_Mid",6
+"41","CNMI","Pagan",2014,"Pagan_Forereef_Shallow",5
+"42","CNMI","Pagan",2017,"Pagan_Forereef_Deep",4
+"43","CNMI","Pagan",2017,"Pagan_Forereef_Mid",7
+"44","CNMI","Pagan",2017,"Pagan_Forereef_Shallow",8
+"45","CNMI","Pagan",2022,"Pagan_Forereef_Deep",7
+"46","CNMI","Pagan",2022,"Pagan_Forereef_Mid",9
+"47","CNMI","Pagan",2022,"Pagan_Forereef_Shallow",8
+"48","CNMI","Rota",2014,"Rota_Forereef_Deep",3
+"49","CNMI","Rota",2014,"Rota_Forereef_Mid",4
+"50","CNMI","Rota",2014,"Rota_Forereef_Shallow",3
+"51","CNMI","Rota",2017,"Rota_Forereef_Deep",4
+"52","CNMI","Rota",2017,"Rota_Forereef_Mid",4
+"53","CNMI","Rota",2017,"Rota_Forereef_Shallow",5
+"54","CNMI","Rota",2022,"Rota_Forereef_Deep",3
+"55","CNMI","Rota",2022,"Rota_Forereef_Mid",4
+"56","CNMI","Rota",2022,"Rota_Forereef_Shallow",9
+"57","CNMI","Saipan",2014,"Saipan_Forereef_Deep",10
+"58","CNMI","Saipan",2014,"Saipan_Forereef_Mid",7
+"59","CNMI","Saipan",2014,"Saipan_Forereef_Shallow",5
+"60","CNMI","Saipan",2017,"Saipan_Forereef_Deep",5
+"61","CNMI","Saipan",2017,"Saipan_Forereef_Mid",9
+"62","CNMI","Saipan",2017,"Saipan_Forereef_Shallow",8
+"63","CNMI","Saipan",2022,"Saipan_Forereef_Deep",7
+"64","CNMI","Saipan",2022,"Saipan_Forereef_Mid",10
+"65","CNMI","Saipan",2022,"Saipan_Forereef_Shallow",7
+"66","CNMI","Sarigan",2014,"Sarigan_Forereef_Mid",3
+"67","CNMI","Sarigan",2017,"Sarigan_Forereef_Mid",2
+"68","CNMI","Sarigan",2017,"Sarigan_Forereef_Shallow",2
+"69","CNMI","Tinian",2014,"Tinian_Forereef_Deep",2
+"70","CNMI","Tinian",2014,"Tinian_Forereef_Mid",2
+"71","CNMI","Tinian",2014,"Tinian_Forereef_Shallow",3
+"72","CNMI","Tinian",2017,"Tinian_Forereef_Deep",4
+"73","CNMI","Tinian",2017,"Tinian_Forereef_Mid",6
+"74","CNMI","Tinian",2017,"Tinian_Forereef_Shallow",4
+"75","CNMI","Tinian",2022,"Tinian_Forereef_Deep",5
+"76","CNMI","Tinian",2022,"Tinian_Forereef_Mid",7
+"77","CNMI","Tinian",2022,"Tinian_Forereef_Shallow",3
+"78","GUA","GUA_EAST_OPEN",2014,"GUA_EAST_OPEN_Forereef_Deep",3
+"79","GUA","GUA_EAST_OPEN",2014,"GUA_EAST_OPEN_Forereef_Mid",5
+"80","GUA","GUA_EAST_OPEN",2014,"GUA_EAST_OPEN_Forereef_Shallow",5
+"81","GUA","GUA_EAST_OPEN",2017,"GUA_EAST_OPEN_Forereef_Deep",4
+"82","GUA","GUA_EAST_OPEN",2017,"GUA_EAST_OPEN_Forereef_Mid",4
+"83","GUA","GUA_EAST_OPEN",2017,"GUA_EAST_OPEN_Forereef_Shallow",4
+"84","GUA","GUA_EAST_OPEN",2022,"GUA_EAST_OPEN_Forereef_Deep",5
+"85","GUA","GUA_EAST_OPEN",2022,"GUA_EAST_OPEN_Forereef_Mid",7
+"86","GUA","GUA_EAST_OPEN",2022,"GUA_EAST_OPEN_Forereef_Shallow",3
+"87","GUA","GUA_MP",2014,"GUA_MP_Forereef_Deep",4
+"88","GUA","GUA_MP",2014,"GUA_MP_Forereef_Mid",4
+"89","GUA","GUA_MP",2014,"GUA_MP_Forereef_Shallow",3
+"90","GUA","GUA_MP",2017,"GUA_MP_Forereef_Deep",2
+"91","GUA","GUA_MP",2017,"GUA_MP_Forereef_Mid",3
+"92","GUA","GUA_MP",2017,"GUA_MP_Forereef_Shallow",2
+"93","GUA","GUA_MP",2022,"GUA_MP_Forereef_Deep",3
+"94","GUA","GUA_MP",2022,"GUA_MP_Forereef_Mid",4
+"95","GUA","GUA_MP",2022,"GUA_MP_Forereef_Shallow",2
+"96","GUA","GUA_WEST_OPEN",2014,"GUA_WEST_OPEN_Forereef_Deep",3
+"97","GUA","GUA_WEST_OPEN",2014,"GUA_WEST_OPEN_Forereef_Mid",4
+"98","GUA","GUA_WEST_OPEN",2014,"GUA_WEST_OPEN_Forereef_Shallow",4
+"99","GUA","GUA_WEST_OPEN",2017,"GUA_WEST_OPEN_Forereef_Deep",2
+"100","GUA","GUA_WEST_OPEN",2017,"GUA_WEST_OPEN_Forereef_Mid",5
+"101","GUA","GUA_WEST_OPEN",2017,"GUA_WEST_OPEN_Forereef_Shallow",4
+"102","GUA","GUA_WEST_OPEN",2022,"GUA_WEST_OPEN_Forereef_Deep",3
+"103","GUA","GUA_WEST_OPEN",2022,"GUA_WEST_OPEN_Forereef_Mid",7
+"104","GUA","GUA_WEST_OPEN",2022,"GUA_WEST_OPEN_Forereef_Shallow",7
+"105","MHI","HAW_HAMAKUA",2013,"HAW_HAMAKUA_Forereef_Mid",2
+"106","MHI","HAW_HAMAKUA",2013,"HAW_HAMAKUA_Forereef_Shallow",2
+"107","MHI","HAW_HAMAKUA",2019,"HAW_HAMAKUA_Forereef_Deep",3
+"108","MHI","HAW_HAMAKUA",2019,"HAW_HAMAKUA_Forereef_Mid",4
+"109","MHI","HAW_HAMAKUA",2019,"HAW_HAMAKUA_Forereef_Shallow",4
+"110","MHI","HAW_HAMAKUA",2024,"HAW_HAMAKUA_Forereef_Deep",6
+"111","MHI","HAW_HAMAKUA",2024,"HAW_HAMAKUA_Forereef_Mid",6
+"112","MHI","HAW_HAMAKUA",2024,"HAW_HAMAKUA_Forereef_Shallow",2
+"113","MHI","HAW_KONA",2013,"HAW_KONA_Forereef_Deep",2
+"114","MHI","HAW_KONA",2013,"HAW_KONA_Forereef_Mid",2
+"115","MHI","HAW_KONA",2013,"HAW_KONA_Forereef_Shallow",3
+"116","MHI","HAW_KONA",2016,"HAW_KONA_Forereef_Deep",3
+"117","MHI","HAW_KONA",2016,"HAW_KONA_Forereef_Mid",8
+"118","MHI","HAW_KONA",2016,"HAW_KONA_Forereef_Shallow",7
+"119","MHI","HAW_KONA",2019,"HAW_KONA_Forereef_Deep",7
+"120","MHI","HAW_KONA",2019,"HAW_KONA_Forereef_Mid",10
+"121","MHI","HAW_KONA",2019,"HAW_KONA_Forereef_Shallow",10
+"122","MHI","HAW_KONA",2024,"HAW_KONA_Forereef_Deep",7
+"123","MHI","HAW_KONA",2024,"HAW_KONA_Forereef_Mid",7
+"124","MHI","HAW_KONA",2024,"HAW_KONA_Forereef_Shallow",5
+"125","MHI","HAW_PUNA",2013,"HAW_PUNA_Forereef_Deep",3
+"126","MHI","HAW_PUNA",2013,"HAW_PUNA_Forereef_Mid",5
+"127","MHI","HAW_PUNA",2016,"HAW_PUNA_Forereef_Deep",2
+"128","MHI","HAW_PUNA",2016,"HAW_PUNA_Forereef_Mid",4
+"129","MHI","HAW_PUNA",2016,"HAW_PUNA_Forereef_Shallow",2
+"130","MHI","HAW_PUNA",2019,"HAW_PUNA_Forereef_Deep",3
+"131","MHI","HAW_PUNA",2019,"HAW_PUNA_Forereef_Mid",5
+"132","MHI","HAW_PUNA",2019,"HAW_PUNA_Forereef_Shallow",3
+"133","MHI","HAW_PUNA",2024,"HAW_PUNA_Forereef_Deep",3
+"134","MHI","HAW_PUNA",2024,"HAW_PUNA_Forereef_Mid",3
+"135","MHI","HAW_PUNA",2024,"HAW_PUNA_Forereef_Shallow",2
+"136","MHI","HAW_SE",2016,"HAW_SE_Forereef_Mid",2
+"137","MHI","HAW_SE",2016,"HAW_SE_Forereef_Shallow",2
+"138","MHI","KAH_NORTH",2016,"KAH_NORTH_Forereef_Deep",2
+"139","MHI","KAH_NORTH",2016,"KAH_NORTH_Forereef_Mid",2
+"140","MHI","KAH_NORTH",2016,"KAH_NORTH_Forereef_Shallow",2
+"141","MHI","KAH_NORTH",2019,"KAH_NORTH_Forereef_Mid",2
+"142","MHI","KAH_NORTH",2024,"KAH_NORTH_Forereef_Deep",4
+"143","MHI","KAH_NORTH",2024,"KAH_NORTH_Forereef_Mid",7
+"144","MHI","KAH_NORTH",2024,"KAH_NORTH_Forereef_Shallow",2
+"145","MHI","KAH_SOUTH",2016,"KAH_SOUTH_Forereef_Mid",2
+"146","MHI","KAH_SOUTH",2016,"KAH_SOUTH_Forereef_Shallow",3
+"147","MHI","KAH_SOUTH",2019,"KAH_SOUTH_Forereef_Deep",2
+"148","MHI","KAH_SOUTH",2019,"KAH_SOUTH_Forereef_Mid",2
+"149","MHI","KAH_SOUTH",2019,"KAH_SOUTH_Forereef_Shallow",2
+"150","MHI","KAH_SOUTH",2024,"KAH_SOUTH_Forereef_Deep",3
+"151","MHI","KAH_SOUTH",2024,"KAH_SOUTH_Forereef_Shallow",3
+"152","MHI","KAU_EAST",2013,"KAU_EAST_Forereef_Deep",3
+"153","MHI","KAU_EAST",2013,"KAU_EAST_Forereef_Mid",2
+"154","MHI","KAU_EAST",2013,"KAU_EAST_Forereef_Shallow",2
+"155","MHI","KAU_EAST",2016,"KAU_EAST_Forereef_Deep",3
+"156","MHI","KAU_EAST",2016,"KAU_EAST_Forereef_Mid",6
+"157","MHI","KAU_EAST",2016,"KAU_EAST_Forereef_Shallow",2
+"158","MHI","KAU_EAST",2019,"KAU_EAST_Forereef_Deep",4
+"159","MHI","KAU_EAST",2019,"KAU_EAST_Forereef_Mid",5
+"160","MHI","KAU_EAST",2024,"KAU_EAST_Forereef_Mid",5
+"161","MHI","KAU_EAST",2024,"KAU_EAST_Forereef_Shallow",3
+"162","MHI","KAU_NAPALI",2013,"KAU_NAPALI_Forereef_Deep",2
+"163","MHI","KAU_NAPALI",2013,"KAU_NAPALI_Forereef_Mid",2
+"164","MHI","KAU_NAPALI",2013,"KAU_NAPALI_Forereef_Shallow",3
+"165","MHI","KAU_NAPALI",2016,"KAU_NAPALI_Forereef_Deep",2
+"166","MHI","KAU_NAPALI",2016,"KAU_NAPALI_Forereef_Mid",2
+"167","MHI","KAU_NAPALI",2016,"KAU_NAPALI_Forereef_Shallow",2
+"168","MHI","KAU_NAPALI",2019,"KAU_NAPALI_Forereef_Deep",2
+"169","MHI","KAU_NAPALI",2019,"KAU_NAPALI_Forereef_Mid",2
+"170","MHI","KAU_NAPALI",2024,"KAU_NAPALI_Forereef_Deep",2
+"171","MHI","KAU_NAPALI",2024,"KAU_NAPALI_Forereef_Mid",2
+"172","MHI","KAU_NAPALI",2024,"KAU_NAPALI_Forereef_Shallow",2
+"173","MHI","LAN_NORTH",2013,"LAN_NORTH_Forereef_Mid",3
+"174","MHI","LAN_NORTH",2013,"LAN_NORTH_Forereef_Shallow",3
+"175","MHI","LAN_NORTH",2016,"LAN_NORTH_Forereef_Mid",2
+"176","MHI","LAN_NORTH",2016,"LAN_NORTH_Forereef_Shallow",2
+"177","MHI","LAN_NORTH",2019,"LAN_NORTH_Forereef_Mid",3
+"178","MHI","LAN_NORTH",2019,"LAN_NORTH_Forereef_Shallow",2
+"179","MHI","LAN_SOUTH",2013,"LAN_SOUTH_Forereef_Mid",3
+"180","MHI","LAN_SOUTH",2013,"LAN_SOUTH_Forereef_Shallow",4
+"181","MHI","LAN_SOUTH",2016,"LAN_SOUTH_Forereef_Deep",2
+"182","MHI","LAN_SOUTH",2016,"LAN_SOUTH_Forereef_Mid",6
+"183","MHI","LAN_SOUTH",2016,"LAN_SOUTH_Forereef_Shallow",3
+"184","MHI","LAN_SOUTH",2019,"LAN_SOUTH_Forereef_Deep",3
+"185","MHI","LAN_SOUTH",2019,"LAN_SOUTH_Forereef_Mid",6
+"186","MHI","LAN_SOUTH",2019,"LAN_SOUTH_Forereef_Shallow",5
+"187","MHI","LAN_SOUTH",2024,"LAN_SOUTH_Forereef_Deep",4
+"188","MHI","LAN_SOUTH",2024,"LAN_SOUTH_Forereef_Mid",3
+"189","MHI","LAN_SOUTH",2024,"LAN_SOUTH_Forereef_Shallow",4
+"190","MHI","MAI_KIHEI",2013,"MAI_KIHEI_Forereef_Mid",2
+"191","MHI","MAI_KIHEI",2016,"MAI_KIHEI_Forereef_Deep",2
+"192","MHI","MAI_KIHEI",2016,"MAI_KIHEI_Forereef_Mid",2
+"193","MHI","MAI_KIHEI",2016,"MAI_KIHEI_Forereef_Shallow",3
+"194","MHI","MAI_KIHEI",2019,"MAI_KIHEI_Forereef_Deep",3
+"195","MHI","MAI_KIHEI",2019,"MAI_KIHEI_Forereef_Mid",3
+"196","MHI","MAI_KIHEI",2019,"MAI_KIHEI_Forereef_Shallow",2
+"197","MHI","MAI_KIHEI",2024,"MAI_KIHEI_Forereef_Deep",2
+"198","MHI","MAI_KIHEI",2024,"MAI_KIHEI_Forereef_Mid",4
+"199","MHI","MAI_KIHEI",2024,"MAI_KIHEI_Forereef_Shallow",3
+"200","MHI","MAI_LAHAINA",2016,"MAI_LAHAINA_Forereef_Shallow",2
+"201","MHI","MAI_LAHAINA",2019,"MAI_LAHAINA_Forereef_Deep",2
+"202","MHI","MAI_LAHAINA",2019,"MAI_LAHAINA_Forereef_Mid",4
+"203","MHI","MAI_LAHAINA",2019,"MAI_LAHAINA_Forereef_Shallow",4
+"204","MHI","MAI_LAHAINA",2024,"MAI_LAHAINA_Forereef_Mid",2
+"205","MHI","MAI_NE",2013,"MAI_NE_Forereef_Shallow",2
+"206","MHI","MAI_NE",2016,"MAI_NE_Forereef_Mid",2
+"207","MHI","MAI_NE",2019,"MAI_NE_Forereef_Mid",2
+"208","MHI","MAI_NE",2024,"MAI_NE_Forereef_Deep",3
+"209","MHI","MAI_NE",2024,"MAI_NE_Forereef_Mid",3
+"210","MHI","MAI_NE",2024,"MAI_NE_Forereef_Shallow",2
+"211","MHI","MAI_SE",2019,"MAI_SE_Forereef_Deep",2
+"212","MHI","MAI_SE",2019,"MAI_SE_Forereef_Mid",2
+"213","MHI","MAI_SE",2019,"MAI_SE_Forereef_Shallow",2
+"214","MHI","MOL_PALI",2013,"MOL_PALI_Forereef_Deep",2
+"215","MHI","MOL_PALI",2013,"MOL_PALI_Forereef_Mid",3
+"216","MHI","MOL_PALI",2013,"MOL_PALI_Forereef_Shallow",3
+"217","MHI","MOL_PALI",2019,"MOL_PALI_Forereef_Mid",2
+"218","MHI","MOL_PALI",2019,"MOL_PALI_Forereef_Shallow",2
+"219","MHI","MOL_PALI",2024,"MOL_PALI_Forereef_Deep",3
+"220","MHI","MOL_PALI",2024,"MOL_PALI_Forereef_Mid",3
+"221","MHI","MOL_PALI",2024,"MOL_PALI_Forereef_Shallow",2
+"222","MHI","MOL_SOUTH",2013,"MOL_SOUTH_Forereef_Deep",2
+"223","MHI","MOL_SOUTH",2013,"MOL_SOUTH_Forereef_Mid",2
+"224","MHI","MOL_SOUTH",2013,"MOL_SOUTH_Forereef_Shallow",2
+"225","MHI","MOL_SOUTH",2019,"MOL_SOUTH_Forereef_Deep",2
+"226","MHI","MOL_SOUTH",2019,"MOL_SOUTH_Forereef_Mid",4
+"227","MHI","MOL_SOUTH",2019,"MOL_SOUTH_Forereef_Shallow",4
+"228","MHI","MOL_SOUTH",2024,"MOL_SOUTH_Forereef_Deep",2
+"229","MHI","MOL_SOUTH",2024,"MOL_SOUTH_Forereef_Mid",2
+"230","MHI","MOL_SOUTH",2024,"MOL_SOUTH_Forereef_Shallow",2
+"231","MHI","MOL_WEST",2013,"MOL_WEST_Forereef_Deep",2
+"232","MHI","MOL_WEST",2013,"MOL_WEST_Forereef_Mid",2
+"233","MHI","MOL_WEST",2013,"MOL_WEST_Forereef_Shallow",3
+"234","MHI","MOL_WEST",2016,"MOL_WEST_Forereef_Mid",2
+"235","MHI","MOL_WEST",2016,"MOL_WEST_Forereef_Shallow",2
+"236","MHI","MOL_WEST",2019,"MOL_WEST_Forereef_Deep",2
+"237","MHI","MOL_WEST",2024,"MOL_WEST_Forereef_Deep",2
+"238","MHI","MOL_WEST",2024,"MOL_WEST_Forereef_Mid",3
+"239","MHI","MOL_WEST",2024,"MOL_WEST_Forereef_Shallow",2
+"240","MHI","NII_EAST",2013,"NII_EAST_Forereef_Mid",3
+"241","MHI","NII_EAST",2024,"NII_EAST_Forereef_Deep",3
+"242","MHI","NII_EAST",2024,"NII_EAST_Forereef_Mid",2
+"243","MHI","NII_EAST",2024,"NII_EAST_Forereef_Shallow",2
+"244","MHI","NII_LEHUA",2013,"NII_LEHUA_Forereef_Deep",2
+"245","MHI","NII_LEHUA",2013,"NII_LEHUA_Forereef_Mid",2
+"246","MHI","NII_LEHUA",2013,"NII_LEHUA_Forereef_Shallow",2
+"247","MHI","NII_LEHUA",2019,"NII_LEHUA_Forereef_Mid",2
+"248","MHI","NII_LEHUA",2024,"NII_LEHUA_Forereef_Deep",2
+"249","MHI","NII_LEHUA",2024,"NII_LEHUA_Forereef_Mid",3
+"250","MHI","NII_LEHUA",2024,"NII_LEHUA_Forereef_Shallow",2
+"251","MHI","NII_WEST",2013,"NII_WEST_Forereef_Mid",2
+"252","MHI","NII_WEST",2013,"NII_WEST_Forereef_Shallow",4
+"253","MHI","NII_WEST",2016,"NII_WEST_Forereef_Mid",2
+"254","MHI","NII_WEST",2016,"NII_WEST_Forereef_Shallow",2
+"255","MHI","NII_WEST",2019,"NII_WEST_Forereef_Mid",4
+"256","MHI","NII_WEST",2024,"NII_WEST_Forereef_Deep",3
+"257","MHI","NII_WEST",2024,"NII_WEST_Forereef_Mid",4
+"258","MHI","NII_WEST",2024,"NII_WEST_Forereef_Shallow",2
+"259","MHI","OAH_EAST",2013,"OAH_EAST_Forereef_Deep",2
+"260","MHI","OAH_EAST",2013,"OAH_EAST_Forereef_Mid",2
+"261","MHI","OAH_EAST",2013,"OAH_EAST_Forereef_Shallow",2
+"262","MHI","OAH_EAST",2016,"OAH_EAST_Forereef_Deep",2
+"263","MHI","OAH_EAST",2016,"OAH_EAST_Forereef_Mid",2
+"264","MHI","OAH_EAST",2016,"OAH_EAST_Forereef_Shallow",2
+"265","MHI","OAH_EAST",2024,"OAH_EAST_Forereef_Deep",5
+"266","MHI","OAH_EAST",2024,"OAH_EAST_Forereef_Mid",3
+"267","MHI","OAH_EAST",2024,"OAH_EAST_Forereef_Shallow",2
+"268","MHI","OAH_KAENA",2016,"OAH_KAENA_Forereef_Deep",2
+"269","MHI","OAH_KAENA",2016,"OAH_KAENA_Forereef_Mid",2
+"270","MHI","OAH_KAENA",2016,"OAH_KAENA_Forereef_Shallow",2
+"271","MHI","OAH_KAENA",2019,"OAH_KAENA_Forereef_Mid",2
+"272","MHI","OAH_KAENA",2019,"OAH_KAENA_Forereef_Shallow",3
+"273","MHI","OAH_KAENA",2024,"OAH_KAENA_Forereef_Deep",2
+"274","MHI","OAH_KAENA",2024,"OAH_KAENA_Forereef_Mid",3
+"275","MHI","OAH_KAENA",2024,"OAH_KAENA_Forereef_Shallow",2
+"276","MHI","OAH_NE",2013,"OAH_NE_Forereef_Deep",2
+"277","MHI","OAH_NE",2013,"OAH_NE_Forereef_Mid",6
+"278","MHI","OAH_NE",2013,"OAH_NE_Forereef_Shallow",4
+"279","MHI","OAH_NE",2016,"OAH_NE_Forereef_Mid",2
+"280","MHI","OAH_NE",2016,"OAH_NE_Forereef_Shallow",2
+"281","MHI","OAH_NE",2019,"OAH_NE_Forereef_Deep",2
+"282","MHI","OAH_NE",2019,"OAH_NE_Forereef_Mid",2
+"283","MHI","OAH_NE",2024,"OAH_NE_Forereef_Deep",2
+"284","MHI","OAH_NE",2024,"OAH_NE_Forereef_Mid",3
+"285","MHI","OAH_NE",2024,"OAH_NE_Forereef_Shallow",5
+"286","MHI","OAH_NORTH",2013,"OAH_NORTH_Forereef_Deep",2
+"287","MHI","OAH_NORTH",2013,"OAH_NORTH_Forereef_Mid",2
+"288","MHI","OAH_NORTH",2013,"OAH_NORTH_Forereef_Shallow",2
+"289","MHI","OAH_NORTH",2016,"OAH_NORTH_Forereef_Deep",2
+"290","MHI","OAH_NORTH",2016,"OAH_NORTH_Forereef_Mid",2
+"291","MHI","OAH_NORTH",2016,"OAH_NORTH_Forereef_Shallow",2
+"292","MHI","OAH_NORTH",2019,"OAH_NORTH_Forereef_Deep",3
+"293","MHI","OAH_NORTH",2019,"OAH_NORTH_Forereef_Mid",4
+"294","MHI","OAH_NORTH",2019,"OAH_NORTH_Forereef_Shallow",2
+"295","MHI","OAH_NORTH",2024,"OAH_NORTH_Forereef_Deep",2
+"296","MHI","OAH_NORTH",2024,"OAH_NORTH_Forereef_Mid",3
+"297","MHI","OAH_NORTH",2024,"OAH_NORTH_Forereef_Shallow",2
+"298","MHI","OAH_SOUTH",2013,"OAH_SOUTH_Forereef_Deep",4
+"299","MHI","OAH_SOUTH",2013,"OAH_SOUTH_Forereef_Mid",5
+"300","MHI","OAH_SOUTH",2013,"OAH_SOUTH_Forereef_Shallow",8
+"301","MHI","OAH_SOUTH",2016,"OAH_SOUTH_Forereef_Deep",2
+"302","MHI","OAH_SOUTH",2016,"OAH_SOUTH_Forereef_Mid",4
+"303","MHI","OAH_SOUTH",2016,"OAH_SOUTH_Forereef_Shallow",3
+"304","MHI","OAH_SOUTH",2019,"OAH_SOUTH_Forereef_Deep",3
+"305","MHI","OAH_SOUTH",2019,"OAH_SOUTH_Forereef_Mid",6
+"306","MHI","OAH_SOUTH",2019,"OAH_SOUTH_Forereef_Shallow",7
+"307","MHI","OAH_SOUTH",2024,"OAH_SOUTH_Forereef_Deep",2
+"308","MHI","OAH_SOUTH",2024,"OAH_SOUTH_Forereef_Mid",3
+"309","MHI","OAH_SOUTH",2024,"OAH_SOUTH_Forereef_Shallow",4
+"310","NWHI","French Frigate",2014,"French Frigate_Forereef_Deep",2
+"311","NWHI","French Frigate",2014,"French Frigate_Forereef_Mid",2
+"312","NWHI","French Frigate",2014,"French Frigate_Forereef_Shallow",2
+"313","NWHI","French Frigate",2014,"French Frigate_Lagoon_Shallow",2
+"314","NWHI","French Frigate",2015,"French Frigate_Forereef_Deep",1
+"315","NWHI","French Frigate",2015,"French Frigate_Forereef_Mid",3
+"316","NWHI","French Frigate",2015,"French Frigate_Forereef_Shallow",2
+"317","NWHI","French Frigate",2016,"French Frigate_Forereef_Deep",3
+"318","NWHI","French Frigate",2016,"French Frigate_Forereef_Mid",6
+"319","NWHI","French Frigate",2016,"French Frigate_Forereef_Shallow",4
+"320","NWHI","French Frigate",2016,"French Frigate_Lagoon_Mid",2
+"321","NWHI","French Frigate",2016,"French Frigate_Lagoon_Shallow",4
+"322","NWHI","French Frigate",2016,"French Frigate_Protected Slope_Deep",3
+"323","NWHI","French Frigate",2016,"French Frigate_Protected Slope_Mid",4
+"324","NWHI","French Frigate",2017,"French Frigate_Forereef_Mid",4
+"325","NWHI","French Frigate",2017,"French Frigate_Lagoon_Mid",2
+"326","NWHI","French Frigate",2017,"French Frigate_Protected Slope_Deep",3
+"327","NWHI","French Frigate",2024,"French Frigate_Forereef_Deep",3
+"328","NWHI","French Frigate",2024,"French Frigate_Forereef_Mid",3
+"329","NWHI","French Frigate",2024,"French Frigate_Forereef_Shallow",3
+"330","NWHI","French Frigate",2024,"French Frigate_Lagoon_Mid",3
+"331","NWHI","French Frigate",2024,"French Frigate_Lagoon_Shallow",3
+"332","NWHI","French Frigate",2024,"French Frigate_Protected Slope_Deep",6
+"333","NWHI","French Frigate",2024,"French Frigate_Protected Slope_Mid",2
+"334","NWHI","Kure",2015,"Kure_Forereef_Deep",2
+"335","NWHI","Kure",2015,"Kure_Forereef_Mid",2
+"336","NWHI","Kure",2015,"Kure_Forereef_Shallow",2
+"337","NWHI","Kure",2016,"Kure_Forereef_Deep",5
+"338","NWHI","Kure",2016,"Kure_Forereef_Mid",7
+"339","NWHI","Kure",2016,"Kure_Forereef_Shallow",7
+"340","NWHI","Kure",2017,"Kure_Forereef_Mid",2
+"341","NWHI","Kure",2017,"Kure_Forereef_Shallow",2
+"342","NWHI","Kure",2024,"Kure_Forereef_Deep",6
+"343","NWHI","Kure",2024,"Kure_Forereef_Mid",7
+"344","NWHI","Kure",2024,"Kure_Forereef_Shallow",2
+"345","NWHI","Kure",2024,"Kure_Lagoon_Mid",3
+"346","NWHI","Kure",2024,"Kure_Lagoon_Shallow",4
+"347","NWHI","Lisianski",2014,"Lisianski_Forereef_Deep",3
+"348","NWHI","Lisianski",2014,"Lisianski_Forereef_Mid",4
+"349","NWHI","Lisianski",2014,"Lisianski_Forereef_Shallow",3
+"350","NWHI","Lisianski",2015,"Lisianski_Forereef_Deep",3
+"351","NWHI","Lisianski",2015,"Lisianski_Forereef_Mid",6
+"352","NWHI","Lisianski",2015,"Lisianski_Forereef_Shallow",2
+"353","NWHI","Lisianski",2016,"Lisianski_Forereef_Deep",4
+"354","NWHI","Lisianski",2016,"Lisianski_Forereef_Mid",6
+"355","NWHI","Lisianski",2016,"Lisianski_Forereef_Shallow",6
+"356","NWHI","Lisianski",2017,"Lisianski_Forereef_Deep",5
+"357","NWHI","Lisianski",2017,"Lisianski_Forereef_Mid",4
+"358","NWHI","Lisianski",2017,"Lisianski_Forereef_Shallow",2
+"359","NWHI","Lisianski",2024,"Lisianski_Forereef_Deep",7
+"360","NWHI","Lisianski",2024,"Lisianski_Forereef_Mid",6
+"361","NWHI","Lisianski",2024,"Lisianski_Forereef_Shallow",4
+"362","NWHI","Pearl & Hermes",2015,"Pearl & Hermes_Backreef_Mid",2
+"363","NWHI","Pearl & Hermes",2015,"Pearl & Hermes_Backreef_Shallow",2
+"364","NWHI","Pearl & Hermes",2015,"Pearl & Hermes_Forereef_Deep",4
+"365","NWHI","Pearl & Hermes",2015,"Pearl & Hermes_Forereef_Mid",5
+"366","NWHI","Pearl & Hermes",2016,"Pearl & Hermes_Forereef_Deep",5
+"367","NWHI","Pearl & Hermes",2016,"Pearl & Hermes_Forereef_Mid",8
+"368","NWHI","Pearl & Hermes",2016,"Pearl & Hermes_Forereef_Shallow",7
+"369","NWHI","Pearl & Hermes",2017,"Pearl & Hermes_Forereef_Mid",2
+"370","NWHI","Pearl & Hermes",2017,"Pearl & Hermes_Forereef_Shallow",2
+"371","NWHI","Pearl & Hermes",2017,"Pearl & Hermes_Lagoon_Shallow",2
+"372","NWHI","Pearl & Hermes",2024,"Pearl & Hermes_Forereef_Deep",7
+"373","NWHI","Pearl & Hermes",2024,"Pearl & Hermes_Forereef_Mid",5
+"374","NWHI","Pearl & Hermes",2024,"Pearl & Hermes_Forereef_Shallow",4
+"375","NWHI","Pearl & Hermes",2024,"Pearl & Hermes_Lagoon_Mid",3
+"376","NWHI","Pearl & Hermes",2024,"Pearl & Hermes_Lagoon_Shallow",3
+"377","PRIAs","Baker",2015,"Baker_Forereef_Deep",3
+"378","PRIAs","Baker",2015,"Baker_Forereef_Mid",8
+"379","PRIAs","Baker",2015,"Baker_Forereef_Shallow",4
+"380","PRIAs","Baker",2018,"Baker_Forereef_Deep",2
+"381","PRIAs","Baker",2018,"Baker_Forereef_Mid",4
+"382","PRIAs","Baker",2018,"Baker_Forereef_Shallow",4
+"383","PRIAs","Baker",2023,"Baker_Forereef_Deep",5
+"384","PRIAs","Baker",2023,"Baker_Forereef_Mid",4
+"385","PRIAs","Baker",2023,"Baker_Forereef_Shallow",8
+"386","PRIAs","Howland",2015,"Howland_Forereef_Deep",5
+"387","PRIAs","Howland",2015,"Howland_Forereef_Mid",6
+"388","PRIAs","Howland",2015,"Howland_Forereef_Shallow",10
+"389","PRIAs","Howland",2018,"Howland_Forereef_Deep",2
+"390","PRIAs","Howland",2018,"Howland_Forereef_Mid",4
+"391","PRIAs","Howland",2018,"Howland_Forereef_Shallow",3
+"392","PRIAs","Howland",2023,"Howland_Forereef_Deep",4
+"393","PRIAs","Howland",2023,"Howland_Forereef_Mid",5
+"394","PRIAs","Howland",2023,"Howland_Forereef_Shallow",10
+"395","PRIAs","Jarvis",2015,"Jarvis_Forereef_Deep",6
+"396","PRIAs","Jarvis",2015,"Jarvis_Forereef_Mid",22
+"397","PRIAs","Jarvis",2015,"Jarvis_Forereef_Shallow",14
+"398","PRIAs","Jarvis",2018,"Jarvis_Forereef_Deep",5
+"399","PRIAs","Jarvis",2018,"Jarvis_Forereef_Mid",13
+"400","PRIAs","Jarvis",2018,"Jarvis_Forereef_Shallow",10
+"401","PRIAs","Johnston",2015,"Johnston_Forereef_Mid",2
+"402","PRIAs","Johnston",2015,"Johnston_Lagoon_Shallow",3
+"403","PRIAs","Johnston",2015,"Johnston_Protected Slope_Deep",3
+"404","PRIAs","Johnston",2015,"Johnston_Protected Slope_Mid",4
+"405","PRIAs","Kingman",2015,"Kingman_Backreef_Shallow",3
+"406","PRIAs","Kingman",2015,"Kingman_Forereef_Deep",2
+"407","PRIAs","Kingman",2015,"Kingman_Forereef_Mid",4
+"408","PRIAs","Kingman",2015,"Kingman_Forereef_Shallow",2
+"409","PRIAs","Kingman",2015,"Kingman_Lagoon_Deep",2
+"410","PRIAs","Kingman",2015,"Kingman_Protected Slope_Deep",3
+"411","PRIAs","Kingman",2015,"Kingman_Protected Slope_Mid",6
+"412","PRIAs","Kingman",2018,"Kingman_Forereef_Deep",2
+"413","PRIAs","Kingman",2018,"Kingman_Forereef_Mid",6
+"414","PRIAs","Kingman",2018,"Kingman_Forereef_Shallow",5
+"415","PRIAs","Kingman",2018,"Kingman_Lagoon_Deep",3
+"416","PRIAs","Kingman",2018,"Kingman_Lagoon_Mid",2
+"417","PRIAs","Kingman",2018,"Kingman_Protected Slope_Mid",5
+"418","PRIAs","Palmyra",2015,"Palmyra_Forereef_Deep",7
+"419","PRIAs","Palmyra",2015,"Palmyra_Forereef_Mid",19
+"420","PRIAs","Palmyra",2015,"Palmyra_Forereef_Shallow",13
+"421","PRIAs","Palmyra",2018,"Palmyra_Forereef_Deep",7
+"422","PRIAs","Palmyra",2018,"Palmyra_Forereef_Mid",15
+"423","PRIAs","Palmyra",2018,"Palmyra_Forereef_Shallow",15
+"424","PRIAs","Wake",2014,"Wake_Forereef_Deep",6
+"425","PRIAs","Wake",2014,"Wake_Forereef_Mid",7
+"426","PRIAs","Wake",2014,"Wake_Forereef_Shallow",7
+"427","PRIAs","Wake",2017,"Wake_Forereef_Deep",7
+"428","PRIAs","Wake",2017,"Wake_Forereef_Mid",11
+"429","PRIAs","Wake",2017,"Wake_Forereef_Shallow",10
+"430","SAMOA","Ofu & Olosega",2015,"Ofu & Olosega_Forereef_Deep",9
+"431","SAMOA","Ofu & Olosega",2015,"Ofu & Olosega_Forereef_Mid",14
+"432","SAMOA","Ofu & Olosega",2015,"Ofu & Olosega_Forereef_Shallow",8
+"433","SAMOA","Ofu & Olosega",2018,"Ofu & Olosega_Forereef_Deep",6
+"434","SAMOA","Ofu & Olosega",2018,"Ofu & Olosega_Forereef_Mid",8
+"435","SAMOA","Ofu & Olosega",2018,"Ofu & Olosega_Forereef_Shallow",4
+"436","SAMOA","Ofu & Olosega",2023,"Ofu & Olosega_Forereef_Deep",6
+"437","SAMOA","Ofu & Olosega",2023,"Ofu & Olosega_Forereef_Mid",11
+"438","SAMOA","Ofu & Olosega",2023,"Ofu & Olosega_Forereef_Shallow",7
+"439","SAMOA","ROS_ALL",2015,"ROS_ALL_Backreef_Mid",2
+"440","SAMOA","ROS_ALL",2015,"ROS_ALL_Backreef_Shallow",7
+"441","SAMOA","ROS_ALL",2015,"ROS_ALL_Forereef_Deep",2
+"442","SAMOA","ROS_ALL",2015,"ROS_ALL_Forereef_Mid",6
+"443","SAMOA","ROS_ALL",2015,"ROS_ALL_Forereef_Shallow",3
+"444","SAMOA","ROS_ALL",2015,"ROS_ALL_Lagoon_Deep",4
+"445","SAMOA","ROS_ALL",2015,"ROS_ALL_Lagoon_Mid",3
+"446","SAMOA","ROS_ALL",2015,"ROS_ALL_Lagoon_Shallow",2
+"447","SAMOA","ROS_ALL",2016,"ROS_ALL_Forereef_Deep",3
+"448","SAMOA","ROS_ALL",2016,"ROS_ALL_Forereef_Mid",8
+"449","SAMOA","ROS_ALL",2016,"ROS_ALL_Forereef_Shallow",5
+"450","SAMOA","ROS_ALL",2018,"ROS_ALL_Forereef_Deep",3
+"451","SAMOA","ROS_ALL",2018,"ROS_ALL_Forereef_Mid",8
+"452","SAMOA","ROS_ALL",2018,"ROS_ALL_Forereef_Shallow",3
+"453","SAMOA","ROS_ALL",2023,"ROS_ALL_Forereef_Deep",4
+"454","SAMOA","ROS_ALL",2023,"ROS_ALL_Forereef_Mid",8
+"455","SAMOA","ROS_ALL",2023,"ROS_ALL_Forereef_Shallow",4
+"456","SAMOA","ROS_ALL",2023,"ROS_ALL_Lagoon_Deep",2
+"457","SAMOA","ROS_ALL",2023,"ROS_ALL_Lagoon_Mid",2
+"458","SAMOA","SWA_ALL",2015,"SWA_ALL_Forereef_Deep",4
+"459","SAMOA","SWA_ALL",2015,"SWA_ALL_Forereef_Mid",6
+"460","SAMOA","SWA_ALL",2015,"SWA_ALL_Forereef_Shallow",8
+"461","SAMOA","SWA_ALL",2018,"SWA_ALL_Forereef_Deep",2
+"462","SAMOA","SWA_ALL",2018,"SWA_ALL_Forereef_Mid",3
+"463","SAMOA","SWA_ALL",2018,"SWA_ALL_Forereef_Shallow",4
+"464","SAMOA","SWA_ALL",2023,"SWA_ALL_Forereef_Deep",3
+"465","SAMOA","SWA_ALL",2023,"SWA_ALL_Forereef_Mid",10
+"466","SAMOA","SWA_ALL",2023,"SWA_ALL_Forereef_Shallow",11
+"467","SAMOA","TAU_ALL",2015,"TAU_ALL_Forereef_Deep",5
+"468","SAMOA","TAU_ALL",2015,"TAU_ALL_Forereef_Mid",10
+"469","SAMOA","TAU_ALL",2015,"TAU_ALL_Forereef_Shallow",6
+"470","SAMOA","TAU_ALL",2018,"TAU_ALL_Forereef_Deep",4
+"471","SAMOA","TAU_ALL",2018,"TAU_ALL_Forereef_Mid",8
+"472","SAMOA","TAU_ALL",2018,"TAU_ALL_Forereef_Shallow",3
+"473","SAMOA","TAU_ALL",2023,"TAU_ALL_Forereef_Deep",5
+"474","SAMOA","TAU_ALL",2023,"TAU_ALL_Forereef_Mid",9
+"475","SAMOA","TAU_ALL",2023,"TAU_ALL_Forereef_Shallow",3
+"476","SAMOA","TUT_AUNUU",2015,"TUT_AUNUU_Forereef_Deep",6
+"477","SAMOA","TUT_AUNUU",2015,"TUT_AUNUU_Forereef_Mid",6
+"478","SAMOA","TUT_AUNUU",2015,"TUT_AUNUU_Forereef_Shallow",4
+"479","SAMOA","TUT_AUNUU",2018,"TUT_AUNUU_Forereef_Deep",2
+"480","SAMOA","TUT_AUNUU",2018,"TUT_AUNUU_Forereef_Mid",2
+"481","SAMOA","TUT_AUNUU",2023,"TUT_AUNUU_Forereef_Deep",2
+"482","SAMOA","TUT_AUNUU",2023,"TUT_AUNUU_Forereef_Mid",4
+"483","SAMOA","TUT_FAGALUA_FAGATELE",2015,"TUT_FAGALUA_FAGATELE_Forereef_Deep",6
+"484","SAMOA","TUT_FAGALUA_FAGATELE",2015,"TUT_FAGALUA_FAGATELE_Forereef_Mid",6
+"485","SAMOA","TUT_FAGALUA_FAGATELE",2015,"TUT_FAGALUA_FAGATELE_Forereef_Shallow",7
+"486","SAMOA","TUT_FAGALUA_FAGATELE",2018,"TUT_FAGALUA_FAGATELE_Forereef_Deep",2
+"487","SAMOA","TUT_FAGALUA_FAGATELE",2018,"TUT_FAGALUA_FAGATELE_Forereef_Mid",4
+"488","SAMOA","TUT_FAGALUA_FAGATELE",2018,"TUT_FAGALUA_FAGATELE_Forereef_Shallow",2
+"489","SAMOA","TUT_FAGALUA_FAGATELE",2023,"TUT_FAGALUA_FAGATELE_Forereef_Deep",3
+"490","SAMOA","TUT_FAGALUA_FAGATELE",2023,"TUT_FAGALUA_FAGATELE_Forereef_Mid",5
+"491","SAMOA","TUT_FAGALUA_FAGATELE",2023,"TUT_FAGALUA_FAGATELE_Forereef_Shallow",4
+"492","SAMOA","TUT_NE_OPEN",2015,"TUT_NE_OPEN_Forereef_Deep",5
+"493","SAMOA","TUT_NE_OPEN",2015,"TUT_NE_OPEN_Forereef_Mid",7
+"494","SAMOA","TUT_NE_OPEN",2015,"TUT_NE_OPEN_Forereef_Shallow",5
+"495","SAMOA","TUT_NE_OPEN",2018,"TUT_NE_OPEN_Forereef_Deep",3
+"496","SAMOA","TUT_NE_OPEN",2018,"TUT_NE_OPEN_Forereef_Mid",6
+"497","SAMOA","TUT_NE_OPEN",2023,"TUT_NE_OPEN_Forereef_Deep",2
+"498","SAMOA","TUT_NE_OPEN",2023,"TUT_NE_OPEN_Forereef_Mid",12
+"499","SAMOA","TUT_NE_OPEN",2023,"TUT_NE_OPEN_Forereef_Shallow",4
+"500","SAMOA","TUT_NW_OPEN",2015,"TUT_NW_OPEN_Forereef_Deep",3
+"501","SAMOA","TUT_NW_OPEN",2015,"TUT_NW_OPEN_Forereef_Mid",3
+"502","SAMOA","TUT_NW_OPEN",2015,"TUT_NW_OPEN_Forereef_Shallow",2
+"503","SAMOA","TUT_NW_OPEN",2018,"TUT_NW_OPEN_Forereef_Deep",6
+"504","SAMOA","TUT_NW_OPEN",2018,"TUT_NW_OPEN_Forereef_Mid",3
+"505","SAMOA","TUT_NW_OPEN",2018,"TUT_NW_OPEN_Forereef_Shallow",4
+"506","SAMOA","TUT_NW_OPEN",2023,"TUT_NW_OPEN_Forereef_Deep",4
+"507","SAMOA","TUT_NW_OPEN",2023,"TUT_NW_OPEN_Forereef_Shallow",2
+"508","SAMOA","TUT_SE_OPEN",2015,"TUT_SE_OPEN_Forereef_Deep",5
+"509","SAMOA","TUT_SE_OPEN",2015,"TUT_SE_OPEN_Forereef_Mid",12
+"510","SAMOA","TUT_SE_OPEN",2015,"TUT_SE_OPEN_Forereef_Shallow",5
+"511","SAMOA","TUT_SE_OPEN",2023,"TUT_SE_OPEN_Forereef_Deep",4
+"512","SAMOA","TUT_SE_OPEN",2023,"TUT_SE_OPEN_Forereef_Mid",17
+"513","SAMOA","TUT_SE_OPEN",2023,"TUT_SE_OPEN_Forereef_Shallow",2
+"514","SAMOA","TUT_SW_OPEN",2015,"TUT_SW_OPEN_Forereef_Deep",2
+"515","SAMOA","TUT_SW_OPEN",2015,"TUT_SW_OPEN_Forereef_Mid",2
+"516","SAMOA","TUT_SW_OPEN",2015,"TUT_SW_OPEN_Forereef_Shallow",3
+"517","SAMOA","TUT_SW_OPEN",2018,"TUT_SW_OPEN_Forereef_Mid",2
+"518","SAMOA","TUT_SW_OPEN",2018,"TUT_SW_OPEN_Forereef_Shallow",2
+"519","SAMOA","TUT_SW_OPEN",2023,"TUT_SW_OPEN_Forereef_Deep",3
+"520","SAMOA","TUT_SW_OPEN",2023,"TUT_SW_OPEN_Forereef_Mid",3
+"521","SAMOA","TUT_SW_OPEN",2023,"TUT_SW_OPEN_Forereef_Shallow",3

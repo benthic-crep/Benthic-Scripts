@@ -1,8 +1,8 @@
+#Clear Data and Packages
 rm(list=ls())
-pkgs <- names(sessionInfo()$otherPkgs)
-for (package in pkgs) {
-  detach(paste0("package:", package), unload = TRUE, character.only = TRUE)
-}
+pacman::p_unload(pacman::p_loaded(), character.only = TRUE)
+
+#Load Libraries
 source("./Useful Scripts/Oracle_Fetch.R")
 
 #First Draw Cover from Oracle, Deposit on T: Drive in "Raw from Oracle" Folder
@@ -43,11 +43,11 @@ for (mi_i in targetMI_24) {
                                 MISSIONID==mi_i)
   COV_FIX_2024=rbind(COV_FIX_2024,COV_FIX_2024i)
   #ADULT
-  REA_AD_2024i=fetch_data(base_url = "https://picapex.nmfs.local/gis/esd/esd_data/coral_obs_adu",
+  REA_AD_2024i=fetch_data(base_url = "https://picapex.nmfs.local/gis/esd/esd_data/coral_obs_adu_ncrmp",
                                MISSIONID==mi_i)
   REA_AD_2024=rbind(REA_AD_2024,REA_AD_2024i)
   #JUV
-  REA_JV_2024i=fetch_data(base_url = "https://picapex.nmfs.local/gis/esd/esd_data/coral_obs_juv",
+  REA_JV_2024i=fetch_data(base_url = "https://picapex.nmfs.local/gis/esd/esd_data/coral_obs_juv_ncrmp",
                                MISSIONID==mi_i)
   REA_JV_2024=rbind(REA_JV_2024,REA_JV_2024i)
 }

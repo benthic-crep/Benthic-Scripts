@@ -33,7 +33,7 @@ dim(SV_24_EX)
 
 # #For simplicity drop any column that is all NA
 NA_COLS=SV_24_EX %>% keep(~all(is.na(.x))) %>% names
-SV_24_EX=SV_24_EX %>% select(!any_of(NA_COLS))
+SV_24_EX=SV_24_EX %>% dplyr::select(!any_of(NA_COLS))
 
 # Drop any site that does not have either PHOTOMOASIC or TRANSECT_PHOTOS
 SV_24_PH <- SV_24_EX %>% filter(TRANSECT_PHOTOS==-1|PHOTOMOSAIC_YN==-1)
@@ -144,7 +144,6 @@ SM_NEW =rbind(SM_OLD,sv.final) #SM_OLD %>% bind_rows(sv.final %>% mutate_at(vars
 
 #NEED TO LOOKUP OCC SITE ID!
 #Also duplicate PHOTOs from OAH-4326
-
 write.csv(x = SM_NEW,file = "./NCRMP/FY26 Benthic Pipeline/A. Survey Master Prep/SURVEY_MASTER_2024_benthic.csv",row.names = F)
 
 
@@ -156,5 +155,9 @@ cols.keep<-c("SITEVISITID",	"REGION",	"ISLAND",	"SITE",	"OLD_SITE",	"OCC_SITEID"
              "TUT2012",	"OTHER_AREA_GROUPING",	"SPECIAL_PROJ_YN",	"SPECIAL_PROJ_DESCRIPTION")
 
 sv.final<-sv.final[,cols.keep]
+
+##Check for NA ANALYSIS YEARS
+SM_AYna=which(is.na(sv.final$ANALYSIS_YEAR))
+#No NAs!
 
 write.csv(sv.final,file="T:/Benthic/Data/REA Coral Demography & Cover/Cleaned_SiteVisit_2024.csv")

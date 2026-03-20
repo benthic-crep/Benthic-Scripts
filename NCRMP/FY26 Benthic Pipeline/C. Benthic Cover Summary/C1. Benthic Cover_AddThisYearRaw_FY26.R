@@ -4,12 +4,9 @@
 
 #It's a modification from Benthic_Cover_RawtoEstimates_v2/3
 
-#Clear Data/Packages
+#Clear Data and Packages
 rm(list=ls())
-pkgs <- names(sessionInfo()$otherPkgs)
-for (package in pkgs) {
-  detach(paste0("package:", package), unload = TRUE, character.only = TRUE)
-}
+pacman::p_unload(pacman::p_loaded(), character.only = TRUE)
 
 #Load Libraries
 library(lubridate)

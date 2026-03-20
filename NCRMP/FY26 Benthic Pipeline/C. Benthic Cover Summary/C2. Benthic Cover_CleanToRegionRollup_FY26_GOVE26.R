@@ -27,8 +27,7 @@ source("../fish-paste/lib/fish_team_functions.R")
 source("../fish-paste/lib/Islandwide Mean&Variance Functions.R")
 library(dplyr)#to avert plyr/dplyr issues
 
-
-ab24_name=load("T:/Benthic/Data/REA Coral Demography & Cover/Analysis Ready Raw data/BIA_2010-2024_CLEANED.RData")
+ab24_name=load("C:/Users/Thomas.Oliver/Desktop/PICBILLFISH_BENTHIC/REA Coral Demography & Cover/Analysis Ready Raw data/BIA_2010-2024_CLEANED.RData")
 ab=eval(parse(text=ab24_name));rm(list=ab24_name)
 
 #Generate a SITE table- excluding lat and long for now because there are issues that we need to address with Michael- use lat and long from SM below
@@ -147,7 +146,7 @@ wsd_t1<-subset(wsd_t1,select= -c(MF,UC,TW))
 
 wsd_t1[which(is.na(wsd_t1$SITEVISITID)),]
 #Save Tier 1 site data to t drive. This file has all sites (fish, benthic and OCC) that were annotated between 2010 and 2024
-if(WRITE){write.csv(wsd_t1, file="T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Site/BenthicCover_2010-2024_Tier1_SITE.csv",row.names=F)}
+if(WRITE){write.csv(wsd_t1, file="C:/Users/Thomas.Oliver/Desktop/PICBILLFISH_BENTHIC/REA Coral Demography & Cover/Summary Data/Site/BenthicCover_2010-2024_Tier1_SITE.csv",row.names=F)}
 
 
 ########################################################################################################################################
@@ -234,7 +233,7 @@ wsd_t2$TRANSECT_PHOTOS<-"-1" #make sure that all rows = -1
 wsd_t2<-subset(wsd_t2,select= -c(WAND,UNK,TAPE,MOBF,SHAD))
 
 #Save Tier 1 site data to t drive. This file has all sites (fish, benthic and OCC) that were annoated between 2010 and 2018
-if(WRITE){write.csv(wsd_t2, file="T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Site/BenthicCover_2010-2024_Tier2b_SITE.csv",row.names=F)}
+if(WRITE){write.csv(wsd_t2, file="C:/Users/Thomas.Oliver/Desktop/PICBILLFISH_BENTHIC/REA Coral Demography & Cover/Summary Data/Site/BenthicCover_2010-2024_Tier2b_SITE.csv",row.names=F)}
 
 
 ########################################################################################################################################
@@ -242,7 +241,7 @@ if(WRITE){write.csv(wsd_t2, file="T:/Benthic/Data/REA Coral Demography & Cover/S
 # TAO 2025/01/27 Why are we doing this? Preferred for VizTool?
 # Answer, we don't serve site level data for the VizTool, but we only want to report Genus-Level i.e. Tier2b not TRUE Tier2
 taxa.cols<-wsd_t2 %>% dplyr::select(ACAS:ZO)
-coral.genera<-read.csv("T:/Benthic/Data/Lookup Tables/Genus_lookup.csv")
+coral.genera<-read.csv("C:/Users/Thomas.Oliver/Desktop/PICBILLFISH_BENTHIC/Lookup Tables/Genus_lookup.csv")
 coral.genera<-coral.genera %>% dplyr::filter(!SPCODE %in%c("AAAA","SSSS","WIRE","CALG","ZOSP","ZOPA","UNKN","TUBA"))
 gen<-coral.genera$GENUS_CODE
 gen<-unique(gen)
@@ -334,7 +333,7 @@ wsd_t3$TRANSECT_PHOTOS<-"-1" #make sure that all rows = -1
 wsd_t3<-subset(wsd_t3,select= -c(WAND,UNK,TAPE,MOBF,SHAD))
 
 #Save Tier 1 site data to t drive. This file has all sites (fish, benthic and OCC) that were annoated between 2010 and 2024
-if(WRITE){write.csv(wsd_t3, file="T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Site/BenthicCover_2010-2024_Tier3_SITE.csv",row.names=F)}
+if(WRITE){write.csv(wsd_t3, file="C:/Users/Thomas.Oliver/Desktop/PICBILLFISH_BENTHIC/REA Coral Demography & Cover/Summary Data/Site/BenthicCover_2010-2024_Tier3_SITE.csv",row.names=F)}
 
 ########################################################################################################################################
 #wsd_t1 %>% group_by(REGION,ISLAND,ANALYSIS_YEAR) %>% dplyr::summarize(N=length(N)) %>% filter(REGION %in% c("NWHI")) %>% print(n=9999)
@@ -344,7 +343,7 @@ if(WRITE){write.csv(wsd_t3, file="T:/Benthic/Data/REA Coral Demography & Cover/S
 # Final clean up before pooling -------------------------------------------
 sectors<-read.csv("../fish-paste/data/Sectors-Strata-Areas.csv")
 #list of SEC_NAME (smallest sector) and corresponding pooled sector scheme - THIS SHOULD BE THE TARGET FOR STRATEGIC POOLING...
-seclu<-read.csv("T:/Benthic/Data/Lookup Tables/PacificNCRMP_Benthic_Sectors_Lookup_2025v1.csv") 
+seclu<-read.csv("C:/Users/Thomas.Oliver/Desktop/PICBILLFISH_BENTHIC/Lookup Tables/PacificNCRMP_Benthic_Sectors_Lookup_2025v1.csv") 
 ## check whether we have ISLANDS that arent in the sectors file- should be 0
 setdiff(unique(wsd$ISLAND),unique(sectors$ISLAND))
 
@@ -352,8 +351,8 @@ setdiff(unique(wsd$ISLAND),unique(sectors$ISLAND))
 #Identify which taxonomic level you would like to summarize
 #WRITE=TRUE
 #Write in two locations - VizTool Folders, and REA Coral Demography & Cover / Summary
-VizToolOutputDir="T:/Benthic/Data/Data Requests/NCRMPViztool/2024/unformatted/"
-CoreOutputDir="T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/"
+VizToolOutputDir="C:/Users/Thomas.Oliver/Desktop/PICBILLFISH_BENTHIC/Data Requests/NCRMPViztool/2024/unformatted/"
+CoreOutputDir="C:/Users/Thomas.Oliver/Desktop/PICBILLFISH_BENTHIC/REA Coral Demography & Cover/Summary Data/"
 if(!dir.exists(VizToolOutputDir)){dir.create(VizToolOutputDir,recursive = T)}
 for (TIER in 1:3){#TIER=1#2#2#
   #TIER=1  
@@ -517,7 +516,7 @@ for (TIER in 1:3){#TIER=1#2#2#
   ###### REMOVE STRATA that are undersampled in specific years (N<2) (cannot pool those up)
   #2023 MARCH - SUBSET FOR TEMPORALLY COHERENT STRATA LEVEL SAMPLING - NO LESS THAN 2 SAMPLES PER STRATA THE WHOLE TIME
   ###############################
-  strat2drop=wsd
+  strat2drop=wsd %>% filter(REGION=="MHI",OBS_YEAR%in%c(2010,2011,2012,2024))
   
   #This is the data frame of regional-scale "should have been sampled"
   
@@ -572,9 +571,12 @@ for (TIER in 1:3){#TIER=1#2#2#
   
   DropSTR=union(DropSTR_Canon,DropSTR_SP)
   
-  
+  ###############################################################################################
   ###### GENERATE "TRENDS" DATA OF STRATA, by REMOVING ANY STRATUM with N<=1 in any sample year
+  ###############################################################################################
+  #GOVE 2026 - N<=1 only in 2010-2012 and 2024
   #Continue with wsdComp and wsdTrend
+  ###############################################################################################
   
   wsdComp=wsd #Leave all sites in there until we dump stratum-year N=1
   wsdTrend=wsd %>% filter(!STRATANAME_TRENDS%in%DropSTR) #Filter out any undersampled stratum from DropSTR
@@ -617,7 +619,7 @@ for (TIER in 1:3){#TIER=1#2#2#
   #Drop GUAM MPA from Trends Dataset
   dpstT=dpstT %>% filter(ANALYSIS_SEC!="GUA_MP")
   
-  ri<-read.csv("T:/Benthic/Data/Lookup Tables/NCRMP_Regions_Islands.csv")
+  ri<-read.csv("C:/Users/Thomas.Oliver/Desktop/PICBILLFISH_BENTHIC/Lookup Tables/NCRMP_Regions_Islands.csv")
   ri <- ri %>% mutate(ri,
                       REGION_NAME= case_when(
                         ISLAND =="Guam" ~ "Guam",
@@ -630,7 +632,7 @@ for (TIER in 1:3){#TIER=1#2#2#
     write.csv(wsd,paste0(CoreOutputDir,"Site/2024ViztoolSites_Cover.csv"))
     write.csv(wsd,paste0(CoreOutputDir,"Site/2024ViztoolSites_Cover.csv"))
     if(WRITE){write.csv(dpstC, file=paste0(CoreOutputDir,"Stratum/BenthicCover_2010-2024_Tier1_STRATA_Complete.csv"),row.names = F)}
-    if(WRITE){write.csv(dpstT, file=paste0(CoreOutputDir,"Stratum/BenthicCover_2010-2024_Tier1_STRATA_Trends.csv"),row.names = F)}
+    if(WRITE){write.csv(dpstT, file=paste0(CoreOutputDir,"Stratum/BenthicCover_2010-2024_Tier1_STRATA_Trends_GOVE2026.csv"),row.names = F)}
     if(WRITE){write.csv(dpstC, file=paste0(VizToolOutputDir,"BenthicCover_2010-2024_Tier1_STRATA_Complete_Viztool.csv"),row.names = F)}
     if(WRITE){write.csv(dpstT, file=paste0(VizToolOutputDir,"BenthicCover_2010-2024_Tier1_STRATA_Trends_Viztool.csv"),row.names = F)}
   }else if(TIER==2){
@@ -668,7 +670,7 @@ for (TIER in 1:3){#TIER=1#2#2#
   
   if(TIER==1){
     if(WRITE){write.csv(dpsecC, file=paste0(CoreOutputDir,"Sector/BenthicCover_2010-2024_Tier1_SECTOR_Complete.csv"),row.names = F)}
-    if(WRITE){write.csv(dpsecT, file=paste0(CoreOutputDir,"Sector/BenthicCover_2010-2024_Tier1_SECTOR_Trends.csv"),row.names = F)}
+    if(WRITE){write.csv(dpsecT, file=paste0(CoreOutputDir,"Sector/BenthicCover_2010-2024_Tier1_SECTOR_Trends_GOVE2026.csv"),row.names = F)}
     if(WRITE){write.csv(dpsecC, file=paste0(VizToolOutputDir,"BenthicCover_2010-2024_Tier1_SECTOR_Complete_Viztool.csv"),row.names = F)}
     if(WRITE){write.csv(dpsecT, file=paste0(VizToolOutputDir,"BenthicCover_2010-2024_Tier1_SECTOR_Trends_Viztool.csv"),row.names = F)}
   }else if(TIER==2){
@@ -699,7 +701,7 @@ for (TIER in 1:3){#TIER=1#2#2#
   
   if(TIER==1){
     if(WRITE){write.csv(dpisC, file=paste0(CoreOutputDir,"Island/BenthicCover_2010-2024_Tier1_ISLAND_Complete.csv"),row.names = F)}
-    if(WRITE){write.csv(dpisT, file=paste0(CoreOutputDir,"Island/BenthicCover_2010-2024_Tier1_ISLAND_Trends.csv"),row.names = F)}
+    if(WRITE){write.csv(dpisT, file=paste0(CoreOutputDir,"Island/BenthicCover_2010-2024_Tier1_ISLAND_Trends_GOVE2026.csv"),row.names = F)}
     if(WRITE){write.csv(dpisC, file=paste0(VizToolOutputDir,"BenthicCover_2010-2024_Tier1_ISLAND_Complete_Viztool.csv"),row.names = F)}
     if(WRITE){write.csv(dpisT, file=paste0(VizToolOutputDir,"BenthicCover_2010-2024_Tier1_ISLAND_Trends_Viztool.csv"),row.names = F)}
   }else if(TIER==2){
@@ -745,7 +747,7 @@ for (TIER in 1:3){#TIER=1#2#2#
   
   if(TIER==1){
     if(WRITE){write.csv(dprC, file=paste0(CoreOutputDir,"Region/BenthicCover_2010-2024_Tier1_REGION_Complete.csv"),row.names = F)}
-    if(WRITE){write.csv(dprT, file=paste0(CoreOutputDir,"Region/BenthicCover_2010-2024_Tier1_REGION_Trends.csv"),row.names = F)}
+    if(WRITE){write.csv(dprT, file=paste0(CoreOutputDir,"Region/BenthicCover_2010-2024_Tier1_REGION_Trends_GOVE2026.csv"),row.names = F)}
     if(WRITE){write.csv(dprC, file=paste0(VizToolOutputDir,"BenthicCover_2010-2024_Tier1_REGION_Complete_Viztool.csv"),row.names = F)}
     if(WRITE){write.csv(dprT, file=paste0(VizToolOutputDir,"BenthicCover_2010-2024_Tier1_REGION_Trends_Viztool.csv"),row.names = F)}
   }else if(TIER==2){

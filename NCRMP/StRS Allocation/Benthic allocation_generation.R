@@ -26,7 +26,7 @@ sectors<-read.csv("BenthicSectorsforAllocation.csv")
 # view data
 head(sectors)
 # load demographic site data
-wsd<-read.csv("T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Site/BenthicREA_sitedata_GENUS.csv")
+wsd<-read.csv("T:/Benthic/Data/REA Coral Demography & Cover/Summary Data/Site/BenthicREA_sitedata_GENUS_2013_2024.csv")
 # view data
 head(wsd)
 
@@ -417,10 +417,10 @@ unique(k$ISLAND)
 n<-7.5 #based on 2022 cruise
 # Plug in number of days we have at each island here (using each island's 3-letter code), and multiply based on number of sites we can survey in 1 day (n)
 
-ofu<-3*n 
-ros<-2.5*n
+ofu<-4*n 
+ros<-3*n
 swa<-3*n
-tau<-2.5*n
+tau<-4*n
 tut<-10*n
 
 #create a field for sites and give a dummy variable = 1
@@ -437,7 +437,7 @@ k$WEIGHTED_ALLOCATION<-round(k$TOTSITES*k$AREA_VAR_PCT)
 k$AREA_ALLOCATION<-round(k$TOTSITES*k$AREA_PCT)
 
 # save file
-write.csv(k,file="SAMOA_2023allocation_bystratum.csv") #this allocation will need to be manually tweaked to make sure we have at least 2 sites/stratum and a reasonable # of deep sites
+write.csv(k,file="./SAMOA_2026allocation_bystratum.csv") #this allocation will need to be manually tweaked to make sure we have at least 2 sites/stratum and a reasonable # of deep sites
 
 # PRIAs -------------------------------------------------------------------------
 years<-c("2018")

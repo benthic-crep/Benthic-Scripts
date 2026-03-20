@@ -153,7 +153,7 @@ x$RDEXTENT3<-ifelse(x$S_ORDER=="Scleractinia"& is.na(x$RDEXTENT3),0,x$RDEXTENT3)
 #This section of code has been deceptively tricky to code to ensure that all the different taxonomic levels are generated correctly
 #MODIFY WITH CAUTION
 #read in list of taxa that we feel comfortable identifying to species or genus level. Note, taxa lists vary by year and region. This will need to be updated through time.
-taxa<-read.csv("T:/Benthic/Data/Lookup Tables/2013-23_Taxa_MASTER.csv")
+taxa<-read.csv("T:/Benthic/Data/Lookup Tables/2013-24_Taxa_MASTER_2025VERSION.csv")
 
 #OBS_YEAR to factor
 x$OBS_YEAR<-as.factor(x$OBS_YEAR)#convert to factor to merge with taxa master
@@ -161,7 +161,7 @@ x$OBS_YEAR<-as.factor(x$OBS_YEAR)#convert to factor to merge with taxa master
 #Convert SPCODE in raw colony data to TAXONCODE -generates a look up table
 #This function will give you warnings that you are joining factors with different levels. THis is correct, but doesn't matter. Ignore
 #function in Benthic_Functions_newApp_v2025TAOfork.R
-x$TAXONCODE<-Convert_to_Taxoncode(data = x,taxamaster = taxa)
+x$TAXONCODE<-Convert_to_Taxoncode_2025(data = x,taxamaster = taxa)
 nrow(x)
 
 #Check to make sure SPCODE was converted correctly
