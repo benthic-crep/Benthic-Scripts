@@ -1,67 +1,52 @@
-#Merging v1 and v2 geodatabase and ensuring that no site_segs are missing
-#By Corinne Amir
-#Modified 12/1/20 by Courtney Couch
+#By Jonathan Charendoff
 
+rm(list=ls())
+
+library(dplyr)
 source("C:/Users/Jonathan.Charendoff/Documents/GitHub/Benthic-Scripts/Functions/Benthic_Functions_newApp_vTAOfork.R")
 source("C:/Users/Jonathan.Charendoff/Documents/GitHub/Benthic-Scripts/Functions/core_functions.R")
 
 # Read dataframes pulled directly from geodatabases
-#setwd("C:/Users/Corinne.Amir/Documents/GitHub/Benthic-Scripts/SfM/Geodatabase QC")
-setwd("C:/Users/Jonathan.Charendoff/Documents/GitHub/Benthic-Scripts/SfM/Geodatabase QC")
+setwd("N:/StRS_Sites_Projects/REA Belts/Data Output/Demography Data/2025")
 
 
 
 # Read in V2 geodatabase --------------------------------------------------
-
-v2 <- read.csv("V:/PHOTOMOSAIC (1)/HARAMP/CSV Files/SE2406_demographics.csv")
-sitelist <- read.csv("V:/PHOTOMOSAIC (1)/HARAMP/CSV Files/SE2406_sitelist.csv")
+v2 <- read.csv("SE2503_Demographics_20260619.csv")
+sitelist <- read.csv("SE2503_sitelist_20260619.csv")[,1:4]
 
 
 # Prep the v2 geodatabase data -----------------------------------------------------
-
-# # Merge annotator geodatabases together (all are v2 geodatabase)
-# 
-# dim(MA); dim(ML); dim(AH); dim(RS); dim(CA); dim(FL)
-# str(MA); str(ML); str(AH); str(RS); str(CA); str(FL)
-# 
-# sfm.raw <- rbind(MA, ML, AH, RS, CA, FL, v1, stringsAsFactors = FALSE)
 
 #Reformat v2 Site names
 v2$SITE<-gsub("_", "-", v2$SITE)
 levels(as.factor(v2$SITE))
 
-#Merge v1 and v2 geodatabases together
 sfm.raw <- v2
 dim(sfm.raw)
 
 # Change site numbers such as MAR-22 to MAR-0022
-#sfm.raw$SITE<-SiteNumLeadingZeros(sfm.raw$SITE)
+sfm.raw$SITE<-SiteNumLeadingZeros(as.factor(sfm.raw$SITE))
 
 
 #If not already present from running the v1-v2 merge script, add column for site_segment
 sfm.raw$site_seg<-paste(sfm.raw$SITE,sfm.raw$SEGMENT)
 
 
-#Remove incomplete sites
-#sfm.raw <-sfm.raw %>% filter(!SITE %in% c("HAW-04224","MOL-02266"))
-
-#Fix annotator name
-#sfm.raw$ANALYST<-ifelse(sfm.raw$ANALYST=="rs","RS",as.character(sfm.raw$ANALYST));head(sfm.raw)
-
-
 # Check to see if any sites are missing (should have 106 sites)
 sitespresent <- data.frame(unique(sfm.raw$SITE)) #Get list of sites exported from gdb
 sitespresent <- sitespresent %>% filter(unique.sfm.raw.SITE.!=" " & unique.sfm.raw.SITE.!="A"
-                                        &unique.sfm.raw.SITE.!="" & unique.sfm.raw.SITE.!="RA2201") #Remove erroneous site names
+                                        &unique.sfm.raw.SITE.!="" & unique.sfm.raw.SITE.!="SE2503") #Remove erroneous site names
 sitespresent$df <- rep("present",times = nrow(sitespresent)) #Add column to differentiate from "master" site list
 colnames(sitespresent) <- c("SITE", "df")
 
 sitelist$df <- rep("expected",times = nrow(sitelist))
+sitelist$SITE<-SiteNumLeadingZeros(as.factor(sitelist$SITE))
 
 sites <- full_join(sitespresent,sitelist, by="SITE")
 sites <- sites %>% filter(is.na(df.x) | is.na(df.y)) #Flag sites that are missing in the site list or gdb export
 View(sites) # still missing 5 sites....?
-write.csv(sites, "HARAMP_missing_sites.csv") # MOL-2266 and HAW-4224 were dropped because they weren't completed
+write.csv(sites, "./QC Reports/missing_sites.csv") # MOL-2266 and HAW-4224 were dropped because they weren't completed
 
 
 seglist<-ddply(sfm.raw,.(SITE),summarize,n=length(unique(SEGMENT))) #there should be no sites that have less than 3 segments
@@ -89,7 +74,8 @@ sfm.missing.duplicate.rows <- rbind(
   morphcode.missing <-  filter(sfm.raw, MORPH_CODE %in% c("NA", " ", "", NA)),
   transect.missing <-  filter(sfm.raw, TRANSECT %in% c(0, "<Null>", " ", NA)),
   segmennt.missing <-  filter(sfm.raw, SEGMENT %in% c("NA", "<NA>", NA)),
-  year.missing <-  filter(sfm.raw, OBS_YEAR != 2024))
+  year.missing <-  filter(sfm.raw, OBS_YEAR != 2025),
+  mission.missing <-  filter(sfm.raw, MISSION_ID != "SE2503"))
 
 sfm.missing <- sfm.missing.duplicate.rows[!duplicated(sfm.missing.duplicate.rows),] 
 dim(sfm.missing)
@@ -107,7 +93,7 @@ sfm.missing <- droplevels(anti_join(sfm.missing, no.colony.present))
 dim(sfm.missing)
 
 #Save dataframe with missing values 
-write.csv(sfm.missing, "sfm_missing_rows.csv") #get these rows repopulated (if missing metadata) or annotated before moving forward
+write.csv(sfm.missing, "./QC Reports/sfm_missing_rows.csv") #get these rows repopulated (if missing metadata) or annotated before moving forward
 
 
 #If charging forward and leaving rows with missing data behind, create a new dataframe where all rows with missing data have been removed
@@ -141,28 +127,36 @@ sapply(sfm,unique)
 sfm$OLD_DEAD <- as.numeric(sfm$OLD_DEAD)
 
 
+
 sfm<-sfm %>% mutate(REMNANT = mapvalues(REMNANT, c(NA), c(0)),
                     JUVENILE = mapvalues(JUVENILE, c(NA), c(0)),
                     EX_BOUND = mapvalues(EX_BOUND, c(NA), c(0)),
                     NO_COLONY = mapvalues(NO_COLONY, c(NA), c(0)),
-                    RDCAUSE1 = mapvalues(RDCAUSE1, c(""), c(NA)),
-                    RDCAUSE2 = mapvalues(RDCAUSE2, c(""), c(NA)),
-                    RDCAUSE3 = mapvalues(RDCAUSE3, c("NA", ""), c(NA, NA)),
-                    CON_1 = mapvalues(CON_1, c(""), c(NA)),
-                    CON_2 = mapvalues(CON_2, c(""), c(NA)),
-                    CON_3 = mapvalues(CON_3, c("NA", ""), c(NA, NA)),
-                    EXTENT_3 = mapvalues(EXTENT_3, c("NA", ""), c(NA, NA)),
-                    SEV_3 = mapvalues(SEV_3, c("NA", ""), c(NA, NA)),
+                    RDCAUSE1 = mapvalues(RDCAUSE1, c("NA", "", " "), c(NA, NA, NA)),
+                    RDCAUSE2 = mapvalues(RDCAUSE2, c("NA", "", " "), c(NA, NA, NA)),
+                    RDCAUSE3 = mapvalues(RDCAUSE3, c("NA", "", " "), c(NA, NA, NA)),
+                    RD_1 = mapvalues(RD_1, c(NA), c(0)),
+                    RD_2 = mapvalues(RD_2, c(NA), c(0)),
+                    RD_3 = mapvalues(RD_3, c(NA), c(0)),
+                    CON_1 = mapvalues(CON_1, c("", " "), c(NA, NA)),
+                    CON_2 = mapvalues(CON_2, c("", " "), c(NA, NA)),
+                    CON_3 = mapvalues(CON_3, c("NA", "", " "), c(NA, NA, NA)),
+                    EXTENT_3 = mapvalues(EXTENT_3, c("NA", "", 0), c(NA, NA, NA)),
+                    SEV_3 = mapvalues(SEV_3, c("NA", "", 0), c(NA, NA, NA)),
+                    EXTENT_2 = mapvalues(EXTENT_2, c("NA", "", 0), c(NA, NA, NA)),
+                    EXTENT_1 = mapvalues(EXTENT_1, c("NA", "", 0), c(NA, NA, NA)),
+                    SEV_2 = mapvalues(SEV_2, c("NA", "", 0), c(NA, NA, NA)),
+                    SEV_1 = mapvalues(SEV_1, c("NA", "", 0), c(NA, NA, NA)),
                     OLD_DEAD = mapvalues(OLD_DEAD, c(NA), c(0)),
                     SPCODE = mapvalues(SPCODE, c(""), c(NA)),
                     MORPH_CODE = mapvalues(MORPH_CODE, c(""), c(NA))) 
 
 #old dead isn't recorded for Juvs or remnants
-View(sfm[which(sfm$JUVENILE == -1 & sfm$OLD_DEAD !=0),])
+View(sfm[which(sfm$REMNANT == -1 & sfm$OLD_DEAD !=0),])
 sfm$OLD_DEAD[which(sfm$JUVENILE == -1 | sfm$REMNANT == -1)] <- NA
 
 #Seglength for juvs is 1m not 2.5 CHANGE WHEN ACTUALLY DEALING WITH DATA 
-#View(sfm[which(sfm$JUVENILE == -1 & sfm$SEGLENGTH !=1),])
+View(sfm[which(sfm$JUVENILE == -1 & sfm$SEGLENGTH !=1),])
 #sfm$SEGLENGTH[which(sfm$JUVENILE == -1)] <- 1
 
 #Add column for segment area
@@ -173,8 +167,8 @@ sfm$SEGAREA <- sfm$SEGLENGTH*sfm$SEGWIDTH
 #Miscellaneous changes needed 
 sapply(sfm,unique)
 
-length(unique(sfm$SITE)) # 103 unique sites 
-length(unique(sfm$site_seg)) # 391 unique site_segs
+length(unique(sfm$SITE)) # 
+length(unique(sfm$site_seg)) #
 
 
 # QC Checks -------------------------------------------------------------------------------------
@@ -195,7 +189,7 @@ output[1,] <- c("Sites have been completely annotated", "YES") #change depending
 
 
 #if dataframe is populated, export csv and fix the error
-write.csv(partial_SiteSeg_removal, "Error_partial_filled_segments.csv")
+write.csv(partial_SiteSeg_removal, "QC Reports/Error_partial_filled_segments.csv")
 
 
 
@@ -232,9 +226,9 @@ eval.seg.per.site$Total <- rowSums(eval.seg.per.site)
 View(eval.seg.per.site) 
 
 #use this file to evaluate where segments may be missing
-write.csv(eval.seg.per.site, "Missing_seg_eval.csv")
+write.csv(eval.seg.per.site, "QC Reports/Missing_seg_eval.csv")
 
-output[5,]<-c("All annotated segments have correct seg counts","94 sites without seg 15") #change depending on output from previous line of code
+output[5,]<-c("All annotated segments have correct seg counts","YES") #change depending on output from previous line of code
 
 
 # #6. Make sure only 1 annotator exists per site_seg-no longer applicable since multiple people did belt corrections after cross checking
@@ -248,17 +242,17 @@ filter(analyst.per.site.seg, num.analyst>1)
 #7.Check for incorrect species-V:\PHOTOMOSAIC (1)\HARAMP\HARAMP_2019_codes.csv
 coral.counts <- ddply(sfm,.(SPCODE),summarize,temp=length(SPCODE))
 suspect <- sfm[sfm$SPCODE %in% coral.counts$SPCODE[coral.counts$temp <10],]
-write.csv(unique(sfm[c("SPCODE", "MORPH_CODE")]), "SP-MORPH_combo.csv")##export then check for any weird combos that dont make logical sense like PLIC-BR if probably PLIG-BR
-sus.morph <- read.csv("SP-MORPH_combo_checked.csv")
+write.csv(unique(sfm[c("SPCODE", "MORPH_CODE")]), "QC Reports/SP-MORPH_combo.csv")##export then check for any weird combos that dont make logical sense like PLIC-BR if probably PLIG-BR
+sus.morph <- read.csv("QC Reports/SP-MORPH_combo_checked.csv")
 sus.morph$combo <- paste(sus.morph$SPCODE, sus.morph$MORPH_CODE, sep = "_")
 sfm.suspect <- sfm; sfm.suspect$combo <- paste(sfm.suspect$SPCODE, sfm.suspect$MORPH_CODE, sep = "_")
 sfm.suspect <-  filter(sfm.suspect, combo %in% sus.morph$combo)
 
 
-write.csv(suspect, "suspect_corals.csv")
-write.csv(sfm.suspect, "suspect_morphs.csv")
+write.csv(suspect, "QC Reports/suspect_corals.csv")
+write.csv(sfm.suspect, "QC Reports/suspect_morphs.csv")
 
-output[7,]<-c("Species codes are correct","Some NA and blank -- OK")
+output[7,]<-c("Species codes are correct","TBD")
 
 
 #8. Check that SEGWIDTH is correct (should have been apparent in qc #1).
@@ -276,8 +270,8 @@ output[9,]<-c("Juveniles and Adult colonies have correct labeling", "YES")
 
 
 #If rows have been flagged, export sm_colonies dataframe into a csv file for further QC
-write.csv(sm.colonies.eval, "Juveniles_eval.csv")
-write.csv(lg.colonies.eval, "Adults_eval.csv")
+write.csv(sm.colonies.eval, "QC Reports/Juveniles_eval.csv")
+write.csv(lg.colonies.eval, "QC Reports/Adults_eval.csv")
 
 
 #10. Identify colonies have the same CON code across multiple CON columns
@@ -326,28 +320,34 @@ output[11,]<-c("Corals do not have duplicate RD codes","YES")
 
 
 #12. Identify colonies with 0% recent dead, but has an RDCAUSE code - This check should result in 0 records   
-sfm[which(sfm$RD_1== 0 | is.na(sfm$RD_1) & !is.na(sfm$RDCAUSE1)),]#; unique(a$site_seg)
-sfm[which(sfm$RD_2==0 | is.na(sfm$RD_2) & !is.na(sfm$RDCAUSE2)),]
-sfm[which(sfm$RD_3== 0 | is.na(sfm$RD_3) & !is.na(sfm$RDCAUSE3)),]
+RD_NAcheck1 <- sfm[which(sfm$RD_1== 0 | is.na(sfm$RD_1) & !is.na(sfm$RDCAUSE1)),]#; unique(a$site_seg)
+RD_NAcheck2 <- sfm[which(sfm$RD_2==0 | is.na(sfm$RD_2) & !is.na(sfm$RDCAUSE2)),]
+RD_NAcheck3 <- sfm[which(sfm$RD_3== 0 | is.na(sfm$RD_3) & !is.na(sfm$RDCAUSE3)),]
+RD_NACheck <- rbind(RD_NAcheck1, RD_NAcheck2, RD_NAcheck3)
 
+write.csv(RD_NACheck, "QC Reports/RD_eval.csv")
 output[12,]<-c("0% Recent Dead corals do NOT have an RDCAUSE code","YES")
 
 
 
  #13. Identify colonies with recent dead >0%, but there is no RDCAUSE code - This check should result in 0 records   
-sfm[which(sfm$RD_1 >0 & is.na(sfm$RDCAUSE1)),] #,rowSums(is.na(sfm)) != ncol(sfm),]
-sfm[which(sfm$RD_2 >0 & is.na(sfm$RDCAUSE2)),] #,rowSums(is.na(a)) != ncol(a), ]
-sfm[which(sfm$RD_3 >0 & is.na(sfm$RDCAUSE3)),] #,rowSums(is.na(a)) != ncol(a), ]
+RD_Cause_check1 <- sfm[which(sfm$RD_1 >0 & is.na(sfm$RDCAUSE1)),] #,rowSums(is.na(sfm)) != ncol(sfm),]
+RD_Cause_check2 <- sfm[which(sfm$RD_2 >0 & is.na(sfm$RDCAUSE2)),] #,rowSums(is.na(a)) != ncol(a), ]
+RD_Cause_check3 <- sfm[which(sfm$RD_3 >0 & is.na(sfm$RDCAUSE3)),] #,rowSums(is.na(a)) != ncol(a), ]
+RD_Cause_Check <- rbind(RD_Cause_check1, RD_Cause_check2, RD_Cause_check3)
 
+write.csv(RD_Cause_Check, "QC Reports/RD_cause_eval.csv")
 output[13,]<-c("All corals with RD >0 have an RDCAUSE code","YES")
 
 
 
 #14. Identify colonies with NO % EXTENT, but a condition - This check should result in 0 records    
-sfm[which(is.na(sfm$EXTENT_1) & !is.na(sfm$CON_1)),]
-sfm[which(is.na(sfm$EXTENT_2) & !is.na(sfm$CON_2)),]
-sfm[which(is.na(sfm$EXTENT_3) & !is.na(sfm$CON_3)),] 
+EXTENT_check1 <- sfm[which(is.na(sfm$EXTENT_1) & !is.na(sfm$CON_1)),]
+EXTENT_check2 <- sfm[which(is.na(sfm$EXTENT_2) & !is.na(sfm$CON_2)),]
+EXTENT_check3 <- sfm[which(is.na(sfm$EXTENT_3) & !is.na(sfm$CON_3)),] 
+EXTENT_Check <- rbind(EXTENT_check1, EXTENT_check2, EXTENT_check3)
 
+write.csv(EXTENT_Check, "QC Reports/Extent_eval.csv")
 output[14,]<-c("All colonies with a condition have an extent", "YES")
 
 
@@ -384,8 +384,8 @@ output[17,]<-c("Severity value is present only in colonies with CON = BLE", "YES
 
 #18. Make sure that values in SEV are only NA, 2, or 3 
 sfm[which(sfm$SEV_1>3 | sfm$SEV_1<2),]
-sfm[which(sfm$SEV_2>3 | sfm$SEV_1<2),]
-sfm[which(as.numeric(sfm$SEV_3)>3 | as.numeric(sfm$SEV_1)<2),]
+sfm[which(sfm$SEV_2>3 | sfm$SEV_2<2),]
+sfm[which(as.numeric(sfm$SEV_3)>3 | as.numeric(sfm$SEV_3)<2),]
 
 output[18,]<-c("Severity values are whole numbers between 0-3","YES")
 
@@ -441,11 +441,11 @@ sm.size <- sfm %>% filter(JUVENILE == -1 & Shape_Length >= .05|
                             JUVENILE != -1 & REMNANT != -1 & Shape_Length < .05) %>% 
                     filter(NO_COLONY != -1)
 
-write.csv(sm.size, "juv_rem_error.csv")
-output[24,]<-c("Juvenile and remnants are < 5cm","YES")
+write.csv(sm.size, "QC Reports/juv_rem_error.csv")
+output[24,]<-c("Juvenile and remnants are < 5cm","Fixing")
 
 #Export QC output table with appropriate file name
-write.csv(output,"HARAMP2024_sfm_Calib_output.csv")
+write.csv(output,"QC Reports/SE2503_QC_output_20260619.csv")
 
 
 
@@ -562,62 +562,6 @@ if(nrow(j)!=nrow(j)) {cat("WARNING:Data were dropped")} #Check that adult data w
 #Write out dataframes
 write.csv(j,file="T:/Benthic/Data/SfM/QC/SfM_Juvenile_Demographic_SE2406_forInPort.csv")
 write.csv(ad,file="T:/Benthic/Data/SfM/QC/SfM_Adult_demographic_SE2406_forInPort.csv")
-
-
-
-
-
-
-# Join the sitevisit table with the QC'd sfm geodatabase table (NOT UPDATED) ---------------------------------------------------------------
-
-#Make sure columns being merged between both dataframes have the same class
-sfm.sitevisit$SITE <- as.factor(sfm.sitevisit$SITE)
-sfm$SITE <- as.factor(sfm$SITE)
-
-sfm.sitevisit$SEGMENT <- as.factor(sfm.sitevisit$SEGMENT)
-sfm$SEGMENT <- as.factor(sfm$SEGMENT)
-
-
-
-#Remove logical NAs from the sitevisit table if they exist
-#function is housed within the "Prepping the data" section 
-str(sfm.sitevisit) 
-sfm.sitevisit$SITE_MAX_DEPTH <- RemoveLogicalNA(sfm.sitevisit$SITE_MAX_DEPTH)
-sfm.sitevisit$SITE_MIN_DEPTH <- RemoveLogicalNA(sfm.sitevisit$SITE_MIN_DEPTH)
-
-
-
-#Join geodatabase with site visit table 
-meta.geo.merge <- inner_join(sfm.sitevisit, sfm)
-meta.geo.merge$SITE <- as.factor(meta.geo.merge$SITE) #turn SITE back into factor
-
-
-
-#Make a table of all sites/segments from the site visit table that have not been annotated/did not merge with the geodatabse dataframe
-sitevisit.not.annotated <- anti_join(sfm.sitevisit, meta.geo.merge)
-write.csv(sitevisit.not.annotated, "Sites_without_annotation.csv")
-
-
-
-#Make a table of all sites/segments from the geodatabase that did not merge with the site visit table -- should = 0 observations
-not_merged <- anti_join(sfm, meta.geo.merge)
-sapply(not_merged,unique) #check if it is a specific SITE, SEGMENT, etc that is not merging with the site visit table
-write.csv(not_merged, "Geodatabase_output_incompatible_wSiteVisit.csv")
-
-
-
-#Dataframe for number of sites within a given island
-site_by_island <- meta.geo.merge %>%
-  group_by(ISLAND) %>%
-  summarize (n_distinct(SITE)) 
-View(site_by_island)
-
-
-#Dataframe for number of transects within a given site
-segment_per_site <- meta.geo.merge %>%
-  group_by(SITE) %>%
-  summarize (n_distinct(SEGMENT)) 
-View(segment_per_site) 
 
 
 

@@ -15,7 +15,7 @@ source("C:/Users/Jonathan.Charendoff/Documents/GitHub/fish-paste/lib/core_functi
 source("C:/Users/Jonathan.Charendoff/Documents/GitHub/fish-paste/lib/fish_team_functions.R")
 source("C:/Users/Jonathan.Charendoff/Documents/GitHub/fish-paste/lib/Islandwide Mean&Variance Functions.R")
 
-cnet<-read.csv("./Data/MARAMP25_Calibration_Annotations.csv")
+cnet<-read.csv("./Data/2025/MARAMP25_Calibration_Annotations.csv")
 lu<-read.csv("T:/Benthic/Data/Lookup Tables/All_Photoquad_codes.csv")
 cnet$Cnet_SHORT_CODE<-cnet$Label.code
 
@@ -174,14 +174,14 @@ p2<-ggplot(T1sum, aes(x=T1_DESC, y=mean, fill=Annotator)) + geom_bar(position=po
 
 print(p1)
 print(p2)
-ggsave("C:/Users/Jonathan.Charendoff/Documents/GitHub/Benthic-Scripts/Photoquad Calibration/Output/MARAMP2025_Calibration_barplots_T3.png",width=12,height=8,p1)
-ggsave("C:/Users/Jonathan.Charendoff/Documents/GitHub/Benthic-Scripts/Photoquad Calibration/Output/MARAMP2025_Calibration_barplots_T1.png",width=12,height=8,p2)
+ggsave("C:/Users/Jonathan.Charendoff/Documents/GitHub/Benthic-Scripts/Photoquad Calibration/Output/2025/Plots/MARAMP2025_Calibration_barplots_T3.png",width=24,height=16,p1)
+ggsave("C:/Users/Jonathan.Charendoff/Documents/GitHub/Benthic-Scripts/Photoquad Calibration/Output/2025/Plots/MARAMP2025_Calibration_barplots_T1.png",width=12,height=8,p2)
 
 # Confusion Matrix --------------------------------------------------------
 
 
 ## READ THE DATA FILE - AND PULL OUT BASIC COLUMNS
-bdata<-read.csv("./Data/MARAMP25_Calibration_Annotations.csv"); head(bdata)
+bdata<-read.csv("./Data/2025/MARAMP25_Calibration_Annotations.csv"); head(bdata)
 head(bdata)
 
 bdata$Name <- sub("_[^_]*$", "",bdata$Name)
@@ -208,14 +208,14 @@ GenerateCM<-function(data,gold, test, lev="TIER_3"){
   tmp<-merge(x1[c("Label.code","Annotator","unique")],x2[c("Label.code","Annotator","unique")],by="unique")
   colnames(tmp)<-c("Unique_point","Gold_Tier","Gold","Test_Tier","Test")
   tmp$comb<-paste(tmp$Gold_Tier,tmp$Test_Tier,sep=" _")
-  tmp2<-ddply(tmp,.(comb),
-              summarize,
-              count=length(comb))
-  
+  tmp2 <- tmp %>% 
+          group_by(comb) %>% 
+          dplyr::count(comb, name = "count")
   spl <-cSplit(tmp2, 'comb', sep="_", type.convert=FALSE)
   colnames(spl)<-c("count","Gold","Test")
   spl<-as.data.frame(spl)
-  ca<-dcast(spl, formula=Gold ~ Test, value.var="count",fill=0)
+  ca <- spl %>% 
+          pivot_wider(names_from = Test, values_from = count, values_fill = 0)
   return(ca)
 
 } #end GenerateCM 
@@ -232,40 +232,44 @@ plotCM<-function(data,gold, test,test2, lev="TIER_3"){
   c[is.na(c)]<-0
   d<-a[1:(ncol(a)-1)] 
   
-  m<-melt(c);head(m)
+  m <- c %>% 
+          pivot_longer(cols = 2:ncol(c), names_to = "variable")
   p1<-ggplot(data = m, aes(x = variable, y = Gold)) +
     geom_tile(aes(fill = value),colour="grey")+
     theme(axis.text.x = element_text(angle = 90, hjust = 1))+
     scale_fill_gradient('value', limits=c(0, 100), breaks = c(0, 25, 50,75,100),  low = "yellow", high = "red")+
     ylab("Answer Key")+xlab(test)+ggtitle("% of Points")
   
-  m<-melt(d)
-  p2<-ggplot(data = m, aes(x = variable, y = Gold)) +
+  m1 <-d %>% 
+    pivot_longer(cols = 2:ncol(d), names_to = "variable")
+  p2<-ggplot(data = m1, aes(x = variable, y = Gold)) +
     geom_tile(aes(fill = value),colour="white")+
     theme(axis.text.x = element_text(angle = 90, hjust = 1))+
     scale_fill_gradient('value', limits=c(0, 275), breaks = c(0, 50, 100,150,275),  low = "lightblue", high = "darkblue")+
-    ylab("Answer Key")+xlab(test2)+ggtitle("Total Points")
+    ylab("Answer Key")+xlab(test)+ggtitle("Total Points")
   
   
   
-  ggsave(p1,file=paste(lev, "_", gold, "_", test, "percentpoints.png", sep=""),width=10,height=8)
-  ggsave(p2,file=paste(lev, "_", gold, "_", test, "totalpoints.png", sep=""),width=10,height=8)
+  ggsave(p1,file=paste("C:/Users/Jonathan.Charendoff/Documents/GitHub/Benthic-Scripts/Photoquad Calibration/Output/2025/Plots/",lev, "_", gold, "_", test, "percentpoints.png", sep=""),width=10,height=8)
+  ggsave(p2,file=paste("C:/Users/Jonathan.Charendoff/Documents/GitHub/Benthic-Scripts/Photoquad Calibration/Output/2025/Plots/",lev, "_", gold, "_", test, "totalpoints.png", sep=""),width=10,height=8)
   
   return(p1)
   return(p2)
 }
 
 #Plot Data
-#Answer Key (cs389) vs. Hatsue
 plotCM(bd,gold="jonathan.charendoff",test="leerm",test2="Ro",lev="TIER_3") #create plots
-plotCM(bd,gold="jonathan.charendoff",test="Bex.Turner",test2="Erin",lev="TIER_3") #create plots
+plotCM(bd,gold="jonathan.charendoff",test="Bex.Turner",test2="BEx",lev="TIER_3") #create plots
 plotCM(bd,gold="jonathan.charendoff",test="mskye13",test2="Paula",lev="TIER_3") #create plots
 plotCM(bd,gold="jonathan.charendoff",test="ed0ard0sena",test2="Cristi",lev="TIER_3") #create plots
 plotCM(bd,gold="jonathan.charendoff",test="samantha.darin",test2="Sam",lev="TIER_3") #create plots
+plotCM(bd,gold="jonathan.charendoff",test="michaela.wong",test2="Michaela",lev="TIER_3") #create plots
+plotCM(bd,gold="jonathan.charendoff",test="kaylyn.mccoy",test2="Kaylyn",lev="TIER_3") #create plots
 
 
 #Transpose Long to Wide to identify which points we have issues with
-wide<-dcast(bd,formula=unique~Annotator,value.var="TIER_3",fill=NA)
+wide <- bd %>% 
+  pivot_wider(id_cols = unique, names_from = Annotator, values_from = TIER_3, values_fill = NA)
 
 wide$count <- apply(wide[,-1], 1, function(x)length(unique(x))) # count number of unique categories for each row.
 nrow(wide)
@@ -277,9 +281,3 @@ head(wide4)
 
 write.csv(wide4,"./Output/MARAMP25_calib_4.csv")
 write.csv(wide2,"./Output/MARAMP25_calib_2.csv")
-
-
-PM <- read.csv("C:/Users/Jonathan.Charendoff/Downloads/PaulaMisaMontiImages.csv")
-metadata <- read.csv("C:/Users/Jonathan.Charendoff/Downloads/metadata.csv")
-
-PM.meta <- metadata[metadata$Name %in% PM$Name,]
