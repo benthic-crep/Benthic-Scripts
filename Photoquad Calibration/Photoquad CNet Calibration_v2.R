@@ -257,7 +257,7 @@ plotCM<-function(data,gold, test,test2, lev="TIER_3"){
   return(p2)
 }
 
-#Plot Data
+#Plot Data CHANGE ANNOTATOR NAMES
 plotCM(bd,gold="jonathan.charendoff",test="leerm",test2="Ro",lev="TIER_3") #create plots
 plotCM(bd,gold="jonathan.charendoff",test="Bex.Turner",test2="BEx",lev="TIER_3") #create plots
 plotCM(bd,gold="jonathan.charendoff",test="mskye13",test2="Paula",lev="TIER_3") #create plots
