@@ -252,7 +252,7 @@ sfm.suspect <-  filter(sfm.suspect, combo %in% sus.morph$combo)
 write.csv(suspect, "QC Reports/suspect_corals.csv")
 write.csv(sfm.suspect, "QC Reports/suspect_morphs.csv")
 
-output[7,]<-c("Species codes are correct","TBD")
+output[7,]<-c("Species codes are correct","YES")
 
 
 #8. Check that SEGWIDTH is correct (should have been apparent in qc #1).
@@ -320,9 +320,9 @@ output[11,]<-c("Corals do not have duplicate RD codes","YES")
 
 
 #12. Identify colonies with 0% recent dead, but has an RDCAUSE code - This check should result in 0 records   
-RD_NAcheck1 <- sfm[which(sfm$RD_1== 0 | is.na(sfm$RD_1) & !is.na(sfm$RDCAUSE1)),]#; unique(a$site_seg)
-RD_NAcheck2 <- sfm[which(sfm$RD_2==0 | is.na(sfm$RD_2) & !is.na(sfm$RDCAUSE2)),]
-RD_NAcheck3 <- sfm[which(sfm$RD_3== 0 | is.na(sfm$RD_3) & !is.na(sfm$RDCAUSE3)),]
+RD_NAcheck1 <- sfm[which(sfm$RD_1== 0 & !is.na(sfm$RDCAUSE1)),]#; unique(a$site_seg)
+RD_NAcheck2 <- sfm[which(sfm$RD_2==0 & !is.na(sfm$RDCAUSE2)),]
+RD_NAcheck3 <- sfm[which(sfm$RD_3== 0 & !is.na(sfm$RDCAUSE3)),]
 RD_NACheck <- rbind(RD_NAcheck1, RD_NAcheck2, RD_NAcheck3)
 
 write.csv(RD_NACheck, "QC Reports/RD_eval.csv")
@@ -442,7 +442,7 @@ sm.size <- sfm %>% filter(JUVENILE == -1 & Shape_Length >= .05|
                     filter(NO_COLONY != -1)
 
 write.csv(sm.size, "QC Reports/juv_rem_error.csv")
-output[24,]<-c("Juvenile and remnants are < 5cm","Fixing")
+output[24,]<-c("Juvenile and remnants are < 5cm","YES")
 
 #Export QC output table with appropriate file name
 write.csv(output,"QC Reports/SE2503_QC_output_20260619.csv")
@@ -457,34 +457,22 @@ sfm<-subset(sfm,select=-totaldead)
 #Separate by adults and juveniles
 ad<-subset(sfm,JUVENILE==0|REMNANT==-1)
 
-j<-subset(sfm,JUVENILE=="-1") # includes segments where NO_COLONY = -1
+j<-subset(sfm,JUVENILE==-1) # includes segments where NO_COLONY = -1
 j<-subset(j,select=c(COLONYID,ANALYST,OBS_YEAR,MISSION_ID,SITE,TRANSECT,SEGMENT,SEGLENGTH,SEGWIDTH,NO_COLONY,SPCODE,MORPH_CODE,
                      EX_BOUND,JUVENILE,REMNANT,Shape_Length,SEGAREA))
 
-# #For annotator comparison study
-# analyst.per.seg.j<-j %>% filter(ANALYST=="RS" | ANALYST=="MW" | ANALYST=="MA") #for comparison plots NOT calibration plots
-# analyst.per.seg.j <- ddply(j,.(SITE, SEGMENT), summarize, num.analyst = n_distinct(ANALYST))
-# analyst.multiple.j <- filter(analyst.per.seg.j, num.analyst>1) 
-# 
-# analyst.per.seg.ad<-ad %>% filter(ANALYST=="RS" | ANALYST=="MW" | ANALYST=="MA") #for comparison plots NOT calibration plots
-# analyst.per.seg.ad$ANALYST<-droplevels(analyst.per.seg.ad$ANALYST)
-# analyst.per.seg.ad <- ddply(analyst.per.seg.ad,.(SITE, SEGMENT), summarize, num.analyst = n_distinct(ANALYST))
-# analyst.multiple.ad <- filter(analyst.per.seg.ad, num.analyst>1) 
-# 
-
 
 #Make sure that you have all the segments that are reported as annotated in the tracking datasheet (checked in beginning of script but not official)
-seglist<-read.csv("INSERT FILE PATH TO SEGMENT LIST PULLED FROM THE TRACKING SHEET") #We haven't been recording this information yet. 
 ad_e<-ddply(ad,.(SITE),summarize,n=length(unique(SEGMENT)))
-adseglist<-merge(ad,seglist,by=c(SITE,n),all=T)
+adseglist<-merge(ad,seglist,all=T)
 
 
 #Export QC'd data
 #Data ends up in "T:/Benthic/Data/SfM/QC" NOT within Benthic-Scripts Github folder
-setwd('T:/Benthic/Data/SfM/QC/')
-write.csv(ad,"SfM_Adult_demographic_SE2406.csv",row.names = F)
-write.csv(j,"SfM_Juvenile_Demographic_SE2406.csv",row.names = F)
-write.csv(sfm,"SfM_Demographic_SE2406.csv",row.names = F)
+setwd('T:/Benthic/Data/SfM/QC/2025')
+write.csv(ad,"SfM_Adult_demographic_SE2503.csv",row.names = F)
+write.csv(j,"SfM_Juvenile_Demographic_SE2503.csv",row.names = F)
+write.csv(sfm,"SfM_Demographic_SE2503.csv",row.names = F)
 
 
 # Prepare for InPort-Merge together survey master table and Inport ready (Corinne ran final updates) colony-level data ------------------------------------
