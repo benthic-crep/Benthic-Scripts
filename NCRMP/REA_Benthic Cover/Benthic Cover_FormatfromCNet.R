@@ -38,7 +38,7 @@ colnames(lu)[colnames(lu)=="Cnet_SHORT_CODE"]<-"SHORT_CODE"
 #laysan<-read.csv("2015_2017_NWHI_CnetAnnotations_Laysan.csv")
 # nwhi<-read.csv("2014_2017_NWHI_CnetAnnotations.csv")
 #swa<-read.csv("2023_Swains_CnetAnnotations.csv")
-cnmi<-read.csv("CNMI_2011_CNET_raw.csv")
+cnmi<-read.csv("Marianas_2011_CNET_raw.csv")
 
 tmp<-cnmi
 
@@ -57,6 +57,9 @@ colnames(new.cov)[colnames(new.cov)=="NAME"]<-"ORIGINAL_FILE_NAME"
 
 View(new.cov)
 
+#Make sure there is a * in front of short code
+new.cov <- new.cov %>% 
+  mutate(SHORT_CODE = if_else(str_starts(SHORT_CODE, "\\*"), SHORT_CODE, str_c("*", SHORT_CODE)))
 
 #Convert dates to date format
 new.cov$DATE_TAKEN<-lubridate::mdy(new.cov$DATE_TAKEN);head(new.cov$DATE_TAKEN)
@@ -138,5 +141,5 @@ table(df$OBS_YEAR,df$ISLAND)
 
 df$REGION_NAME<-"Mariana Archipelago"
 
-write.csv(df, file="T:/Benthic/Data/REA Coral Demography & Cover/Raw Data from CoralNet/2011_newCNMI_CnetAnnotations_formatted.csv",row.names = F)
+write.csv(df, file="T:/Benthic/Data/REA Coral Demography & Cover/Raw Data from CoralNet/2011_newMarianas_CnetAnnotations_formatted.csv",row.names = F)
 
