@@ -38,9 +38,11 @@ colnames(lu)[colnames(lu)=="Cnet_SHORT_CODE"]<-"SHORT_CODE"
 #laysan<-read.csv("2015_2017_NWHI_CnetAnnotations_Laysan.csv")
 # nwhi<-read.csv("2014_2017_NWHI_CnetAnnotations.csv")
 swa<-read.csv("2023_Swains_CnetAnnotations.csv")
+#swa<-read.csv("2023_Swains_CnetAnnotations.csv")
+cnmi<-read.csv("Marianas_2011_CNET_raw.csv")
 
-#tmp<-rbind(f15,b17)
 tmp<-swa
+tmp<-cnmi
 
 new.cov<-tmp
 head(new.cov)
@@ -49,6 +51,7 @@ head(new.cov)
 names(new.cov)<-toupper(names(new.cov));head(new.cov)
 
 colnames(new.cov)[colnames(new.cov)=="LABEL"]<-"SHORT_CODE"
+colnames(new.cov)[colnames(new.cov)=="LABEL.CODE"]<-"SHORT_CODE"
 colnames(new.cov)[colnames(new.cov)=="DATE"]<-"DATE_TAKEN"
 colnames(new.cov)[colnames(new.cov)=="DATE.ANNOTATED"]<-"DATE_ANNOTATED"
 colnames(new.cov)[colnames(new.cov)=="ROW"]<-"ROW_"
@@ -57,6 +60,9 @@ colnames(new.cov)[colnames(new.cov)=="NAME"]<-"ORIGINAL_FILE_NAME"
 
 View(new.cov)
 
+#Make sure there is a * in front of short code
+new.cov <- new.cov %>% 
+  mutate(SHORT_CODE = if_else(str_starts(SHORT_CODE, "\\*"), SHORT_CODE, str_c("*", SHORT_CODE)))
 
 #Convert dates to date format
 new.cov$DATE_TAKEN<-lubridate::mdy(new.cov$DATE_TAKEN);head(new.cov$DATE_TAKEN)
@@ -90,6 +96,7 @@ head(new.cov)
 
 #Join with survey master
 #survey_master<-read.csv("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/data/SURVEY MASTER.csv")
+survey_master<-read.csv("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/data/SURVEY MASTER.csv")
 
 #Use SM coordinates-some coordinates are wrong in data and need to be updated
 colnames(survey_master)[colnames(survey_master)=="LATITUDE_LOV"]<-"LATITUDE" #Change column name- we will eventually change this column back to "taxoncode" after we modify the spcode names to match the taxalist we all feel comfortable identifying
@@ -100,8 +107,24 @@ colnames(survey_master)[colnames(survey_master)=="new_MAX_DEPTH_M"]<-"MAX_DEPTH"
 
 #Identify column names you will need to merge with larger CNET dataframe
 load("T:/Benthic/Data/REA Coral Demography & Cover/Raw from Oracle/ALL_BIA_STR_CNET.rdata") #load data
+load("T:/Benthic/Data/REA Coral Demography & Cover/Raw from Oracle/ALL_CNET_Annotations.rdata") #load data
 c.name<-colnames(cnet)
 code.lu<-unique(cnet[,c("REGION_NAME","ISLANDCODE","REEF_ZONE_CODE","DEPTH_CODE","REGION","ISLAND","REEF_ZONE","DEPTH_BIN")]) #These columns don't exisit in the survey master or data downloaded from Cnet and will need to be added to the dataframe before merging with the larger dataset
+
+# Convert blank character strings/spaces to true NAs across cnet
+cnet_clean <- cnet %>% 
+  mutate(across(where(is.character), ~na_if(trimws(.), ""))) %>% 
+  mutate(
+    DEPTH_CODE = case_when(
+      DEPTH_BIN == "Shallow" ~ "SHAL",
+      DEPTH_BIN == "Mid" ~ "MID",
+      DEPTH_BIN == "Deep" ~ "DEEP",
+      TRUE ~ DEPTH_CODE))
+
+code.lu <- cnet_clean %>% 
+  dplyr::select(REGION_NAME, ISLANDCODE, REEF_ZONE_CODE, DEPTH_CODE, REGION, ISLAND, REEF_ZONE, DEPTH_BIN) %>% 
+  drop_na(REGION_NAME, ISLANDCODE, REEF_ZONE_CODE, DEPTH_CODE) %>% 
+  distinct()
 cn.lu<-unique(cnet[,c("NAME","SHORT_CODE")]) #These columns don't exisit in the survey master or data downloaded from Cnet and will need to be added to the dataframe before merging with the larger dataset
 
 
@@ -110,6 +133,7 @@ df<-new.cov %>%
   left_join(code.lu) %>%
   left_join(cn.lu)
 df$FUNCTIONAL_GROUP<-NA #Functional group is wierd- it can have multiple categories for a single code (e.g. CCAH can be both Algae and CCA)- ignoring
+df$PRIORITY<-1 #Adding becuase it's in the larger cnet df
 
 df<-df %>% dplyr::select(c.name)#only include columns in the larger cnet dataset
 
@@ -131,4 +155,5 @@ write.csv(df, file="T:/Benthic/Data/REA Coral Demography & Cover/Raw Data from C
 
 
 
+write.csv(df, file="T:/Benthic/Data/REA Coral Demography & Cover/Raw Data from CoralNet/2011_newMarianas_CnetAnnotations_formatted.csv",row.names = F)
 
