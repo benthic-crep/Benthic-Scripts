@@ -1,0 +1,111 @@
+TIER_1,T1_DESC,TIER_2,T2_DESC,TIER_2b,T2b_DESC,TIER_3,T3_DESC,Cnet_SHORT_CODE,CODE
+CORAL,Coral,ENC,Encrusting hard coral,ACAS,Acanthastrea sp,ACAS,Acanthastrea sp,*ACAS,ACAS
+CORAL,Coral,BR,Branching hard coral,ACSP,Acropora sp,ACBR,Acropora branching,*ACBR,ACBR
+CORAL,Coral,TAB,Tabulate hard coral,ACSP,Acropora sp,ACTA,Acropora tabulate,*ACTA,ACTA
+I,Sessile Invertebrate,AMNE,Anemone,AMNE,Anemone,AMNE,Anemone,*AMNE,AMNE
+MA,Macroalga,UPMA,Upright macroalga,ASPP,Asparagopsis sp,ASPP,Asparagopsis sp,*ASPP,ASPP
+CORAL,Coral,ENC,Encrusting hard coral,ASSP,Astreopora sp,ASSP,Astreopora sp,*ASSP,ASSP
+CORAL,Coral,MASS,Massive hard coral,ASTS,Astrea spp,ASTS,Astrea spp,*ASTS,ASTS
+MA,Macroalga,UPMA,Upright macroalga,GRMA,Green macroalga,AVSP,Avrainvillea sp,*AVSP,AVSP
+MA,Macroalga,UPMA,Upright macroalga,BGMA,Blue-green macroalga,BGMA,Blue-green macroalga,*BGMA,BGMA
+I,Sessile Invertebrate,BI,Bivalve,BI,Bivalve,BI,Bivalve,*BI,BI
+CORAL,Coral,BR,Branching hard coral,BR,Branching hard coral,BR,Branching hard coral,*BR,BR
+MA,Macroalga,UPMA,Upright macroalga,BRMA,Brown macroalgae,BRMA,Brown macroalgae,*BRMA,BRMA
+I,Sessile Invertebrate,BRY,Bryozoan,BRY,Bryozoan,BRY,Bryozoan,*BRY,BRY
+MA,Macroalga,UPMA,Upright macroalga,GRMA,Green macroalga,CAUL,Caulerpa sp,*CAUL,CAUL
+CCA,Coralline Alga,CCAH,CCA growing on hard substrate,CCA,Coralline Alga,CCAH,CCA growing on hard substrate,*CCAH,CCAH
+CCA,Coralline Alga,CCAR,CCA growing on rubble,CCA,Coralline Alga,CCAR,CCA growing on rubble,*CCAR,CCAR
+I,Sessile Invertebrate,CMOR,Corallimorph,CMOR,Corallimorph,CMOR,Corallimorph,*CMOR,CMOR
+CORAL,Coral,COL,Columnar hard coral,COL,Columnar hard coral,COL,Columnar hard coral,*COL,COL
+CORAL,Coral,ENC,Encrusting hard coral,COSP,Coscinaraea sp,COSP,Coscinaraea sp,*COSP,COSP
+TURF,Turf Alga,HARD,Hard substrate,COTS,COTS predation,COTS,COTS predation,*COTS_Pred,COTS
+CORAL,Coral,ENC,Encrusting hard coral,CYPS,Cyphastrea sp,CYPS,Cyphastrea sp,*CYPS,CYPS
+MA,Macroalga,UPMA,Upright macroalga,BRMA,Brown macroalgae,DICO,Dictyopteris/Dictyota,*DICO,DICO
+MA,Macroalga,UPMA,Upright macroalga,DICT,Dictyosphaeria sp,DICT,Dictyosphaeria sp,*DICT,DICT
+CORAL,Coral,MASS,Massive hard coral,DISP,Diploastrea sp,DISP,Diploastrea sp,*DISP,DISP
+CORAL,Coral,ENC,Encrusting hard coral,ECHL,Echinophyllia sp,ECHL,Echinophyllia sp,*ECHL,ECHL
+CORAL,Coral,ENC,Encrusting hard coral,ECHP,Echinopora sp,ECHP,Echinopora sp,*ECHP,ECHP
+MA,Macroalga,EMA,Encrusting macroalga,EMA,Encrusting macroalga,EMA,Encrusting macroalga,*EMA,EMA
+CORAL,Coral,ENC,Encrusting hard coral,ENC,Encrusting hard coral,ENC,Encrusting hard coral,*ENC,ENC
+CORAL,Coral,BR,Branching hard coral,EUSP,Euphyllia sp,EUSP,Euphyllia sp,*EUSP,EUSP
+CORAL,Coral,MASS,Massive hard coral,FASP,Favia sp,FASP,Favia sp,*FASP,FASP
+CORAL,Coral,MASS,Massive hard coral,FAVS,Favites sp,FAVS,Favites sp,*FAVS,FAVS
+SED,Sediment,FINE,Fine sediment,FINE,Fine sediment,FINE,Fine sediment,*FINE,FINE
+CORAL,Coral,FOL,Foliose hard coral,FOL,Foliose hard coral,FOL,Foliose hard coral,*FOL,FOL
+CORAL,Coral,FREE,Free-living hard coral,FREE,Free-living hard coral,FREE,Free-living hard coral,*FREE,FREE
+CORAL,Coral,FREE,Free-living hard coral,FUSP,Fungia sp,FUSP,Fungia sp,*FUSP,FUSP
+CORAL,Coral,ENC,Encrusting hard coral,GASP,Galaxea sp,GASP,Galaxea sp,*GASP,GASP
+I,Sessile Invertebrate,GC,Giant clam,GC,Giant clam,GC,Giant clam,*GC,GC
+CORAL,Coral,ENC,Encrusting hard coral,GOAL,Goniopora/Alveopora sp,GOAL,Goniopora/Alveopora sp,*GOAL,GOAL
+CORAL,Coral,MASS,Massive hard coral,GONS,Goniastrea sp,GONS,Goniastrea sp,*GONS,GONS
+MA,Macroalga,UPMA,Upright macroalga,GRMA,Green macroalgae,GRMA,Green macroalgae,*GRMA,GRMA
+MA,Macroalga,UPMA,Upright macroalga,HALI,Halimeda sp,HALI,Halimeda sp,*HALI,HALI
+TURF,Turf Alga,HARD,Hard substrate,HARD,Hard substrate,HARD,Hard substrate,*HARD,HARD
+CORAL,Coral,NS,Non-scleractinian hard coral,HCOE,Heliopora sp,HCOE,Heliopora sp,*HCOE,HCOE
+CORAL,Coral,NS,Non-scleractinian hard coral,HYCO,Hydrocoral,HYCO,Hydrocoral,*HYCO,HYCO
+CORAL,Coral,MASS,Massive hard coral,HYSP,Hydnophora sp,HYSP,Hydnophora sp,*HYSP,HYSP
+CORAL,Coral,ENC,Encrusting hard coral,ISSP,Isopora sp,ISSP,Isopora sp,*ISSP,ISSP
+CORAL,Coral,ENC,Encrusting hard coral,LEPT,Leptastrea sp,LEPT,Leptastrea sp,*LEPT,LEPT
+CORAL,Coral,ENC,Encrusting hard coral,LESP,Leptoseris sp,LESP,Leptoseris sp,*LESP,LESP
+MA,Macroalga,UPMA,Upright macroalga,LOBO,Lobophora sp,LOBO,Lobophora sp,*LOBO,LOBO
+CORAL,Coral,MASS,Massive hard coral,LOBS,Lobophyllia sp,LOBS,Lobophyllia sp,*LOBS,LOBS
+CORAL,Coral,MASS,Massive hard coral,LPHY,Leptoria sp,LPHY,Leptoria sp,*LPHY,LPHY
+CORAL,Coral,MASS,Massive hard coral,MASS,Massive hard coral,MASS,Massive hard coral,*MASS,MASS
+CORAL,Coral,FOL,Foliose hard coral,MESP,Merulina sp,MESP,Merulina sp,*MESP,MESP
+MA,Macroalga,UPMA,Upright macroalga,MICR,Microdictyon sp,MICR,Microdictyon sp,*MICR,MICR
+CORAL,Coral,NS,Non-scleractinian hard coral,MISP,Millepora sp,MISP,Millepora sp,*MISP,MISP
+MF,Mobile Fauna,MOBF,Mobile fauna,MOBF,Mobile fauna,MOBF,Mobile fauna,*MOBF,MOBF
+CORAL,Coral,BR,Branching hard coral,MOSP,Montipora sp,MOBR,Montipora branching,*MOBR,MOBR
+CORAL,Coral,ENC,Encrusting hard coral,MOSP,Montipora sp,MOEN,Montipora encrusting,*MOEN,MOEN
+CORAL,Coral,FOL,Foliose hard coral,MOSP,Montipora sp,MOFO,Montipora foliose,*MOFO,MOFO
+CORAL,Coral,MASS,Massive hard coral,MONS,Montastraea sp,MONS,Montastraea sp,*MONS,MONS
+MA,Macroalga,UPMA,Upright macroalga,GRMA,Green macroalgae,NEOM,Neomeris sp,*NEOM,NEOM
+SC,Soft Coral,OCTO,Octocoral,OCTO,Octocoral,OCTO,Octocoral,*OCTO,OCTO
+CORAL,Coral,MASS,Massive hard coral,OUSP,Oulophyllia sp,OUSP,Oulophyllia sp,*OUSP,OUSP
+CORAL,Coral,FOL,Foliose hard coral,PACS,Pachyseris sp,PACS,Pachyseris sp,*PACS,PACS
+MA,Macroalga,UPMA,Upright macroalga,PADI,Padina sp,PADI,Padina sp,*PADI,PADI
+CORAL,Coral,ENC,Encrusting hard coral,PAVS,Pavona sp,PAEN,Pavona encrusting,*PAEN,PAEN
+CORAL,Coral,FOL,Foliose hard coral,PAVS,Pavona sp,PAFO,Pavona foliose,*PAFO,PAFO
+CORAL,Coral,MASS,Massive hard coral,PAVS,Pavona sp,PAMA,Pavona massive,*PAMA,PAMA
+MA,Macroalga,EMA,Encrusting macroalga,PESP,Peyssonnelia sp,PESP,Peyssonnelia sp,*PESP,PESP
+CORAL,Coral,ENC,Encrusting hard coral,PHSP,Phymastrea sp,PHSP,Phymastrea sp,*PHSP,PHSP
+CORAL,Coral,BR,Branching hard coral,PLER,Plerogyra sp,PLER,Plerogyra sp,*PLER,PLER
+CORAL,Coral,MASS,Massive hard coral,PLSP,Platygyra sp,PLSP,Platygyra sp,*PLSP,PLSP
+CORAL,Coral,BR,Branching hard coral,POSP,Porites sp,POBR,Porites branching,*POBR,POBR
+CORAL,Coral,BR,Branching hard coral,POCS,Pocillopora sp,POCS,Pocillopora sp,*POCS,POCS
+CORAL,Coral,ENC,Encrusting hard coral,POSP,Porites sp,POEN,Porites encrusting,*POEN,POEN
+CORAL,Coral,FOL,Foliose hard coral,POSP,Porites sp,POFO,Porites foliose,*POFO,POFO
+CORAL,Coral,MASS,Massive hard coral,POSP,Porites sp,POMA,Porites massive,*POMA,POMA
+CORAL,Coral,ENC,Encrusting hard coral,PSSP,Psammocora sp,PSSP,Psammocora sp,*PSSP,PSSP
+MA,Macroalga,UPMA,Upright macroalga,RDMA,Red macroalgae,RDMA,Red macroalgae,*RDMA,RDMA
+TURF,Turf Alga,RUB,Rubble substrate,RUB,Rubble substrate,RUB,Rubble substrate,*RUB,RUB
+SED,Sediment,SAND,Sand,SAND,Sand,SAND,Sand,*SAND,SAND
+MA,Macroalga,UPMA,Upright macroalga,SG,Seagrass,SG,Seagrass,*SG,SG
+UC,Unclassified,SHAD,Shadow,SHAD,Shadow,SHAD,Shadow,*SHAD,SHAD
+I,Sessile Invertebrate,SP,Sponge,SP,Sponge,SP,Sponge,*SP,SP
+CORAL,Coral,BR,Branching hard coral,STYS,Stylophora sp,STYS,Stylophora sp,*STYS,STYS
+CORAL,Coral,MASS,Massive hard coral,SYSP,Symphyllia sp,SYSP,Symphyllia sp,*SYSP,SYSP
+TW,Tape and wand,TAPE,Tape,TAPE,Tape,TAPE,Tape,*TAPE,TAPE
+I,Sessile Invertebrate,TUN,Tunicate,TUN,Tunicate,TUN,Tunicate,*TUN,TUN
+TURF,Turf Alga,TURFH,Turf growing on hard substrate,TURF,Turf Alga,TURFH,Turf growing on hard substrate,*TURFH,TURFH
+TURF,Turf Alga,TURFR,Turf growing on rubble,TURF,Turf Alga,TURFR,Turf growing on rubble,*TURFR,TURFR
+CORAL,Coral,FOL,Foliose hard coral,TURS,Turbinaria sp,TURS,Turbinaria sp,*TURS,TURS
+I,Sessile Invertebrate,UI,Unclassified sessile invertebrate,UI,Unclassified sessile invertebrate,UI,Unclassified sessile invertebrate,*UI,UI
+UC,Unclassified,UNK,Unclassified/Unknown,UNK,Unclassified/Unknown,UNK,Unclassified/Unknown,*UNK,UNK
+MA,Macroalga,UPMA,Upright macroalga,UPMA,Upright macroalga,UPMA,Upright macroalga,*UPMA,UPMA
+SC,Soft Coral,USC,Unclassified soft coral,USC,Unclassified soft coral,USC,Unclassified soft coral,*USC,USC
+TW,Tape and wand,WAND,Wand,WAND,Wand,WAND,Wand,*WAND,WAND
+I,Sessile Invertebrate,ZO,Zoanthid,ZO,Zoanthid,ZO,Zoanthid,*ZO,ZO
+I,Sessile Invertebrate,ANTI,Wire and black coral,ANTI,Wire and black coral,ANTI,Wire and black coral,*ANTI,ANTI
+CORAL,Coral,MASS,Massive hard coral,LOSY,Lobophyllia/Symphyllia sp,LOSY,Lobophyllia/Symphyllia sp,NA,LOSY
+CORAL,Coral,CORAL,Hard coral,MOSP,Montipora sp,MONE,non-encrusting Montipora sp,NA,MONE
+CORAL,Coral,CORAL,Hard coral,PAVS,Pavona sp,PAVS,Pavona sp,NA,PAVS
+CORAL,Coral,MASS,Massive hard coral,PLLE,Platygyra/Leptoria sp,PLLE,Platygyra/Leptoria sp,NA,PLLE
+CORAL,Coral,CORAL,Hard coral,POSP,Porites sp,PONM,non-massive Porites sp,NA,PONM
+CORAL,Coral,CORAL,Hard coral,NS,Non-scleractinian hard coral,NS,Non-scleractinian hard coral,NA,NS
+MA,Macroalga,UPMA,Upright macroalga,GRMA,Green macroalgae,BOOD,Boodlea sp,NA,BOOD
+MA,Macroalga,UPMA,Upright macroalga,GRMA,Green macroalgae,CHLS,Chlorodesmis sp,NA,CHLS
+MA,Macroalga,UPMA,Upright macroalga,RDMA,Red macroalgae,ACPH,Acanthophora sp,NA,ACPH
+MA,Macroalga,UPMA,Upright macroalga,RDMA,Red macroalgae,AMSP,Amansia sp,NA,AMSP
+MA,Macroalga,UPMA,Upright macroalga,RDMA,Red macroalgae,GALS,Galaxaura sp,NA,GALS
+MA,Macroalga,UPMA,Upright macroalga,RDMA,Red macroalgae,GALI,Ganonema/Liagora,NA,GALI

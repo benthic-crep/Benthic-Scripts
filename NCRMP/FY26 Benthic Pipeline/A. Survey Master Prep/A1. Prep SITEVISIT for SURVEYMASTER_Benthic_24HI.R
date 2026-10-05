@@ -13,11 +13,14 @@ targetMI=MI_24 %>% filter(REGION%in%c("NWHI","MHI")) %>% pull(MISSIONID) %>% uni
 ## LOAD: Site visit table from Oracle database that has sectors defined to each site (by Kisei)
 SV_24=NULL
 for (mi_i in targetMI) {
-  SV_24i=fetch_data(base_url = "https://picapex.nmfs.local/gis/esd/esd_data/site_visit_info",
-                       MISSIONID==mi_i)
+  # SV_24i=fetch_data(base_url = "https://picapex.nmfs.local/gis/esd/esd_data/site_visit_info",
+  #                   MISSIONID==mi_i)
+  SV_24i=fetch_data(base_url = "https://picapex.nmfs.local/gis/esd/esd_data/v0_survey_master_02_cruise",
+                    MISSIONID==mi_i)
   SV_24=rbind(SV_24,SV_24i)
 }
 dim(SV_24)
+
 
 ## LOAD existing SURVEY MASTER
 SM_OLD=read.csv("../fish-paste/data/SURVEY MASTER.csv")

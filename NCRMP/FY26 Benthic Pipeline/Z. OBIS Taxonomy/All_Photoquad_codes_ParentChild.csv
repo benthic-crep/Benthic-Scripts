@@ -1,0 +1,119 @@
+﻿PARENT_CODE,PARENT_DESC,PARENT RANK,CHILD_CODE,CHILD_DESC,CHILD_RANK,FLAG_LOOP
+BIOTA,Biological Code,T0,CCA,Coralline Alga,T1,BIOTREE
+BIOTA,Biological Code,T0,CORAL,Coral,T1,BIOTREE
+BIOTA,Biological Code,T0,I,Sessile Invertebrate,T1,BIOTREE
+BIOTA,Biological Code,T0,MA,Macroalga,T1,BIOTREE
+BIOTA,Biological Code,T0,MF,Mobile Fauna,T1,BIOTREE
+BIOTA,Biological Code,T0,TURF,Turf Alga,T1,BIOTREE
+OFFSURVEY,NonTarget,T0,TW,Tape and wand,T1,OFFTREE
+OFFSURVEY,NonTarget,T0,UC,Unclassified,T1,OFFTREE
+SUBS,Substrate,T0,SED,Sediment,T1,SUBSTREE
+CCA,Coralline Alga,T1,CCAH,CCA growing on hard substrate,T2,BIOTREE
+CCA,Coralline Alga,T1,CCAR,CCA growing on rubble,T2,BIOTREE
+CORAL,Coral,T1,NS,Non-scleractinian hard coral,T2,BIOTREE
+CORAL,Coral,T1,TAB,Tabulate hard coral,T2,BIOTREE
+CORAL,Coral,T1,ACAS,Acanthastrea sp,T2b,BIOTREE
+CORAL,Coral,T1,ACSP,Acropora sp,T2b,BIOTREE
+CORAL,Coral,T1,ASSP,Astreopora sp,T2b,BIOTREE
+CORAL,Coral,T1,ASTS,Astrea spp,T2b,BIOTREE
+CORAL,Coral,T1,COSP,Coscinaraea sp,T2b,BIOTREE
+CORAL,Coral,T1,CYPS,Cyphastrea sp,T2b,BIOTREE
+CORAL,Coral,T1,DISP,Diploastrea sp,T2b,BIOTREE
+CORAL,Coral,T1,ECHL,Echinophyllia sp,T2b,BIOTREE
+CORAL,Coral,T1,ECHP,Echinopora sp,T2b,BIOTREE
+CORAL,Coral,T1,EUSP,Euphyllia sp,T2b,BIOTREE
+CORAL,Coral,T1,FASP,Favia sp,T2b,BIOTREE
+CORAL,Coral,T1,FAVS,Favites sp,T2b,BIOTREE
+CORAL,Coral,T1,FUSP,Fungia sp,T2b,BIOTREE
+CORAL,Coral,T1,GASP,Galaxea sp,T2b,BIOTREE
+CORAL,Coral,T1,GOAL,Goniopora/Alveopora sp,T2b,BIOTREE
+CORAL,Coral,T1,GONS,Goniastrea sp,T2b,BIOTREE
+CORAL,Coral,T1,HYSP,Hydnophora sp,T2b,BIOTREE
+CORAL,Coral,T1,ISSP,Isopora sp,T2b,BIOTREE
+CORAL,Coral,T1,LEPT,Leptastrea sp,T2b,BIOTREE
+CORAL,Coral,T1,LESP,Leptoseris sp,T2b,BIOTREE
+CORAL,Coral,T1,LOBS,Lobophyllia sp,T2b,BIOTREE
+CORAL,Coral,T1,LOSY,Lobophyllia/Symphyllia sp,T2b,BIOTREE
+CORAL,Coral,T1,LPHY,Leptoria sp,T2b,BIOTREE
+CORAL,Coral,T1,MESP,Merulina sp,T2b,BIOTREE
+CORAL,Coral,T1,MISP,Millepora sp,T2b,BIOTREE
+CORAL,Coral,T1,MONS,Montastraea sp,T2b,BIOTREE
+CORAL,Coral,T1,MOSP,Montipora sp,T2b,BIOTREE
+CORAL,Coral,T1,OUSP,Oulophyllia sp,T2b,BIOTREE
+CORAL,Coral,T1,PACS,Pachyseris sp,T2b,BIOTREE
+CORAL,Coral,T1,PAVS,Pavona sp,T2b,BIOTREE
+CORAL,Coral,T1,PHSP,Phymastrea sp,T2b,BIOTREE
+CORAL,Coral,T1,PLER,Plerogyra sp,T2b,BIOTREE
+CORAL,Coral,T1,PLLE,Platygyra/Leptoria sp,T2b,BIOTREE
+CORAL,Coral,T1,PLSP,Platygyra sp,T2b,BIOTREE
+CORAL,Coral,T1,POCS,Pocillopora sp,T2b,BIOTREE
+CORAL,Coral,T1,POSP,Porites sp,T2b,BIOTREE
+CORAL,Coral,T1,PSSP,Psammocora sp,T2b,BIOTREE
+CORAL,Coral,T1,STYS,Stylophora sp,T2b,BIOTREE
+CORAL,Coral,T1,SYSP,Symphyllia sp,T2b,BIOTREE
+CORAL,Coral,T1,TURS,Turbinaria sp,T2b,BIOTREE
+I,Sessile Invertebrate,T1,AMNE,Anemone,T2,BIOTREE
+I,Sessile Invertebrate,T1,ANTI,Wire and black coral,T2,BIOTREE
+I,Sessile Invertebrate,T1,BI,Bivalve,T2,BIOTREE
+I,Sessile Invertebrate,T1,BRY,Bryozoan,T2,BIOTREE
+I,Sessile Invertebrate,T1,CMOR,Corallimorph,T2,BIOTREE
+I,Sessile Invertebrate,T1,GC,Giant clam,T2,BIOTREE
+I,Sessile Invertebrate,T1,SP,Sponge,T2,BIOTREE
+I,Sessile Invertebrate,T1,TUN,Tunicate,T2,BIOTREE
+I,Sessile Invertebrate,T1,UI,Unclassified sessile invertebrate,T2,BIOTREE
+I,Sessile Invertebrate,T1,ZO,Zoanthid,T2,BIOTREE
+MA,Macroalga,T1,EMA,Encrusting macroalga,T2,BIOTREE
+MA,Macroalga,T1,UPMA,Upright macroalga,T2,BIOTREE
+MF,Mobile Fauna,T1,MOBF,Mobile fauna,T2,BIOTREE
+SC,Soft Coral,T1,OCTO,Octocoral,T2,BIOTREE
+SC,Soft Coral,T1,USC,Unclassified soft coral,T2,BIOTREE
+SED,Sediment,T1,FINE,Fine sediment,T2,SUBSTREE
+SED,Sediment,T1,HARD,Hard substrate,T2,SUBSTREE
+SED,Sediment,T1,RUB,Rubble substrate,T2,SUBSTREE
+SED,Sediment,T1,SAND,Sand,T2,SUBSTREE
+TURF,Turf Alga,T1,TURFH,Turf growing on hard substrate,T2,BIOTREE
+TURF,Turf Alga,T1,TURFR,Turf growing on rubble,T2,BIOTREE
+TURF,Turf Alga,T1,COTS,COTS predation,T2b,BIOTREE
+UC,Unclassified,T1,SHAD,Shadow,T2,OFFTREE
+UC,Unclassified,T1,UNK,Unclassified/Unknown,T2,OFFTREE
+ACSP,Acropora sp,T2,ACBR,Acropora branching,T3,BIOLOOP_TAX
+ACSP,Acropora sp,T2,ACTA,Acropora tabulate,T3,BIOLOOP_TAX
+EMA,Encrusting macroalga,T2,PESP,Peyssonnelia sp,T2b,BIOTREE
+MOSP,Montipora sp,T2,MOBR,Montipora branching,T3,BIOLOOP_TAX
+MOSP,Montipora sp,T2,MOEN,Montipora encrusting,T3,BIOLOOP_TAX
+MOSP,Montipora sp,T2,MOFO,Montipora foliose,T3,BIOLOOP_TAX
+MOSP,Montipora sp,T2,MONE,Montipora sp non-encrusting ,T3,BIOLOOP_TAX
+NS,Non-scleractinian hard coral,T2,HCOE,Heliopora sp,T2b,BIOTREE
+NS,Non-scleractinian hard coral,T2,HYCO,Hydrocoral,T2b,BIOTREE
+PAVS,Pavona sp,T2,PAEN,Pavona encrusting,T3,BIOLOOP_TAX
+PAVS,Pavona sp,T2,PAFO,Pavona foliose,T3,BIOLOOP_TAX
+PAVS,Pavona sp,T2,PAMA,Pavona massive,T3,BIOLOOP_TAX
+POSP,Porites sp,T2,POBR,Porites branching,T3,BIOLOOP_TAX
+POSP,Porites sp,T2,POEN,Porites encrusting,T3,BIOLOOP_TAX
+POSP,Porites sp,T2,POFO,Porites foliose,T3,BIOLOOP_TAX
+POSP,Porites sp,T2,POMA,Porites massive,T3,BIOLOOP_TAX
+POSP,Porites sp,T2,PONM,Porites sp non-massive ,T3,BIOLOOP_TAX
+UPMA,Upright macroalga,T2,ASPP,Asparagopsis sp,T2b,BIOTREE
+UPMA,Upright macroalga,T2,BGMA,Blue-green macroalga,T2b,BIOTREE
+UPMA,Upright macroalga,T2,BRMA,Brown macroalgae,T2b,BIOTREE
+UPMA,Upright macroalga,T2,DICT,Dictyosphaeria sp,T2b,BIOTREE
+UPMA,Upright macroalga,T2,GRMA,Green macroalga,T2b,BIOTREE
+UPMA,Upright macroalga,T2,HALI,Halimeda sp,T2b,BIOTREE
+UPMA,Upright macroalga,T2,LOBO,Lobophora sp,T2b,BIOTREE
+UPMA,Upright macroalga,T2,MICR,Microdictyon sp,T2b,BIOTREE
+UPMA,Upright macroalga,T2,PADI,Padina sp,T2b,BIOTREE
+UPMA,Upright macroalga,T2,RDMA,Red macroalgae,T2b,BIOTREE
+UPMA,Upright macroalga,T2,SG,Seagrass,T2b,BIOTREE
+BRMA,Brown macroalgae,T2b,DICO,Dictyopteris/Dictyota,T3,BIOTREE
+GRMA,Green macroalga,T2b,AVSP,Avrainvillea sp,T3,BIOTREE
+GRMA,Green macroalgae,T2b,BOOD,Boodlea sp,T3,BIOTREE
+GRMA,Green macroalga,T2b,CAUL,Caulerpa sp,T3,BIOTREE
+GRMA,Green macroalgae,T2b,CHLS,Chlorodesmis sp,T3,BIOTREE
+GRMA,Green macroalgae,T2b,NEOM,Neomeris sp,T3,BIOTREE
+RDMA,Red macroalgae,T2b,ACPH,Acanthophora sp,T3,BIOTREE
+RDMA,Red macroalgae,T2b,AMSP,Amansia sp,T3,BIOTREE
+RDMA,Red macroalgae,T2b,GALI,Ganonema/Liagora,T3,BIOTREE
+RDMA,Red macroalgae,T2b,GALS,Galaxaura sp,T3,BIOTREE
+OBJ,Object,TX,BIOTA,Biological Code,T0,ROOT
+OBJ,Object,TX,OFFSURVEY,NonTarget,T0,ROOT
+OBJ,Object,TX,SUBS,Substrate,T0,ROOT

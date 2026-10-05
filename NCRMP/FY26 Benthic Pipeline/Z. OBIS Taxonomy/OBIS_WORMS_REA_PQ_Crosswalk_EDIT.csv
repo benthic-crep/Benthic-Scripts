@@ -1,0 +1,274 @@
+source,source_code,source_rank,source_name,lookup_name,scientificName,aphiaID
+REA,AAAA,COMPLEX,EMPTY SURVEY,EMPTY SURVEY,EMPTY SURVEY,NA
+REA,LEPA,COMPLEX,NO WORM ENTRY,NO WORM ENTRY,NO WORM ENTRY,NA
+REA,PGWC,COMPLEX,Pocillopora,Pocillopora,Pocillopora,206938
+REA,PMRC,COMPLEX,Porites,Porites,Porites,206485
+REA,ACAS,GENUS,Acanthastrea,Acanthastrea,Acanthastrea,206405
+PQ,ACSP,GENUS,Acropora,Acropora,Acropora,NA
+REA,ASTS,GENUS,Astrea,Astrea,Astrea,NA
+REA,ASSP,GENUS,Astreopora,Astreopora,Astreopora,204599
+REA,BASP,GENUS,Balanophyllia,Balanophyllia,Balanophyllia,135108
+REA,CLSP,GENUS,Cladiella,Cladiella,Cladiella,205863
+REA,COES,GENUS,Coeloseris,Coeloseris,Coeloseris,206905
+REA,COSP,GENUS,Coscinaraea,Coscinaraea,Coscinaraea,204591
+REA,CTSP,GENUS,Ctenactis,Ctenactis,Ctenactis,206403
+REA,CYSP,GENUS,Cycloseris,Cycloseris,Cycloseris,204552
+REA,CYPS,GENUS,Cyphastrea,Cyphastrea,Cyphastrea,206488
+REA,DESP,GENUS,Dendronephthya,Dendronephthya,Dendronephthya,206503
+REA,DISP,GENUS,Diploastrea,Diploastrea,Diploastrea,204221
+REA,ECHL,GENUS,Echinophyllia,Echinophyllia,Echinophyllia,204799
+REA,ECHP,GENUS,Echinopora,Echinopora,Echinopora,205519
+REA,EUSP,GENUS,Euphyllia,Euphyllia,Euphyllia,206703
+REA,FASP,GENUS,Favia,Favia,Favia,NA
+REA,FAVS,GENUS,Favites,Favites,Favites,206158
+REA,FUSP,GENUS,Fungia,Fungia,Fungia,206375
+REA,GASP,GENUS,Galaxea,Galaxea,Galaxea,NA
+REA,GARS,GENUS,Gardineroseris,Gardineroseris,Gardineroseris,204594
+REA,GONS,GENUS,Goniastrea,Goniastrea,Goniastrea,205082
+REA,GOSP,GENUS,Goniopora,Goniopora,Goniopora,205476
+REA,HASP,GENUS,Halomitra,Halomitra,Halomitra,204387
+REA,HESP,GENUS,Heliopora,Heliopora,Heliopora,206210
+REA,HERS,GENUS,Herpolitha,Herpolitha,Herpolitha,205695
+REA,HYSP,GENUS,Hydnophora,Hydnophora,Hydnophora,204976
+REA,ISSP,GENUS,Isopora,Isopora,Isopora,730685
+REA,LEPT,GENUS,Leptastrea,Leptastrea,Leptastrea,204278
+REA,LEPS,GENUS,Leptoria,Leptoria,Leptoria,204155
+REA,LESP,GENUS,Leptoseris,Leptoseris,Leptoseris,206048
+REA,LOBS,GENUS,Lobophyllia,Lobophyllia,Lobophyllia,205310
+REA,LOBP,GENUS,Lobophytum,Lobophytum,Lobophytum,206153
+REA,MESP,GENUS,Merulina,Merulina,Merulina,206610
+REA,MONS,GENUS,Montastraea,Montastraea,Montastraea,204717
+REA,MOSP,GENUS,Montipora,Montipora,Montipora,203834
+REA,MYSP,GENUS,Mycedium,Mycedium,Mycedium,NA
+REA,OUSP,GENUS,Oulophyllia,Oulophyllia,Oulophyllia,205663
+REA,OXSP,GENUS,Oxypora,Oxypora,Oxypora,205536
+REA,PACS,GENUS,Pachyseris,Pachyseris,Pachyseris,206073
+REA,PALS,GENUS,Palauastrea,Palauastrea,Palauastrea,267668
+REA,PASP,GENUS,Palythoa,Palythoa,Palythoa,205785
+REA,PAVS,GENUS,Pavona,Pavona,Pavona,206614
+REA,PESP,GENUS,Pectinia,Pectinia,Pectinia,NA
+REA,PLSP,GENUS,Platygyra,Platygyra,Platygyra,206621
+REA,PLER,GENUS,Plerogyra,Plerogyra,Plerogyra,204353
+REA,PLES,GENUS,Plesiastrea,Plesiastrea,Plesiastrea,206216
+REA,PODS,GENUS,Podabacia,Podabacia,Podabacia,206541
+REA,POLY,GENUS,Polyphyllia,Polyphyllia,Polyphyllia,206736
+REA,PSSP,GENUS,Psammocora,Psammocora,Psammocora,204148
+REA,RHSP,GENUS,Rhodactis,Rhodactis,Rhodactis,267806
+REA,SASP,GENUS,Sandalolitha,Sandalolitha,Sandalolitha,267823
+REA,SARS,GENUS,Sarcophyton,Sarcophyton,Sarcophyton,205483
+REA,SCSP,GENUS,Scolymia,Scolymia,Scolymia,204384
+REA,SESP,GENUS,Seriatopora,Seriatopora,Seriatopora,205121
+REA,SISP,GENUS,Sinularia,Sinularia,Sinularia,205854
+REA,STYP,GENUS,Stylaraea,Stylaraea,Stylaraea,205751
+REA,STYL,GENUS,Stylaster,Stylaster,Stylaster,117246
+REA,STSP,GENUS,Stylocoeniella,Stylocoeniella,Stylocoeniella,204053
+REA,STYS,GENUS,Stylophora,Stylophora,Stylophora,204068
+REA,TUSP,GENUS,Tubastraea,Tubastraea,Tubastraea,267930
+REA,TURS,GENUS,Turbinaria,Turbinaria,Turbinaria,NA
+REA,ZOSP,GENUS,Zoanthus,Zoanthus,Zoanthus,206284
+REA,ABRE,SPECIES,Acanthastrea brevis,Acanthastrea brevis,Acanthastrea brevis,430639
+REA,AECH,SPECIES,Acanthastrea echinata,Acanthastrea echinata,Acanthastrea echinata,207384
+REA,AHEM,SPECIES,Acanthastrea hemprichii,Acanthastrea hemprichii,Acanthastrea hemprichii,288878
+REA,AABR,SPECIES,Acropora abrotanoides,Acropora abrotanoides,Acropora abrotanoides,207083
+REA,AASP,SPECIES,Acropora aspera,Acropora aspera,Acropora aspera,207011
+OBIS,ACLA,SPECIES,Acropora clathrata,Acropora clathrata,Acropora clathrata,207075
+OBIS,ACYT,SPECIES,Acropora cytherea,Acropora cytherea,Acropora cytherea,207095
+REA,ADIG,SPECIES,Acropora digitifera,Acropora digitifera,Acropora digitifera,207045
+REA,AGEM,SPECIES,Acropora gemmifera,Acropora gemmifera,Acropora gemmifera,207097
+OBIS,AGLO,SPECIES,Acropora globiceps,Acropora globiceps,Acropora globiceps,430645
+OBIS,AHUM,SPECIES,Acropora humilis,Acropora humilis,Acropora humilis,207094
+REA,AHYA,SPECIES,Acropora hyacinthus,Acropora hyacinthus,Acropora hyacinthus,207044
+REA,AINT,SPECIES,Acropora intermedia,Acropora intermedia,Acropora intermedia,207035
+OBIS,AMON,SPECIES,Acropora monticulosa,Acropora monticulosa,Acropora monticulosa,207103
+REA,ANAS,SPECIES,Acropora nasuta,Acropora nasuta,Acropora nasuta,207009
+OBIS,APAN,SPECIES,Acropora paniculata,Acropora paniculata,Acropora paniculata,207008
+OBIS,ARET,SPECIES,Acropora retusa,Acropora retusa,Acropora retusa,430653
+OBIS,ANOB,SPECIES,Acropora robusta,Acropora robusta,Acropora robusta,207000
+OBIS,NA,SPECIES,Acropora solitaryensis,Acropora solitaryensis,Acropora solitaryensis,288248
+OBIS,ASPE,SPECIES,Acropora speciosa,Acropora speciosa,Acropora speciosa,430655
+OBIS,NA,SPECIES,Acropora spicifera,Acropora spicifera,Acropora spicifera,207087
+REA,ATEN,SPECIES,Acropora tenuis,Acropora tenuis,Acropora tenuis,207105
+OBIS,AVAL,SPECIES,Acropora valida,Acropora valida,Acropora valida,207072
+REA,AVER,SPECIES,Acropora verweyi,Acropora verweyi,Acropora verweyi,288263
+OBIS,ALVE,SPECIES,Alveopora verrilliana,Alveopora verrilliana,Alveopora verrilliana,207201
+OBIS,ACUR,SPECIES,Astrea curta,Astrea curta,Astrea curta,762421
+REA,ALIS,SPECIES,Astreopora listeri,Astreopora listeri,Astreopora listeri,207125
+OBIS,AMYR,SPECIES,Astreopora myriophthalma,Astreopora myriophthalma,Astreopora myriophthalma,207128
+REA,ARAN,SPECIES,Astreopora randalli,Astreopora randalli,Astreopora randalli,207127
+REA,CASP,SPECIES,Caulastraea,Caulastraea,Caulastraea,267299
+OBIS,NA,SPECIES,Cladopsammia eguchii,Cladopsammia eguchii,Cladopsammia eguchii,286957
+OBIS,NA,SPECIES,Coelastrea aspera,Coelastrea aspera,Coelastrea aspera,762427
+REA,CMAY,SPECIES,Coeloseris mayeri,Coeloseris mayeri,Coeloseris mayeri,207613
+OBIS,NA,SPECIES,Coscinaraea monile,Coscinaraea monile,Coscinaraea monile,207255
+OBIS,NA,SPECIES,Cycloseris costulata,Cycloseris costulata,Cycloseris costulata,207325
+OBIS,NA,SPECIES,Cycloseris cyclolites,Cycloseris cyclolites,Cycloseris cyclolites,207323
+OBIS,NA,SPECIES,Cycloseris distorta,Cycloseris distorta,Cycloseris distorta,207326
+OBIS,NA,SPECIES,Cycloseris fragilis,Cycloseris fragilis,Cycloseris fragilis,716448
+OBIS,NA,SPECIES,Cycloseris sinensis,Cycloseris sinensis,Cycloseris sinensis,716552
+OBIS,NA,SPECIES,Cycloseris somervillei,Cycloseris somervillei,Cycloseris somervillei,207328
+OBIS,NA,SPECIES,Cycloseris tenuis,Cycloseris tenuis,Cycloseris tenuis,207324
+OBIS,NA,SPECIES,Cycloseris vaughani,Cycloseris vaughani,Cycloseris vaughani,207327
+OBIS,NA,SPECIES,Cycloseris wellsi,Cycloseris wellsi,Cycloseris wellsi,716291
+OBIS,NA,SPECIES,Cyphastrea agassizi,Cyphastrea agassizi,Cyphastrea agassizi,288919
+OBIS,COCE,SPECIES,Cyphastrea ocellina,Cyphastrea ocellina,Cyphastrea ocellina,288923
+OBIS,DHEL,SPECIES,Diploastrea heliopora,Diploastrea heliopora,Diploastrea heliopora,207417
+REA,BARS,SPECIES,Dipsastraea,Dipsastraea,Dipsastraea,718746
+OBIS,NA,SPECIES,Dipsastraea danai,Dipsastraea danai,Dipsastraea danai,758238
+OBIS,FFAV,SPECIES,Dipsastraea favus,Dipsastraea favus,Dipsastraea favus,718748
+OBIS,FMAT,SPECIES,Dipsastraea matthaii,Dipsastraea matthaii,Dipsastraea matthaii,758240
+OBIS,FPAL,SPECIES,Dipsastraea pallida,Dipsastraea pallida,Dipsastraea pallida,758233
+OBIS,NA,SPECIES,Dipsastraea speciosa,Dipsastraea speciosa,Dipsastraea speciosa,758219
+OBIS,EGEM,SPECIES,Echinopora gemmacea,Echinopora gemmacea,Echinopora gemmacea,207418
+OBIS,ELAM,SPECIES,Echinopora lamellosa,Echinopora lamellosa,Echinopora lamellosa,207421
+REA,EPAC,SPECIES,Echinopora pacifica,Echinopora pacifica,Echinopora pacifica,1341443
+REA,FABD,SPECIES,Favites abdita,Favites abdita,Favites abdita,207449
+OBIS,NA,SPECIES,Favites complanata,Favites complanata,Favites complanata,207455
+OBIS,PVAL,SPECIES,Favites valenciennesii,Favites valenciennesii,Favites valenciennesii,763525
+REA,EPAR,SPECIES,Fimbriaphyllia paradivisa,Fimbriaphyllia paradivisa,Fimbriaphyllia paradivisa,1048080
+REA,GAAS,SPECIES,Galaxea astreata,Galaxea astreata,Galaxea astreata,207368
+OBIS,GFAS,SPECIES,Galaxea fascicularis,Galaxea fascicularis,Galaxea fascicularis,207366
+OBIS,GPLA,SPECIES,Gardineroseris planulata,Gardineroseris planulata,Gardineroseris planulata,207274
+OBIS,GEDW,SPECIES,Goniastrea edwardsi,Goniastrea edwardsi,Goniastrea edwardsi,207466
+OBIS,GPEC,SPECIES,Goniastrea pectinata,Goniastrea pectinata,Goniastrea pectinata,207464
+OBIS,GRET,SPECIES,Goniastrea retiformis,Goniastrea retiformis,Goniastrea retiformis,207461
+OBIS,FSTE,SPECIES,Goniastrea stelligera,Goniastrea stelligera,Goniastrea stelligera,763067
+REA,GFRU,SPECIES,Goniopora fruticosa,Goniopora fruticosa,Goniopora fruticosa,288272
+OBIS,NA,SPECIES,Halomitra pileus,Halomitra pileus,Halomitra pileus,207361
+REA,HCOE,SPECIES,Heliopora coerulea,Heliopora coerulea,Heliopora coerulea,210725
+OBIS,HEXE,SPECIES,Hydnophora exesa,Hydnophora exesa,Hydnophora exesa,207403
+OBIS,HMIC,SPECIES,Hydnophora microconos,Hydnophora microconos,Hydnophora microconos,207402
+OBIS,HRIG,SPECIES,Hydnophora rigida,Hydnophora rigida,Hydnophora rigida,207406
+OBIS,ICRA,SPECIES,Isopora crateriformis,Isopora crateriformis,Isopora crateriformis,730691
+REA,IPAL,SPECIES,Isopora palifera,Isopora palifera,Isopora palifera,730686
+OBIS,LBEW,SPECIES,Leptastrea bewickensis,Leptastrea bewickensis,Leptastrea bewickensis,287822
+OBIS,LPRU,SPECIES,Leptastrea purpurea,Leptastrea purpurea,Leptastrea purpurea,207470
+OBIS,LTRA,SPECIES,Leptastrea transversa,Leptastrea transversa,Leptastrea transversa,207474
+OBIS,LPHY,SPECIES,Leptoria phrygia,Leptoria phrygia,Leptoria phrygia,207477
+OBIS,NA,SPECIES,Leptoseris explanata,Leptoseris explanata,Leptoseris explanata,207289
+OBIS,NA,SPECIES,Leptoseris foliosa,Leptoseris foliosa,Leptoseris foliosa,207286
+OBIS,NA,SPECIES,Leptoseris fragilis,Leptoseris fragilis,Leptoseris fragilis,207280
+OBIS,NA,SPECIES,Leptoseris gardineri,Leptoseris gardineri,Leptoseris gardineri,207284
+OBIS,LHAW,SPECIES,Leptoseris hawaiiensis,Leptoseris hawaiiensis,Leptoseris hawaiiensis,207291
+OBIS,LINC,SPECIES,Leptoseris incrustans,Leptoseris incrustans,Leptoseris incrustans,207279
+OBIS,LMYC,SPECIES,Leptoseris mycetoseroides,Leptoseris mycetoseroides,Leptoseris mycetoseroides,207283
+OBIS,NA,SPECIES,Leptoseris papyracea,Leptoseris papyracea,Leptoseris papyracea,207278
+OBIS,NA,SPECIES,Leptoseris scabra,Leptoseris scabra,Leptoseris scabra,207282
+OBIS,NA,SPECIES,Leptoseris tubulifera,Leptoseris tubulifera,Leptoseris tubulifera,207288
+OBIS,NA,SPECIES,Lithophyllon repanda,Lithophyllon repanda,Lithophyllon repanda,716653
+OBIS,NA,SPECIES,Lithophyllon spinifer,Lithophyllon spinifer,Lithophyllon spinifer,716610
+OBIS,FSCU,SPECIES,Lobactis scutaria,Lobactis scutaria,Lobactis scutaria,716542
+REA,AISH,SPECIES,Lobophyllia ishigakiensis,Lobophyllia ishigakiensis,Lobophyllia ishigakiensis,888146
+OBIS,MAMP,SPECIES,Merulina ampliata,Merulina ampliata,Merulina ampliata,207407
+OBIS,SCYL,SPECIES,Merulina cylindrica,Merulina cylindrica,Merulina cylindrica,1465792
+REA,MSCA,SPECIES,Merulina scabricula,Merulina scabricula,Merulina scabricula,289198
+OBIS,NA,SPECIES,Montipora aequituberculata,Montipora aequituberculata,Montipora aequituberculata,207144
+OBIS,NA,SPECIES,Montipora angulata,Montipora angulata,Montipora angulata,287691
+OBIS,MCAL,SPECIES,Montipora caliculata,Montipora caliculata,Montipora caliculata,287696
+OBIS,MCAP,SPECIES,Montipora capitata,Montipora capitata,Montipora capitata,287697
+REA,MDIL,SPECIES,Montipora dilatata,Montipora dilatata,Montipora dilatata,411235
+OBIS,MFLA,SPECIES,Montipora flabellata,Montipora flabellata,Montipora flabellata,207174
+OBIS,NA,SPECIES,Montipora foveolata,Montipora foveolata,Montipora foveolata,207133
+OBIS,MINC,SPECIES,Montipora incrassata,Montipora incrassata,Montipora incrassata,287714
+OBIS,NA,SPECIES,Montipora lobulata,Montipora lobulata,Montipora lobulata,207141
+OBIS,NA,SPECIES,Montipora millepora,Montipora millepora,Montipora millepora,207190
+OBIS,MPAT,SPECIES,Montipora patula,Montipora patula,Montipora patula,207149
+OBIS,NA,SPECIES,Montipora peltiformis,Montipora peltiformis,Montipora peltiformis,207180
+OBIS,NA,SPECIES,Montipora tuberculosa,Montipora tuberculosa,Montipora tuberculosa,207156
+REA,MTUR,SPECIES,Montipora turgescens,Montipora turgescens,Montipora turgescens,207142
+OBIS,NA,SPECIES,Montipora verrilli,Montipora verrilli,Montipora verrilli,207136
+OBIS,NA,SPECIES,Montipora verrucosa,Montipora verrucosa,Montipora verrucosa,207146
+REA,MELE,SPECIES,Mycedium elephantotus,Mycedium elephantotus,Mycedium elephantotus,207373
+OBIS,OCRI,SPECIES,Oulophyllia crispa,Oulophyllia crispa,Oulophyllia crispa,207485
+OBIS,NA,SPECIES,Oxypora crassispinosa,Oxypora crassispinosa,Oxypora crassispinosa,288351
+OBIS,NA,SPECIES,Oxypora echinata,Oxypora echinata,Oxypora echinata,1349604
+REA,PRUG,SPECIES,Pachyseris rugosa,Pachyseris rugosa,Pachyseris rugosa,207292
+OBIS,NA,SPECIES,Pavona bipartita,Pavona bipartita,Pavona bipartita,289199
+REA,PCAC,SPECIES,Pavona cactus,Pavona cactus,Pavona cactus,207312
+OBIS,PCHI,SPECIES,Pavona chiriquiensis,Pavona chiriquiensis,Pavona chiriquiensis,289200
+OBIS,NA,SPECIES,Pavona clavus,Pavona clavus,Pavona clavus,207318
+REA,PDIF,SPECIES,Pavona diffluens,Pavona diffluens,Pavona diffluens,207295
+OBIS,PDUE,SPECIES,Pavona duerdeni,Pavona duerdeni,Pavona duerdeni,207315
+OBIS,NA,SPECIES,Pavona explanulata,Pavona explanulata,Pavona explanulata,207306
+OBIS,PMAL,SPECIES,Pavona maldivensis,Pavona maldivensis,Pavona maldivensis,207309
+OBIS,NA,SPECIES,Pavona minuta,Pavona minuta,Pavona minuta,207317
+OBIS,PVAR,SPECIES,Pavona varians,Pavona varians,Pavona varians,207303
+OBIS,PVEN,SPECIES,Pavona venosa,Pavona venosa,Pavona venosa,207301
+REA,PPAE,SPECIES,Pectinia paeonia,Pectinia paeonia,Pectinia paeonia,207377
+OBIS,PLDA,SPECIES,Platygyra daedalea,Platygyra daedalea,Platygyra daedalea,207489
+OBIS,PPIN,SPECIES,Platygyra pini,Platygyra pini,Platygyra pini,207490
+OBIS,PSIN,SPECIES,Plerogyra sinuosa,Plerogyra sinuosa,Plerogyra sinuosa,207498
+REA,PLVE,SPECIES,Plesiastrea versipora,Plesiastrea versipora,Plesiastrea versipora,207494
+OBIS,FGRA,SPECIES,Pleuractis granulosa,Pleuractis granulosa,Pleuractis granulosa,716549
+OBIS,PSET,SPECIES,Pocillopora brevicornis,Pocillopora brevicornis,Pocillopora brevicornis,206951
+REA,PCAP,SPECIES,Pocillopora capitata,Pocillopora capitata,Pocillopora capitata,289246
+REA,PDAM,SPECIES,Pocillopora damicornis,Pocillopora damicornis,Pocillopora damicornis,206953
+OBIS,PEYD,SPECIES,Pocillopora grandis,Pocillopora grandis,Pocillopora grandis,206952
+OBIS,PLIG,SPECIES,Pocillopora ligulata,Pocillopora ligulata,Pocillopora ligulata,206959
+OBIS,PMEA,SPECIES,Pocillopora meandrina,Pocillopora meandrina,Pocillopora meandrina,206964
+OBIS,PMOL,SPECIES,Pocillopora molokensis,Pocillopora molokensis,Pocillopora molokensis,411253
+OBIS,PVER,SPECIES,Pocillopora verrucosa,Pocillopora verrucosa,Pocillopora verrucosa,206954
+OBIS,PWOO,SPECIES,Pocillopora woodjonesi,Pocillopora woodjonesi,Pocillopora woodjonesi,289252
+REA,PCRU,SPECIES,Podabacia crustacea,Podabacia crustacea,Podabacia crustacea,207364
+REA,PANA,SPECIES,Porites annae,Porites annae,Porites annae,288886
+OBIS,NA,SPECIES,Porites australiensis,Porites australiensis,Porites australiensis,207249
+REA,PBER,SPECIES,Porites bernardi,Porites bernardi,Porites bernardi,NA
+OBIS,PBRI,SPECIES,Porites brighami,Porites brighami,Porites brighami,411263
+OBIS,PCOM,SPECIES,Porites compressa,Porites compressa,Porites compressa,207236
+OBIS,PCYL,SPECIES,Porites cylindrica,Porites cylindrica,Porites cylindrica,207229
+REA,PODU,SPECIES,Porites duerdeni,Porites duerdeni,Porites duerdeni,411269
+OBIS,PEVE,SPECIES,Porites evermanni,Porites evermanni,Porites evermanni,288900
+OBIS,NA,SPECIES,Porites hawaiiensis,Porites hawaiiensis,Porites hawaiiensis,758222
+OBIS,PHOR,SPECIES,Porites horizontalata,Porites horizontalata,Porites horizontalata,207237
+OBIS,PLIC,SPECIES,Porites lichen,Porites lichen,Porites lichen,207228
+OBIS,PLOB,SPECIES,Porites lobata,Porites lobata,Porites lobata,207225
+OBIS,PLUT,SPECIES,Porites lutea,Porites lutea,Porites lutea,207246
+OBIS,PMON,SPECIES,Porites monticulosa,Porites monticulosa,Porites monticulosa,367816
+OBIS,NA,SPECIES,Porites murrayensis,Porites murrayensis,Porites murrayensis,207232
+OBIS,PRUS,SPECIES,Porites rus,Porites rus,Porites rus,207231
+OBIS,PSOL,SPECIES,Porites solida,Porites solida,Porites solida,207227
+OBIS,NA,SPECIES,Porites superfusa,Porites superfusa,Porites superfusa,759336
+OBIS,PVAU,SPECIES,Porites vaughani,Porites vaughani,Porites vaughani,288918
+OBIS,CCOL,SPECIES,Psammocora columna,Psammocora columna,Psammocora columna,766867
+REA,PCON,SPECIES,Psammocora contigua,Psammocora contigua,Psammocora contigua,207267
+OBIS,PDIG,SPECIES,Psammocora digitata,Psammocora digitata,Psammocora digitata,207260
+OBIS,CEXE,SPECIES,Psammocora exesa,Psammocora exesa,Psammocora exesa,766865
+OBIS,PHAI,SPECIES,Psammocora haimiana,Psammocora haimiana,Psammocora haimiana,718603
+OBIS,PNIE,SPECIES,Psammocora nierstraszi,Psammocora nierstraszi,Psammocora nierstraszi,207261
+OBIS,PPRO,SPECIES,Psammocora profundacella,Psammocora profundacella,Psammocora profundacella,207271
+OBIS,PSTE,SPECIES,Psammocora stellata,Psammocora stellata,Psammocora stellata,287784
+OBIS,NA,SPECIES,Rhizopsammia verrilli,Rhizopsammia verrilli,Rhizopsammia verrilli,210737
+OBIS,NA,SPECIES,Sandalolitha dentata,Sandalolitha dentata,Sandalolitha dentata,291009
+REA,SACU,SPECIES,Seriatopora aculeata,Seriatopora aculeata,Seriatopora aculeata,430679
+OBIS,NA,SPECIES,Sinuorota hexagonalis,Sinuorota hexagonalis,Sinuorota hexagonalis,994375
+REA,SPUN,SPECIES,Stylaraea punctata,Stylaraea punctata,Stylaraea punctata,212178
+OBIS,SARM,SPECIES,Stylocoeniella armata,Stylocoeniella armata,Stylocoeniella armata,206950
+OBIS,SGUE,SPECIES,Stylocoeniella guentheri,Stylocoeniella guentheri,Stylocoeniella guentheri,206948
+OBIS,SPIS,SPECIES,Stylophora pistillata,Stylophora pistillata,Stylophora pistillata,206982
+OBIS,NA,SPECIES,Tubastraea coccinea,Tubastraea coccinea,Tubastraea coccinea,291251
+OBIS,NA,SPECIES,Turbinaria irregularis,Turbinaria irregularis,Turbinaria irregularis,207505
+REA,TMES,SPECIES,Turbinaria mesenterina,Turbinaria mesenterina,Turbinaria mesenterina,207511
+OBIS,TREN,SPECIES,Turbinaria reniformis,Turbinaria reniformis,Turbinaria reniformis,207507
+REA,TSTE,SPECIES,Turbinaria stellulata,Turbinaria stellulata,Turbinaria stellulata,207510
+PQ,BIOTA,T1,Biological Code,Biological Code,Biological Code,NA
+PQ,OFFSURVEY,T1,NonTarget,NonTarget,NonTarget,NA
+PQ,SUBS,T1,Substrate,Substrate,Substrate,NA
+PQ,CORAL,T2,Coral,Coral,Coral,NA
+PQ,CCA,T2,Coralline Alga,Coralline Alga,Coralline Alga,NA
+PQ,MA,T2,Macroalga,Macroalga,Macroalga,NA
+PQ,MF,T2,Mobile Fauna,Mobile Fauna,Mobile Fauna,NA
+PQ,SED,T2,Sediment,Sediment,Sediment,NA
+PQ,I,T2,Sessile Invertebrate,Sessile Invertebrate,Sessile Invertebrate,NA
+PQ,SC,T2,Soft Coral,Soft Coral,Soft Coral,NA
+PQ,TURF,T2,Turf Alga,Turf Alga,Turf Alga,NA
+PQ,UC,T2,Unclassified,Unclassified,Unclassified,NA
+PQ,EMA,T2B,Encrusting macroalga,Encrusting macroalga,Encrusting macroalga,NA
+PQ,UPMA,T2B,Upright macroalga,Upright macroalga,Upright macroalga,NA
+PQ,BR,T3,Branching hard coral,Branching hard coral,Branching hard coral,NA
+PQ,BRMA,T3,Brown macroalgae,Brown macroalgae,Brown macroalgae,NA
+PQ,ENC,T3,Encrusting hard coral,Encrusting hard coral,Encrusting hard coral,NA
+PQ,FOL,T3,Foliose hard coral,Foliose hard coral,Foliose hard coral,NA
+PQ,GRMA,T3,Green macroalga,Green macroalga,Green macroalga,NA
+PQ,MASS,T3,Massive hard coral,Massive hard coral,Massive hard coral,NA
+PQ,RDMA,T3,Red macroalgae,Red macroalgae,Red macroalgae,NA
+PQ,TAB,T3,Tabulate hard coral,Tabulate hard coral,Tabulate hard coral,NA
+REA,SEDM,UNKNOWN,UNKNOWN,UNKNOWN,UNKNOWN,NA

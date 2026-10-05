@@ -1,0 +1,591 @@
+"source","source_code","source_rank","source_name","lookup_name","parent_code","parent_rank","scientificName","aphiaID","taxonRank","status","kingdom","phylum","class","order","family","genus","species","internal_node"
+"REA","AAAA","COMPLEX","EMPTY SURVEY","EMPTY SURVEY",NA,NA,"EMPTY SURVEY",NA,"COMPLEX",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","AABR","GENUS","Acropora","Acropora",NA,NA,"Acropora",NA,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","AABR","SPECIES","Acropora abrotanoides","Acropora abrotanoides",NA,NA,"Acropora abrotanoides",207083,"SPECIES",NA,NA,NA,NA,NA,NA,NA,NA,FALSE
+"REA","AACU","GENUS","Acropora","Acropora",NA,NA,"Acropora",NA,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","AANN","GENUS","Astrea","Astrea",NA,NA,"Astrea",NA,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","AASP","GENUS","Acropora","Acropora",NA,NA,"Acropora",NA,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","AASP","SPECIES","Acropora aspera","Acropora aspera",NA,NA,"Acropora aspera",207011,"SPECIES",NA,NA,NA,NA,NA,NA,NA,NA,FALSE
+"REA","ABRE","GENUS","Acanthastrea","Acanthastrea",NA,NA,"Acanthastrea",206405,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","ABRE","SPECIES","Acanthastrea brevis","Acanthastrea brevis",NA,NA,"Acanthastrea brevis",430639,"SPECIES",NA,NA,NA,NA,NA,NA,NA,NA,FALSE
+"REA","ACAC","GENUS","Acropora","Acropora",NA,NA,"Acropora",NA,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","ACAS","GENUS","Acanthastrea","Acanthastrea",NA,NA,"Acanthastrea",206405,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","ACER","GENUS","Acropora","Acropora",NA,NA,"Acropora",NA,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","ACLA","GENUS","Acropora","Acropora",NA,NA,"Acropora",NA,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","ACLA","SPECIES","Acropora clathrata","Acropora clathrata",NA,NA,"Acropora clathrata",207075,"SPECIES",NA,NA,NA,NA,NA,NA,NA,NA,FALSE
+"REA","ACPA","GENUS","Acropora","Acropora",NA,NA,"Acropora",NA,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","ACSP","GENUS","Acropora","Acropora",NA,NA,"Acropora",NA,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"PQ","ACSP","T3","Acropora sp","Acropora sp","ACSP","T2","Acropora sp",NA,"T3",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","ACUR","GENUS","Astrea","Astrea",NA,NA,"Astrea",NA,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","ACUR","SPECIES","Astrea curta","Astrea curta",NA,NA,"Astrea curta",762421,"SPECIES",NA,NA,NA,NA,NA,NA,NA,NA,FALSE
+"REA","ACYT","GENUS","Acropora","Acropora",NA,NA,"Acropora",NA,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","ACYT","SPECIES","Acropora cytherea","Acropora cytherea",NA,NA,"Acropora cytherea",207095,"SPECIES",NA,NA,NA,NA,NA,NA,NA,NA,FALSE
+"REA","ADIG","GENUS","Acropora","Acropora",NA,NA,"Acropora",NA,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","ADIG","SPECIES","Acropora digitifera","Acropora digitifera",NA,NA,"Acropora digitifera",207045,"SPECIES",NA,NA,NA,NA,NA,NA,NA,NA,FALSE
+"REA","AECH","GENUS","Acanthastrea","Acanthastrea",NA,NA,"Acanthastrea",206405,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","AECH","SPECIES","Acanthastrea echinata","Acanthastrea echinata",NA,NA,"Acanthastrea echinata",207384,"SPECIES",NA,NA,NA,NA,NA,NA,NA,NA,FALSE
+"REA","AFOR","GENUS","Acropora","Acropora",NA,NA,"Acropora",NA,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","AGEM","GENUS","Acropora","Acropora",NA,NA,"Acropora",NA,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","AGEM","SPECIES","Acropora gemmifera","Acropora gemmifera",NA,NA,"Acropora gemmifera",207097,"SPECIES",NA,NA,NA,NA,NA,NA,NA,NA,FALSE
+"REA","AGLO","GENUS","Acropora","Acropora",NA,NA,"Acropora",NA,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","AGLO","SPECIES","Acropora globiceps","Acropora globiceps",NA,NA,"Acropora globiceps",430645,"SPECIES",NA,NA,NA,NA,NA,NA,NA,NA,FALSE
+"REA","AGRA","GENUS","Astreopora","Astreopora",NA,NA,"Astreopora",204599,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","AHEM","GENUS","Acanthastrea","Acanthastrea",NA,NA,"Acanthastrea",206405,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","AHEM","SPECIES","Acanthastrea hemprichii","Acanthastrea hemprichii",NA,NA,"Acanthastrea hemprichii",288878,"SPECIES",NA,NA,NA,NA,NA,NA,NA,NA,FALSE
+"REA","AHUM","GENUS","Acropora","Acropora",NA,NA,"Acropora",NA,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","AHUM","SPECIES","Acropora humilis","Acropora humilis",NA,NA,"Acropora humilis",207094,"SPECIES",NA,NA,NA,NA,NA,NA,NA,NA,FALSE
+"REA","AHYA","GENUS","Acropora","Acropora",NA,NA,"Acropora",NA,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","AHYA","SPECIES","Acropora hyacinthus","Acropora hyacinthus",NA,NA,"Acropora hyacinthus",207044,"SPECIES",NA,NA,NA,NA,NA,NA,NA,NA,FALSE
+"REA","AINT","GENUS","Acropora","Acropora",NA,NA,"Acropora",NA,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","AINT","SPECIES","Acropora intermedia","Acropora intermedia",NA,NA,"Acropora intermedia",207035,"SPECIES",NA,NA,NA,NA,NA,NA,NA,NA,FALSE
+"REA","AISH","GENUS","Acanthastrea","Acanthastrea",NA,NA,"Acanthastrea",206405,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","AISH","SPECIES","Lobophyllia ishigakiensis","Lobophyllia ishigakiensis",NA,NA,"Lobophyllia ishigakiensis",888146,"SPECIES",NA,NA,NA,NA,NA,NA,NA,NA,FALSE
+"REA","ALIS","GENUS","Astreopora","Astreopora",NA,NA,"Astreopora",204599,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","ALIS","SPECIES","Astreopora listeri","Astreopora listeri",NA,NA,"Astreopora listeri",207125,"SPECIES",NA,NA,NA,NA,NA,NA,NA,NA,FALSE
+"REA","ALSP","GENUS","Alveopora","Alveopora",NA,NA,"Alveopora",206945,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","ALVE","GENUS","Alveopora","Alveopora",NA,NA,"Alveopora",206945,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","ALVE","SPECIES","Alveopora verrilliana","Alveopora verrilliana",NA,NA,"Alveopora verrilliana",207201,"SPECIES",NA,NA,NA,NA,NA,NA,NA,NA,FALSE
+"REA","AMIC","GENUS","Acropora","Acropora",NA,NA,"Acropora",NA,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","AMON","GENUS","Acropora","Acropora",NA,NA,"Acropora",NA,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","AMON","SPECIES","Acropora monticulosa","Acropora monticulosa",NA,NA,"Acropora monticulosa",207103,"SPECIES",NA,NA,NA,NA,NA,NA,NA,NA,FALSE
+"REA","AMYR","GENUS","Astreopora","Astreopora",NA,NA,"Astreopora",204599,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","AMYR","SPECIES","Astreopora myriophthalma","Astreopora myriophthalma",NA,NA,"Astreopora myriophthalma",207128,"SPECIES",NA,NA,NA,NA,NA,NA,NA,NA,FALSE
+"REA","ANAS","GENUS","Acropora","Acropora",NA,NA,"Acropora",NA,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","ANAS","SPECIES","Acropora nasuta","Acropora nasuta",NA,NA,"Acropora nasuta",207009,"SPECIES",NA,NA,NA,NA,NA,NA,NA,NA,FALSE
+"REA","ANOB","GENUS","Acropora","Acropora",NA,NA,"Acropora",NA,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","ANOB","SPECIES","Acropora robusta","Acropora robusta",NA,NA,"Acropora robusta",207000,"SPECIES",NA,NA,NA,NA,NA,NA,NA,NA,FALSE
+"REA","APAL","GENUS","Acropora","Acropora",NA,NA,"Acropora",NA,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","APAN","GENUS","Acropora","Acropora",NA,NA,"Acropora",NA,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","APAN","SPECIES","Acropora paniculata","Acropora paniculata",NA,NA,"Acropora paniculata",207008,"SPECIES",NA,NA,NA,NA,NA,NA,NA,NA,FALSE
+"REA","ARAN","GENUS","Astreopora","Astreopora",NA,NA,"Astreopora",204599,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","ARAN","SPECIES","Astreopora randalli","Astreopora randalli",NA,NA,"Astreopora randalli",207127,"SPECIES",NA,NA,NA,NA,NA,NA,NA,NA,FALSE
+"REA","AREG","GENUS","Acanthastrea","Acanthastrea",NA,NA,"Acanthastrea",206405,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","ARET","GENUS","Acropora","Acropora",NA,NA,"Acropora",NA,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","ARET","SPECIES","Acropora retusa","Acropora retusa",NA,NA,"Acropora retusa",430653,"SPECIES",NA,NA,NA,NA,NA,NA,NA,NA,FALSE
+"REA","AROB","GENUS","Acropora","Acropora",NA,NA,"Acropora",NA,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","ARUD","GENUS","Acropora","Acropora",NA,NA,"Acropora",NA,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","ASAM","GENUS","Acropora","Acropora",NA,NA,"Acropora",NA,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","ASPE","GENUS","Acropora","Acropora",NA,NA,"Acropora",NA,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","ASPE","SPECIES","Acropora speciosa","Acropora speciosa",NA,NA,"Acropora speciosa",430655,"SPECIES",NA,NA,NA,NA,NA,NA,NA,NA,FALSE
+"REA","ASSP","GENUS","Astreopora","Astreopora",NA,NA,"Astreopora",204599,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","ASTR","GENUS","Acropora","Acropora",NA,NA,"Acropora",NA,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","ASTS","GENUS","Astrea","Astrea",NA,NA,"Astrea",NA,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","ASUR","GENUS","Acropora","Acropora",NA,NA,"Acropora",NA,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","ATEN","GENUS","Acropora","Acropora",NA,NA,"Acropora",NA,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","ATEN","SPECIES","Acropora tenuis","Acropora tenuis",NA,NA,"Acropora tenuis",207105,"SPECIES",NA,NA,NA,NA,NA,NA,NA,NA,FALSE
+"REA","AVAL","GENUS","Acropora","Acropora",NA,NA,"Acropora",NA,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","AVAL","SPECIES","Acropora valida","Acropora valida",NA,NA,"Acropora valida",207072,"SPECIES",NA,NA,NA,NA,NA,NA,NA,NA,FALSE
+"REA","AVER","GENUS","Acropora","Acropora",NA,NA,"Acropora",NA,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","AVER","SPECIES","Acropora verweyi","Acropora verweyi",NA,NA,"Acropora verweyi",288263,"SPECIES",NA,NA,NA,NA,NA,NA,NA,NA,FALSE
+"REA","BARS","SPECIES","Dipsastraea","Dipsastraea",NA,NA,"Dipsastraea",718746,"SPECIES",NA,NA,NA,NA,NA,NA,NA,NA,FALSE
+"REA","BASP","GENUS","Balanophyllia","Balanophyllia",NA,NA,"Balanophyllia",135108,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"PQ","BIOTA","T1","Biological Code","Biological Code","BIOTA","T0","Biological Code",NA,"T1",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"PQ","BR","T3","Branching hard coral","Branching hard coral","BR","T2","Branching hard coral",NA,"T3",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"PQ","BRMA","T3","Brown macroalgae","Brown macroalgae","BRMA","T2b","Brown macroalgae",NA,"T3",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","CALG","FUNC_GROUP","NO WORM ENTRY","NO WORM ENTRY",NA,NA,"NO WORM ENTRY",NA,"FUNC_GROUP",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","CASP","SPECIES","Caulastraea","Caulastraea",NA,NA,"Caulastraea",267299,"SPECIES",NA,NA,NA,NA,NA,NA,NA,NA,FALSE
+"PQ","CCA","T2","Coralline Alga","Coralline Alga","CCA","T1","Coralline Alga",NA,"T2",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","CCHA","GENUS","Cyphastrea","Cyphastrea",NA,NA,"Cyphastrea",206488,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","CCOL","GENUS","Coscinaraea","Coscinaraea",NA,NA,"Coscinaraea",204591,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","CCOL","SPECIES","Psammocora columna","Psammocora columna",NA,NA,"Psammocora columna",766867,"SPECIES",NA,NA,NA,NA,NA,NA,NA,NA,FALSE
+"REA","CEXE","GENUS","Coscinaraea","Coscinaraea",NA,NA,"Coscinaraea",204591,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","CEXE","SPECIES","Psammocora exesa","Psammocora exesa",NA,NA,"Psammocora exesa",NA,"SPECIES",NA,NA,NA,NA,NA,NA,NA,NA,FALSE
+"REA","CLSP","GENUS","Cladiella","Cladiella",NA,NA,"Cladiella",205863,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","CMAY","GENUS","Coeloseris","Coeloseris",NA,NA,"Coeloseris",206905,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","CMAY","SPECIES","Coeloseris mayeri","Coeloseris mayeri",NA,NA,"Coeloseris mayeri",207613,"SPECIES",NA,NA,NA,NA,NA,NA,NA,NA,FALSE
+"REA","CMIC","GENUS","Cyphastrea","Cyphastrea",NA,NA,"Cyphastrea",206488,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","COCE","GENUS","Cyphastrea","Cyphastrea",NA,NA,"Cyphastrea",206488,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","COCE","SPECIES","Cyphastrea ocellina","Cyphastrea ocellina",NA,NA,"Cyphastrea ocellina",288923,"SPECIES",NA,NA,NA,NA,NA,NA,NA,NA,FALSE
+"REA","COES","GENUS","Coeloseris","Coeloseris",NA,NA,"Coeloseris",206905,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"PQ","CORAL","T2","Coral","Coral","CORAL","T1","Coral",NA,"T2",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"PQ","CORAL","T2b","Coral","Coral","CORAL","T1","Coral",NA,"T2b",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"PQ","CORAL","T3","Hard coral","Hard coral","CORAL","T2","Hard coral",NA,"T3",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","COSP","GENUS","Coscinaraea","Coscinaraea",NA,NA,"Coscinaraea",204591,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","CSER","GENUS","Cyphastrea","Cyphastrea",NA,NA,"Cyphastrea",206488,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","CTSP","GENUS","Ctenactis","Ctenactis",NA,NA,"Ctenactis",206403,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","CYPS","GENUS","Cyphastrea","Cyphastrea",NA,NA,"Cyphastrea",206488,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","CYSP","GENUS","Cycloseris","Cycloseris",NA,NA,"Cycloseris",204552,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","DESP","GENUS","Dendronephthya","Dendronephthya",NA,NA,"Dendronephthya",206503,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","DHEL","GENUS","Diploastrea","Diploastrea",NA,NA,"Diploastrea",204221,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","DHEL","SPECIES","Diploastrea heliopora","Diploastrea heliopora",NA,NA,"Diploastrea heliopora",207417,"SPECIES",NA,NA,NA,NA,NA,NA,NA,NA,FALSE
+"REA","DIAS","SPECIES","Cycloseris","Cycloseris",NA,NA,"Cycloseris",204552,"SPECIES",NA,NA,NA,NA,NA,NA,NA,NA,FALSE
+"REA","DISP","GENUS","Diploastrea","Diploastrea",NA,NA,"Diploastrea",204221,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","ECHL","GENUS","Echinophyllia","Echinophyllia",NA,NA,"Echinophyllia",204799,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","ECHP","GENUS","Echinopora","Echinopora",NA,NA,"Echinopora",205519,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","ECRI","GENUS","Euphyllia","Euphyllia",NA,NA,"Euphyllia",206703,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","EECH","GENUS","Echinophyllia","Echinophyllia",NA,NA,"Echinophyllia",204799,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","EGEM","GENUS","Echinopora","Echinopora",NA,NA,"Echinopora",205519,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","EGEM","SPECIES","Echinopora gemmacea","Echinopora gemmacea",NA,NA,"Echinopora gemmacea",207418,"SPECIES",NA,NA,NA,NA,NA,NA,NA,NA,FALSE
+"REA","ELAM","GENUS","Echinopora","Echinopora",NA,NA,"Echinopora",205519,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","ELAM","SPECIES","Echinopora lamellosa","Echinopora lamellosa",NA,NA,"Echinopora lamellosa",207421,"SPECIES",NA,NA,NA,NA,NA,NA,NA,NA,FALSE
+"PQ","EMA","T2b","Encrusting macroalga","Encrusting macroalga","EMA","T2","Encrusting macroalga",NA,"T2b",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"PQ","ENC","T3","Encrusting hard coral","Encrusting hard coral","ENC","T2","Encrusting hard coral",NA,"T3",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","EPAC","GENUS","Echinopora","Echinopora",NA,NA,"Echinopora",205519,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","EPAC","SPECIES","Echinopora pacifica","Echinopora pacifica",NA,NA,"Echinopora pacifica",1341443,"SPECIES",NA,NA,NA,NA,NA,NA,NA,NA,FALSE
+"REA","EPAR","GENUS","Euphyllia","Euphyllia",NA,NA,"Euphyllia",206703,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","EPAR","SPECIES","Fimbriaphyllia paradivisa","Fimbriaphyllia paradivisa",NA,NA,"Fimbriaphyllia paradivisa",1048080,"SPECIES",NA,NA,NA,NA,NA,NA,NA,NA,FALSE
+"REA","EUSP","GENUS","Euphyllia","Euphyllia",NA,NA,"Euphyllia",206703,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","FABD","GENUS","Favites","Favites",NA,NA,"Favites",206158,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","FABD","SPECIES","Favites abdita","Favites abdita",NA,NA,"Favites abdita",207449,"SPECIES",NA,NA,NA,NA,NA,NA,NA,NA,FALSE
+"REA","FASP","GENUS","Favia","Favia",NA,NA,"Favia",NA,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","FAVS","GENUS","Favites","Favites",NA,NA,"Favites",206158,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","FDAN","GENUS","Favia","Favia",NA,NA,"Favia",NA,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","FFAV","SPECIES","Dipsastraea favus","Dipsastraea favus",NA,NA,"Dipsastraea favus",718748,"SPECIES",NA,NA,NA,NA,NA,NA,NA,NA,FALSE
+"REA","FFAV","GENUS","Favia","Favia",NA,NA,"Favia",NA,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","FFLE","GENUS","Favites","Favites",NA,NA,"Favites",206158,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","FGRA","GENUS","Fungia","Fungia",NA,NA,"Fungia",206375,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","FGRA","SPECIES","Pleuractis granulosa","Pleuractis granulosa",NA,NA,"Pleuractis granulosa",716549,"SPECIES",NA,NA,NA,NA,NA,NA,NA,NA,FALSE
+"REA","FHEL","GENUS","Favia","Favia",NA,NA,"Favia",NA,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","FMAT","SPECIES","Dipsastraea matthaii","Dipsastraea matthaii",NA,NA,"Dipsastraea matthaii",758240,"SPECIES",NA,NA,NA,NA,NA,NA,NA,NA,FALSE
+"REA","FMAT","GENUS","Favia","Favia",NA,NA,"Favia",NA,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"PQ","FOL","T3","Foliose hard coral","Foliose hard coral","FOL","T2","Foliose hard coral",NA,"T3",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","FPAL","SPECIES","Dipsastraea pallida","Dipsastraea pallida",NA,NA,"Dipsastraea pallida",758233,"SPECIES",NA,NA,NA,NA,NA,NA,NA,NA,FALSE
+"REA","FPAL","GENUS","Favia","Favia",NA,NA,"Favia",NA,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","FROT","GENUS","Favia","Favia",NA,NA,"Favia",NA,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","FSCU","GENUS","Fungia","Fungia",NA,NA,"Fungia",206375,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","FSCU","SPECIES","Lobactis scutaria","Lobactis scutaria",NA,NA,"Lobactis scutaria",716542,"SPECIES",NA,NA,NA,NA,NA,NA,NA,NA,FALSE
+"REA","FSTE","SPECIES","Goniastrea stelligera","Goniastrea stelligera",NA,NA,"Goniastrea stelligera",763067,"SPECIES",NA,NA,NA,NA,NA,NA,NA,NA,FALSE
+"REA","FUDA","GENUS","Fungia","Fungia",NA,NA,"Fungia",206375,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","FUSP","GENUS","Fungia","Fungia",NA,NA,"Fungia",206375,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","GAAS","GENUS","Galaxea","Galaxea",NA,NA,"Galaxea",NA,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","GAAS","SPECIES","Galaxea astreata","Galaxea astreata",NA,NA,"Galaxea astreata",207368,"SPECIES",NA,NA,NA,NA,NA,NA,NA,NA,FALSE
+"REA","GARS","GENUS","Gardineroseris","Gardineroseris",NA,NA,"Gardineroseris",204594,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","GASP","GENUS","Galaxea","Galaxea",NA,NA,"Galaxea",NA,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","GEDW","SPECIES","Goniastrea edwardsi","Goniastrea edwardsi",NA,NA,"Goniastrea edwardsi",207466,"SPECIES",NA,NA,NA,NA,NA,NA,NA,NA,FALSE
+"REA","GFAS","GENUS","Galaxea","Galaxea",NA,NA,"Galaxea",NA,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","GFAS","SPECIES","Galaxea fascicularis","Galaxea fascicularis",NA,NA,"Galaxea fascicularis",207366,"SPECIES",NA,NA,NA,NA,NA,NA,NA,NA,FALSE
+"REA","GFRU","GENUS","Goniopora","Goniopora",NA,NA,"Goniopora",205476,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","GFRU","SPECIES","Goniopora fruticosa","Goniopora fruticosa",NA,NA,"Goniopora fruticosa",288272,"SPECIES",NA,NA,NA,NA,NA,NA,NA,NA,FALSE
+"REA","GMIN","GENUS","Goniopora","Goniopora",NA,NA,"Goniopora",205476,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","GONS","GENUS","Goniastrea","Goniastrea",NA,NA,"Goniastrea",205082,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","GOSP","GENUS","Goniopora","Goniopora",NA,NA,"Goniopora",205476,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","GPEC","GENUS","Goniastrea","Goniastrea",NA,NA,"Goniastrea",205082,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","GPEC","SPECIES","Goniastrea pectinata","Goniastrea pectinata",NA,NA,"Goniastrea pectinata",207464,"SPECIES",NA,NA,NA,NA,NA,NA,NA,NA,FALSE
+"REA","GPLA","GENUS","Gardineroseris","Gardineroseris",NA,NA,"Gardineroseris",204594,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","GPLA","SPECIES","Gardineroseris planulata","Gardineroseris planulata",NA,NA,"Gardineroseris planulata",207274,"SPECIES",NA,NA,NA,NA,NA,NA,NA,NA,FALSE
+"REA","GRET","GENUS","Goniastrea","Goniastrea",NA,NA,"Goniastrea",205082,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","GRET","SPECIES","Goniastrea retiformis","Goniastrea retiformis",NA,NA,"Goniastrea retiformis",207461,"SPECIES",NA,NA,NA,NA,NA,NA,NA,NA,FALSE
+"PQ","GRMA","T3","Green macroalga","Green macroalga","GRMA","T2b","Green macroalga",NA,"T3",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"PQ","GRMA","T3","Green macroalgae","Green macroalgae","GRMA","T2b","Green macroalgae",NA,"T3",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","HASP","GENUS","Halomitra","Halomitra",NA,NA,"Halomitra",204387,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","HCOE","GENUS","Heliopora","Heliopora",NA,NA,"Heliopora",206210,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","HCOE","SPECIES","Heliopora coerulea","Heliopora coerulea",NA,NA,"Heliopora coerulea",210725,"SPECIES",NA,NA,NA,NA,NA,NA,NA,NA,FALSE
+"REA","HERS","GENUS","Herpolitha","Herpolitha",NA,NA,"Herpolitha",205695,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","HESP","GENUS","Heliopora","Heliopora",NA,NA,"Heliopora",206210,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","HEXE","GENUS","Hydnophora","Hydnophora",NA,NA,"Hydnophora",204976,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","HEXE","SPECIES","Hydnophora exesa","Hydnophora exesa",NA,NA,"Hydnophora exesa",207403,"SPECIES",NA,NA,NA,NA,NA,NA,NA,NA,FALSE
+"REA","HLIM","GENUS","Herpolitha","Herpolitha",NA,NA,"Herpolitha",205695,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","HMIC","GENUS","Hydnophora","Hydnophora",NA,NA,"Hydnophora",204976,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","HMIC","SPECIES","Hydnophora microconos","Hydnophora microconos",NA,NA,"Hydnophora microconos",207402,"SPECIES",NA,NA,NA,NA,NA,NA,NA,NA,FALSE
+"REA","HRIG","GENUS","Hydnophora","Hydnophora",NA,NA,"Hydnophora",204976,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","HRIG","SPECIES","Hydnophora rigida","Hydnophora rigida",NA,NA,"Hydnophora rigida",207406,"SPECIES",NA,NA,NA,NA,NA,NA,NA,NA,FALSE
+"REA","HYSP","GENUS","Hydnophora","Hydnophora",NA,NA,"Hydnophora",204976,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"PQ","I","T2","Sessile Invertebrate","Sessile Invertebrate","I","T1","Sessile Invertebrate",NA,"T2",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","ICRA","GENUS","Isopora","Isopora",NA,NA,"Isopora",730685,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","ICRA","SPECIES","Isopora crateriformis","Isopora crateriformis",NA,NA,"Isopora crateriformis",730691,"SPECIES",NA,NA,NA,NA,NA,NA,NA,NA,FALSE
+"REA","IPAL","GENUS","Isopora","Isopora",NA,NA,"Isopora",730685,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","IPAL","SPECIES","Isopora palifera","Isopora palifera",NA,NA,"Isopora palifera",730686,"SPECIES",NA,NA,NA,NA,NA,NA,NA,NA,FALSE
+"REA","ISSP","GENUS","Isopora","Isopora",NA,NA,"Isopora",730685,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","LBEW","GENUS","Leptastrea","Leptastrea",NA,NA,"Leptastrea",204278,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","LBEW","SPECIES","Leptastrea bewickensis","Leptastrea bewickensis",NA,NA,"Leptastrea bewickensis",287822,"SPECIES",NA,NA,NA,NA,NA,NA,NA,NA,FALSE
+"REA","LEPA","COMPLEX","NO WORM ENTRY","NO WORM ENTRY",NA,NA,"NO WORM ENTRY",NA,"COMPLEX",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","LEPS","GENUS","Leptoria","Leptoria",NA,NA,"Leptoria",204155,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","LEPT","GENUS","Leptastrea","Leptastrea",NA,NA,"Leptastrea",204278,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","LESP","GENUS","Leptoseris","Leptoseris",NA,NA,"Leptoseris",206048,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","LHAW","GENUS","Leptoseris","Leptoseris",NA,NA,"Leptoseris",206048,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","LHAW","SPECIES","Leptoseris hawaiiensis","Leptoseris hawaiiensis",NA,NA,"Leptoseris hawaiiensis",207291,"SPECIES",NA,NA,NA,NA,NA,NA,NA,NA,FALSE
+"REA","LHEM","GENUS","Lobophyllia","Lobophyllia",NA,NA,"Lobophyllia",205310,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","LINA","GENUS","Leptastrea","Leptastrea",NA,NA,"Leptastrea",204278,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","LINC","GENUS","Leptoseris","Leptoseris",NA,NA,"Leptoseris",206048,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","LINC","SPECIES","Leptoseris incrustans","Leptoseris incrustans",NA,NA,"Leptoseris incrustans",NA,"SPECIES",NA,NA,NA,NA,NA,NA,NA,NA,FALSE
+"REA","LMYC","GENUS","Leptoseris","Leptoseris",NA,NA,"Leptoseris",206048,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","LMYC","SPECIES","Leptoseris mycetoseroides","Leptoseris mycetoseroides",NA,NA,"Leptoseris mycetoseroides",207283,"SPECIES",NA,NA,NA,NA,NA,NA,NA,NA,FALSE
+"REA","LOBP","GENUS","Lobophytum","Lobophytum",NA,NA,"Lobophytum",206153,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","LOBS","GENUS","Lobophyllia","Lobophyllia",NA,NA,"Lobophyllia",205310,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","LPHY","GENUS","Leptoria","Leptoria",NA,NA,"Leptoria",204155,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","LPHY","SPECIES","Leptoria phrygia","Leptoria phrygia",NA,NA,"Leptoria phrygia",207477,"SPECIES",NA,NA,NA,NA,NA,NA,NA,NA,FALSE
+"REA","LPRU","GENUS","Leptastrea","Leptastrea",NA,NA,"Leptastrea",204278,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","LPRU","SPECIES","Leptastrea purpurea","Leptastrea purpurea",NA,NA,"Leptastrea purpurea",207470,"SPECIES",NA,NA,NA,NA,NA,NA,NA,NA,FALSE
+"REA","LPUR","GENUS","Leptastrea","Leptastrea",NA,NA,"Leptastrea",204278,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","LPUR","SPECIES","Leptastrea purpurea","Leptastrea purpurea",NA,NA,"Leptastrea purpurea",207470,"SPECIES",NA,NA,NA,NA,NA,NA,NA,NA,FALSE
+"REA","LTRA","GENUS","Leptastrea","Leptastrea",NA,NA,"Leptastrea",204278,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","LTRA","SPECIES","Leptastrea transversa","Leptastrea transversa",NA,NA,"Leptastrea transversa",207474,"SPECIES",NA,NA,NA,NA,NA,NA,NA,NA,FALSE
+"REA","LTUB","GENUS","Leptoseris","Leptoseris",NA,NA,"Leptoseris",206048,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"PQ","MA","T2","Macroalga","Macroalga","MA","T1","Macroalga",NA,"T2",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","MAEQ","GENUS","Montipora","Montipora",NA,NA,"Montipora",203834,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","MAMP","GENUS","Merulina","Merulina",NA,NA,"Merulina",206610,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","MAMP","SPECIES","Merulina ampliata","Merulina ampliata",NA,NA,"Merulina ampliata",207407,"SPECIES",NA,NA,NA,NA,NA,NA,NA,NA,FALSE
+"REA","MANG","GENUS","Montipora","Montipora",NA,NA,"Montipora",203834,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","MANN","GENUS","Montastraea","Montastraea",NA,NA,"Montastraea",204717,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"PQ","MASS","T3","Massive hard coral","Massive hard coral","MASS","T2","Massive hard coral",NA,"T3",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","MCAL","GENUS","Montipora","Montipora",NA,NA,"Montipora",203834,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","MCAL","SPECIES","Montipora caliculata","Montipora caliculata",NA,NA,"Montipora caliculata",287696,"SPECIES",NA,NA,NA,NA,NA,NA,NA,NA,FALSE
+"REA","MCAP","GENUS","Montipora","Montipora",NA,NA,"Montipora",203834,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","MCAP","SPECIES","Montipora capitata","Montipora capitata",NA,NA,"Montipora capitata",287697,"SPECIES",NA,NA,NA,NA,NA,NA,NA,NA,FALSE
+"REA","MCUR","SPECIES","Astrea curta","Astrea curta",NA,NA,"Astrea curta",762421,"SPECIES",NA,NA,NA,NA,NA,NA,NA,NA,FALSE
+"REA","MCUR","GENUS","Montastraea","Montastraea",NA,NA,"Montastraea",204717,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","MDIC","GENUS","Millepora","Millepora",NA,NA,"Millepora",205902,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","MDIL","GENUS","Montipora","Montipora",NA,NA,"Montipora",203834,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","MDIL","SPECIES","Montipora dilatata","Montipora dilatata",NA,NA,"Montipora dilatata",411235,"SPECIES",NA,NA,NA,NA,NA,NA,NA,NA,FALSE
+"REA","MELE","GENUS","Mycedium","Mycedium",NA,NA,"Mycedium",NA,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","MELE","SPECIES","Mycedium elephantotus","Mycedium elephantotus",NA,NA,"Mycedium elephantotus",207373,"SPECIES",NA,NA,NA,NA,NA,NA,NA,NA,FALSE
+"REA","MESP","GENUS","Merulina","Merulina",NA,NA,"Merulina",206610,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"PQ","MF","T2","Mobile Fauna","Mobile Fauna","MF","T1","Mobile Fauna",NA,"T2",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","MFLA","GENUS","Montipora","Montipora",NA,NA,"Montipora",203834,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","MFLA","SPECIES","Montipora flabellata","Montipora flabellata",NA,NA,"Montipora flabellata",207174,"SPECIES",NA,NA,NA,NA,NA,NA,NA,NA,FALSE
+"REA","MFOV","GENUS","Montipora","Montipora",NA,NA,"Montipora",203834,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","MGRI","GENUS","Montipora","Montipora",NA,NA,"Montipora",203834,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","MHOF","GENUS","Montipora","Montipora",NA,NA,"Montipora",203834,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","MINC","GENUS","Montipora","Montipora",NA,NA,"Montipora",203834,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","MINC","SPECIES","Montipora incrassata","Montipora incrassata",NA,NA,"Montipora incrassata",287714,"SPECIES",NA,NA,NA,NA,NA,NA,NA,NA,FALSE
+"REA","MISP","GENUS","Millepora","Millepora",NA,NA,"Millepora",205902,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","MITU","GENUS","Millepora","Millepora",NA,NA,"Millepora",205902,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","MOAS","COMPLEX","NO WORM ENTRY","NO WORM ENTRY",NA,NA,"NO WORM ENTRY",NA,"COMPLEX",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","MONS","GENUS","Montastraea","Montastraea",NA,NA,"Montastraea",204717,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","MOSP","GENUS","Montipora","Montipora",NA,NA,"Montipora",203834,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"PQ","MOSP","T3","Montipora sp","Montipora sp","MOSP","T2","Montipora sp",NA,"T3",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","MOVR","GENUS","Montipora","Montipora",NA,NA,"Montipora",203834,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","MPAT","GENUS","Montipora","Montipora",NA,NA,"Montipora",203834,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","MPAT","SPECIES","Montipora patula","Montipora patula",NA,NA,"Montipora patula",207149,"SPECIES",NA,NA,NA,NA,NA,NA,NA,NA,FALSE
+"REA","MSCA","GENUS","Merulina","Merulina",NA,NA,"Merulina",206610,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","MSCA","SPECIES","Merulina scabricula","Merulina scabricula",NA,NA,"Merulina scabricula",289198,"SPECIES",NA,NA,NA,NA,NA,NA,NA,NA,FALSE
+"REA","MSOC","GENUS","Montipora","Montipora",NA,NA,"Montipora",203834,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","MTUB","GENUS","Montipora","Montipora",NA,NA,"Montipora",203834,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","MTUR","GENUS","Montipora","Montipora",NA,NA,"Montipora",203834,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","MTUR","SPECIES","Montipora turgescens","Montipora turgescens",NA,NA,"Montipora turgescens",207142,"SPECIES",NA,NA,NA,NA,NA,NA,NA,NA,FALSE
+"REA","MVAL","SPECIES","Favites valenciennesii","Favites valenciennesii",NA,NA,"Favites valenciennesii",763525,"SPECIES",NA,NA,NA,NA,NA,NA,NA,NA,FALSE
+"REA","MVAL","GENUS","Montastraea","Montastraea",NA,NA,"Montastraea",204717,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","MVER","GENUS","Montipora","Montipora",NA,NA,"Montipora",203834,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","MYSP","GENUS","Mycedium","Mycedium",NA,NA,"Mycedium",NA,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","OCRI","GENUS","Oulophyllia","Oulophyllia",NA,NA,"Oulophyllia",205663,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","OCRI","SPECIES","Oulophyllia crispa","Oulophyllia crispa",NA,NA,"Oulophyllia crispa",207485,"SPECIES",NA,NA,NA,NA,NA,NA,NA,NA,FALSE
+"PQ","OFFSURVEY","T1","NonTarget","NonTarget","OFFSURVEY","T0","NonTarget",NA,"T1",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","OSXP","GENUS","Oxypora","Oxypora",NA,NA,"Oxypora",205536,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","OUSP","GENUS","Oulophyllia","Oulophyllia",NA,NA,"Oulophyllia",205663,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","OXSP","GENUS","Oxypora","Oxypora",NA,NA,"Oxypora",205536,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","PAAU","SPECIES","Lobophyllia","Lobophyllia",NA,NA,"Lobophyllia",205310,"SPECIES",NA,NA,NA,NA,NA,NA,NA,NA,FALSE
+"REA","PACS","GENUS","Pachyseris","Pachyseris",NA,NA,"Pachyseris",206073,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","PALS","GENUS","Palauastrea","Palauastrea",NA,NA,"Palauastrea",267668,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","PANA","GENUS","Porites","Porites",NA,NA,"Porites",206485,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","PANA","SPECIES","Porites annae","Porites annae",NA,NA,"Porites annae",288886,"SPECIES",NA,NA,NA,NA,NA,NA,NA,NA,FALSE
+"REA","PANK","GENUS","Pocillopora","Pocillopora",NA,NA,"Pocillopora",206938,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","PARA","SPECIES","Lobophyllia","Lobophyllia",NA,NA,"Lobophyllia",205310,"SPECIES",NA,NA,NA,NA,NA,NA,NA,NA,FALSE
+"REA","PASP","GENUS","Palythoa","Palythoa",NA,NA,"Palythoa",205785,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","PAUS","GENUS","Porites","Porites",NA,NA,"Porites",206485,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","PAVS","GENUS","Pavona","Pavona",NA,NA,"Pavona",206614,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"PQ","PAVS","T3","Pavona sp","Pavona sp","PAVS","T2","Pavona sp",NA,"T3",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","PBER","GENUS","Porites","Porites",NA,NA,"Porites",206485,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","PBER","SPECIES","Porites bernardi","Porites bernardi",NA,NA,"Porites bernardi",NA,"SPECIES",NA,NA,NA,NA,NA,NA,NA,NA,FALSE
+"REA","PBRI","GENUS","Porites","Porites",NA,NA,"Porites",206485,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","PBRI","SPECIES","Porites brighami","Porites brighami",NA,NA,"Porites brighami",411263,"SPECIES",NA,NA,NA,NA,NA,NA,NA,NA,FALSE
+"REA","PCAC","GENUS","Pavona","Pavona",NA,NA,"Pavona",206614,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","PCAC","SPECIES","Pavona cactus","Pavona cactus",NA,NA,"Pavona cactus",207312,"SPECIES",NA,NA,NA,NA,NA,NA,NA,NA,FALSE
+"REA","PCAP","GENUS","Pocillopora","Pocillopora",NA,NA,"Pocillopora",206938,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","PCAP","SPECIES","Pocillopora capitata","Pocillopora capitata",NA,NA,"Pocillopora capitata",289246,"SPECIES",NA,NA,NA,NA,NA,NA,NA,NA,FALSE
+"REA","PCHI","GENUS","Pavona","Pavona",NA,NA,"Pavona",206614,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","PCHI","SPECIES","Pavona chiriquiensis","Pavona chiriquiensis",NA,NA,"Pavona chiriquiensis",289200,"SPECIES",NA,NA,NA,NA,NA,NA,NA,NA,FALSE
+"REA","PCLA","GENUS","Pavona","Pavona",NA,NA,"Pavona",206614,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","PCOL","SPECIES","Favites","Favites",NA,NA,"Favites",206158,"SPECIES",NA,NA,NA,NA,NA,NA,NA,NA,FALSE
+"REA","PCOM","GENUS","Porites","Porites",NA,NA,"Porites",206485,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","PCOM","SPECIES","Porites compressa","Porites compressa",NA,NA,"Porites compressa",207236,"SPECIES",NA,NA,NA,NA,NA,NA,NA,NA,FALSE
+"REA","PCON","GENUS","Psammocora","Psammocora",NA,NA,"Psammocora",204148,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","PCON","SPECIES","Psammocora contigua","Psammocora contigua",NA,NA,"Psammocora contigua",207267,"SPECIES",NA,NA,NA,NA,NA,NA,NA,NA,FALSE
+"REA","PCRU","GENUS","Podabacia","Podabacia",NA,NA,"Podabacia",206541,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","PCRU","SPECIES","Podabacia crustacea","Podabacia crustacea",NA,NA,"Podabacia crustacea",207364,"SPECIES",NA,NA,NA,NA,NA,NA,NA,NA,FALSE
+"REA","PCYL","GENUS","Porites","Porites",NA,NA,"Porites",206485,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","PCYL","SPECIES","Porites cylindrica","Porites cylindrica",NA,NA,"Porites cylindrica",207229,"SPECIES",NA,NA,NA,NA,NA,NA,NA,NA,FALSE
+"REA","PDAM","GENUS","Pocillopora","Pocillopora",NA,NA,"Pocillopora",206938,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","PDAM","SPECIES","Pocillopora damicornis","Pocillopora damicornis",NA,NA,"Pocillopora damicornis",206953,"SPECIES",NA,NA,NA,NA,NA,NA,NA,NA,FALSE
+"REA","PDAN","GENUS","Pocillopora","Pocillopora",NA,NA,"Pocillopora",206938,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","PDAN","SPECIES","Pocillopora verrucosa","Pocillopora verrucosa",NA,NA,"Pocillopora verrucosa",206954,"SPECIES",NA,NA,NA,NA,NA,NA,NA,NA,FALSE
+"REA","PDEC","GENUS","Pavona","Pavona",NA,NA,"Pavona",206614,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","PDEN","GENUS","Porites","Porites",NA,NA,"Porites",206485,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","PDIF","GENUS","Pavona","Pavona",NA,NA,"Pavona",206614,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","PDIF","SPECIES","Pavona diffluens","Pavona diffluens",NA,NA,"Pavona diffluens",207295,"SPECIES",NA,NA,NA,NA,NA,NA,NA,NA,FALSE
+"REA","PDIG","GENUS","Psammocora","Psammocora",NA,NA,"Psammocora",204148,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","PDIG","SPECIES","Psammocora digitata","Psammocora digitata",NA,NA,"Psammocora digitata",207260,"SPECIES",NA,NA,NA,NA,NA,NA,NA,NA,FALSE
+"REA","PDUE","GENUS","Pavona","Pavona",NA,NA,"Pavona",206614,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","PDUE","SPECIES","Pavona duerdeni","Pavona duerdeni",NA,NA,"Pavona duerdeni",207315,"SPECIES",NA,NA,NA,NA,NA,NA,NA,NA,FALSE
+"REA","PELE","GENUS","Pocillopora","Pocillopora",NA,NA,"Pocillopora",206938,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","PESP","GENUS","Pectinia","Pectinia",NA,NA,"Pectinia",NA,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","PEVE","GENUS","Porites","Porites",NA,NA,"Porites",206485,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","PEVE","SPECIES","Porites evermanni","Porites evermanni",NA,NA,"Porites evermanni",288900,"SPECIES",NA,NA,NA,NA,NA,NA,NA,NA,FALSE
+"REA","PEXP","GENUS","Pavona","Pavona",NA,NA,"Pavona",206614,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","PEYD","GENUS","Pocillopora","Pocillopora",NA,NA,"Pocillopora",206938,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","PEYD","SPECIES","Pocillopora grandis","Pocillopora grandis",NA,NA,"Pocillopora grandis",206952,"SPECIES",NA,NA,NA,NA,NA,NA,NA,NA,FALSE
+"REA","PGRA","GENUS","Pocillopora","Pocillopora",NA,NA,"Pocillopora",206938,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","PGRA","COMPLEX","Pocillopora","Pocillopora",NA,NA,"Pocillopora",206938,"COMPLEX",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","PGRA","SPECIES","Pocillopora grandis","Pocillopora grandis",NA,NA,"Pocillopora grandis",206952,"SPECIES",NA,NA,NA,NA,NA,NA,NA,NA,FALSE
+"REA","PGWC","GENUS","Pocillopora","Pocillopora",NA,NA,"Pocillopora",206938,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","PGWC","COMPLEX","Pocillopora","Pocillopora",NA,NA,"Pocillopora",206938,"COMPLEX",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","PHAI","GENUS","Psammocora","Psammocora",NA,NA,"Psammocora",204148,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","PHAI","SPECIES","Psammocora haimiana","Psammocora haimiana",NA,NA,"Psammocora haimiana",718603,"SPECIES",NA,NA,NA,NA,NA,NA,NA,NA,FALSE
+"REA","PHOR","GENUS","Porites","Porites",NA,NA,"Porites",206485,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","PHOR","SPECIES","Porites horizontalata","Porites horizontalata",NA,NA,"Porites horizontalata",207237,"SPECIES",NA,NA,NA,NA,NA,NA,NA,NA,FALSE
+"REA","PHSP","SPECIES","Favites","Favites",NA,NA,"Favites",206158,"SPECIES",NA,NA,NA,NA,NA,NA,NA,NA,FALSE
+"REA","PLDA","GENUS","Platygyra","Platygyra",NA,NA,"Platygyra",206621,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","PLDA","SPECIES","Platygyra daedalea","Platygyra daedalea",NA,NA,"Platygyra daedalea",207489,"SPECIES",NA,NA,NA,NA,NA,NA,NA,NA,FALSE
+"REA","PLER","GENUS","Plerogyra","Plerogyra",NA,NA,"Plerogyra",204353,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","PLES","GENUS","Plesiastrea","Plesiastrea",NA,NA,"Plesiastrea",206216,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","PLIC","GENUS","Porites","Porites",NA,NA,"Porites",206485,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","PLIC","SPECIES","Porites lichen","Porites lichen",NA,NA,"Porites lichen",207228,"SPECIES",NA,NA,NA,NA,NA,NA,NA,NA,FALSE
+"REA","PLIG","GENUS","Pocillopora","Pocillopora",NA,NA,"Pocillopora",206938,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","PLIG","SPECIES","Pocillopora ligulata","Pocillopora ligulata",NA,NA,"Pocillopora ligulata",206959,"SPECIES",NA,NA,NA,NA,NA,NA,NA,NA,FALSE
+"REA","PLOB","GENUS","Porites","Porites",NA,NA,"Porites",206485,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","PLOB","SPECIES","Porites lobata","Porites lobata",NA,NA,"Porites lobata",207225,"SPECIES",NA,NA,NA,NA,NA,NA,NA,NA,FALSE
+"REA","PLSP","GENUS","Platygyra","Platygyra",NA,NA,"Platygyra",206621,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","PLUT","GENUS","Porites","Porites",NA,NA,"Porites",206485,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","PLUT","SPECIES","Porites lutea","Porites lutea",NA,NA,"Porites lutea",207246,"SPECIES",NA,NA,NA,NA,NA,NA,NA,NA,FALSE
+"REA","PLVE","GENUS","Plesiastrea","Plesiastrea",NA,NA,"Plesiastrea",206216,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","PLVE","SPECIES","Plesiastrea versipora","Plesiastrea versipora",NA,NA,"Plesiastrea versipora",207494,"SPECIES",NA,NA,NA,NA,NA,NA,NA,NA,FALSE
+"REA","PMAL","GENUS","Pavona","Pavona",NA,NA,"Pavona",206614,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","PMAL","SPECIES","Pavona maldivensis","Pavona maldivensis",NA,NA,"Pavona maldivensis",207309,"SPECIES",NA,NA,NA,NA,NA,NA,NA,NA,FALSE
+"REA","PMEA","GENUS","Pocillopora","Pocillopora",NA,NA,"Pocillopora",206938,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","PMEA","COMPLEX","Pocillopora","Pocillopora",NA,NA,"Pocillopora",206938,"COMPLEX",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","PMEA","SPECIES","Pocillopora meandrina","Pocillopora meandrina",NA,NA,"Pocillopora meandrina",206964,"SPECIES",NA,NA,NA,NA,NA,NA,NA,NA,FALSE
+"REA","PMOL","GENUS","Pocillopora","Pocillopora",NA,NA,"Pocillopora",206938,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","PMOL","SPECIES","Pocillopora molokensis","Pocillopora molokensis",NA,NA,"Pocillopora molokensis",411253,"SPECIES",NA,NA,NA,NA,NA,NA,NA,NA,FALSE
+"REA","PMON","GENUS","Porites","Porites",NA,NA,"Porites",206485,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","PMON","COMPLEX","Porites","Porites",NA,NA,"Porites",206485,"COMPLEX",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","PMON","SPECIES","Porites monticulosa","Porites monticulosa",NA,NA,"Porites monticulosa",367816,"SPECIES",NA,NA,NA,NA,NA,NA,NA,NA,FALSE
+"REA","PMOR","GENUS","Porites","Porites",NA,NA,"Porites",206485,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","PMRC","GENUS","Porites","Porites",NA,NA,"Porites",206485,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","PMRC","COMPLEX","Porites","Porites",NA,NA,"Porites",206485,"COMPLEX",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","PMUR","GENUS","Porites","Porites",NA,NA,"Porites",206485,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","PMVC","GENUS","Pocillopora","Pocillopora",NA,NA,"Pocillopora",206938,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","PMVC","COMPLEX","Pocillopora","Pocillopora",NA,NA,"Pocillopora",206938,"COMPLEX",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","PNIE","GENUS","Psammocora","Psammocora",NA,NA,"Psammocora",204148,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","PNIE","SPECIES","Psammocora nierstraszi","Psammocora nierstraszi",NA,NA,"Psammocora nierstraszi",207261,"SPECIES",NA,NA,NA,NA,NA,NA,NA,NA,FALSE
+"REA","POCS","GENUS","Pocillopora","Pocillopora",NA,NA,"Pocillopora",206938,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","PODS","GENUS","Podabacia","Podabacia",NA,NA,"Podabacia",206541,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","PODU","GENUS","Porites","Porites",NA,NA,"Porites",206485,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","PODU","SPECIES","Porites duerdeni","Porites duerdeni",NA,NA,"Porites duerdeni",411269,"SPECIES",NA,NA,NA,NA,NA,NA,NA,NA,FALSE
+"REA","POLY","GENUS","Polyphyllia","Polyphyllia",NA,NA,"Polyphyllia",206736,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","POSP","GENUS","Porites","Porites",NA,NA,"Porites",206485,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"PQ","POSP","T3","Porites sp","Porites sp","POSP","T2","Porites sp",NA,"T3",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","PPAE","GENUS","Pectinia","Pectinia",NA,NA,"Pectinia",NA,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","PPAE","SPECIES","Pectinia paeonia","Pectinia paeonia",NA,NA,"Pectinia paeonia",207377,"SPECIES",NA,NA,NA,NA,NA,NA,NA,NA,FALSE
+"REA","PPIN","GENUS","Platygyra","Platygyra",NA,NA,"Platygyra",206621,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","PPIN","SPECIES","Platygyra pini","Platygyra pini",NA,NA,"Platygyra pini",207490,"SPECIES",NA,NA,NA,NA,NA,NA,NA,NA,FALSE
+"REA","PPRO","GENUS","Psammocora","Psammocora",NA,NA,"Psammocora",204148,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","PPRO","SPECIES","Psammocora profundacella","Psammocora profundacella",NA,NA,"Psammocora profundacella",207271,"SPECIES",NA,NA,NA,NA,NA,NA,NA,NA,FALSE
+"REA","PRAM","GENUS","Palauastrea","Palauastrea",NA,NA,"Palauastrea",267668,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","PRSP","GENUS","Palythoa","Palythoa",NA,NA,"Palythoa",205785,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","PRUG","GENUS","Pachyseris","Pachyseris",NA,NA,"Pachyseris",206073,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","PRUG","SPECIES","Pachyseris rugosa","Pachyseris rugosa",NA,NA,"Pachyseris rugosa",207292,"SPECIES",NA,NA,NA,NA,NA,NA,NA,NA,FALSE
+"REA","PRUS","GENUS","Porites","Porites",NA,NA,"Porites",206485,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","PRUS","COMPLEX","Porites","Porites",NA,NA,"Porites",206485,"COMPLEX",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","PRUS","SPECIES","Porites rus","Porites rus",NA,NA,"Porites rus",207231,"SPECIES",NA,NA,NA,NA,NA,NA,NA,NA,FALSE
+"REA","PSET","GENUS","Pocillopora","Pocillopora",NA,NA,"Pocillopora",206938,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","PSET","SPECIES","Pocillopora brevicornis","Pocillopora brevicornis",NA,NA,"Pocillopora brevicornis",206951,"SPECIES",NA,NA,NA,NA,NA,NA,NA,NA,FALSE
+"REA","PSIN","GENUS","Plerogyra","Plerogyra",NA,NA,"Plerogyra",204353,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","PSIN","SPECIES","Plerogyra sinuosa","Plerogyra sinuosa",NA,NA,"Plerogyra sinuosa",207498,"SPECIES",NA,NA,NA,NA,NA,NA,NA,NA,FALSE
+"REA","PSOL","GENUS","Porites","Porites",NA,NA,"Porites",206485,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","PSOL","SPECIES","Porites solida","Porites solida",NA,NA,"Porites solida",207227,"SPECIES",NA,NA,NA,NA,NA,NA,NA,NA,FALSE
+"REA","PSPE","GENUS","Pachyseris","Pachyseris",NA,NA,"Pachyseris",206073,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","PSSP","GENUS","Psammocora","Psammocora",NA,NA,"Psammocora",204148,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","PSTE","GENUS","Psammocora","Psammocora",NA,NA,"Psammocora",204148,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","PSTE","SPECIES","Psammocora stellata","Psammocora stellata",NA,NA,"Psammocora stellata",287784,"SPECIES",NA,NA,NA,NA,NA,NA,NA,NA,FALSE
+"REA","PSUP","GENUS","Psammocora","Psammocora",NA,NA,"Psammocora",204148,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","PVAL","SPECIES","Favites","Favites",NA,NA,"Favites",206158,"SPECIES",NA,NA,NA,NA,NA,NA,NA,NA,FALSE
+"REA","PVAL","SPECIES","Favites valenciennesii","Favites valenciennesii",NA,NA,"Favites valenciennesii",763525,"SPECIES",NA,NA,NA,NA,NA,NA,NA,NA,FALSE
+"REA","PVAR","GENUS","Pavona","Pavona",NA,NA,"Pavona",206614,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","PVAR","SPECIES","Pavona varians","Pavona varians",NA,NA,"Pavona varians",207303,"SPECIES",NA,NA,NA,NA,NA,NA,NA,NA,FALSE
+"REA","PVAU","GENUS","Porites","Porites",NA,NA,"Porites",206485,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","PVAU","SPECIES","Porites vaughani","Porites vaughani",NA,NA,"Porites vaughani",288918,"SPECIES",NA,NA,NA,NA,NA,NA,NA,NA,FALSE
+"REA","PVEN","GENUS","Pavona","Pavona",NA,NA,"Pavona",206614,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","PVEN","SPECIES","Pavona venosa","Pavona venosa",NA,NA,"Pavona venosa",207301,"SPECIES",NA,NA,NA,NA,NA,NA,NA,NA,FALSE
+"REA","PVER","GENUS","Pocillopora","Pocillopora",NA,NA,"Pocillopora",206938,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","PVER","COMPLEX","Pocillopora","Pocillopora",NA,NA,"Pocillopora",206938,"COMPLEX",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","PVER","SPECIES","Pocillopora verrucosa","Pocillopora verrucosa",NA,NA,"Pocillopora verrucosa",206954,"SPECIES",NA,NA,NA,NA,NA,NA,NA,NA,FALSE
+"REA","PWOO","GENUS","Pocillopora","Pocillopora",NA,NA,"Pocillopora",206938,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","PWOO","COMPLEX","Pocillopora","Pocillopora",NA,NA,"Pocillopora",206938,"COMPLEX",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","PWOO","SPECIES","Pocillopora woodjonesi","Pocillopora woodjonesi",NA,NA,"Pocillopora woodjonesi",289252,"SPECIES",NA,NA,NA,NA,NA,NA,NA,NA,FALSE
+"PQ","RDMA","T3","Red macroalgae","Red macroalgae","RDMA","T2b","Red macroalgae",NA,"T3",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","RHSP","GENUS","Rhodactis","Rhodactis",NA,NA,"Rhodactis",267806,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","SACU","GENUS","Seriatopora","Seriatopora",NA,NA,"Seriatopora",205121,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","SACU","SPECIES","Seriatopora aculeata","Seriatopora aculeata",NA,NA,"Seriatopora aculeata",430679,"SPECIES",NA,NA,NA,NA,NA,NA,NA,NA,FALSE
+"REA","SARM","GENUS","Stylocoeniella","Stylocoeniella",NA,NA,"Stylocoeniella",204053,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","SARM","SPECIES","Stylocoeniella armata","Stylocoeniella armata",NA,NA,"Stylocoeniella armata",206950,"SPECIES",NA,NA,NA,NA,NA,NA,NA,NA,FALSE
+"REA","SARS","GENUS","Sarcophyton","Sarcophyton",NA,NA,"Sarcophyton",205483,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","SASP","GENUS","Sandalolitha","Sandalolitha",NA,NA,"Sandalolitha",267823,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"PQ","SC","T2","Soft Coral","Soft Coral","SC","T1","Soft Coral",NA,"T2",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","SCAS","SPECIES","Merulina","Merulina",NA,NA,"Merulina",206610,"SPECIES",NA,NA,NA,NA,NA,NA,NA,NA,FALSE
+"REA","SCSP","GENUS","Scolymia","Scolymia",NA,NA,"Scolymia",204384,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","SCYL","SPECIES","Merulina cylindrica","Merulina cylindrica",NA,NA,"Merulina cylindrica",1465792,"SPECIES",NA,NA,NA,NA,NA,NA,NA,NA,FALSE
+"PQ","SED","T2","Sediment","Sediment","SED","T1","Sediment",NA,"T2",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","SEDM","UNKNOWN","UNKNOWN","UNKNOWN",NA,NA,"UNKNOWN",NA,"UNKNOWN",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","SESP","GENUS","Seriatopora","Seriatopora",NA,NA,"Seriatopora",205121,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","SGUE","GENUS","Stylocoeniella","Stylocoeniella",NA,NA,"Stylocoeniella",204053,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","SGUE","SPECIES","Stylocoeniella guentheri","Stylocoeniella guentheri",NA,NA,"Stylocoeniella guentheri",206948,"SPECIES",NA,NA,NA,NA,NA,NA,NA,NA,FALSE
+"REA","SISP","GENUS","Sinularia","Sinularia",NA,NA,"Sinularia",205854,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","SPIS","GENUS","Stylophora","Stylophora",NA,NA,"Stylophora",204068,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","SPIS","SPECIES","Stylophora pistillata","Stylophora pistillata",NA,NA,"Stylophora pistillata",206982,"SPECIES",NA,NA,NA,NA,NA,NA,NA,NA,FALSE
+"REA","SPUN","GENUS","Stylaraea","Stylaraea",NA,NA,"Stylaraea",205751,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","SPUN","SPECIES","Stylaraea punctata","Stylaraea punctata",NA,NA,"Stylaraea punctata",212178,"SPECIES",NA,NA,NA,NA,NA,NA,NA,NA,FALSE
+"REA","STSP","GENUS","Stylocoeniella","Stylocoeniella",NA,NA,"Stylocoeniella",204053,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","STYL","GENUS","Stylaster","Stylaster",NA,NA,"Stylaster",117246,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","STYP","GENUS","Stylaraea","Stylaraea",NA,NA,"Stylaraea",205751,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","STYS","GENUS","Stylophora","Stylophora",NA,NA,"Stylophora",204068,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"PQ","SUBS","T1","Substrate","Substrate","SUBS","T0","Substrate",NA,"T1",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","SYSP","GENUS","Lobophyllia","Lobophyllia",NA,NA,"Lobophyllia",205310,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"PQ","TAB","T3","Tabulate hard coral","Tabulate hard coral","TAB","T2","Tabulate hard coral",NA,"T3",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","TMES","GENUS","Turbinaria","Turbinaria",NA,NA,"Turbinaria",NA,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","TMES","SPECIES","Turbinaria mesenterina","Turbinaria mesenterina",NA,NA,"Turbinaria mesenterina",207511,"SPECIES",NA,NA,NA,NA,NA,NA,NA,NA,FALSE
+"REA","TPEL","SPECIES","Duncanopsammia peltata","Duncanopsammia peltata",NA,NA,"Duncanopsammia peltata",1469809,"SPECIES",NA,NA,NA,NA,NA,NA,NA,NA,FALSE
+"REA","TPEL","GENUS","Turbinaria","Turbinaria",NA,NA,"Turbinaria",NA,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","TREN","GENUS","Turbinaria","Turbinaria",NA,NA,"Turbinaria",NA,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","TREN","SPECIES","Turbinaria reniformis","Turbinaria reniformis",NA,NA,"Turbinaria reniformis",207507,"SPECIES",NA,NA,NA,NA,NA,NA,NA,NA,FALSE
+"REA","TSTE","GENUS","Turbinaria","Turbinaria",NA,NA,"Turbinaria",NA,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","TSTE","SPECIES","Turbinaria stellulata","Turbinaria stellulata",NA,NA,"Turbinaria stellulata",207510,"SPECIES",NA,NA,NA,NA,NA,NA,NA,NA,FALSE
+"REA","TUBA","COMPLEX","NO WORM ENTRY","NO WORM ENTRY",NA,NA,"NO WORM ENTRY",NA,"COMPLEX",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"PQ","TURF","T2","Turf Alga","Turf Alga","TURF","T1","Turf Alga",NA,"T2",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"PQ","TURF","T2b","Turf Alga","Turf Alga","TURF","T1","Turf Alga",NA,"T2b",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","TURS","GENUS","Turbinaria","Turbinaria",NA,NA,"Turbinaria",NA,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","TUSP","GENUS","Tubastraea","Tubastraea",NA,NA,"Tubastraea",267930,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"PQ","UC","T2","Unclassified","Unclassified","UC","T1","Unclassified",NA,"T2",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","UNKN","ORDER","NO WORM ENTRY","NO WORM ENTRY",NA,NA,"NO WORM ENTRY",NA,"ORDER",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"PQ","UPMA","T2b","Upright macroalga","Upright macroalga","UPMA","T2","Upright macroalga",NA,"T2b",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","WIRE","FUNC_GROUP","NO WORM ENTRY","NO WORM ENTRY",NA,NA,"NO WORM ENTRY",NA,"FUNC_GROUP",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","ZOPA","COMPLEX","NO WORM ENTRY","NO WORM ENTRY",NA,NA,"NO WORM ENTRY",NA,"COMPLEX",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"REA","ZOSP","GENUS","Zoanthus","Zoanthus",NA,NA,"Zoanthus",206284,"GENUS",NA,NA,NA,NA,NA,NA,NA,NA,TRUE
+"OBIS",NA,"Species","Acanthastrea echinata","Acanthastrea echinata",NA,NA,"Acanthastrea echinata",207384,"Species","accepted","Animalia","Cnidaria","Hexacorallia","Scleractinia","Lobophylliidae","Acanthastrea","Acanthastrea echinata",FALSE
+"OBIS",NA,"Species","Acropora abrotanoides","Acropora abrotanoides",NA,NA,"Acropora abrotanoides",207083,"Species","accepted","Animalia","Cnidaria","Hexacorallia","Scleractinia","Acroporidae","Acropora","Acropora abrotanoides",FALSE
+"OBIS",NA,"Species","Acropora clathrata","Acropora clathrata",NA,NA,"Acropora clathrata",207075,"Species","accepted","Animalia","Cnidaria","Hexacorallia","Scleractinia","Acroporidae","Acropora","Acropora clathrata",FALSE
+"OBIS",NA,"Species","Acropora cytherea","Acropora cytherea",NA,NA,"Acropora cytherea",207095,"Species","accepted","Animalia","Cnidaria","Hexacorallia","Scleractinia","Acroporidae","Acropora","Acropora cytherea",FALSE
+"OBIS",NA,"Species","Acropora globiceps","Acropora globiceps",NA,NA,"Acropora globiceps",430645,"Species","accepted","Animalia","Cnidaria","Hexacorallia","Scleractinia","Acroporidae","Acropora","Acropora globiceps",FALSE
+"OBIS",NA,"Species","Acropora humilis","Acropora humilis",NA,NA,"Acropora humilis",207094,"Species","accepted","Animalia","Cnidaria","Hexacorallia","Scleractinia","Acroporidae","Acropora","Acropora humilis",FALSE
+"OBIS",NA,"Species","Acropora monticulosa","Acropora monticulosa",NA,NA,"Acropora monticulosa",207103,"Species","accepted","Animalia","Cnidaria","Hexacorallia","Scleractinia","Acroporidae","Acropora","Acropora monticulosa",FALSE
+"OBIS",NA,"Species","Acropora paniculata","Acropora paniculata",NA,NA,"Acropora paniculata",207008,"Species","accepted","Animalia","Cnidaria","Hexacorallia","Scleractinia","Acroporidae","Acropora","Acropora paniculata",FALSE
+"OBIS",NA,"Species","Acropora retusa","Acropora retusa",NA,NA,"Acropora retusa",430653,"Species","accepted","Animalia","Cnidaria","Hexacorallia","Scleractinia","Acroporidae","Acropora","Acropora retusa",FALSE
+"OBIS",NA,"Species","Acropora robusta","Acropora robusta",NA,NA,"Acropora robusta",207000,"Species","accepted","Animalia","Cnidaria","Hexacorallia","Scleractinia","Acroporidae","Acropora","Acropora robusta",FALSE
+"OBIS",NA,"Species","Acropora solitaryensis","Acropora solitaryensis",NA,NA,"Acropora solitaryensis",288248,"Species","accepted","Animalia","Cnidaria","Hexacorallia","Scleractinia","Acroporidae","Acropora","Acropora solitaryensis",FALSE
+"OBIS",NA,"Species","Acropora speciosa","Acropora speciosa",NA,NA,"Acropora speciosa",430655,"Species","accepted","Animalia","Cnidaria","Hexacorallia","Scleractinia","Acroporidae","Acropora","Acropora speciosa",FALSE
+"OBIS",NA,"Species","Acropora spicifera","Acropora spicifera",NA,NA,"Acropora spicifera",207087,"Species","accepted","Animalia","Cnidaria","Hexacorallia","Scleractinia","Acroporidae","Acropora","Acropora spicifera",FALSE
+"OBIS",NA,"Species","Acropora valida","Acropora valida",NA,NA,"Acropora valida",207072,"Species","accepted","Animalia","Cnidaria","Hexacorallia","Scleractinia","Acroporidae","Acropora","Acropora valida",FALSE
+"OBIS",NA,"Species","Alveopora verrilliana","Alveopora verrilliana",NA,NA,"Alveopora verrilliana",207201,"Species","accepted","Animalia","Cnidaria","Hexacorallia","Scleractinia","Acroporidae","Alveopora","Alveopora verrilliana",FALSE
+"OBIS",NA,"Species","Astrea curta","Astrea curta",NA,NA,"Astrea curta",762421,"Species","accepted","Animalia","Cnidaria","Hexacorallia","Scleractinia","Merulinidae","Astrea","Astrea curta",FALSE
+"OBIS",NA,"Species","Astreopora myriophthalma","Astreopora myriophthalma",NA,NA,"Astreopora myriophthalma",207128,"Species","accepted","Animalia","Cnidaria","Hexacorallia","Scleractinia","Acroporidae","Astreopora","Astreopora myriophthalma",FALSE
+"OBIS",NA,"Species","Cladopsammia eguchii","Cladopsammia eguchii",NA,NA,"Cladopsammia eguchii",286957,"Species","accepted","Animalia","Cnidaria","Hexacorallia","Scleractinia","Dendrophylliidae","Cladopsammia","Cladopsammia eguchii",FALSE
+"OBIS",NA,"Species","Coelastrea aspera","Coelastrea aspera",NA,NA,"Coelastrea aspera",762427,"Species","accepted","Animalia","Cnidaria","Hexacorallia","Scleractinia","Merulinidae","Coelastrea","Coelastrea aspera",FALSE
+"OBIS",NA,"Species","Coscinaraea monile","Coscinaraea monile",NA,NA,"Coscinaraea monile",207255,"Species","accepted","Animalia","Cnidaria","Hexacorallia","Scleractinia","Coscinaraeidae","Coscinaraea","Coscinaraea monile",FALSE
+"OBIS",NA,"Species","Cycloseris costulata","Cycloseris costulata",NA,NA,"Cycloseris costulata",207325,"Species","accepted","Animalia","Cnidaria","Hexacorallia","Scleractinia","Fungiidae","Cycloseris","Cycloseris costulata",FALSE
+"OBIS",NA,"Species","Cycloseris cyclolites","Cycloseris cyclolites",NA,NA,"Cycloseris cyclolites",207323,"Species","accepted","Animalia","Cnidaria","Hexacorallia","Scleractinia","Fungiidae","Cycloseris","Cycloseris cyclolites",FALSE
+"OBIS",NA,"Species","Cycloseris distorta","Cycloseris distorta",NA,NA,"Cycloseris distorta",207326,"Species","accepted","Animalia","Cnidaria","Hexacorallia","Scleractinia","Fungiidae","Cycloseris","Cycloseris distorta",FALSE
+"OBIS",NA,"Species","Cycloseris fragilis","Cycloseris fragilis",NA,NA,"Cycloseris fragilis",716448,"Species","accepted","Animalia","Cnidaria","Hexacorallia","Scleractinia","Fungiidae","Cycloseris","Cycloseris fragilis",FALSE
+"OBIS",NA,"Species","Cycloseris sinensis","Cycloseris sinensis",NA,NA,"Cycloseris sinensis",716552,"Species","accepted","Animalia","Cnidaria","Hexacorallia","Scleractinia","Fungiidae","Cycloseris","Cycloseris sinensis",FALSE
+"OBIS",NA,"Species","Cycloseris somervillei","Cycloseris somervillei",NA,NA,"Cycloseris somervillei",207328,"Species","accepted","Animalia","Cnidaria","Hexacorallia","Scleractinia","Fungiidae","Cycloseris","Cycloseris somervillei",FALSE
+"OBIS",NA,"Species","Cycloseris tenuis","Cycloseris tenuis",NA,NA,"Cycloseris tenuis",207324,"Species","accepted","Animalia","Cnidaria","Hexacorallia","Scleractinia","Fungiidae","Cycloseris","Cycloseris tenuis",FALSE
+"OBIS",NA,"Species","Cycloseris vaughani","Cycloseris vaughani",NA,NA,"Cycloseris vaughani",207327,"Species","accepted","Animalia","Cnidaria","Hexacorallia","Scleractinia","Fungiidae","Cycloseris","Cycloseris vaughani",FALSE
+"OBIS",NA,"Species","Cycloseris wellsi","Cycloseris wellsi",NA,NA,"Cycloseris wellsi",716291,"Species","accepted","Animalia","Cnidaria","Hexacorallia","Scleractinia","Fungiidae","Cycloseris","Cycloseris wellsi",FALSE
+"OBIS",NA,"Species","Cyphastrea agassizi","Cyphastrea agassizi",NA,NA,"Cyphastrea agassizi",288919,"Species","accepted","Animalia","Cnidaria","Hexacorallia","Scleractinia","Merulinidae","Cyphastrea","Cyphastrea agassizi",FALSE
+"OBIS",NA,"Species","Cyphastrea ocellina","Cyphastrea ocellina",NA,NA,"Cyphastrea ocellina",288923,"Species","accepted","Animalia","Cnidaria","Hexacorallia","Scleractinia","Merulinidae","Cyphastrea","Cyphastrea ocellina",FALSE
+"OBIS",NA,"Species","Diploastrea heliopora","Diploastrea heliopora",NA,NA,"Diploastrea heliopora",207417,"Species","accepted","Animalia","Cnidaria","Hexacorallia","Scleractinia","Diploastraeidae","Diploastrea","Diploastrea heliopora",FALSE
+"OBIS",NA,"Species","Dipsastraea danai","Dipsastraea danai",NA,NA,"Dipsastraea danai",758238,"Species","accepted","Animalia","Cnidaria","Hexacorallia","Scleractinia","Merulinidae","Dipsastraea","Dipsastraea danai",FALSE
+"OBIS",NA,"Species","Dipsastraea favus","Dipsastraea favus",NA,NA,"Dipsastraea favus",718748,"Species","accepted","Animalia","Cnidaria","Hexacorallia","Scleractinia","Merulinidae","Dipsastraea","Dipsastraea favus",FALSE
+"OBIS",NA,"Species","Dipsastraea matthaii","Dipsastraea matthaii",NA,NA,"Dipsastraea matthaii",758240,"Species","accepted","Animalia","Cnidaria","Hexacorallia","Scleractinia","Merulinidae","Dipsastraea","Dipsastraea matthaii",FALSE
+"OBIS",NA,"Species","Dipsastraea pallida","Dipsastraea pallida",NA,NA,"Dipsastraea pallida",758233,"Species","accepted","Animalia","Cnidaria","Hexacorallia","Scleractinia","Merulinidae","Dipsastraea","Dipsastraea pallida",FALSE
+"OBIS",NA,"Species","Dipsastraea speciosa","Dipsastraea speciosa",NA,NA,"Dipsastraea speciosa",758219,"Species","accepted","Animalia","Cnidaria","Hexacorallia","Scleractinia","Merulinidae","Dipsastraea","Dipsastraea speciosa",FALSE
+"OBIS",NA,"Species","Echinopora gemmacea","Echinopora gemmacea",NA,NA,"Echinopora gemmacea",207418,"Species","accepted","Animalia","Cnidaria","Hexacorallia","Scleractinia","Merulinidae","Echinopora","Echinopora gemmacea",FALSE
+"OBIS",NA,"Species","Echinopora lamellosa","Echinopora lamellosa",NA,NA,"Echinopora lamellosa",207421,"Species","accepted","Animalia","Cnidaria","Hexacorallia","Scleractinia","Merulinidae","Echinopora","Echinopora lamellosa",FALSE
+"OBIS",NA,"Species","Favites complanata","Favites complanata",NA,NA,"Favites complanata",207455,"Species","accepted","Animalia","Cnidaria","Hexacorallia","Scleractinia","Merulinidae","Favites","Favites complanata",FALSE
+"OBIS",NA,"Species","Favites valenciennesii","Favites valenciennesii",NA,NA,"Favites valenciennesii",763525,"Species","accepted","Animalia","Cnidaria","Hexacorallia","Scleractinia","Merulinidae","Favites","Favites valenciennesii",FALSE
+"OBIS",NA,"Species","Galaxea fascicularis","Galaxea fascicularis",NA,NA,"Galaxea fascicularis",207366,"Species","accepted","Animalia","Cnidaria","Hexacorallia","Scleractinia","Euphylliidae","Galaxea","Galaxea fascicularis",FALSE
+"OBIS",NA,"Species","Gardineroseris planulata","Gardineroseris planulata",NA,NA,"Gardineroseris planulata",207274,"Species","accepted","Animalia","Cnidaria","Hexacorallia","Scleractinia","Agariciidae","Gardineroseris","Gardineroseris planulata",FALSE
+"OBIS",NA,"Species","Goniastrea edwardsi","Goniastrea edwardsi",NA,NA,"Goniastrea edwardsi",207466,"Species","accepted","Animalia","Cnidaria","Hexacorallia","Scleractinia","Merulinidae","Goniastrea","Goniastrea edwardsi",FALSE
+"OBIS",NA,"Species","Goniastrea pectinata","Goniastrea pectinata",NA,NA,"Goniastrea pectinata",207464,"Species","accepted","Animalia","Cnidaria","Hexacorallia","Scleractinia","Merulinidae","Goniastrea","Goniastrea pectinata",FALSE
+"OBIS",NA,"Species","Goniastrea retiformis","Goniastrea retiformis",NA,NA,"Goniastrea retiformis",207461,"Species","accepted","Animalia","Cnidaria","Hexacorallia","Scleractinia","Merulinidae","Goniastrea","Goniastrea retiformis",FALSE
+"OBIS",NA,"Species","Goniastrea stelligera","Goniastrea stelligera",NA,NA,"Goniastrea stelligera",763067,"Species","accepted","Animalia","Cnidaria","Hexacorallia","Scleractinia","Merulinidae","Goniastrea","Goniastrea stelligera",FALSE
+"OBIS",NA,"Species","Halomitra pileus","Halomitra pileus",NA,NA,"Halomitra pileus",207361,"Species","accepted","Animalia","Cnidaria","Hexacorallia","Scleractinia","Fungiidae","Halomitra","Halomitra pileus",FALSE
+"OBIS",NA,"Species","Hydnophora exesa","Hydnophora exesa",NA,NA,"Hydnophora exesa",207403,"Species","accepted","Animalia","Cnidaria","Hexacorallia","Scleractinia","Merulinidae","Hydnophora","Hydnophora exesa",FALSE
+"OBIS",NA,"Species","Hydnophora microconos","Hydnophora microconos",NA,NA,"Hydnophora microconos",207402,"Species","accepted","Animalia","Cnidaria","Hexacorallia","Scleractinia","Merulinidae","Hydnophora","Hydnophora microconos",FALSE
+"OBIS",NA,"Species","Hydnophora rigida","Hydnophora rigida",NA,NA,"Hydnophora rigida",207406,"Species","accepted","Animalia","Cnidaria","Hexacorallia","Scleractinia","Merulinidae","Hydnophora","Hydnophora rigida",FALSE
+"OBIS",NA,"Species","Isopora crateriformis","Isopora crateriformis",NA,NA,"Isopora crateriformis",730691,"Species","accepted","Animalia","Cnidaria","Hexacorallia","Scleractinia","Acroporidae","Isopora","Isopora crateriformis",FALSE
+"OBIS",NA,"Species","Leptastrea bewickensis","Leptastrea bewickensis",NA,NA,"Leptastrea bewickensis",287822,"Species","accepted","Animalia","Cnidaria","Hexacorallia","Scleractinia","Leptastreidae","Leptastrea","Leptastrea bewickensis",FALSE
+"OBIS",NA,"Species","Leptastrea purpurea","Leptastrea purpurea",NA,NA,"Leptastrea purpurea",207470,"Species","accepted","Animalia","Cnidaria","Hexacorallia","Scleractinia","Leptastreidae","Leptastrea","Leptastrea purpurea",FALSE
+"OBIS",NA,"Species","Leptastrea transversa","Leptastrea transversa",NA,NA,"Leptastrea transversa",207474,"Species","accepted","Animalia","Cnidaria","Hexacorallia","Scleractinia","Leptastreidae","Leptastrea","Leptastrea transversa",FALSE
+"OBIS",NA,"Species","Leptoria phrygia","Leptoria phrygia",NA,NA,"Leptoria phrygia",207477,"Species","accepted","Animalia","Cnidaria","Hexacorallia","Scleractinia","Merulinidae","Leptoria","Leptoria phrygia",FALSE
+"OBIS",NA,"Species","Leptoseris explanata","Leptoseris explanata",NA,NA,"Leptoseris explanata",207289,"Species","accepted","Animalia","Cnidaria","Hexacorallia","Scleractinia","Agariciidae","Leptoseris","Leptoseris explanata",FALSE
+"OBIS",NA,"Species","Leptoseris foliosa","Leptoseris foliosa",NA,NA,"Leptoseris foliosa",207286,"Species","accepted","Animalia","Cnidaria","Hexacorallia","Scleractinia","Agariciidae","Leptoseris","Leptoseris foliosa",FALSE
+"OBIS",NA,"Species","Leptoseris fragilis","Leptoseris fragilis",NA,NA,"Leptoseris fragilis",207280,"Species","accepted","Animalia","Cnidaria","Hexacorallia","Scleractinia","Agariciidae","Leptoseris","Leptoseris fragilis",FALSE
+"OBIS",NA,"Species","Leptoseris gardineri","Leptoseris gardineri",NA,NA,"Leptoseris gardineri",207284,"Species","accepted","Animalia","Cnidaria","Hexacorallia","Scleractinia","Agariciidae","Leptoseris","Leptoseris gardineri",FALSE
+"OBIS",NA,"Species","Leptoseris hawaiiensis","Leptoseris hawaiiensis",NA,NA,"Leptoseris hawaiiensis",207291,"Species","accepted","Animalia","Cnidaria","Hexacorallia","Scleractinia","Agariciidae","Leptoseris","Leptoseris hawaiiensis",FALSE
+"OBIS",NA,"Species","Leptoseris incrustans","Leptoseris incrustans",NA,NA,"Leptoseris incrustans",207279,"Species","accepted","Animalia","Cnidaria","Hexacorallia","Scleractinia","Agariciidae","Leptoseris","Leptoseris incrustans",FALSE
+"OBIS",NA,"Species","Leptoseris mycetoseroides","Leptoseris mycetoseroides",NA,NA,"Leptoseris mycetoseroides",207283,"Species","accepted","Animalia","Cnidaria","Hexacorallia","Scleractinia","Agariciidae","Leptoseris","Leptoseris mycetoseroides",FALSE
+"OBIS",NA,"Species","Leptoseris papyracea","Leptoseris papyracea",NA,NA,"Leptoseris papyracea",207278,"Species","accepted","Animalia","Cnidaria","Hexacorallia","Scleractinia","Agariciidae","Leptoseris","Leptoseris papyracea",FALSE
+"OBIS",NA,"Species","Leptoseris scabra","Leptoseris scabra",NA,NA,"Leptoseris scabra",207282,"Species","accepted","Animalia","Cnidaria","Hexacorallia","Scleractinia","Agariciidae","Leptoseris","Leptoseris scabra",FALSE
+"OBIS",NA,"Species","Leptoseris tubulifera","Leptoseris tubulifera",NA,NA,"Leptoseris tubulifera",207288,"Species","accepted","Animalia","Cnidaria","Hexacorallia","Scleractinia","Agariciidae","Leptoseris","Leptoseris tubulifera",FALSE
+"OBIS",NA,"Species","Lithophyllon repanda","Lithophyllon repanda",NA,NA,"Lithophyllon repanda",716653,"Species","accepted","Animalia","Cnidaria","Hexacorallia","Scleractinia","Fungiidae","Lithophyllon","Lithophyllon repanda",FALSE
+"OBIS",NA,"Species","Lithophyllon spinifer","Lithophyllon spinifer",NA,NA,"Lithophyllon spinifer",716610,"Species","accepted","Animalia","Cnidaria","Hexacorallia","Scleractinia","Fungiidae","Lithophyllon","Lithophyllon spinifer",FALSE
+"OBIS",NA,"Species","Lobactis scutaria","Lobactis scutaria",NA,NA,"Lobactis scutaria",716542,"Species","accepted","Animalia","Cnidaria","Hexacorallia","Scleractinia","Fungiidae","Lobactis","Lobactis scutaria",FALSE
+"OBIS",NA,"Species","Merulina ampliata","Merulina ampliata",NA,NA,"Merulina ampliata",207407,"Species","accepted","Animalia","Cnidaria","Hexacorallia","Scleractinia","Merulinidae","Merulina","Merulina ampliata",FALSE
+"OBIS",NA,"Species","Merulina cylindrica","Merulina cylindrica",NA,NA,"Merulina cylindrica",1465792,"Species","accepted","Animalia","Cnidaria","Hexacorallia","Scleractinia","Merulinidae","Merulina","Merulina cylindrica",FALSE
+"OBIS",NA,"Species","Montipora aequituberculata","Montipora aequituberculata",NA,NA,"Montipora aequituberculata",207144,"Species","accepted","Animalia","Cnidaria","Hexacorallia","Scleractinia","Acroporidae","Montipora","Montipora aequituberculata",FALSE
+"OBIS",NA,"Species","Montipora angulata","Montipora angulata",NA,NA,"Montipora angulata",287691,"Species","accepted","Animalia","Cnidaria","Hexacorallia","Scleractinia","Acroporidae","Montipora","Montipora angulata",FALSE
+"OBIS",NA,"Species","Montipora caliculata","Montipora caliculata",NA,NA,"Montipora caliculata",287696,"Species","accepted","Animalia","Cnidaria","Hexacorallia","Scleractinia","Acroporidae","Montipora","Montipora caliculata",FALSE
+"OBIS",NA,"Species","Montipora capitata","Montipora capitata",NA,NA,"Montipora capitata",287697,"Species","accepted","Animalia","Cnidaria","Hexacorallia","Scleractinia","Acroporidae","Montipora","Montipora capitata",FALSE
+"OBIS",NA,"Species","Montipora flabellata","Montipora flabellata",NA,NA,"Montipora flabellata",207174,"Species","accepted","Animalia","Cnidaria","Hexacorallia","Scleractinia","Acroporidae","Montipora","Montipora flabellata",FALSE
+"OBIS",NA,"Species","Montipora foveolata","Montipora foveolata",NA,NA,"Montipora foveolata",207133,"Species","accepted","Animalia","Cnidaria","Hexacorallia","Scleractinia","Acroporidae","Montipora","Montipora foveolata",FALSE
+"OBIS",NA,"Species","Montipora incrassata","Montipora incrassata",NA,NA,"Montipora incrassata",287714,"Species","accepted","Animalia","Cnidaria","Hexacorallia","Scleractinia","Acroporidae","Montipora","Montipora incrassata",FALSE
+"OBIS",NA,"Species","Montipora lobulata","Montipora lobulata",NA,NA,"Montipora lobulata",207141,"Species","accepted","Animalia","Cnidaria","Hexacorallia","Scleractinia","Acroporidae","Montipora","Montipora lobulata",FALSE
+"OBIS",NA,"Species","Montipora millepora","Montipora millepora",NA,NA,"Montipora millepora",207190,"Species","accepted","Animalia","Cnidaria","Hexacorallia","Scleractinia","Acroporidae","Montipora","Montipora millepora",FALSE
+"OBIS",NA,"Species","Montipora patula","Montipora patula",NA,NA,"Montipora patula",207149,"Species","accepted","Animalia","Cnidaria","Hexacorallia","Scleractinia","Acroporidae","Montipora","Montipora patula",FALSE
+"OBIS",NA,"Species","Montipora peltiformis","Montipora peltiformis",NA,NA,"Montipora peltiformis",207180,"Species","accepted","Animalia","Cnidaria","Hexacorallia","Scleractinia","Acroporidae","Montipora","Montipora peltiformis",FALSE
+"OBIS",NA,"Species","Montipora tuberculosa","Montipora tuberculosa",NA,NA,"Montipora tuberculosa",207156,"Species","accepted","Animalia","Cnidaria","Hexacorallia","Scleractinia","Acroporidae","Montipora","Montipora tuberculosa",FALSE
+"OBIS",NA,"Species","Montipora verrilli","Montipora verrilli",NA,NA,"Montipora verrilli",207136,"Species","accepted","Animalia","Cnidaria","Hexacorallia","Scleractinia","Acroporidae","Montipora","Montipora verrilli",FALSE
+"OBIS",NA,"Species","Montipora verrucosa","Montipora verrucosa",NA,NA,"Montipora verrucosa",207146,"Species","accepted","Animalia","Cnidaria","Hexacorallia","Scleractinia","Acroporidae","Montipora","Montipora verrucosa",FALSE
+"OBIS",NA,"Species","Oulophyllia crispa","Oulophyllia crispa",NA,NA,"Oulophyllia crispa",207485,"Species","accepted","Animalia","Cnidaria","Hexacorallia","Scleractinia","Merulinidae","Oulophyllia","Oulophyllia crispa",FALSE
+"OBIS",NA,"Species","Oxypora crassispinosa","Oxypora crassispinosa",NA,NA,"Oxypora crassispinosa",288351,"Species","accepted","Animalia","Cnidaria","Hexacorallia","Scleractinia","Lobophylliidae","Oxypora","Oxypora crassispinosa",FALSE
+"OBIS",NA,"Species","Oxypora echinata","Oxypora echinata",NA,NA,"Oxypora echinata",1349604,"Species","accepted","Animalia","Cnidaria","Hexacorallia","Scleractinia","Lobophylliidae","Oxypora","Oxypora echinata",FALSE
+"OBIS",NA,"Species","Pavona bipartita","Pavona bipartita",NA,NA,"Pavona bipartita",289199,"Species","accepted","Animalia","Cnidaria","Hexacorallia","Scleractinia","Agariciidae","Pavona","Pavona bipartita",FALSE
+"OBIS",NA,"Species","Pavona chiriquiensis","Pavona chiriquiensis",NA,NA,"Pavona chiriquiensis",289200,"Species","accepted","Animalia","Cnidaria","Hexacorallia","Scleractinia","Agariciidae","Pavona","Pavona chiriquiensis",FALSE
+"OBIS",NA,"Species","Pavona clavus","Pavona clavus",NA,NA,"Pavona clavus",207318,"Species","accepted","Animalia","Cnidaria","Hexacorallia","Scleractinia","Agariciidae","Pavona","Pavona clavus",FALSE
+"OBIS",NA,"Species","Pavona duerdeni","Pavona duerdeni",NA,NA,"Pavona duerdeni",207315,"Species","accepted","Animalia","Cnidaria","Hexacorallia","Scleractinia","Agariciidae","Pavona","Pavona duerdeni",FALSE
+"OBIS",NA,"Species","Pavona explanulata","Pavona explanulata",NA,NA,"Pavona explanulata",207306,"Species","accepted","Animalia","Cnidaria","Hexacorallia","Scleractinia","Agariciidae","Pavona","Pavona explanulata",FALSE
+"OBIS",NA,"Species","Pavona maldivensis","Pavona maldivensis",NA,NA,"Pavona maldivensis",207309,"Species","accepted","Animalia","Cnidaria","Hexacorallia","Scleractinia","Agariciidae","Pavona","Pavona maldivensis",FALSE
+"OBIS",NA,"Species","Pavona minuta","Pavona minuta",NA,NA,"Pavona minuta",207317,"Species","accepted","Animalia","Cnidaria","Hexacorallia","Scleractinia","Agariciidae","Pavona","Pavona minuta",FALSE
+"OBIS",NA,"Species","Pavona varians","Pavona varians",NA,NA,"Pavona varians",207303,"Species","accepted","Animalia","Cnidaria","Hexacorallia","Scleractinia","Agariciidae","Pavona","Pavona varians",FALSE
+"OBIS",NA,"Species","Pavona venosa","Pavona venosa",NA,NA,"Pavona venosa",207301,"Species","accepted","Animalia","Cnidaria","Hexacorallia","Scleractinia","Agariciidae","Pavona","Pavona venosa",FALSE
+"OBIS",NA,"Species","Platygyra daedalea","Platygyra daedalea",NA,NA,"Platygyra daedalea",207489,"Species","accepted","Animalia","Cnidaria","Hexacorallia","Scleractinia","Merulinidae","Platygyra","Platygyra daedalea",FALSE
+"OBIS",NA,"Species","Platygyra pini","Platygyra pini",NA,NA,"Platygyra pini",207490,"Species","accepted","Animalia","Cnidaria","Hexacorallia","Scleractinia","Merulinidae","Platygyra","Platygyra pini",FALSE
+"OBIS",NA,"Species","Plerogyra sinuosa","Plerogyra sinuosa",NA,NA,"Plerogyra sinuosa",207498,"Species","accepted","Animalia","Cnidaria","Hexacorallia","Scleractinia","Plerogyridae","Plerogyra","Plerogyra sinuosa",FALSE
+"OBIS",NA,"Species","Pleuractis granulosa","Pleuractis granulosa",NA,NA,"Pleuractis granulosa",716549,"Species","accepted","Animalia","Cnidaria","Hexacorallia","Scleractinia","Fungiidae","Pleuractis","Pleuractis granulosa",FALSE
+"OBIS",NA,"Species","Pocillopora brevicornis","Pocillopora brevicornis",NA,NA,"Pocillopora brevicornis",206951,"Species","accepted","Animalia","Cnidaria","Hexacorallia","Scleractinia","Pocilloporidae","Pocillopora","Pocillopora brevicornis",FALSE
+"OBIS",NA,"Species","Pocillopora grandis","Pocillopora grandis",NA,NA,"Pocillopora grandis",206952,"Species","accepted","Animalia","Cnidaria","Hexacorallia","Scleractinia","Pocilloporidae","Pocillopora","Pocillopora grandis",FALSE
+"OBIS",NA,"Species","Pocillopora ligulata","Pocillopora ligulata",NA,NA,"Pocillopora ligulata",206959,"Species","accepted","Animalia","Cnidaria","Hexacorallia","Scleractinia","Pocilloporidae","Pocillopora","Pocillopora ligulata",FALSE
+"OBIS",NA,"Species","Pocillopora meandrina","Pocillopora meandrina",NA,NA,"Pocillopora meandrina",206964,"Species","accepted","Animalia","Cnidaria","Hexacorallia","Scleractinia","Pocilloporidae","Pocillopora","Pocillopora meandrina",FALSE
+"OBIS",NA,"Species","Pocillopora molokensis","Pocillopora molokensis",NA,NA,"Pocillopora molokensis",411253,"Species","accepted","Animalia","Cnidaria","Hexacorallia","Scleractinia","Pocilloporidae","Pocillopora","Pocillopora molokensis",FALSE
+"OBIS",NA,"Species","Pocillopora verrucosa","Pocillopora verrucosa",NA,NA,"Pocillopora verrucosa",206954,"Species","accepted","Animalia","Cnidaria","Hexacorallia","Scleractinia","Pocilloporidae","Pocillopora","Pocillopora verrucosa",FALSE
+"OBIS",NA,"Species","Pocillopora woodjonesi","Pocillopora woodjonesi",NA,NA,"Pocillopora woodjonesi",289252,"Species","accepted","Animalia","Cnidaria","Hexacorallia","Scleractinia","Pocilloporidae","Pocillopora","Pocillopora woodjonesi",FALSE
+"OBIS",NA,"Species","Porites australiensis","Porites australiensis",NA,NA,"Porites australiensis",207249,"Species","accepted","Animalia","Cnidaria","Hexacorallia","Scleractinia","Poritidae","Porites","Porites australiensis",FALSE
+"OBIS",NA,"Species","Porites brighami","Porites brighami",NA,NA,"Porites brighami",411263,"Species","accepted","Animalia","Cnidaria","Hexacorallia","Scleractinia","Poritidae","Porites","Porites brighami",FALSE
+"OBIS",NA,"Species","Porites compressa","Porites compressa",NA,NA,"Porites compressa",207236,"Species","accepted","Animalia","Cnidaria","Hexacorallia","Scleractinia","Poritidae","Porites","Porites compressa",FALSE
+"OBIS",NA,"Species","Porites cylindrica","Porites cylindrica",NA,NA,"Porites cylindrica",207229,"Species","accepted","Animalia","Cnidaria","Hexacorallia","Scleractinia","Poritidae","Porites","Porites cylindrica",FALSE
+"OBIS",NA,"Species","Porites evermanni","Porites evermanni",NA,NA,"Porites evermanni",288900,"Species","accepted","Animalia","Cnidaria","Hexacorallia","Scleractinia","Poritidae","Porites","Porites evermanni",FALSE
+"OBIS",NA,"Species","Porites hawaiiensis","Porites hawaiiensis",NA,NA,"Porites hawaiiensis",758222,"Species","accepted","Animalia","Cnidaria","Hexacorallia","Scleractinia","Poritidae","Porites","Porites hawaiiensis",FALSE
+"OBIS",NA,"Species","Porites horizontalata","Porites horizontalata",NA,NA,"Porites horizontalata",207237,"Species","accepted","Animalia","Cnidaria","Hexacorallia","Scleractinia","Poritidae","Porites","Porites horizontalata",FALSE
+"OBIS",NA,"Species","Porites lichen","Porites lichen",NA,NA,"Porites lichen",207228,"Species","accepted","Animalia","Cnidaria","Hexacorallia","Scleractinia","Poritidae","Porites","Porites lichen",FALSE
+"OBIS",NA,"Species","Porites lobata","Porites lobata",NA,NA,"Porites lobata",207225,"Species","accepted","Animalia","Cnidaria","Hexacorallia","Scleractinia","Poritidae","Porites","Porites lobata",FALSE
+"OBIS",NA,"Species","Porites lutea","Porites lutea",NA,NA,"Porites lutea",207246,"Species","accepted","Animalia","Cnidaria","Hexacorallia","Scleractinia","Poritidae","Porites","Porites lutea",FALSE
+"OBIS",NA,"Species","Porites monticulosa","Porites monticulosa",NA,NA,"Porites monticulosa",367816,"Species","accepted","Animalia","Cnidaria","Hexacorallia","Scleractinia","Poritidae","Porites","Porites monticulosa",FALSE
+"OBIS",NA,"Species","Porites murrayensis","Porites murrayensis",NA,NA,"Porites murrayensis",207232,"Species","accepted","Animalia","Cnidaria","Hexacorallia","Scleractinia","Poritidae","Porites","Porites murrayensis",FALSE
+"OBIS",NA,"Species","Porites rus","Porites rus",NA,NA,"Porites rus",207231,"Species","accepted","Animalia","Cnidaria","Hexacorallia","Scleractinia","Poritidae","Porites","Porites rus",FALSE
+"OBIS",NA,"Species","Porites solida","Porites solida",NA,NA,"Porites solida",207227,"Species","accepted","Animalia","Cnidaria","Hexacorallia","Scleractinia","Poritidae","Porites","Porites solida",FALSE
+"OBIS",NA,"Species","Porites superfusa","Porites superfusa",NA,NA,"Porites superfusa",759336,"Species","accepted","Animalia","Cnidaria","Hexacorallia","Scleractinia","Poritidae","Porites","Porites superfusa",FALSE
+"OBIS",NA,"Species","Porites vaughani","Porites vaughani",NA,NA,"Porites vaughani",288918,"Species","accepted","Animalia","Cnidaria","Hexacorallia","Scleractinia","Poritidae","Porites","Porites vaughani",FALSE
+"OBIS",NA,"Species","Psammocora columna","Psammocora columna",NA,NA,"Psammocora columna",766867,"Species","accepted","Animalia","Cnidaria","Hexacorallia","Scleractinia","Psammocoridae","Psammocora","Psammocora columna",FALSE
+"OBIS",NA,"Species","Psammocora digitata","Psammocora digitata",NA,NA,"Psammocora digitata",207260,"Species","accepted","Animalia","Cnidaria","Hexacorallia","Scleractinia","Psammocoridae","Psammocora","Psammocora digitata",FALSE
+"OBIS",NA,"Species","Psammocora exesa","Psammocora exesa",NA,NA,"Psammocora exesa",766865,"Species","accepted","Animalia","Cnidaria","Hexacorallia","Scleractinia","Psammocoridae","Psammocora","Psammocora exesa",FALSE
+"OBIS",NA,"Species","Psammocora haimiana","Psammocora haimiana",NA,NA,"Psammocora haimiana",718603,"Species","accepted","Animalia","Cnidaria","Hexacorallia","Scleractinia","Psammocoridae","Psammocora","Psammocora haimiana",FALSE
+"OBIS",NA,"Species","Psammocora nierstraszi","Psammocora nierstraszi",NA,NA,"Psammocora nierstraszi",207261,"Species","accepted","Animalia","Cnidaria","Hexacorallia","Scleractinia","Psammocoridae","Psammocora","Psammocora nierstraszi",FALSE
+"OBIS",NA,"Species","Psammocora profundacella","Psammocora profundacella",NA,NA,"Psammocora profundacella",207271,"Species","accepted","Animalia","Cnidaria","Hexacorallia","Scleractinia","Psammocoridae","Psammocora","Psammocora profundacella",FALSE
+"OBIS",NA,"Species","Psammocora stellata","Psammocora stellata",NA,NA,"Psammocora stellata",287784,"Species","accepted","Animalia","Cnidaria","Hexacorallia","Scleractinia","Psammocoridae","Psammocora","Psammocora stellata",FALSE
+"OBIS",NA,"Species","Rhizopsammia verrilli","Rhizopsammia verrilli",NA,NA,"Rhizopsammia verrilli",210737,"Species","accepted","Animalia","Cnidaria","Hexacorallia","Scleractinia","Dendrophylliidae","Rhizopsammia","Rhizopsammia verrilli",FALSE
+"OBIS",NA,"Species","Sandalolitha dentata","Sandalolitha dentata",NA,NA,"Sandalolitha dentata",291009,"Species","accepted","Animalia","Cnidaria","Hexacorallia","Scleractinia","Fungiidae","Sandalolitha","Sandalolitha dentata",FALSE
+"OBIS",NA,"Species","Sinuorota hexagonalis","Sinuorota hexagonalis",NA,NA,"Sinuorota hexagonalis",994375,"Species","accepted","Animalia","Cnidaria","Hexacorallia","Scleractinia","Fungiidae","Sinuorota","Sinuorota hexagonalis",FALSE
+"OBIS",NA,"Species","Stylocoeniella armata","Stylocoeniella armata",NA,NA,"Stylocoeniella armata",206950,"Species","accepted","Animalia","Cnidaria","Hexacorallia","Scleractinia","Astrocoeniidae","Stylocoeniella","Stylocoeniella armata",FALSE
+"OBIS",NA,"Species","Stylocoeniella guentheri","Stylocoeniella guentheri",NA,NA,"Stylocoeniella guentheri",206948,"Species","accepted","Animalia","Cnidaria","Hexacorallia","Scleractinia","Astrocoeniidae","Stylocoeniella","Stylocoeniella guentheri",FALSE
+"OBIS",NA,"Species","Stylophora pistillata","Stylophora pistillata",NA,NA,"Stylophora pistillata",206982,"Species","accepted","Animalia","Cnidaria","Hexacorallia","Scleractinia","Pocilloporidae","Stylophora","Stylophora pistillata",FALSE
+"OBIS",NA,"Species","Tubastraea coccinea","Tubastraea coccinea",NA,NA,"Tubastraea coccinea",291251,"Species","accepted","Animalia","Cnidaria","Hexacorallia","Scleractinia","Dendrophylliidae","Tubastraea","Tubastraea coccinea",FALSE
+"OBIS",NA,"Species","Turbinaria irregularis","Turbinaria irregularis",NA,NA,"Turbinaria irregularis",207505,"Species","accepted","Animalia","Cnidaria","Hexacorallia","Scleractinia","Dendrophylliidae","Turbinaria","Turbinaria irregularis",FALSE
+"OBIS",NA,"Species","Turbinaria reniformis","Turbinaria reniformis",NA,NA,"Turbinaria reniformis",207507,"Species","accepted","Animalia","Cnidaria","Hexacorallia","Scleractinia","Dendrophylliidae","Turbinaria","Turbinaria reniformis",FALSE

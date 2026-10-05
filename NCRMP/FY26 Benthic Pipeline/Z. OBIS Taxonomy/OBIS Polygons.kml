@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2" xmlns:gx="http://www.google.com/kml/ext/2.2" xmlns:kml="http://www.opengis.net/kml/2.2" xmlns:atom="http://www.w3.org/2005/Atom">
+<Document>
+	<name>OBIS Polygons.kml</name>
+	<StyleMap id="msn_ylw-pushpin">
+		<Pair>
+			<key>normal</key>
+			<styleUrl>#sn_ylw-pushpin</styleUrl>
+		</Pair>
+		<Pair>
+			<key>highlight</key>
+			<styleUrl>#sh_ylw-pushpin</styleUrl>
+		</Pair>
+	</StyleMap>
+	<Style id="sh_ylw-pushpin">
+		<IconStyle>
+			<scale>1.3</scale>
+			<Icon>
+				<href>http://maps.google.com/mapfiles/kml/pushpin/ylw-pushpin.png</href>
+			</Icon>
+			<hotSpot x="20" y="2" xunits="pixels" yunits="pixels"/>
+		</IconStyle>
+		<BalloonStyle>
+		</BalloonStyle>
+		<LineStyle>
+			<color>1affffff</color>
+		</LineStyle>
+		<PolyStyle>
+			<color>8000ffff</color>
+		</PolyStyle>
+	</Style>
+	<Style id="sn_ylw-pushpin">
+		<IconStyle>
+			<scale>1.1</scale>
+			<Icon>
+				<href>http://maps.google.com/mapfiles/kml/pushpin/ylw-pushpin.png</href>
+			</Icon>
+			<hotSpot x="20" y="2" xunits="pixels" yunits="pixels"/>
+		</IconStyle>
+		<BalloonStyle>
+		</BalloonStyle>
+		<LineStyle>
+			<color>1affffff</color>
+		</LineStyle>
+		<PolyStyle>
+			<color>8000ffff</color>
+		</PolyStyle>
+	</Style>
+	<Folder>
+		<name>OBIS Polygons</name>
+		<open>1</open>
+		<Placemark>
+			<name>Hawaiian Archipelago</name>
+			<styleUrl>#msn_ylw-pushpin</styleUrl>
+			<Polygon>
+				<tessellate>1</tessellate>
+				<outerBoundaryIs>
+					<LinearRing>
+						<coordinates>
+							-179.1947498174871,30.02665276118695,0 -179.8921482257254,27.23258358927152,0 -155.3661609721321,17.92650641370644,0 -152.6622118455796,20.96569180237881,0 -179.1947498174871,30.02665276118695,0 
+						</coordinates>
+					</LinearRing>
+				</outerBoundaryIs>
+			</Polygon>
+		</Placemark>
+		<Placemark>
+			<name>American Samoa</name>
+			<styleUrl>#msn_ylw-pushpin</styleUrl>
+			<Polygon>
+				<tessellate>1</tessellate>
+				<outerBoundaryIs>
+					<LinearRing>
+						<coordinates>
+							-170.9198976847178,-14.03262112512544,0 -170.9300352035381,-14.51789157901393,0 -167.9996946197281,-14.72040768813714,0 -168.0422522431801,-14.39854624204332,0 -169.8797244578586,-13.94861102302693,0 -170.7917039536456,-10.59457988535951,0 -171.385979035335,-10.70674536287378,0 -170.9198976847178,-14.03262112512544,0 
+						</coordinates>
+					</LinearRing>
+				</outerBoundaryIs>
+			</Polygon>
+		</Placemark>
+		<Placemark>
+			<name>Marianas Archipelago</name>
+			<styleUrl>#msn_ylw-pushpin</styleUrl>
+			<Polygon>
+				<tessellate>1</tessellate>
+				<outerBoundaryIs>
+					<LinearRing>
+						<coordinates>
+							144.2438791720649,20.84166775526105,0 145.3229483585624,17.22701234376517,0 143.8503762428466,13.29838845819535,0 145.0951916436829,12.72076529200621,0 146.8476580505769,16.95642010844396,0 145.016735190223,21.24186589948546,0 144.2438791720649,20.84166775526105,0 
+						</coordinates>
+					</LinearRing>
+				</outerBoundaryIs>
+			</Polygon>
+		</Placemark>
+		<Placemark>
+			<name>Howland and Baker</name>
+			<styleUrl>#msn_ylw-pushpin</styleUrl>
+			<Polygon>
+				<tessellate>1</tessellate>
+				<outerBoundaryIs>
+					<LinearRing>
+						<coordinates>
+							-176.61254605059,-0.1373225193927321,0 -176.0770744529463,0.0844059473192362,0 -176.4653628090061,1.035882295279905,0 -176.9785329273979,0.8854095805150483,0 -176.61254605059,-0.1373225193927321,0 
+						</coordinates>
+					</LinearRing>
+				</outerBoundaryIs>
+			</Polygon>
+		</Placemark>
+		<Placemark>
+			<name>Javis Island</name>
+			<styleUrl>#msn_ylw-pushpin</styleUrl>
+			<Polygon>
+				<tessellate>1</tessellate>
+				<outerBoundaryIs>
+					<LinearRing>
+						<coordinates>
+							-160.1083135649017,-0.2491351499205405,0 -160.0794914256074,-0.4951388708059685,0 -159.8296806008854,-0.518369627703088,0 -159.8716403292868,-0.288317359374457,0 -160.1083135649017,-0.2491351499205405,0 
+						</coordinates>
+					</LinearRing>
+				</outerBoundaryIs>
+			</Polygon>
+		</Placemark>
+		<Placemark>
+			<name>Palmyra and Kingman</name>
+			<styleUrl>#msn_ylw-pushpin</styleUrl>
+			<Polygon>
+				<tessellate>1</tessellate>
+				<outerBoundaryIs>
+					<LinearRing>
+						<coordinates>
+							-162.1229998409984,5.786055047582498,0 -161.933628854484,5.837733660150189,0 -162.3312868020595,6.453154125708878,0 -162.4486616892505,6.427390888950536,0 -162.1229998409984,5.786055047582498,0 
+						</coordinates>
+					</LinearRing>
+				</outerBoundaryIs>
+			</Polygon>
+		</Placemark>
+		<Placemark>
+			<name>Wake Atoll</name>
+			<styleUrl>#msn_ylw-pushpin</styleUrl>
+			<Polygon>
+				<tessellate>1</tessellate>
+				<outerBoundaryIs>
+					<LinearRing>
+						<coordinates>
+							166.598809407577,19.37892729300152,0 166.5464387983169,19.29267074365922,0 166.6683164290362,19.21600328572487,0 166.7034466282724,19.32685372663428,0 166.598809407577,19.37892729300152,0 
+						</coordinates>
+					</LinearRing>
+				</outerBoundaryIs>
+			</Polygon>
+		</Placemark>
+		<Placemark>
+			<name>Johnston Atoll</name>
+			<styleUrl>#msn_ylw-pushpin</styleUrl>
+			<Polygon>
+				<tessellate>1</tessellate>
+				<outerBoundaryIs>
+					<LinearRing>
+						<coordinates>
+							-169.6555214760683,16.89375614401392,0 -169.7343867147908,16.58405333708328,0 -169.2947496414531,16.53661780322974,0 -169.2178595267172,16.8226174160857,0 -169.6555214760683,16.89375614401392,0 
+						</coordinates>
+					</LinearRing>
+				</outerBoundaryIs>
+			</Polygon>
+		</Placemark>
+		<atom:link rel="app" href="https://www.google.com/earth/about/versions/#earth-pro" title="Google Earth Pro 7.3.7.1155"></atom:link>
+	</Folder>
+</Document>
+</kml>
