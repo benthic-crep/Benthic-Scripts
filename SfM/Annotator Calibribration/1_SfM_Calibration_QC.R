@@ -4,25 +4,44 @@
 
 rm(list=ls())
 
-source("C:/Users/Jonathan.Charendoff/Documents/GitHub/Benthic-Scripts/Functions/Benthic_Functions_newApp_vTAOfork.R")
-source("C:/Users/Jonathan.Charendoff/Documents/GitHub/Benthic-Scripts/Functions/core_functions.R")
+source("C:/Users/Corinne.Amir/Documents/GitHub/Benthic-Scripts/Functions/Benthic_Functions_newApp_vTAOfork.R")
+source("C:/Users/Corinne.Amir/Documents/GitHub/Benthic-Scripts/Functions/core_functions.R")
 
 
 # Read dataframes pulled directly from geodatabases
-#setwd("C:/Users/Corinne.Amir/Documents/GitHub/Benthic-Scripts/SfM/Geodatabase QC")
-setwd("C:/Users/Jonathan.Charendoff/Documents/GitHub/Benthic-Scripts/SfM/Annotator Calibribration/Outputs/2025/")
+setwd("C:/Users/Corinne.Amir/Documents/GitHub/Benthic-Scripts/SfM/Annotator Calibribration/Outputs/2026/")
 
 library(tidyverse)
 library(reshape)
 
 # Read in V2 geodatabase --------------------------------------------------
 
-v2 <- read.csv("N:/StRS_Sites_Projects/REA Belts/Data Output/CALIBRATION/MARAMP25_Calibration.csv")
-sitelist <- read.csv("N:/StRS_Sites_Projects/REA Belts/Data Output/CALIBRATION/MARAMP25_Calib_Meta.csv")
+v2 <- read.csv("N:/StRS_Sites_Projects/REA Belts/Data Output/CALIBRATION/2026/FY27_calibration.csv")
+# sitelist <- read.csv("N:/StRS_Sites_Projects/REA Belts/Data Output/CALIBRATION/MARAMP25_Calib_Meta.csv")
+
+
+#Rename and filter CAT export columns
+colnames(v2)
+
+v2 <- v2 %>% dplyr::select(-c(project_region,project_year,taxon_name,type))
+names(v2) <- toupper(names(v2))
+
+
+# ad hoc QC
+v2 <- v2 %>% filter(SITE != "TUT-6193",ANALYST != "MSL") %>%
+             mutate(SPCODE = recode(SPCODE, "PHSP" = "PHS")) %>%
+             dplyr::rename(COLONYLENGTH = LINE_LENGTH_M) %>%
+             mutate(ANALYST = recode(ANALYST, "RML = LEERM",
+                                              "MNW" = "MW",
+                                              "MIA.LAMIRAND" = "MSL"))
+
+v2$SEGAREA <- ifelse(v2$JUVENILE == "-1",1,2.5)
+
+
 
 
 #Reformat v2 Site names
-v2$SITE<-gsub("_", "-", v2$SITE)
+# v2$SITE<-gsub("_", "-", v2$SITE)
 levels(as.factor(v2$SITE))
 
 #Merge v1 and v2 geodatabases together
@@ -81,7 +100,7 @@ sfm.missing.duplicate.rows <- rbind(
   morphcode.missing <-  filter(sfm.raw, MORPH_CODE %in% c("NA", " ", "", NA)),
   transect.missing <-  filter(sfm.raw, TRANSECT %in% c(0, "<Null>", " ", NA)),
   segmennt.missing <-  filter(sfm.raw, SEGMENT %in% c("NA", "<NA>", NA)),
-  year.missing <-  filter(sfm.raw, OBS_YEAR != 2025))
+  year.missing <-  filter(sfm.raw, OBS_YEAR != 2026))
 
 sfm.missing <- sfm.missing.duplicate.rows[!duplicated(sfm.missing.duplicate.rows),] 
 dim(sfm.missing)

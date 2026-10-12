@@ -1,0 +1,1069 @@
+annotation_id,project_region,project_year,taxon_name,colony_id,type,analyst,obs_year,mission_id,site,transect,segment,seglength,segwidth,no_colony,spcode,juvenile,juv_substrate,remnant,morph_code,ex_bound,old_dead,rdcause1,rd_1,rdcause2,rd_2,rdcause3,rd_3,con_1,extent_1,sev_1,con_2,extent_2,sev_2,con_3,extent_3,sev_3,line_length_m
+1187,TUT,2026,Acropora sp,1,polyline,CGA,2026,Leg 2,TUT-6171,B,,,1,0,ACSP,0,,0,CB,0,40,,,,,,,,,,,,,,,,1.026
+1188,TUT,2026,Porites monticulosa/rus complex,2,polyline,CGA,2026,Leg 2,TUT-6171,B,,,,0,PMRC,0,,0,LC,0,8,,,,,,,,,,,,,,,,0.062
+1189,TUT,2026,Acropora sp,3,polyline,CGA,2026,Leg 2,TUT-6171,B,,,,0,ACSP,0,,0,,0,50,,,,,,,,,,,,,,,,0.092
+1190,TUT,2026,Porites sp,4,polyline,CGA,2026,Leg 2,TUT-6171,B,,,,0,POSP,-1,EMA,0,EN,0,,,,,,,,,,,,,,,,,0.041
+1191,TUT,2026,Porites sp,5,polyline,CGA,2026,Leg 2,TUT-6171,B,,,,0,POSP,-1,TURFH,0,EN,0,,,,,,,,,,,,,,,,,0.026
+1192,TUT,2026,Porites monticulosa/rus complex,6,polyline,CGA,2026,Leg 2,TUT-6171,B,,,,0,PMRC,0,,0,LC,0,10,,,,,,,,,,,,,,,,0.07
+1194,TUT,2026,Herpolitha sp,7,polyline,CGA,2026,Leg 2,TUT-6171,B,,,,0,HERS,0,,0,FL,0,1,,,,,,,,,,,,,,,,0.252
+1195,TUT,2026,Acropora sp,8,polyline,CGA,2026,Leg 2,TUT-6171,B,,,,0,ACSP,0,,0,AR,0,2,,,,,,,,,,,,,,,,0.142
+1196,TUT,2026,Montipora sp,9,polyline,CGA,2026,Leg 2,TUT-6171,B,,,,0,MOSP,0,,0,EN,0,3,,,,,,,,,,,,,,,,0.06
+1197,TUT,2026,Montipora sp,10,polyline,CGA,2026,Leg 2,TUT-6171,B,,,,0,MOSP,0,,0,EN,0,40,,,,,,,,,,,,,,,,0.198
+1198,TUT,2026,Montipora sp,11,polyline,CGA,2026,Leg 2,TUT-6171,B,,,,0,MOSP,0,,0,EN,0,9,,,,,,,,,,,,,,,,0.066
+1199,TUT,2026,Montipora sp,12,polyline,CGA,2026,Leg 2,TUT-6171,B,,,,0,MOSP,0,,0,EN,0,2,,,,,,,,,,,,,,,,0.051
+1200,TUT,2026,Acropora sp,13,polyline,CGA,2026,Leg 2,TUT-6171,B,,,,0,ACSP,0,,0,CB,0,6,,,,,,,,,,,,,,,,0.066
+1201,TUT,2026,Galaxea sp,14,polyline,CGA,2026,Leg 2,TUT-6171,B,,,,0,GASP,0,,0,EN,0,3,,,,,,,,,,,,,,,,0.116
+1202,TUT,2026,Acropora sp,15,polyline,CGA,2026,Leg 2,TUT-6171,B,,,,0,ACSP,0,,0,CB,0,85,,,,,,,,,,,,,,,,0.235
+1203,TUT,2026,Acropora sp,16,polyline,CGA,2026,Leg 2,TUT-6171,B,,,,0,ACSP,0,,0,CB,0,3,,,,,,,,,,,,,,,,0.062
+1204,TUT,2026,Pavona varians,17,polyline,CGA,2026,Leg 2,TUT-6171,B,,,,0,PVAR,0,,0,EN,0,5,,,,,,,BLE,15,3,,,,,,,0.277
+1205,TUT,2026,Acropora sp,18,polyline,CGA,2026,Leg 2,TUT-6171,B,,,,0,ACSP,0,,0,CB,0,97,GAST,1,,,,,,,,,,,,,,0.457
+1206,TUT,2026,Porites monticulosa/rus complex,19,polyline,CGA,2026,Leg 2,TUT-6171,B,,,,0,PMRC,0,,0,LC,0,9,GAST,1,,,,,,,,,,,,,,0.35
+1207,TUT,2026,Porites monticulosa/rus complex,20,polyline,CGA,2026,Leg 2,TUT-6171,B,,,,0,PMRC,0,,0,LC,0,5,,,,,,,,,,,,,,,,0.068
+1211,TUT,2026,Acropora sp,21,polyline,CGA,2026,Leg 2,TUT-6171,B,,,,0,ACSP,0,,0,CB,0,40,,,,,,,,,,,,,,,,0.399
+1213,TUT,2026,Montipora sp,22,polyline,CGA,2026,Leg 2,TUT-6171,B,,,,0,MOSP,0,,0,EN,0,9,,,,,,,,,,,,,,,,0.165
+1214,TUT,2026,Porites monticulosa/rus complex,23,polyline,CGA,2026,Leg 2,TUT-6171,B,,,,0,PMRC,0,,0,LC,0,5,,,,,,,,,,,,,,,,0.078
+1215,TUT,2026,Acropora sp,24,polyline,CGA,2026,Leg 2,TUT-6171,B,,,,0,ACSP,0,,0,CB,0,15,,,,,,,,,,,,,,,,0.099
+1216,TUT,2026,Cyphastrea sp,25,polyline,CGA,2026,Leg 2,TUT-6171,B,,,,0,CYPS,0,,0,MD,0,8,GAST,1,,,,,,,,,,,,,,0.212
+1217,TUT,2026,Acropora sp,26,polyline,CGA,2026,Leg 2,TUT-6171,B,,,,0,ACSP,0,,0,CB,0,10,,,,,,,,,,,,,,,,0.065
+1218,TUT,2026,Porites sp,27,polyline,CGA,2026,Leg 2,TUT-6171,B,,,,0,POSP,0,,0,MD,0,3,,,,,,,BLE,100,3,,,,,,,0.052
+1219,TUT,2026,Cyphastrea sp,28,polyline,CGA,2026,Leg 2,TUT-6171,B,,,,0,CYPS,0,,0,EN,0,30,,,,,,,,,,,,,,,,0.076
+1347,TUT,2026,Acropora sp,29,polyline,CGA,2026,Leg 2,TUT-6171,B,,,1,0,ACSP,0,,0,AR,0,2,,,,,,,,,,,,,,,,0.257
+1348,TUT,2026,Acropora sp,30,polyline,CGA,2026,Leg 2,TUT-6171,B,,,,0,ACSP,0,,0,CB,0,40,GAST,30,,,,,,,,,,,,,,0.129
+1110,KIN,2026,Porites sp,1,polyline,CGA,2026,Leg 1,KIN-5192,B,,,1,0,POSP,0,,0,MD,0,40,,,,,,,,,,,,,,,,0.213
+1111,KIN,2026,Phymastrea sp,2,polyline,CGA,2026,Leg 1,KIN-5192,B,,,,0,PHSP,0,,0,EN,0,10,FISH,1,,,,,,,,,,,,,,0.113
+1112,KIN,2026,Astrea sp,3,polyline,CGA,2026,Leg 1,KIN-5192,B,,,,0,ASTS,0,,-1,EN,0,,,,,,,,,,,,,,,,,0.045
+1113,KIN,2026,Pocillopora meandrina/verrucosa complex,4,polyline,CGA,2026,Leg 1,KIN-5192,B,,,,0,PMVC,0,,0,BR,0,1,,,,,,,,,,,,,,,,0.066
+1114,KIN,2026,Favia sp,5,polyline,CGA,2026,Leg 1,KIN-5192,B,,,,0,FASP,0,,0,EN,0,1,,,,,,,,,,,,,,,,0.068
+1115,KIN,2026,Goniastrea edwardsi,6,polyline,CGA,2026,Leg 1,KIN-5192,B,,,,0,GEDW,0,,0,EN,0,8,,,,,,,,,,,,,,,,0.077
+1116,KIN,2026,Phymastrea sp,7,polyline,CGA,2026,Leg 1,KIN-5192,B,,,,0,PHSP,0,,0,EN,0,8,,,,,,,,,,,,,,,,0.061
+1117,KIN,2026,Favia sp,8,polyline,CGA,2026,Leg 1,KIN-5192,B,,,,0,FASP,0,,0,FL,0,6,,,,,,,,,,,,,,,,0.111
+1118,KIN,2026,Pavona sp,9,polyline,CGA,2026,Leg 1,KIN-5192,B,,,,0,PAVS,0,,0,ML,0,25,,,,,,,,,,,,,,,,0.239
+1119,KIN,2026,Pavona duerdeni,10,polyline,CGA,2026,Leg 1,KIN-5192,B,,,,0,PDUE,0,,0,ML,0,20,,,,,,,,,,,,,,,,0.173
+1120,KIN,2026,Pavona duerdeni,11,polyline,CGA,2026,Leg 1,KIN-5192,B,,,,0,PDUE,0,,0,ML,0,2,,,,,,,,,,,,,,,,0.11
+1121,KIN,2026,Pavona duerdeni,12,polyline,CGA,2026,Leg 1,KIN-5192,B,,,,0,PDUE,0,,-1,ML,0,,,,,,,,,,,,,,,,,0.018
+1122,KIN,2026,Phymastrea sp,13,polyline,CGA,2026,Leg 1,KIN-5192,B,,,,0,PHSP,0,,0,EN,0,2,,,,,,,,,,,,,,,,0.086
+1123,KIN,2026,Astrea sp,14,polyline,CGA,2026,Leg 1,KIN-5192,B,,,,0,ASTS,0,,0,EN,0,7,PRED,2,,,,,,,,,,,,,,0.098
+1124,KIN,2026,Porites sp,15,polyline,CGA,2026,Leg 1,KIN-5192,B,,,,0,POSP,-1,TURFH,0,EN,0,,,,,,,,,,,,,,,,,0.022
+1125,KIN,2026,Pavona chiriquiensis,16,polyline,CGA,2026,Leg 1,KIN-5192,B,,,,0,PCHI,0,,0,EN,0,10,,,,,,,,,,,,,,,,0.306
+1126,KIN,2026,Fungia sp,17,polyline,CGA,2026,Leg 1,KIN-5192,B,,,,0,FUSP,0,,0,FL,0,1,,,,,,,,,,,,,,,,0.096
+1127,KIN,2026,Pavona sp,18,polyline,CGA,2026,Leg 1,KIN-5192,B,,,,0,PAVS,0,,0,ML,0,4,FISH,2,,,,,,,,,,,,,,0.219
+1128,KIN,2026,Favia sp,19,polyline,CGA,2026,Leg 1,KIN-5192,B,,,,0,FASP,0,,0,EN,0,15,,,,,,,,,,,,,,,,0.216
+1129,KIN,2026,Favia sp,20,polyline,CGA,2026,Leg 1,KIN-5192,B,,,,0,FASP,0,,0,EN,0,7,,,,,,,,,,,,,,,,0.076
+1130,KIN,2026,Favia sp,21,polyline,CGA,2026,Leg 1,KIN-5192,B,,,,0,FASP,0,,0,MD,0,2,,,,,,,,,,,,,,,,0.12
+1131,KIN,2026,Pocillopora grandis/woodjonesi complex,22,polyline,CGA,2026,Leg 1,KIN-5192,B,,,,0,PGWC,0,,0,BR,0,0,,,,,,,,,,,,,,,,0.128
+1132,KIN,2026,Favia stelligera,23,polyline,CGA,2026,Leg 1,KIN-5192,B,,,,0,FSTE,0,,0,ML,0,1,,,,,,,,,,,,,,,,0.133
+1133,KIN,2026,Favia sp,24,polyline,CGA,2026,Leg 1,KIN-5192,B,,,,0,FASP,0,,0,EN,0,15,,,,,,,,,,,,,,,,0.153
+1134,KIN,2026,Porites lobata,25,polyline,CGA,2026,Leg 1,KIN-5192,B,,,,0,PLOB,0,,0,MD,0,30,FISH,1,,,,,,,,,,,,,,0.179
+1135,KIN,2026,Pavona chiriquiensis,26,polyline,CGA,2026,Leg 1,KIN-5192,B,,,,0,PCHI,0,,0,EN,0,2,,,,,,,,,,,,,,,,0.078
+1137,KIN,2026,Favia sp,27,polyline,CGA,2026,Leg 1,KIN-5192,B,,,,0,FASP,0,,0,EN,0,8,,,,,,,,,,,,,,,,0.124
+1138,KIN,2026,Fungia sp,28,polyline,CGA,2026,Leg 1,KIN-5192,B,,,,0,FUSP,0,,0,FL,0,1,,,,,,,,,,,,,,,,0.115
+1139,KIN,2026,Fungia sp,29,polyline,CGA,2026,Leg 1,KIN-5192,B,,,,0,FUSP,0,,0,FL,0,0,,,,,,,,,,,,,,,,0.094
+1140,KIN,2026,Favia sp,30,polyline,CGA,2026,Leg 1,KIN-5192,B,,,,0,FASP,-1,TURFH,0,MD,0,,,,,,,,,,,,,,,,,0.048
+1141,KIN,2026,Porites sp,31,polyline,CGA,2026,Leg 1,KIN-5192,B,,,,0,POSP,0,,0,MD,0,4,PRED,1,,,,,,,,,,,,,,0.341
+1142,KIN,2026,Favia sp,32,polyline,CGA,2026,Leg 1,KIN-5192,B,,,,0,FASP,0,,0,EN,0,6,,,,,,,,,,,,,,,,0.123
+1143,KIN,2026,Stylocoeniella sp,33,polyline,CGA,2026,Leg 1,KIN-5192,B,,,,0,STSP,0,,0,EN,0,15,,,,,,,,,,,,,,,,0.081
+1144,KIN,2026,Pocillopora meandrina/verrucosa complex,34,polyline,CGA,2026,Leg 1,KIN-5192,B,,,,0,PMVC,0,,0,BR,0,70,GAST,2,,,,,,,,,,,,,,0.335
+1145,KIN,2026,Astrea sp,35,polyline,CGA,2026,Leg 1,KIN-5192,B,,,,0,ASTS,0,,0,MD,0,1,,,,,,,,,,,,,,,,0.188
+1146,KIN,2026,Porites sp,36,polyline,CGA,2026,Leg 1,KIN-5192,B,,,,0,POSP,-1,TURFH,0,EN,0,,,,,,,,,,,,,,,,,0.039
+1147,KIN,2026,Porites sp,37,polyline,CGA,2026,Leg 1,KIN-5192,B,,,,0,POSP,0,,0,EN,0,10,,,,,,,,,,,,,,,,0.121
+1149,KIN,2026,Pavona sp,38,polyline,CGA,2026,Leg 1,KIN-5192,B,,,,0,PAVS,0,,0,ML,0,70,,,,,,,,,,,,,,,,0.258
+1150,KIN,2026,Phymastrea sp,39,polyline,CGA,2026,Leg 1,KIN-5192,B,,,,0,PHSP,0,,0,EN,0,20,,,,,,,,,,,,,,,,0.107
+1151,KIN,2026,Phymastrea sp,40,polyline,CGA,2026,Leg 1,KIN-5192,B,,,,0,PHSP,0,,0,EN,0,8,,,,,,,,,,,,,,,,0.091
+1152,KIN,2026,Goniastrea edwardsi,41,polyline,CGA,2026,Leg 1,KIN-5192,B,,,,0,GEDW,0,,0,MD,0,15,,,,,,,,,,,,,,,,0.088
+1153,KIN,2026,Favia sp,42,polyline,CGA,2026,Leg 1,KIN-5192,B,,,,0,FASP,0,,0,EN,0,1,,,,,,,,,,,,,,,,0.177
+1154,KIN,2026,Psammocora profundacella,43,polyline,CGA,2026,Leg 1,KIN-5192,B,,,,0,PPRO,0,,0,EN,0,70,,,,,,,,,,,,,,,,0.099
+1156,KIN,2026,Favites sp,44,polyline,CGA,2026,Leg 1,KIN-5192,B,,,1,0,FAVS,0,,0,EN,0,5,,,,,,,,,,,,,,,,0.091
+1157,KIN,2026,Astrea sp,45,polyline,CGA,2026,Leg 1,KIN-5192,B,,,,0,ASTS,0,,0,EN,0,3,,,,,,,,,,,,,,,,0.18
+1158,KIN,2026,Leptastrea purpurea,46,polyline,CGA,2026,Leg 1,KIN-5192,B,,,,0,LPUR,0,,0,EN,0,15,,,,,,,,,,,,,,,,0.241
+1159,KIN,2026,Favia stelligera,47,polyline,CGA,2026,Leg 1,KIN-5192,B,,,,0,FSTE,0,,0,ML,0,20,,,,,,,,,,,,,,,,0.182
+1160,KIN,2026,Leptastrea purpurea,48,polyline,CGA,2026,Leg 1,KIN-5192,B,,,,0,LPUR,0,,0,EN,0,2,,,,,,,,,,,,,,,,0.122
+1161,KIN,2026,Goniastrea edwardsi,49,polyline,CGA,2026,Leg 1,KIN-5192,B,,,,0,GEDW,0,,0,MD,0,1,,,,,,,,,,,,,,,,0.053
+1162,KIN,2026,Porites sp,50,polyline,CGA,2026,Leg 1,KIN-5192,B,,,,0,POSP,0,,0,MD,0,3,,,,,,,,,,,,,,,,0.226
+1163,KIN,2026,Favia sp,51,polyline,CGA,2026,Leg 1,KIN-5192,B,,,,0,FASP,0,,0,EN,0,2,,,,,,,,,,,,,,,,0.176
+1164,KIN,2026,Porites lobata,52,polyline,CGA,2026,Leg 1,KIN-5192,B,,,,0,PLOB,0,,0,MD,0,2,,,,,,,,,,,,,,,,0.426
+1165,KIN,2026,Porites sp,53,polyline,CGA,2026,Leg 1,KIN-5192,B,,,,0,POSP,0,,0,EN,0,50,,,,,,,,,,,,,,,,0.099
+1166,KIN,2026,Phymastrea sp,54,polyline,CGA,2026,Leg 1,KIN-5192,B,,,,0,PHSP,0,,0,EN,0,5,,,,,,,,,,,,,,,,0.112
+1167,KIN,2026,Favia sp,55,polyline,CGA,2026,Leg 1,KIN-5192,B,,,,0,FASP,0,,0,EN,0,25,,,,,,,,,,,,,,,,0.1
+1168,KIN,2026,Phymastrea sp,56,polyline,CGA,2026,Leg 1,KIN-5192,B,,,,0,PHSP,0,,0,EN,0,3,,,,,,,,,,,,,,,,0.105
+1169,KIN,2026,Astrea sp,57,polyline,CGA,2026,Leg 1,KIN-5192,B,,,,0,ASTS,0,,0,EN,0,1,,,,,,,,,,,,,,,,0.062
+1172,KIN,2026,Pavona chiriquiensis,58,polyline,CGA,2026,Leg 1,KIN-5192,B,,,,0,PCHI,0,,0,EN,0,2,,,,,,,,,,,,,,,,0.126
+1173,KIN,2026,Favia sp,59,polyline,CGA,2026,Leg 1,KIN-5192,B,,,,0,FASP,0,,0,EN,0,5,,,,,,,,,,,,,,,,0.152
+1174,KIN,2026,Porites sp,60,polyline,CGA,2026,Leg 1,KIN-5192,B,,,,0,POSP,0,,0,MD,0,5,GAST,1,FISH,1,,,,,,,,,,,,0.606
+1175,KIN,2026,Favia sp,61,polyline,CGA,2026,Leg 1,KIN-5192,B,,,,0,FASP,0,,0,EN,0,5,,,,,,,,,,,,,,,,0.113
+1176,KIN,2026,Favia sp,62,polyline,CGA,2026,Leg 1,KIN-5192,B,,,,0,FASP,0,,0,EN,0,3,,,,,,,,,,,,,,,,0.104
+1177,KIN,2026,Phymastrea sp,63,polyline,CGA,2026,Leg 1,KIN-5192,B,,,,0,PHSP,0,,0,EN,0,1,,,,,,,,,,,,,,,,0.204
+1178,KIN,2026,Pavona sp,64,polyline,CGA,2026,Leg 1,KIN-5192,B,,,,0,PAVS,0,,0,ML,0,1,,,,,,,,,,,,,,,,0.058
+1179,KIN,2026,Astrea sp,65,polyline,CGA,2026,Leg 1,KIN-5192,B,,,,0,ASTS,0,,0,EN,0,7,,,,,,,,,,,,,,,,0.053
+1180,KIN,2026,Favia stelligera,66,polyline,CGA,2026,Leg 1,KIN-5192,B,,,,0,FSTE,0,,0,ML,0,3,GAST,1,,,,,,,,,,,,,,0.236
+1181,KIN,2026,Favia stelligera,67,polyline,CGA,2026,Leg 1,KIN-5192,B,,,,0,FSTE,0,,0,ML,0,1,,,,,,,,,,,,,,,,0.128
+1182,KIN,2026,Favia stelligera,68,polyline,CGA,2026,Leg 1,KIN-5192,B,,,,0,FSTE,0,,0,ML,0,5,,,,,,,,,,,,,,,,0.102
+1183,KIN,2026,Pavona chiriquiensis,69,polyline,CGA,2026,Leg 1,KIN-5192,B,,,,0,PCHI,0,,0,EN,0,2,,,,,,,,,,,,,,,,0.329
+1184,KIN,2026,Goniastrea edwardsi,70,polyline,CGA,2026,Leg 1,KIN-5192,B,,,,0,GEDW,0,,0,MD,0,7,,,,,,,,,,,,,,,,0.114
+1185,KIN,2026,Favia sp,71,polyline,CGA,2026,Leg 1,KIN-5192,B,,,,0,FASP,0,,0,MD,0,25,,,,,,,,,,,,,,,,0.196
+1186,KIN,2026,Goniastrea edwardsi,72,polyline,CGA,2026,Leg 1,KIN-5192,B,,,,0,GEDW,0,,0,MD,0,4,,,,,,,,,,,,,,,,0.053
+1346,KIN,2026,Favia sp,73,polyline,CGA,2026,Leg 1,KIN-5192,B,,,1,0,FASP,0,,0,EN,0,25,,,,,,,,,,,,,,,,0.1
+578,PAL,2026,Pocillopora sp,1,polyline,SJD,2026,SE2602,PAL-5261,B,10,2.5,1,0,POCS,0,,0,BR,0,0,FISH,1,,,,,,,,,,,,,,0.204
+579,PAL,2026,Turbinaria sp,2,polyline,SJD,2026,SE2602,PAL-5261,B,10,2.5,1,0,TURS,0,,0,FO,0,2,,,,,,,,,,,,,,,,0.108
+582,PAL,2026,Porites sp,3,polyline,SJD,2026,SE2602,PAL-5261,B,10,2.5,1,0,POSP,0,,0,EN,0,3,GAST,5,,,,,,,,,,,,,,0.053
+583,PAL,2026,Turbinaria sp,4,polyline,SJD,2026,SE2602,PAL-5261,B,10,1,1,0,TURS,-1,TURFH,0,LA,0,0,,,,,,,,,,,,,,,,0.035
+584,PAL,2026,Pocillopora sp,5,polyline,SJD,2026,SE2602,PAL-5261,B,10,2.5,1,0,POCS,0,,0,BR,0,0,,,,,,,,,,,,,,,,0.075
+585,PAL,2026,Pavona varians,6,polyline,SJD,2026,SE2602,PAL-5261,B,10,2.5,1,0,PVAR,0,,0,EN,0,25,,,,,,,,,,,,,,,,0.081
+587,PAL,2026,Astrea curta,7,polyline,SJD,2026,SE2602,PAL-5261,B,10,2.5,1,0,ACUR,0,,0,EN,0,6,PRED,2,,,,,,,,,,,,,,0.062
+588,PAL,2026,Pocillopora sp,8,polyline,SJD,2026,SE2602,PAL-5261,B,10,2.5,1,0,POCS,0,,0,BR,0,0,,,,,,,,,,,,,,,,0.081
+589,PAL,2026,Pocillopora sp,9,polyline,SJD,2026,SE2602,PAL-5261,B,10,2.5,1,0,POCS,0,,0,BR,0,0,,,,,,,,,,,,,,,,0.06
+590,PAL,2026,Pocillopora sp,10,polyline,SJD,2026,SE2602,PAL-5261,B,10,2.5,1,0,POCS,0,,0,BR,0,0,FISH,2,,,,,,,,,,,,,,0.08
+591,PAL,2026,Pavona duerdeni,11,polyline,SJD,2026,SE2602,PAL-5261,B,10,2.5,1,0,PDUE,0,,0,ML,0,80,,,,,,,,,,,,,,,,0.12
+593,PAL,2026,Pavona duerdeni,12,polyline,SJD,2026,SE2602,PAL-5261,B,10,2.5,1,0,PDUE,0,,0,ML,0,30,FISH,1,,,,,,,,,,,,,,0.235
+594,PAL,2026,Pavona duerdeni,13,polyline,SJD,2026,SE2602,PAL-5261,B,10,2.5,1,0,PDUE,0,,0,ML,0,10,,,,,,,,,,,,,,,,0.117
+595,PAL,2026,Pocillopora sp,14,polyline,SJD,2026,SE2602,PAL-5261,B,10,2.5,1,0,POCS,0,,0,BR,0,0,,,,,,,,,,,,,,,,0.059
+597,PAL,2026,Turbinaria sp,16,polyline,SJD,2026,SE2602,PAL-5261,B,10,2.5,1,0,TURS,0,,0,LA,0,25,,,,,,,,,,,,,,,,0.086
+599,PAL,2026,Pocillopora sp,17,polyline,SJD,2026,SE2602,PAL-5261,B,10,2.5,1,0,POCS,0,,0,BR,0,2,DAMG,4,,,,,,,,,,,,,,0.102
+600,PAL,2026,Phymastrea sp,18,polyline,SJD,2026,SE2602,PAL-5261,B,10,2.5,1,0,PHSP,0,,0,EN,0,20,,,,,,,,,,,,,,,,0.051
+601,PAL,2026,Pavona duerdeni,19,polyline,SJD,2026,SE2602,PAL-5261,B,10,2.5,1,0,PDUE,0,,0,MD,0,15,,,,,,,,,,,,,,,,0.067
+661,PAL,2026,Pavona duerdeni,20,polyline,SJD,2026,SE2602,PAL-5261,B,10,2.5,1,0,PDUE,0,,0,MD,0,60,,,,,,,,,,,,,,,,0.091
+662,PAL,2026,Pocillopora sp,21,polyline,SJD,2026,SE2602,PAL-5261,B,10,2.5,1,0,POCS,0,,0,BR,0,1,,,,,,,,,,,,,,,,0.068
+663,PAL,2026,Astrea sp,22,polyline,SJD,2026,SE2602,PAL-5261,B,10,2.5,1,0,ASTS,0,,0,EN,0,3,,,,,,,,,,,,,,,,0.125
+664,PAL,2026,Pavona duerdeni,23,polyline,SJD,2026,SE2602,PAL-5261,B,10,2.5,1,0,PDUE,0,,0,MD,0,2,,,,,,,,,,,,,,,,0.091
+665,PAL,2026,Pavona chiriquiensis,24,polyline,SJD,2026,SE2602,PAL-5261,B,10,2.5,1,0,PCHI,0,,0,EN,0,60,,,,,,,,,,,,,,,,0.204
+838,ROS,2026,Montipora sp,1,polyline,CGA,2026,Leg 2,ROS-5365,B,,,1,0,MOSP,0,,0,EN,0,3,,,,,,,,,,,,,,,,0.332
+839,ROS,2026,Fungia sp,2,polyline,CGA,2026,Leg 2,ROS-5365,B,,,,0,FUSP,0,,0,FL,0,0,,,,,,,,,,,,,,,,0.102
+840,ROS,2026,Porites sp,3,polyline,CGA,2026,Leg 2,ROS-5365,B,,,,0,POSP,0,,0,MD,0,10,,,,,,,,,,,,,,,,0.083
+842,ROS,2026,Acropora sp,4,polyline,CGA,2026,Leg 2,ROS-5365,B,,,,0,ACSP,0,,0,CB,0,0,,,,,,,,,,,,,,,,0.057
+843,ROS,2026,Astrea sp,5,polyline,CGA,2026,Leg 2,ROS-5365,B,,,,0,ASTS,-1,TURFH,0,EN,0,,,,,,,,,,,,,,,,,0.034
+844,ROS,2026,Astrea curta,6,polyline,CGA,2026,Leg 2,ROS-5365,B,,,,0,ACUR,0,,0,MD,0,4,,,,,,,,,,,,,,,,0.561
+845,ROS,2026,Porites sp,7,polyline,CGA,2026,Leg 2,ROS-5365,B,,,,0,POSP,0,,0,MD,0,30,,,,,,,,,,,,,,,,0.063
+846,ROS,2026,Favia stelligera,8,polyline,CGA,2026,Leg 2,ROS-5365,B,,,,0,FSTE,0,,0,ML,0,4,,,,,,,,,,,,,,,,0.345
+848,ROS,2026,Astrea curta,9,polyline,CGA,2026,Leg 2,ROS-5365,B,,,,0,ACUR,0,,0,MD,0,4,,,,,,,,,,,,,,,,0.11
+849,ROS,2026,Pavona chiriquiensis,10,polyline,CGA,2026,Leg 2,ROS-5365,B,,,,0,PCHI,0,,0,EN,0,3,,,,,,,,,,,,,,,,0.053
+850,ROS,2026,Montipora sp,11,polyline,CGA,2026,Leg 2,ROS-5365,B,,,,0,MOSP,0,,0,EN,0,5,,,,,,,,,,,,,,,,0.328
+851,ROS,2026,Montipora sp,12,polyline,CGA,2026,Leg 2,ROS-5365,B,,,,0,MOSP,0,,0,EN,0,7,,,,,,,,,,,,,,,,0.117
+852,ROS,2026,Montipora sp,13,polyline,CGA,2026,Leg 2,ROS-5365,B,,,,0,MOSP,0,,0,EN,0,5,GAST,1,,,,,,,,,,,,,,1.007
+853,ROS,2026,Astrea curta,14,polyline,CGA,2026,Leg 2,ROS-5365,B,,,,0,ACUR,0,,0,MD,0,1,,,,,,,,,,,,,,,,0.134
+854,ROS,2026,Astrea curta,15,polyline,CGA,2026,Leg 2,ROS-5365,B,,,,0,ACUR,0,,0,MD,0,35,,,,,,,,,,,,,,,,0.218
+856,ROS,2026,Astrea curta,17,polyline,CGA,2026,Leg 2,ROS-5365,B,,,,0,ACUR,0,,0,MD,0,10,,,,,,,,,,,,,,,,0.105
+858,ROS,2026,Montipora sp,19,polyline,CGA,2026,Leg 2,ROS-5365,B,,,,0,MOSP,0,,0,EN,0,2,,,,,,,,,,,,,,,,0.528
+859,ROS,2026,Favia stelligera,19,polyline,CGA,2026,Leg 2,ROS-5365,B,,,,0,FSTE,0,,0,MD,0,3,,,,,,,,,,,,,,,,0.247
+860,ROS,2026,Porites sp,20,polyline,CGA,2026,Leg 2,ROS-5365,B,,,,0,POSP,0,,0,MD,0,25,,,,,,,,,,,,,,,,0.205
+861,ROS,2026,Astrea sp,21,polyline,CGA,2026,Leg 2,ROS-5365,B,,,,0,ASTS,0,,0,MD,0,3,PRED,2,,,,,,,,,,,,,,0.094
+862,ROS,2026,Porites sp,22,polyline,CGA,2026,Leg 2,ROS-5365,B,,,,0,POSP,-1,TURFH,0,EN,0,,,,,,,,,,,,,,,,,0.026
+863,ROS,2026,Astrea sp,23,polyline,CGA,2026,Leg 2,ROS-5365,B,,,,0,ASTS,0,,0,MD,0,3,,,,,,,,,,,,,,,,0.094
+864,ROS,2026,Montipora sp,24,polyline,CGA,2026,Leg 2,ROS-5365,B,,,,0,MOSP,0,,0,EN,0,25,GAST,1,,,,,,,,,,,,,,0.649
+865,ROS,2026,Astrea sp,25,polyline,CGA,2026,Leg 2,ROS-5365,B,,,,0,ASTS,0,,0,MD,0,25,,,,,,,,,,,,,,,,0.172
+866,ROS,2026,Porites sp,26,polyline,CGA,2026,Leg 2,ROS-5365,B,,,,0,POSP,-1,CCAH,0,EN,0,,,,,,,,,,,,,,,,,0.027
+867,ROS,2026,Montipora sp,27,polyline,CGA,2026,Leg 2,ROS-5365,B,,,1,0,MOSP,0,,0,EN,0,8,,,,,,,,,,,,,,,,0.123
+868,ROS,2026,Astrea sp,28,polyline,CGA,2026,Leg 2,ROS-5365,B,,,,0,ASTS,-1,EM,0,EN,0,,,,,,,,,,,,,,,,,0.042
+870,ROS,2026,Astrea curta,29,polyline,CGA,2026,Leg 2,ROS-5365,B,,,,0,ACUR,0,,0,MD,0,15,,,,,,,,,,,,,,,,0.291
+871,ROS,2026,Porites sp,30,polyline,CGA,2026,Leg 2,ROS-5365,B,,,,0,POSP,0,,0,EN,0,20,,,,,,,,,,,,,,,,0.368
+872,ROS,2026,Porites sp,31,polyline,CGA,2026,Leg 2,ROS-5365,B,,,,0,POSP,0,,0,KN,0,5,,,,,,,,,,,,,,,,0.1
+873,ROS,2026,Porites sp,32,polyline,CGA,2026,Leg 2,ROS-5365,B,,,,0,POSP,0,,0,EN,0,30,,,,,,,BLE,30,2,,,,,,,0.18
+874,ROS,2026,Fungia sp,33,polyline,CGA,2026,Leg 2,ROS-5365,B,,,,0,FUSP,0,,0,FL,0,1,,,,,,,,,,,,,,,,0.101
+875,ROS,2026,Astrea curta,34,polyline,CGA,2026,Leg 2,ROS-5365,B,,,,0,ACUR,0,,0,MD,0,30,,,,,,,,,,,,,,,,0.149
+881,ROS,2026,Astrea curta,0,polyline,CGA,2026,Leg 2,ROS-5365,B,,,1,0,ACUR,0,,0,MD,0,4,,,,,,,,,,,,,,,,0.203
+883,ROS,2026,Montipora sp,36,polyline,CGA,2026,Leg 2,ROS-5365,B,,,1,0,MOSP,0,,0,EN,0,25,,,,,,,,,,,,,,,,0.229
+884,ROS,2026,Astrea curta,37,polyline,CGA,2026,Leg 2,ROS-5365,B,,,,0,ACUR,0,,0,MD,0,15,,,,,,,,,,,,,,,,0.063
+885,ROS,2026,Porites sp,38,polyline,CGA,2026,Leg 2,ROS-5365,B,,,,0,POSP,0,,0,EN,0,4,GAST,1,,,,,,,,,,,,,,0.895
+886,ROS,2026,Favia stelligera,39,polyline,CGA,2026,Leg 2,ROS-5365,B,,,,0,FSTE,0,,0,ML,0,3,,,,,,,,,,,,,,,,0.177
+1100,ROS,2026,Astrea curta,40,polyline,CGA,2026,Leg 2,ROS-5365,B,,,,0,ACUR,0,,0,MD,0,5,,,,,,,,,,,,,,,,0.209
+1101,ROS,2026,Astrea curta,41,polyline,CGA,2026,Leg 2,ROS-5365,B,,,,0,ACUR,0,,0,MD,0,15,,,,,,,,,,,,,,,,0.124
+1102,ROS,2026,Astrea curta,42,polyline,CGA,2026,Leg 2,ROS-5365,B,,,1,0,ACUR,0,,0,MD,0,40,,,,,,,,,,,,,,,,0.205
+1103,ROS,2026,Montipora sp,43,polyline,CGA,2026,Leg 2,ROS-5365,B,,,,0,MOSP,0,,0,EN,0,3,TLS,2,,,,,,,,,,,,,,0.618
+1104,ROS,2026,Favia stelligera,44,polyline,CGA,2026,Leg 2,ROS-5365,B,,,,0,FSTE,0,,0,ML,0,8,FISH,1,,,,,,,,,,,,,,0.129
+1105,ROS,2026,Favia stelligera,45,polyline,CGA,2026,Leg 2,ROS-5365,B,,,,0,FSTE,0,,0,MD,0,8,,,,,,,,,,,,,,,,0.069
+1106,ROS,2026,Montipora sp,46,polyline,CGA,2026,Leg 2,ROS-5365,B,,,,0,MOSP,0,,0,EN,0,3,,,,,,,,,,,,,,,,0.142
+1107,ROS,2026,Porites sp,47,polyline,CGA,2026,Leg 2,ROS-5365,B,,,,0,POSP,0,,0,EN,0,4,,,,,,,,,,,,,,,,0.074
+1108,ROS,2026,Pavona chiriquiensis,48,polyline,CGA,2026,Leg 2,ROS-5365,B,,,,0,PCHI,0,,0,EN,0,10,,,,,,,,,,,,,,,,0.059
+1109,ROS,2026,Porites sp,49,polyline,CGA,2026,Leg 2,ROS-5365,B,,,,0,POSP,0,,0,EN,0,40,GAST,40,,,,,,,,,,,,,,0.109
+1342,ROS,2026,Astrea sp,50,polyline,CGA,2026,Leg 2,ROS-5365,B,,,1,0,ASTS,0,,0,MD,0,1,,,,,,,,,,,,,,,,0.112
+1343,ROS,2026,Astrea sp,51,polyline,CGA,2026,Leg 2,ROS-5365,B,,,,0,ASTS,-1,TURFH,0,EN,0,,,,,,,,,,,,,,,,,0.037
+1344,ROS,2026,Astrea sp,51,polyline,CGA,2026,Leg 2,ROS-5365,B,,,,0,ASTS,0,,0,EN,0,30,,,,,,,,,,,,,,,,0.069
+161,TAU,2026,Fungia sp,1,polyline,CGA,2026,Leg 2,TAU-1344,B,,,1,0,FUSP,0,,0,FL,0,5,,,,,,,BLE,90,3,,,,,,,0.085
+163,TAU,2026,Favia sp,3,polyline,CGA,2026,Leg 2,TAU-1344,B,,,1,0,FASP,0,,0,MD,0,7,,,,,,,,,,,,,,,,0.149
+164,TAU,2026,Porites sp,4,polyline,CGA,2026,Leg 2,TAU-1344,B,,,1,0,POSP,0,,0,BR,0,3,FISH,1,,,,,,,,,,,,,,0.122
+569,TAU,2026,Pavona chiriquiensis,4,polyline,CGA,2026,Leg 2,TAU-1344,B,,,1,0,PCHI,0,,0,EN,0,5,,,,,,,,,,,,,,,,0.075
+570,TAU,2026,Porites monticulosa/rus complex,5,polyline,CGA,2026,Leg 2,TAU-1344,B,,,,0,PMRC,0,,0,EN,0,45,,,,,,,,,,,,,,,,0.082
+580,TAU,2026,Phymastrea sp,6,polyline,CGA,2026,Leg 2,TAU-1344,B,,,1,0,PHSP,0,,0,EN,0,40,,,,,,,,,,,,,,,,0.203
+581,TAU,2026,Leptastrea purpurea,7,polyline,CGA,2026,Leg 2,TAU-1344,B,,,,0,LPUR,-1,TURFH,0,EN,0,5,,,,,,,,,,,,,,,,0.042
+586,TAU,2026,Leptastrea transversa,8,polyline,CGA,2026,Leg 2,TAU-1344,B,,,,0,LTRA,0,,0,EN,0,15,,,,,,,,,,,,,,,,0.373
+592,TAU,2026,Astreopora sp,9,polyline,CGA,2026,Leg 2,TAU-1344,B,,,,0,ASSP,0,,0,MD,0,5,GAST,1,,,,,,,,,,,,,,0.224
+596,TAU,2026,Pavona chiriquiensis,10,polyline,CGA,2026,Leg 2,TAU-1344,B,,,,0,PCHI,0,,0,EN,0,10,,,,,,,,,,,,,,,,0.053
+598,TAU,2026,Platygyra sp,11,polyline,CGA,2026,Leg 2,TAU-1344,B,,,,0,PLSP,0,,0,MD,0,15,,,,,,,,,,,,,,,,0.185
+602,TAU,2026,Phymastrea sp,12,polyline,CGA,2026,Leg 2,TAU-1344,B,,,,0,PHSP,0,,0,EN,0,15,,,,,,,,,,,,,,,,0.079
+603,TAU,2026,Platygyra pini,13,polyline,CGA,2026,Leg 2,TAU-1344,B,,,,0,PPIN,0,,0,MD,0,4,,,,,,,,,,,,,,,,0.163
+604,TAU,2026,Leptastrea transversa,14,polyline,CGA,2026,Leg 2,TAU-1344,B,,,,0,LTRA,0,,0,EN,0,8,,,,,,,,,,,,,,,,0.258
+605,TAU,2026,Favia sp,15,polyline,CGA,2026,Leg 2,TAU-1344,B,,,,0,FASP,-1,TURFH,0,EN,0,,,,,,,,,,,,,,,,,0.027
+606,TAU,2026,Porites monticulosa/rus complex,16,polyline,CGA,2026,Leg 2,TAU-1344,B,,,1,0,PMRC,0,,0,PL,0,10,,,,,,,,,,,,,,,,0.588
+607,TAU,2026,Leptastrea transversa,17,polyline,CGA,2026,Leg 2,TAU-1344,B,,,,0,LTRA,0,,0,EN,0,75,,,,,,,,,,,,,,,,0.47
+608,TAU,2026,Leptastrea transversa,18,polyline,CGA,2026,Leg 2,TAU-1344,B,,,,0,LTRA,0,,0,EN,0,5,,,,,,,,,,,,,,,,0.122
+609,TAU,2026,Montipora sp,19,polyline,CGA,2026,Leg 2,TAU-1344,B,,,,0,MOSP,0,,0,EN,0,4,,,,,,,,,,,,,,,,0.387
+610,TAU,2026,Montipora sp,20,polyline,CGA,2026,Leg 2,TAU-1344,B,,,,0,MOSP,0,,0,EN,0,5,,,,,,,,,,,,,,,,0.444
+611,TAU,2026,Montipora sp,21,polyline,CGA,2026,Leg 2,TAU-1344,B,,,,0,MOSP,0,,0,EN,0,10,,,,,,,,,,,,,,,,0.214
+612,TAU,2026,Porites sp,22,polyline,CGA,2026,Leg 2,TAU-1344,B,,,,0,POSP,0,,0,EN,0,8,GAST,9,,,,,,,,,,,,,,0.111
+613,TAU,2026,Pavona varians,23,polyline,CGA,2026,Leg 2,TAU-1344,B,,,,0,PVAR,0,,0,EN,0,7,,,,,,,,,,,,,,,,0.147
+614,TAU,2026,Phymastrea sp,24,polyline,CGA,2026,Leg 2,TAU-1344,B,,,,0,PHSP,0,,0,EN,0,8,,,,,,,,,,,,,,,,0.068
+615,TAU,2026,Astrea sp,25,polyline,CGA,2026,Leg 2,TAU-1344,B,,,,0,ASTS,0,,0,EN,0,3,,,,,,,,,,,,,,,,0.087
+616,TAU,2026,Leptastrea transversa,26,polyline,CGA,2026,Leg 2,TAU-1344,B,,,,0,LTRA,0,,0,EN,0,7,,,,,,,,,,,,,,,,0.176
+617,TAU,2026,Lobophyllia sp,27,polyline,CGA,2026,Leg 2,TAU-1344,B,,,,0,LOBS,0,,0,BR,0,35,,,,,,,,,,,,,,,,0.146
+618,TAU,2026,Acropora sp,28,polyline,CGA,2026,Leg 2,TAU-1344,B,,,,0,ACSP,-1,TURFH,0,CB,0,,,,,,,,,,,,,,,,,0.016
+619,TAU,2026,Oxypora sp,29,polyline,CGA,2026,Leg 2,TAU-1344,B,,,,0,OXSP,-1,TURFH,0,PL,0,,,,,,,,,,,,,,,,,0.038
+620,TAU,2026,,30,polyline,CGA,2026,Leg 2,TAU-1344,B,,,,0,PHS,-1,TURFH,0,EN,0,,,,,,,,,,,,,,,,,0.023
+621,TAU,2026,Favia sp,31,polyline,CGA,2026,Leg 2,TAU-1344,B,,,,0,FASP,0,,0,MD,0,8,,,,,,,,,,,,,,,,0.225
+622,TAU,2026,Favia sp,32,polyline,CGA,2026,Leg 2,TAU-1344,B,,,,0,FASP,-1,TURFH,0,EN,0,,,,,,,,,,,,,,,,,0.02
+623,TAU,2026,Leptastrea sp,33,polyline,CGA,2026,Leg 2,TAU-1344,B,,,,0,LEPT,0,,0,EN,0,7,,,,,,,,,,,,,,,,0.242
+624,TAU,2026,Galaxea sp,34,polyline,CGA,2026,Leg 2,TAU-1344,B,,,,0,GASP,0,,0,EN,0,15,,,,,,,,,,,,,,,,0.111
+625,TAU,2026,Porites sp,35,polyline,CGA,2026,Leg 2,TAU-1344,B,,,,0,POSP,-1,TURFH,0,EN,0,,,,,,,,,,,,,,,,,0.016
+626,TAU,2026,Montipora sp,36,polyline,CGA,2026,Leg 2,TAU-1344,B,,,,0,MOSP,0,,0,EN,0,20,,,,,,,,,,,,,,,,0.191
+627,TAU,2026,Pavona varians,37,polyline,CGA,2026,Leg 2,TAU-1344,B,,,1,0,PVAR,0,,0,EN,0,7,,,,,,,,,,,,,,,,0.084
+628,TAU,2026,Phymastrea sp,38,polyline,CGA,2026,Leg 2,TAU-1344,B,,,,0,PHSP,0,,0,EN,0,20,,,,,,,,,,,,,,,,0.159
+629,TAU,2026,Astrea sp,39,polyline,CGA,2026,Leg 2,TAU-1344,B,,,,0,ASTS,0,,0,EN,0,5,,,,,,,,,,,,,,,,0.085
+630,TAU,2026,Favia sp,40,polyline,CGA,2026,Leg 2,TAU-1344,B,,,,0,FASP,-1,TURFH,0,EN,0,,,,,,,,,,,,,,,,,0.044
+631,TAU,2026,Leptastrea transversa,41,polyline,CGA,2026,Leg 2,TAU-1344,B,,,,0,LTRA,0,,0,EN,0,10,,,,,,,,,,,,,,,,0.439
+632,TAU,2026,Astreopora sp,42,polyline,CGA,2026,Leg 2,TAU-1344,B,,,,0,ASSP,0,,0,EN,0,10,,,,,,,,,,,,,,,,0.151
+633,TAU,2026,Astreopora sp,43,polyline,CGA,2026,Leg 2,TAU-1344,B,,,,0,ASSP,0,,0,MD,0,15,,,,,,,,,,,,,,,,0.206
+634,TAU,2026,Favia sp,44,polyline,CGA,2026,Leg 2,TAU-1344,B,,,,0,FASP,0,,0,MD,0,8,,,,,,,,,,,,,,,,0.126
+635,TAU,2026,Favia sp,45,polyline,CGA,2026,Leg 2,TAU-1344,B,,,,0,FASP,0,,0,EN,0,8,,,,,,,,,,,,,,,,0.07
+636,TAU,2026,Acanthastrea sp,46,polyline,CGA,2026,Leg 2,TAU-1344,B,,,,0,ACAS,0,,0,EN,0,3,,,,,,,,,,,,,,,,0.064
+637,TAU,2026,Favia sp,47,polyline,CGA,2026,Leg 2,TAU-1344,B,,,,0,FASP,0,,0,MD,0,45,,,,,,,,,,,,,,,,0.113
+638,TAU,2026,Favia sp,48,polyline,CGA,2026,Leg 2,TAU-1344,B,,,,0,FASP,0,,0,EN,0,10,,,,,,,,,,,,,,,,0.222
+639,TAU,2026,Favia stelligera,49,polyline,CGA,2026,Leg 2,TAU-1344,B,,,,0,FSTE,0,,0,,0,15,,,,,,,,,,,,,,,,0.147
+640,TAU,2026,Leptastrea purpurea,50,polyline,CGA,2026,Leg 2,TAU-1344,B,,,,0,LPUR,0,,0,EN,0,5,,,,,,,,,,,,,,,,0.05
+641,TAU,2026,Platygyra sp,51,polyline,CGA,2026,Leg 2,TAU-1344,B,,,,0,PLSP,0,,0,MD,0,10,,,,,,,,,,,,,,,,0.141
+642,TAU,2026,Favia sp,52,polyline,CGA,2026,Leg 2,TAU-1344,B,,,,0,FASP,0,,0,EN,0,8,,,,,,,,,,,,,,,,0.101
+643,TAU,2026,Leptastrea sp,53,polyline,CGA,2026,Leg 2,TAU-1344,B,,,,0,LEPT,0,,0,EN,0,3,,,,,,,,,,,,,,,,0.348
+644,TAU,2026,Favia stelligera,54,polyline,CGA,2026,Leg 2,TAU-1344,B,,,,0,FSTE,0,,0,,0,3,,,,,,,,,,,,,,,,0.087
+645,TAU,2026,Platygyra sp,55,polyline,CGA,2026,Leg 2,TAU-1344,B,,,,0,PLSP,0,,0,MD,0,4,,,,,,,,,,,,,,,,0.162
+646,TAU,2026,Favia sp,56,polyline,CGA,2026,Leg 2,TAU-1344,B,,,,0,FASP,0,,0,EN,0,9,,,,,,,,,,,,,,,,0.055
+647,TAU,2026,Favia sp,57,polyline,CGA,2026,Leg 2,TAU-1344,B,,,,0,FASP,0,,0,EN,0,5,,,,,,,,,,,,,,,,0.056
+648,TAU,2026,Porites sp,58,polyline,CGA,2026,Leg 2,TAU-1344,B,,,,0,POSP,0,,0,MD,0,1,,,,,,,,,,,,,,,,0.082
+649,TAU,2026,Astreopora sp,59,polyline,CGA,2026,Leg 2,TAU-1344,B,,,,0,ASSP,0,,0,EN,0,3,,,,,,,,,,,,,,,,0.404
+650,TAU,2026,Favia sp,60,polyline,CGA,2026,Leg 2,TAU-1344,B,,,,0,FASP,0,,0,MD,0,9,,,,,,,,,,,,,,,,0.2
+651,TAU,2026,Astrea sp,61,polyline,CGA,2026,Leg 2,TAU-1344,B,,,,0,ASTS,0,,0,EN,0,9,,,,,,,,,,,,,,,,0.118
+652,TAU,2026,Pavona chiriquiensis,62,polyline,CGA,2026,Leg 2,TAU-1344,B,,,,0,PCHI,0,,0,EN,0,7,,,,,,,,,,,,,,,,0.117
+653,TAU,2026,Galaxea sp,63,polyline,CGA,2026,Leg 2,TAU-1344,B,,,,0,GASP,0,,0,EN,0,10,,,,,,,,,,,,,,,,0.115
+654,TAU,2026,Favia sp,64,polyline,CGA,2026,Leg 2,TAU-1344,B,,,,0,FASP,0,,0,MD,0,10,,,,,,,,,,,,,,,,0.109
+656,TAU,2026,Astrea sp,65,polyline,CGA,2026,Leg 2,TAU-1344,B,,,,0,ASTS,0,,0,EN,0,20,,,,,,,,,,,,,,,,0.167
+657,TAU,2026,Favia sp,66,polyline,CGA,2026,Leg 2,TAU-1344,B,,,,0,FASP,0,,0,EN,0,60,,,,,,,,,,,,,,,,0.136
+658,TAU,2026,Astreopora sp,67,polyline,CGA,2026,Leg 2,TAU-1344,B,,,,0,ASSP,0,,0,EN,0,30,,,,,,,,,,,,,,,,0.245
+659,TAU,2026,Porites lobata,68,polyline,CGA,2026,Leg 2,TAU-1344,B,,,,0,PLOB,0,,0,MD,0,10,,,,,,,,,,,,,,,,0.371
+1221,TAU,2026,Porites sp,69,polyline,CGA,2026,Leg 2,TAU-1344,B,,,1,0,POSP,0,,0,EN,0,10,,,,,,,,,,,,,,,,0.077
+1235,TAU,2026,Fungia sp,1,polyline,LEERM,2026,Leg 2,TAU-1344,A,0,2.5,1,0,FUSP,0,,0,FL,0,0,,,,,,,BLE,95,3,,,,,,,0.081
+1236,TAU,2026,Leptastrea sp,2,polyline,LEERM,2026,Leg 2,TAU-1344,A,0,2.5,1,0,LEPT,0,,0,EN,0,3,,,,,,,,,,,,,,,,0.259
+1240,TAU,2026,Favites sp,4,polyline,LEERM,2026,Leg 2,TAU-1344,A,0,2.5,1,0,FAVS,0,,0,MD,0,25,,,,,,,,,,,,,,,,0.16
+1241,TAU,2026,Lobophyllia sp,5,polyline,LEERM,2026,Leg 2,TAU-1344,A,0,2.5,1,0,LOBS,0,,0,MD,0,50,,,,,,,,,,,,,,,,0.143
+1242,TAU,2026,Galaxea sp,6,polyline,LEERM,2026,Leg 2,TAU-1344,A,0,2.5,1,0,GASP,0,,0,EN,0,40,,,,,,,,,,,,,,,,0.122
+1243,TAU,2026,Leptastrea sp,7,polyline,LEERM,2026,Leg 2,TAU-1344,A,0,2.5,1,0,LEPT,0,,0,EN,0,20,,,,,,,,,,,,,,,,0.19
+1244,TAU,2026,Phymastrea sp,9,polyline,LEERM,2026,Leg 2,TAU-1344,A,0,2.5,1,0,PHSP,0,,0,EN,0,50,,,,,,,,,,,,,,,,0.124
+1246,TAU,2026,Pavona chiriquiensis,10,polyline,LEERM,2026,Leg 2,TAU-1344,A,0,2.5,1,0,PCHI,0,,0,EN,0,8,,,,,,,,,,,,,,,,0.083
+1247,TAU,2026,Favites sp,11,polyline,LEERM,2026,Leg 2,TAU-1344,A,0,2.5,1,0,FAVS,0,,0,EN,0,15,,,,,,,BLE,30,2,,,,,,,0.102
+1248,TAU,2026,Cyphastrea sp,12,polyline,LEERM,2026,Leg 2,TAU-1344,A,0,2.5,1,0,CYPS,0,,0,EN,0,10,,,,,,,FUG,100,,,,,,,,0.293
+1249,TAU,2026,Favites sp,13,polyline,LEERM,2026,Leg 2,TAU-1344,A,0,1,1,0,FAVS,-1,TURFH,0,EN,0,0,,,,,,,,,,,,,,,,0.02
+1250,TAU,2026,Porites sp,14,polyline,LEERM,2026,Leg 2,TAU-1344,A,0,2.5,1,0,POSP,0,,0,EN,0,10,,,,,,,,,,,,,,,,0.076
+1251,TAU,2026,Pocillopora sp,15,polyline,LEERM,2026,Leg 2,TAU-1344,A,0,1,1,0,POCS,-1,TURFH,0,BR,0,0,,,,,,,,,,,,,,,,0.017
+1260,TAU,2026,Echinophyllia sp,16,polyline,LEERM,2026,Leg 2,TAU-1344,A,0,1,1,0,ECHL,-1,TURFH,0,LA,0,0,,,,,,,,,,,,,,,,0.038
+1262,TAU,2026,Astreopora sp,17,polyline,LEERM,2026,Leg 2,TAU-1344,A,0,2.5,1,0,ASSP,0,,0,MD,0,4,,,,,,,,,,,,,,,,0.233
+1263,TAU,2026,Leptastrea sp,18,polyline,LEERM,2026,Leg 2,TAU-1344,A,0,1,1,0,LEPT,-1,TURFH,0,EN,0,0,,,,,,,,,,,,,,,,0.042
+1264,TAU,2026,Montipora sp,19,polyline,LEERM,2026,Leg 2,TAU-1344,A,0,2.5,1,0,MOSP,0,,0,EN,0,0,,,,,,,,,,,,,,,,0.114
+1265,TAU,2026,Psammocora sp,20,polyline,LEERM,2026,Leg 2,TAU-1344,A,0,2.5,1,0,PSSP,0,,0,MD,0,0,,,,,,,,,,,,,,,,0.07
+1266,TAU,2026,Pavona sp,21,polyline,LEERM,2026,Leg 2,TAU-1344,A,0,2.5,1,0,PAVS,0,,0,ML,0,6,,,,,,,,,,,,,,,,0.121
+1267,TAU,2026,Pavona chiriquiensis,22,polyline,LEERM,2026,Leg 2,TAU-1344,A,0,2.5,1,0,PCHI,0,,0,EN,0,3,,,,,,,,,,,,,,,,0.1
+1268,TAU,2026,Montipora sp,23,polyline,LEERM,2026,Leg 2,TAU-1344,A,0,1,1,0,MOSP,-1,TURFH,0,EN,0,0,,,,,,,,,,,,,,,,0.042
+1269,TAU,2026,Montipora sp,24,polyline,LEERM,2026,Leg 2,TAU-1344,A,0,2.5,1,0,MOSP,0,,-1,EN,0,0,,,,,,,,,,,,,,,,0.029
+1270,TAU,2026,Echinopora sp,25,polyline,LEERM,2026,Leg 2,TAU-1344,A,0,2.5,1,0,ECHP,0,,0,EN,0,2,,,,,,,,,,,,,,,,0.065
+1271,TAU,2026,Astrea sp,26,polyline,LEERM,2026,Leg 2,TAU-1344,A,0,2.5,1,0,ASTS,0,,-1,EN,0,0,,,,,,,,,,,,,,,,0.023
+1295,TAU,2026,Favites sp,28,polyline,LEERM,2026,Leg 2,TAU-1344,A,0,2.5,1,0,FAVS,0,,0,EN,0,20,,,,,,,,,,,,,,,,0.231
+1296,TAU,2026,Leptastrea sp,29,polyline,LEERM,2026,Leg 2,TAU-1344,A,0,2.5,1,0,LEPT,0,,0,EN,0,20,,,,,,,,,,,,,,,,0.439
+1297,TAU,2026,Favites sp,31,polyline,LEERM,2026,Leg 2,TAU-1344,A,0,2.5,1,0,FAVS,0,,0,EN,0,5,,,,,,,,,,,,,,,,0.205
+1298,TAU,2026,Favites sp,32,polyline,LEERM,2026,Leg 2,TAU-1344,A,0,2.5,1,0,FAVS,0,,0,MD,0,10,,,,,,,,,,,,,,,,0.062
+1299,TAU,2026,Pavona chiriquiensis,33,polyline,LEERM,2026,Leg 2,TAU-1344,A,0,2.5,1,0,PCHI,0,,0,EN,0,3,,,,,,,,,,,,,,,,0.045
+1300,TAU,2026,Echinopora sp,34,polyline,LEERM,2026,Leg 2,TAU-1344,A,0,2.5,1,0,ECHP,0,,0,EN,0,8,,,,,,,,,,,,,,,,0.193
+1301,TAU,2026,Favia sp,35,polyline,LEERM,2026,Leg 2,TAU-1344,A,0,2.5,1,0,FASP,0,,0,MD,0,2,,,,,,,,,,,,,,,,0.124
+1302,TAU,2026,Montipora sp,36,polyline,LEERM,2026,Leg 2,TAU-1344,A,0,2.5,1,0,MOSP,0,,0,EN,0,15,,,,,,,,,,,,,,,,0.342
+1303,TAU,2026,Montipora sp,37,polyline,LEERM,2026,Leg 2,TAU-1344,A,0,2.5,1,0,MOSP,0,,0,EN,0,25,,,,,,,,,,,,,,,,0.227
+1304,TAU,2026,Favia sp,38,polyline,LEERM,2026,Leg 2,TAU-1344,A,0,2.5,1,0,FASP,0,,0,MD,0,60,,,,,,,,,,,,,,,,0.051
+1305,TAU,2026,Acanthastrea sp,39,polyline,LEERM,2026,Leg 2,TAU-1344,A,0,2.5,1,0,ACAS,0,,0,EN,0,20,,,,,,,,,,,,,,,,0.067
+1308,TAU,2026,Astrea sp,42,polyline,LEERM,2026,Leg 2,TAU-1344,A,0,2.5,1,0,ASTS,0,,0,EN,0,50,,,,,,,,,,,,,,,,0.094
+1309,TAU,2026,Favites sp,43,polyline,LEERM,2026,Leg 2,TAU-1344,A,0,2.5,1,0,FAVS,0,,0,MD,0,7,,,,,,,,,,,,,,,,0.151
+1310,TAU,2026,Montipora sp,44,polyline,LEERM,2026,Leg 2,TAU-1344,A,0,2.5,1,0,MOSP,0,,0,EN,0,45,,,,,,,,,,,,,,,,0.04
+1312,TAU,2026,Montipora sp,46,polyline,LEERM,2026,Leg 2,TAU-1344,A,0,2.5,1,0,MOSP,0,,0,LA,0,5,,,,,,,,,,,,,,,,0.055
+1313,TAU,2026,Montipora sp,47,polyline,LEERM,2026,Leg 2,TAU-1344,A,0,2.5,1,0,MOSP,0,,0,EN,0,30,,,,,,,,,,,,,,,,0.792
+1314,TAU,2026,Leptastrea sp,48,polyline,LEERM,2026,Leg 2,TAU-1344,A,0,2.5,1,0,LEPT,0,,0,EN,0,5,,,,,,,,,,,,,,,,0.086
+1315,TAU,2026,Leptastrea sp,49,polyline,LEERM,2026,Leg 2,TAU-1344,A,0,2.5,1,0,LEPT,0,,0,EN,0,65,,,,,,,,,,,,,,,,0.161
+1316,TAU,2026,Favites sp,51,polyline,LEERM,2026,Leg 2,TAU-1344,A,0,2.5,1,0,FAVS,0,,0,EN,0,10,,,,,,,,,,,,,,,,0.124
+1317,TAU,2026,Montipora sp,52,polyline,LEERM,2026,Leg 2,TAU-1344,A,0,2.5,1,0,MOSP,0,,0,EN,0,7,,,,,,,,,,,,,,,,0.381
+1321,TAU,2026,Favites sp,53,polyline,LEERM,2026,Leg 2,TAU-1344,A,0,2.5,1,0,FAVS,0,,0,EN,0,5,,,,,,,,,,,,,,,,0.158
+1322,TAU,2026,Favites sp,54,polyline,LEERM,2026,Leg 2,TAU-1344,A,0,2.5,1,0,FAVS,0,,0,EN,0,30,,,,,,,,,,,,,,,,0.146
+1323,TAU,2026,Favites sp,55,polyline,LEERM,2026,Leg 2,TAU-1344,A,0,2.5,1,0,FAVS,0,,0,EN,0,2,,,,,,,,,,,,,,,,0.116
+1324,TAU,2026,Montipora sp,56,polyline,LEERM,2026,Leg 2,TAU-1344,A,0,2.5,1,0,MOSP,0,,0,EN,0,0,,,,,,,,,,,,,,,,0.044
+1325,TAU,2026,Porites sp,57,polyline,LEERM,2026,Leg 2,TAU-1344,A,0,2.5,1,0,POSP,0,,0,EN,0,5,,,,,,,BLE,25,2,,,,,,,0.094
+1363,TAU,2026,Leptastrea sp,58,polyline,LEERM,2026,Leg 2,TAU-1344,A,0,2.5,1,0,LEPT,0,,0,EN,0,10,,,,,,,,,,,,,,,,0.055
+1364,TAU,2026,Favia stelligera,59,polyline,LEERM,2026,Leg 2,TAU-1344,A,0,2.5,1,0,FSTE,0,,0,EN,0,15,,,,,,,,,,,,,,,,0.142
+1365,TAU,2026,Platygyra daedalea,60,polyline,LEERM,2026,Leg 2,TAU-1344,A,0,2.5,1,0,PLDA,0,,0,MD,0,10,,,,,,,,,,,,,,,,0.143
+1366,TAU,2026,Favites sp,61,polyline,LEERM,2026,Leg 2,TAU-1344,A,0,2.5,1,0,FAVS,0,,0,EN,0,8,,,,,,,,,,,,,,,,0.112
+1367,TAU,2026,Favites sp,62,polyline,LEERM,2026,Leg 2,TAU-1344,A,0,2.5,1,0,FAVS,0,,0,EN,0,10,,,,,,,,,,,,,,,,0.375
+1368,TAU,2026,Favites sp,63,polyline,LEERM,2026,Leg 2,TAU-1344,A,0,2.5,1,0,FAVS,0,,0,MD,0,6,,,,,,,,,,,,,,,,0.155
+1369,TAU,2026,Favites sp,64,polyline,LEERM,2026,Leg 2,TAU-1344,A,0,2.5,1,0,FAVS,0,,0,EN,0,5,,,,,,,,,,,,,,,,0.056
+1370,TAU,2026,Astreopora sp,66,polyline,LEERM,2026,Leg 2,TAU-1344,A,0,2.5,1,0,ASSP,0,,0,EN,0,4,,,,,,,,,,,,,,,,0.402
+1371,TAU,2026,Porites sp,67,polyline,LEERM,2026,Leg 2,TAU-1344,A,0,2.5,1,0,POSP,0,,0,MD,0,0,,,,,,,,,,,,,,,,0.086
+1372,TAU,2026,Leptastrea sp,69,polyline,LEERM,2026,Leg 2,TAU-1344,A,0,2.5,1,0,LEPT,0,,0,EN,0,60,,,,,,,,,,,,,,,,0.298
+1374,TAU,2026,Favites sp,71,polyline,LEERM,2026,Leg 2,TAU-1344,A,0,2.5,1,0,FAVS,0,,0,EN,0,50,,,,,,,,,,,,,,,,0.085
+1376,TAU,2026,Favites sp,73,polyline,LEERM,2026,Leg 2,TAU-1344,A,0,2.5,1,0,FAVS,0,,0,EN,0,9,,,,,,,,,,,,,,,,0.117
+1377,TAU,2026,Galaxea sp,74,polyline,LEERM,2026,Leg 2,TAU-1344,A,0,2.5,1,0,GASP,0,,0,EN,0,8,,,,,,,,,,,,,,,,0.125
+1378,TAU,2026,Favites sp,76,polyline,LEERM,2026,Leg 2,TAU-1344,A,0,2.5,1,0,FAVS,0,,0,EN,0,40,,,,,,,,,,,,,,,,0.226
+1379,TAU,2026,Leptastrea sp,78,polyline,LEERM,2026,Leg 2,TAU-1344,A,0,2.5,1,0,LEPT,0,,0,EN,0,10,,,,,,,,,,,,,,,,0.203
+1381,TAU,2026,Montipora sp,80,polyline,LEERM,2026,Leg 2,TAU-1344,A,0,2.5,1,0,MOSP,0,,0,EN,0,5,,,,,,,,,,,,,,,,0.076
+1382,TAU,2026,Porites sp,81,polyline,LEERM,2026,Leg 2,TAU-1344,A,0,2.5,1,0,POSP,0,,0,MD,0,0,,,,,,,,,,,,,,,,0.088
+1383,TAU,2026,Pavona chiriquiensis,82,polyline,LEERM,2026,Leg 2,TAU-1344,A,0,2.5,1,0,PCHI,0,,0,EN,0,5,,,,,,,,,,,,,,,,0.119
+1384,TAU,2026,Montipora sp,83,polyline,LEERM,2026,Leg 2,TAU-1344,A,0,2.5,1,0,MOSP,0,,0,EN,0,20,,,,,,,,,,,,,,,,0.12
+1385,TAU,2026,Porites sp,84,polyline,LEERM,2026,Leg 2,TAU-1344,A,0,2.5,1,0,POSP,0,,0,MD,0,8,,,,,,,,,,,,,,,,0.368
+1386,TAU,2026,Montipora sp,85,polyline,LEERM,2026,Leg 2,TAU-1344,A,0,2.5,1,0,MOSP,0,,0,EN,0,10,,,,,,,,,,,,,,,,0.067
+1387,TAU,2026,Montipora sp,86,polyline,LEERM,2026,Leg 2,TAU-1344,A,0,2.5,1,0,MOSP,0,,0,EN,0,3,,,,,,,,,,,,,,,,0.089
+1388,TAU,2026,Pocillopora sp,87,polyline,LEERM,2026,Leg 2,TAU-1344,A,0,1,1,0,POCS,-1,TURFH,0,MD,0,0,,,,,,,,,,,,,,,,0.016
+1389,TAU,2026,Pavona chiriquiensis,88,polyline,LEERM,2026,Leg 2,TAU-1344,A,0,1,1,0,PCHI,-1,CORAL,0,EN,0,0,,,,,,,,,,,,,,,,0.049
+1390,TAU,2026,Astrea sp,89,polyline,LEERM,2026,Leg 2,TAU-1344,A,0,2.5,1,0,ASTS,0,,0,MD,0,40,,,,,,,,,,,,,,,,0.062
+1391,TAU,2026,Favites sp,90,polyline,LEERM,2026,Leg 2,TAU-1344,A,0,2.5,1,0,FAVS,0,,0,EN,0,10,,,,,,,,,,,,,,,,0.174
+344,TAU,2026,Astreopora sp,1,polyline,MW,2026,SE2602,TAU-1344,B,0,2.5,1,0,ASSP,0,,0,MD,0,2,FISH,2,,,,,,,,,,,,,,0.234
+345,TAU,2026,Fungia sp,2,polyline,MW,2026,SE2602,TAU-1344,B,0,2.5,1,0,FUSP,0,,0,FL,0,0,GAST,90,,,,,,,,,,,,,,0.079
+346,TAU,2026,Leptastrea sp,3,polyline,MW,2026,SE2602,TAU-1344,B,0,2.5,1,0,LEPT,0,,0,EN,0,15,,,,,,,,,,,,,,,,0.257
+347,TAU,2026,Leptastrea sp,4,polyline,MW,2026,SE2602,TAU-1344,B,0,2.5,1,0,LEPT,0,,0,EN,0,4,,,,,,,,,,,,,,,,0.065
+348,TAU,2026,Goniastrea sp,5,polyline,MW,2026,SE2602,TAU-1344,B,0,2.5,1,0,GONS,0,,0,MD,0,15,,,,,,,,,,,,,,,,0.16
+349,TAU,2026,Leptastrea sp,6,polyline,MW,2026,SE2602,TAU-1344,B,0,2.5,1,0,LEPT,0,,0,EN,0,7,,,,,,,,,,,,,,,,0.096
+350,TAU,2026,Lobophyllia sp,7,polyline,MW,2026,SE2602,TAU-1344,B,0,2.5,1,0,LOBS,0,,0,MD,0,25,,,,,,,,,,,,,,,,0.122
+351,TAU,2026,Galaxea sp,8,polyline,MW,2026,SE2602,TAU-1344,B,0,2.5,1,0,GASP,0,,0,EN,0,20,,,,,,,,,,,,,,,,0.119
+352,TAU,2026,Leptastrea sp,9,polyline,MW,2026,SE2602,TAU-1344,B,0,2.5,1,0,LEPT,0,,0,EN,0,17,,,,,,,,,,,,,,,,0.186
+353,TAU,2026,Leptastrea sp,10,polyline,MW,2026,SE2602,TAU-1344,B,0,2.5,1,0,LEPT,0,,0,EN,0,10,,,,,,,,,,,,,,,,0.052
+354,TAU,2026,Leptastrea sp,12,polyline,MW,2026,SE2602,TAU-1344,B,0,2.5,1,0,LEPT,0,,0,EN,0,25,PRED,5,,,,,,,,,,,,,,0.09
+355,TAU,2026,Leptastrea sp,13,polyline,MW,2026,SE2602,TAU-1344,B,0,2.5,1,0,LEPT,0,,0,EN,0,16,,,,,,,,,,,,,,,,0.165
+357,TAU,2026,Leptastrea sp,15,polyline,MW,2026,SE2602,TAU-1344,B,0,2.5,1,0,LEPT,0,,0,MD,0,20,,,,,,,,,,,,,,,,0.153
+359,TAU,2026,Leptastrea sp,18,polyline,MW,2026,SE2602,TAU-1344,B,0,2.5,1,0,LEPT,-1,TURFH,0,EN,0,,,,,,,,,,,,,,,,,0.021
+360,TAU,2026,Leptastrea sp,19,polyline,MW,2026,SE2602,TAU-1344,B,0,2.5,1,0,LEPT,0,,0,EN,0,5,,,,,,,,,,,,,,,,0.072
+362,TAU,2026,Favites sp,21,polyline,MW,2026,SE2602,TAU-1344,B,0,2.5,1,0,FAVS,0,,0,EN,0,8,,,,,,,,,,,,,,,,0.066
+365,TAU,2026,Goniastrea sp,24,polyline,MW,2026,SE2602,TAU-1344,B,0,2.5,1,0,GONS,0,,0,MD,0,13,,,,,,,,,,,,,,,,0.152
+367,TAU,2026,Porites sp,28,polyline,MW,2026,SE2602,TAU-1344,B,0,2.5,1,0,POSP,0,,0,LA,0,18,,,,,,,,,,,,,,,,0.596
+368,TAU,2026,Montipora sp,29,polyline,MW,2026,SE2602,TAU-1344,B,0,2.5,1,0,MOSP,0,,0,EN,0,15,,,,,,,,,,,,,,,,0.448
+369,TAU,2026,Pavona sp,30,polyline,MW,2026,SE2602,TAU-1344,B,0,2.5,1,0,PAVS,0,,0,ML,0,1,,,,,,,,,,,,,,,,0.129
+370,TAU,2026,Porites sp,31,polyline,MW,2026,SE2602,TAU-1344,B,0,2.5,1,0,POSP,0,,0,EN,0,3,,,,,,,,,,,,,,,,0.139
+371,TAU,2026,Leptastrea sp,32,polyline,MW,2026,SE2602,TAU-1344,B,0,2.5,1,0,LEPT,0,,0,EN,0,4,,,,,,,,,,,,,,,,0.091
+372,TAU,2026,Leptastrea sp,33,polyline,MW,2026,SE2602,TAU-1344,B,0,2.5,1,0,LEPT,0,,0,EN,0,15,,,,,,,,,,,,,,,,0.127
+373,TAU,2026,Montipora sp,34,polyline,MW,2026,SE2602,TAU-1344,B,0,2.5,1,0,MOSP,0,,0,EN,0,8,,,,,,,,,,,,,,,,0.392
+374,TAU,2026,Leptastrea sp,35,polyline,MW,2026,SE2602,TAU-1344,B,0,2.5,1,0,LEPT,0,,0,EN,0,20,,,,,,,,,,,,,,,,0.156
+375,TAU,2026,Leptastrea sp,36,polyline,MW,2026,SE2602,TAU-1344,B,0,2.5,1,0,LEPT,0,,0,EN,0,36,,,,,,,,,,,,,,,,0.233
+376,TAU,2026,Favia sp,37,polyline,MW,2026,SE2602,TAU-1344,B,0,2.5,1,0,FASP,0,,0,MD,0,3,,,,,,,,,,,,,,,,0.132
+377,TAU,2026,Echinopora sp,38,polyline,MW,2026,SE2602,TAU-1344,B,0,2.5,1,0,ECHP,0,,0,EN,0,10,,,,,,,,,,,,,,,,0.14
+378,TAU,2026,Leptastrea sp,40,polyline,MW,2026,SE2602,TAU-1344,B,0,2.5,1,0,LEPT,0,,0,EN,0,20,,,,,,,,,,,,,,,,0.431
+379,TAU,2026,Favia sp,44,polyline,MW,2026,SE2602,TAU-1344,B,0,2.5,1,0,FASP,0,,0,MD,0,25,,,,,,,,,,,,,,,,0.113
+380,TAU,2026,Favia stelligera,45,polyline,MW,2026,SE2602,TAU-1344,B,0,2.5,1,0,FSTE,0,,0,MD,0,28,,,,,,,,,,,,,,,,0.156
+381,TAU,2026,Leptastrea sp,46,polyline,MW,2026,SE2602,TAU-1344,B,0,2.5,1,0,LEPT,0,,0,EN,0,3,,,,,,,,,,,,,,,,0.163
+382,TAU,2026,Leptastrea sp,47,polyline,MW,2026,SE2602,TAU-1344,B,0,2.5,1,0,LEPT,0,,0,EN,0,30,,,,,,,,,,,,,,,,0.149
+383,TAU,2026,Leptastrea sp,48,polyline,MW,2026,SE2602,TAU-1344,B,0,2.5,1,0,LEPT,0,,0,EN,0,15,,,,,,,,,,,,,,,,0.12
+385,TAU,2026,Porites sp,50,polyline,MW,2026,SE2602,TAU-1344,B,0,2.5,1,0,POSP,0,,0,EN,0,2,PRED,14,,,,,,,,,,,,,,0.101
+386,TAU,2026,Montipora sp,51,polyline,MW,2026,SE2602,TAU-1344,B,0,2.5,1,0,MOSP,0,,0,EN,0,2,,,,,,,,,,,,,,,,0.088
+387,TAU,2026,Montipora sp,52,polyline,MW,2026,SE2602,TAU-1344,B,0,2.5,1,0,MOSP,0,,0,EN,0,6,,,,,,,,,,,,,,,,0.08
+388,TAU,2026,Leptastrea sp,53,polyline,MW,2026,SE2602,TAU-1344,B,0,2.5,1,0,LEPT,0,,0,EN,0,7,,,,,,,,,,,,,,,,0.075
+389,TAU,2026,Leptastrea sp,54,polyline,MW,2026,SE2602,TAU-1344,B,0,2.5,1,0,LEPT,0,,0,EN,0,40,,,,,,,,,,,,,,,,0.126
+391,TAU,2026,Leptastrea sp,56,polyline,MW,2026,SE2602,TAU-1344,B,0,2.5,1,0,LEPT,0,,0,EN,0,35,,,,,,,,,,,,,,,,0.102
+392,TAU,2026,Leptastrea sp,57,polyline,MW,2026,SE2602,TAU-1344,B,0,2.5,1,0,LEPT,0,,0,EN,0,3,,,,,,,,,,,,,,,,0.407
+393,TAU,2026,Favites sp,58,polyline,MW,2026,SE2602,TAU-1344,B,0,2.5,1,0,FAVS,0,,0,MD,0,15,,,,,,,,,,,,,,,,0.127
+394,TAU,2026,Platygyra daedalea,59,polyline,MW,2026,SE2602,TAU-1344,B,0,2.5,1,0,PLDA,0,,0,MD,0,5,,,,,,,,,,,,,,,,0.154
+395,TAU,2026,Leptastrea sp,60,polyline,MW,2026,SE2602,TAU-1344,B,0,2.5,1,0,LEPT,0,,0,EN,0,36,,,,,,,,,,,,,,,,0.412
+396,TAU,2026,Favites sp,61,polyline,MW,2026,SE2602,TAU-1344,B,0,2.5,1,0,FAVS,0,,0,MD,0,3,FISH,2,,,,,,,,,,,,,,0.164
+397,TAU,2026,Leptastrea sp,62,polyline,MW,2026,SE2602,TAU-1344,B,0,2.5,1,0,LEPT,0,,0,EN,0,2,,,,,,,,,,,,,,,,0.119
+398,TAU,2026,Porites sp,63,polyline,MW,2026,SE2602,TAU-1344,B,0,2.5,1,0,POSP,0,,0,MD,0,2,,,,,,,,,,,,,,,,0.089
+400,TAU,2026,Leptastrea transversa,66,polyline,MW,2026,SE2602,TAU-1344,B,0,2.5,1,0,LTRA,0,,0,EN,0,5,,,,,,,,,,,,,,,,0.199
+401,TAU,2026,Leptastrea sp,67,polyline,MW,2026,SE2602,TAU-1344,B,0,2.5,1,0,LEPT,0,,0,EN,0,25,,,,,,,,,,,,,,,,0.236
+402,TAU,2026,Montipora sp,68,polyline,MW,2026,SE2602,TAU-1344,B,0,2.5,1,0,MOSP,0,,0,EN,0,2,,,,,,,,,,,,,,,,0.074
+403,TAU,2026,Porites sp,69,polyline,MW,2026,SE2602,TAU-1344,B,0,2.5,1,0,POSP,0,,0,MD,0,0,,,,,,,,,,,,,,,,0.086
+404,TAU,2026,Leptastrea sp,70,polyline,MW,2026,SE2602,TAU-1344,B,0,2.5,1,0,LEPT,0,,0,EN,0,16,,,,,,,,,,,,,,,,0.218
+405,TAU,2026,Porites lobata,71,polyline,MW,2026,SE2602,TAU-1344,B,0,2.5,1,0,PLOB,0,,0,MD,0,10,,,,,,,,,,,,,,,,0.375
+406,TAU,2026,Pavona varians,72,polyline,MW,2026,SE2602,TAU-1344,B,0,2.5,1,0,PVAR,0,,0,EN,0,3,PRED,3,,,,,,,,,,,,,,0.15
+407,TAU,2026,Favites sp,73,polyline,MW,2026,SE2602,TAU-1344,B,0,2.5,1,0,FAVS,0,,0,MD,0,5,,,,,,,,,,,,,,,,0.126
+828,TAU,2026,Platygyra sp,74,polyline,MW,2026,SE2602,TAU-1344,B,0,2.5,1,0,PLSP,0,,0,MD,0,10,,,,,,,,,,,,,,,,0.178
+829,TAU,2026,Favites sp,75,polyline,MW,2026,SE2602,TAU-1344,B,0,2.5,1,0,FAVS,-1,TURFH,0,EN,0,,,,,,,,,,,,,,,,,0.04
+830,TAU,2026,Leptastrea sp,76,polyline,MW,2026,SE2602,TAU-1344,B,0,2.5,1,0,LEPT,-1,TURFH,0,EN,0,,,,,,,,,,,,,,,,,0.024
+832,TAU,2026,Montipora sp,77,polyline,MW,2026,SE2602,TAU-1344,B,0,2.5,1,0,MOSP,0,,0,EN,0,35,,,,,,,,,,,,,,,,0.095
+833,TAU,2026,Porites sp,78,polyline,MW,2026,SE2602,TAU-1344,B,0,2.5,1,0,POSP,-1,TURFH,0,EN,0,,,,,,,,,,,,,,,,,0.029
+834,TAU,2026,Leptastrea sp,79,polyline,MW,2026,SE2602,TAU-1344,B,0,2.5,1,0,LEPT,0,,0,EN,0,2,,,,,,,,,,,,,,,,0.083
+835,TAU,2026,Porites sp,80,polyline,MW,2026,SE2602,TAU-1344,B,0,2.5,1,0,POSP,-1,TURFH,0,EN,0,,,,,,,,,,,,,,,,,0.039
+836,TAU,2026,Leptastrea sp,81,polyline,MW,2026,SE2602,TAU-1344,B,0,2.5,1,0,LEPT,0,,0,EN,0,35,,,,,,,,,,,,,,,,0.167
+841,TAU,2026,Leptastrea sp,83,polyline,MW,2026,SE2602,TAU-1344,B,0,2.5,1,0,LEPT,0,,0,EN,0,5,,,,,,,,,,,,,,,,0.098
+1281,TAU,2026,Leptastrea sp,85,polyline,MW,2026,SE2602,TAU-1344,B,0,2.5,1,0,LEPT,-1,TURFH,0,EN,0,,,,,,,,,,,,,,,,,0.02
+1282,TAU,2026,Lobophyllia sp,86,polyline,MW,2026,SE2602,TAU-1344,B,0,2.5,1,0,LOBS,0,,0,MD,0,45,,,,,,,,,,,,,,,,0.077
+1283,TAU,2026,Leptastrea sp,87,polyline,MW,2026,SE2602,TAU-1344,B,0,2.5,1,0,LEPT,0,,-1,EN,0,,,,,,,,,,,,,,,,,0.022
+1284,TAU,2026,Montipora sp,88,polyline,MW,2026,SE2602,TAU-1344,B,0,2.5,1,0,MOSP,0,,0,LA,0,15,,,,,,,,,,,,,,,,0.059
+1285,TAU,2026,Favites sp,89,polyline,MW,2026,SE2602,TAU-1344,B,0,2.5,1,0,FAVS,-1,TURFH,0,EN,0,,,,,,,,,,,,,,,,,0.025
+1286,TAU,2026,Leptastrea sp,90,polyline,MW,2026,SE2602,TAU-1344,B,0,2.5,1,0,LEPT,0,,0,EN,0,0,,,,,,,,,,,,,,,,0.056
+1287,TAU,2026,Leptastrea sp,74,polyline,MW,2026,SE2602,TAU-1344,B,0,2.5,1,0,LEPT,-1,TURFH,0,EN,0,,,,,,,,,,,,,,,,,0.023
+1288,TAU,2026,Montipora sp,91,polyline,MW,2026,SE2602,TAU-1344,B,0,2.5,1,0,MOSP,0,,0,EN,0,30,,,,,,,,,,,,,,,,0.088
+1289,TAU,2026,Favia sp,76,polyline,MW,2026,SE2602,TAU-1344,B,0,2.5,1,0,FASP,0,,0,MD,0,10,,,,,,,,,,,,,,,,0.05
+1291,TAU,2026,Pavona chiriquiensis,77,polyline,MW,2026,SE2602,TAU-1344,B,0,2.5,1,0,PCHI,0,,0,EN,0,5,,,,,,,,,,,,,,,,0.05
+1293,TAU,2026,Leptastrea sp,92,polyline,MW,2026,SE2602,TAU-1344,B,0,2.5,1,0,LEPT,0,,0,EN,0,1,,,,,,,,,,,,,,,,0.061
+1294,TAU,2026,Galaxea sp,78,polyline,MW,2026,SE2602,TAU-1344,B,0,2.5,1,0,GASP,0,,0,EN,0,5,,,,,,,,,,,,,,,,0.1
+683,TAU,2026,Fungia sp,1,polyline,SJD,2026,SE2602,TAU-1344,A,0,2.5,1,0,FUSP,0,,0,FL,0,0,,,,,,,BLE,85,3,,,,,,,0.088
+686,TAU,2026,Leptastrea sp,2,polyline,SJD,2026,SE2602,TAU-1344,A,0,2.5,1,0,LEPT,0,,0,EN,0,5,,,,,,,,,,,,,,,,0.36
+689,TAU,2026,Favites sp,5,polyline,SJD,2026,SE2602,TAU-1344,A,0,2.5,1,0,FAVS,0,,0,MD,0,2,,,,,,,,,,,,,,,,0.162
+693,TAU,2026,Astreopora sp,7,polyline,SJD,2026,SE2602,TAU-1344,A,0,2.5,1,0,ASSP,0,,0,MD,0,3,GAST,1,,,,,,,,,,,,,,0.226
+696,TAU,2026,Pavona duerdeni,8,polyline,SJD,2026,SE2602,TAU-1344,A,0,2.5,1,0,PDUE,0,,0,ML,0,0,,,,,,,,,,,,,,,,0.127
+700,TAU,2026,Pavona chiriquiensis,10,polyline,SJD,2026,SE2602,TAU-1344,A,0,2.5,1,0,PCHI,0,,0,EN,0,2,,,,,,,,,,,,,,,,0.092
+703,TAU,2026,Psammocora sp,11,polyline,SJD,2026,SE2602,TAU-1344,A,0,2.5,1,0,PSSP,0,,0,LA,0,1,,,,,,,,,,,,,,,,0.073
+704,TAU,2026,Pavona chiriquiensis,14,polyline,SJD,2026,SE2602,TAU-1344,A,0,2.5,1,0,PCHI,0,,0,EN,0,5,,,,,,,,,,,,,,,,0.097
+705,TAU,2026,Platygyra pini,15,polyline,SJD,2026,SE2602,TAU-1344,A,0,2.5,1,0,PPIN,0,,0,MD,0,15,,,,,,,,,,,,,,,,0.168
+706,TAU,2026,Favites sp,16,polyline,SJD,2026,SE2602,TAU-1344,A,0,1,1,0,FAVS,-1,TURFH,0,EN,0,0,,,,,,,,,,,,,,,,0.026
+707,TAU,2026,Lobophyllia sp,17,polyline,SJD,2026,SE2602,TAU-1344,A,0,2.5,1,0,LOBS,0,,0,MD,0,40,,,,,,,,,,,,,,,,0.146
+708,TAU,2026,Galaxea sp,18,polyline,SJD,2026,SE2602,TAU-1344,A,0,2.5,1,0,GASP,0,,0,EN,0,50,,,,,,,,,,,,,,,,0.125
+709,TAU,2026,Favites sp,19,polyline,SJD,2026,SE2602,TAU-1344,A,0,2.5,1,0,FAVS,0,,0,EN,0,1,,,,,,,,,,,,,,,,0.276
+710,TAU,2026,Favites sp,20,polyline,SJD,2026,SE2602,TAU-1344,A,0,2.5,1,0,FAVS,0,,0,EN,0,6,,,,,,,,,,,,,,,,0.157
+711,TAU,2026,Favites sp,21,polyline,SJD,2026,SE2602,TAU-1344,A,0,2.5,1,0,FAVS,0,,0,EN,0,8,,,,,,,,,,,,,,,,0.44
+712,TAU,2026,Pavona chiriquiensis,22,polyline,SJD,2026,SE2602,TAU-1344,A,0,1,1,0,PCHI,-1,TURFH,0,EN,0,0,,,,,,,,,,,,,,,,0.049
+713,TAU,2026,Favites sp,23,polyline,SJD,2026,SE2602,TAU-1344,A,0,2.5,1,0,FAVS,0,,0,EN,0,5,,,,,,,,,,,,,,,,0.081
+714,TAU,2026,Favites sp,25,polyline,SJD,2026,SE2602,TAU-1344,A,0,2.5,1,0,FAVS,0,,0,EN,0,3,,,,,,,,,,,,,,,,0.191
+716,TAU,2026,Porites sp,27,polyline,SJD,2026,SE2602,TAU-1344,A,0,2.5,1,0,POSP,0,,0,EN,0,2,,,,,,,,,,,,,,,,0.082
+717,TAU,2026,Favites sp,28,polyline,SJD,2026,SE2602,TAU-1344,A,0,2.5,1,0,FAVS,0,,0,MD,0,7,,,,,,,,,,,,,,,,0.151
+718,TAU,2026,Montipora sp,29,polyline,SJD,2026,SE2602,TAU-1344,A,0,2.5,1,0,MOSP,0,,0,LA,0,10,,,,,,,,,,,,,,,,0.591
+719,TAU,2026,Montipora sp,30,polyline,SJD,2026,SE2602,TAU-1344,A,0,2.5,1,0,MOSP,0,,0,EN,0,6,,,,,,,,,,,,,,,,0.272
+720,TAU,2026,Leptastrea sp,31,polyline,SJD,2026,SE2602,TAU-1344,A,0,2.5,1,0,LEPT,0,,0,EN,0,30,,,,,,,,,,,,,,,,0.17
+721,TAU,2026,Montipora sp,32,polyline,SJD,2026,SE2602,TAU-1344,A,0,1,1,0,MOSP,-1,TURFH,0,EN,0,0,,,,,,,,,,,,,,,,0.044
+722,TAU,2026,Montipora sp,33,polyline,SJD,2026,SE2602,TAU-1344,A,0,2.5,1,0,MOSP,0,,0,EN,0,2,,,,,,,,,,,,,,,,0.095
+755,TAU,2026,Porites sp,39,polyline,SJD,2026,SE2602,TAU-1344,A,0,2.5,1,0,POSP,0,,-1,EN,0,0,,,,,,,,,,,,,,,,0.03
+758,TAU,2026,Echinophyllia sp,42,polyline,SJD,2026,SE2602,TAU-1344,A,0,2.5,1,0,ECHL,0,,0,EN,0,10,,,,,,,,,,,,,,,,0.203
+759,TAU,2026,Favia sp,43,polyline,SJD,2026,SE2602,TAU-1344,A,0,2.5,1,0,FASP,0,,0,MD,0,2,,,,,,,,,,,,,,,,0.131
+764,TAU,2026,Montipora sp,50,polyline,SJD,2026,SE2602,TAU-1344,A,0,2.5,1,0,MOSP,0,,0,EN,0,15,,,,,,,,,,,,,,,,0.504
+765,TAU,2026,Leptastrea purpurea,53,polyline,SJD,2026,SE2602,TAU-1344,A,0,2.5,1,0,LPUR,0,,0,EN,0,70,,,,,,,,,,,,,,,,0.813
+767,TAU,2026,Montipora sp,55,polyline,SJD,2026,SE2602,TAU-1344,A,0,2.5,1,0,MOSP,0,,0,EN,0,4,,,,,,,,,,,,,,,,0.394
+769,TAU,2026,Porites sp,57,polyline,SJD,2026,SE2602,TAU-1344,A,0,2.5,1,0,POSP,0,,0,EN,0,3,PRED,35,,,,,,,,,,,,,,0.095
+770,TAU,2026,Montipora sp,58,polyline,SJD,2026,SE2602,TAU-1344,A,0,2.5,1,0,MOSP,0,,0,EN,0,10,,,,,,,,,,,,,,,,0.141
+771,TAU,2026,Porites sp,60,polyline,SJD,2026,SE2602,TAU-1344,A,0,2.5,1,0,POSP,0,,0,EN,0,20,PRED,2,,,,,,,,,,,,,,0.093
+773,TAU,2026,Porites sp,62,polyline,SJD,2026,SE2602,TAU-1344,A,0,2.5,1,0,POSP,0,,0,MD,0,4,,,,,,,BLE,40,2,,,,,,,0.372
+774,TAU,2026,Porites sp,63,polyline,SJD,2026,SE2602,TAU-1344,A,0,2.5,1,0,POSP,0,,0,MD,0,1,,,,,,,,,,,,,,,,0.085
+775,TAU,2026,Favia sp,64,polyline,SJD,2026,SE2602,TAU-1344,A,0,2.5,1,0,FASP,0,,0,EN,0,20,,,,,,,,,,,,,,,,0.091
+776,TAU,2026,Favites sp,65,polyline,SJD,2026,SE2602,TAU-1344,A,0,2.5,1,0,FAVS,0,,-1,EN,0,0,,,,,,,,,,,,,,,,0.047
+777,TAU,2026,Leptastrea bewickensis,67,polyline,SJD,2026,SE2602,TAU-1344,A,0,2.5,1,0,LBEW,0,,0,EN,0,1,,,,,,,,,,,,,,,,0.406
+778,TAU,2026,Favites sp,68,polyline,SJD,2026,SE2602,TAU-1344,A,0,2.5,1,0,FAVS,0,,0,MD,0,3,,,,,,,,,,,,,,,,0.127
+779,TAU,2026,Leptastrea sp,69,polyline,SJD,2026,SE2602,TAU-1344,A,0,2.5,1,0,LEPT,0,,0,EN,0,30,,,,,,,,,,,,,,,,0.369
+783,TAU,2026,Favites sp,75,polyline,SJD,2026,SE2602,TAU-1344,A,0,2.5,1,0,FAVS,0,,0,EN,0,70,,,,,,,,,,,,,,,,0.092
+784,TAU,2026,Leptastrea sp,76,polyline,SJD,2026,SE2602,TAU-1344,A,0,2.5,1,0,LEPT,0,,0,EN,0,3,,,,,,,,,,,,,,,,0.185
+785,TAU,2026,Porites sp,78,polyline,SJD,2026,SE2602,TAU-1344,A,0,2.5,1,0,POSP,0,,0,MD,0,1,,,,,,,,,,,,,,,,0.09
+788,TAU,2026,Pavona chiriquiensis,81,polyline,SJD,2026,SE2602,TAU-1344,A,0,2.5,1,0,PCHI,0,,-1,EN,0,0,,,,,,,,,,,,,,,,0.015
+790,TAU,2026,Favites sp,83,polyline,SJD,2026,SE2602,TAU-1344,A,0,2.5,1,0,FAVS,0,,0,EN,0,40,,,,,,,,,,,,,,,,0.088
+791,TAU,2026,Pavona chiriquiensis,84,polyline,SJD,2026,SE2602,TAU-1344,A,0,2.5,1,0,PCHI,0,,0,EN,0,5,,,,,,,BLE,40,2,,,,,,,0.062
+792,TAU,2026,Platygyra pini,85,polyline,SJD,2026,SE2602,TAU-1344,A,0,2.5,1,0,PPIN,0,,0,MD,0,2,,,,,,,,,,,,,,,,0.187
+793,TAU,2026,Leptastrea purpurea,86,polyline,SJD,2026,SE2602,TAU-1344,A,0,2.5,1,0,LPUR,0,,0,EN,0,2,,,,,,,,,,,,,,,,0.347
+794,TAU,2026,Favia stelligera,87,polyline,SJD,2026,SE2602,TAU-1344,A,0,2.5,1,0,FSTE,0,,0,EN,0,3,,,,,,,,,,,,,,,,0.156
+795,TAU,2026,Leptastrea purpurea,89,polyline,SJD,2026,SE2602,TAU-1344,A,0,2.5,1,0,LPUR,0,,0,EN,0,15,,,,,,,,,,,,,,,,0.053
+796,TAU,2026,Favites sp,90,polyline,SJD,2026,SE2602,TAU-1344,A,0,2.5,1,0,FAVS,0,,0,EN,0,3,,,,,,,,,,,,,,,,0.109
+797,TAU,2026,Oulophyllia sp,92,polyline,SJD,2026,SE2602,TAU-1344,A,0,2.5,1,0,OUSP,0,,0,MD,0,2,,,,,,,,,,,,,,,,0.15
+798,TAU,2026,Favia sp,94,polyline,SJD,2026,SE2602,TAU-1344,A,0,2.5,1,0,FASP,0,,0,MD,0,10,,,,,,,,,,,,,,,,0.051
+799,TAU,2026,Favia sp,95,polyline,SJD,2026,SE2602,TAU-1344,A,0,2.5,1,0,FASP,0,,0,MD,0,60,,,,,,,,,,,,,,,,0.182
+800,TAU,2026,Favites sp,96,polyline,SJD,2026,SE2602,TAU-1344,A,0,2.5,1,0,FAVS,0,,0,EN,0,5,,,,,,,,,,,,,,,,0.064
+801,TAU,2026,Favia sp,97,polyline,SJD,2026,SE2602,TAU-1344,A,0,2.5,1,0,FASP,0,,0,EN,0,25,,,,,,,,,,,,,,,,0.167
+802,TAU,2026,Leptastrea sp,98,polyline,SJD,2026,SE2602,TAU-1344,A,0,2.5,1,0,LEPT,0,,0,EN,0,30,,,,,,,,,,,,,,,,0.118
+804,TAU,2026,Favites sp,101,polyline,SJD,2026,SE2602,TAU-1344,A,0,2.5,1,0,FAVS,0,,0,EN,0,5,,,,,,,,,,,,,,,,0.079
+877,TAU,2026,Favites sp,103,polyline,SJD,2026,SE2602,TAU-1344,A,0,1,1,0,FAVS,-1,TURFH,0,EN,0,0,,,,,,,,,,,,,,,,0.029
+878,TAU,2026,Hydnophora sp,104,polyline,SJD,2026,SE2602,TAU-1344,A,0,1,1,0,HYSP,-1,TURFH,0,FO,0,0,,,,,,,,,,,,,,,,0.034
+879,TAU,2026,Acropora sp,105,polyline,SJD,2026,SE2602,TAU-1344,A,0,1,1,0,ACSP,-1,TURFH,0,EN,0,0,,,,,,,,,,,,,,,,0.044
+880,TAU,2026,Favites sp,106,polyline,SJD,2026,SE2602,TAU-1344,A,0,1,1,0,FAVS,-1,TURFH,0,EN,0,0,,,,,,,,,,,,,,,,0.021
+887,TAU,2026,Favia sp,107,polyline,SJD,2026,SE2602,TAU-1344,A,0,2.5,1,0,FASP,0,,0,EN,0,40,,,,,,,,,,,,,,,,0.086
+888,TAU,2026,Favia stelligera,108,polyline,SJD,2026,SE2602,TAU-1344,A,0,2.5,1,0,FSTE,0,,0,EN,0,5,,,,,,,,,,,,,,,,0.176
+889,TAU,2026,Galaxea sp,111,polyline,SJD,2026,SE2602,TAU-1344,A,0,2.5,1,0,GASP,0,,0,EN,0,3,,,,,,,,,,,,,,,,0.126
+890,TAU,2026,Leptastrea sp,112,polyline,SJD,2026,SE2602,TAU-1344,A,0,2.5,1,0,LEPT,0,,0,EN,0,15,,,,,,,,,,,,,,,,0.275
+891,TAU,2026,Astreopora sp,113,polyline,SJD,2026,SE2602,TAU-1344,A,0,2.5,1,0,ASSP,0,,0,MD,0,2,,,,,,,,,,,,,,,,0.171
+892,TAU,2026,Pavona varians,114,polyline,SJD,2026,SE2602,TAU-1344,A,0,2.5,1,0,PVAR,0,,0,EN,0,4,,,,,,,,,,,,,,,,0.141
+893,TAU,2026,Favites sp,115,polyline,SJD,2026,SE2602,TAU-1344,A,0,2.5,1,0,FAVS,0,,0,EN,0,10,,,,,,,,,,,,,,,,0.16
+181,ROS,2026,Astrea curta,1,polyline,LEERM,2026,Leg 2,ROS-5365,A,5,2.5,1,0,ACUR,0,,0,MD,0,0,,,,,,,,,,,,,,,,0.171
+182,ROS,2026,Astrea curta,2,polyline,LEERM,2026,Leg 2,ROS-5365,A,5,2.5,1,0,ACUR,0,,0,MD,0,2,,,,,,,,,,,,,,,,0.094
+183,ROS,2026,Fungia sp,3,polyline,LEERM,2026,Leg 2,ROS-5365,A,5,2.5,1,0,FUSP,0,,0,FL,0,0,,,,,,,BLE,60,2,,,,,,,0.1
+184,ROS,2026,Astrea curta,4,polyline,LEERM,2026,Leg 2,ROS-5365,A,5,2.5,1,0,ACUR,0,,0,MD,0,1,,,,,,,,,,,,,,,,0.11
+185,ROS,2026,Montipora sp,5,polyline,LEERM,2026,Leg 2,ROS-5365,A,5,2.5,1,0,MOSP,0,,0,EN,0,8,,,,,,,,,,,,,,,,0.167
+186,ROS,2026,Astrea curta,6,polyline,LEERM,2026,Leg 2,ROS-5365,A,5,2.5,1,0,ACUR,0,,0,MD,0,0,,,,,,,,,,,,,,,,0.129
+187,ROS,2026,Astrea curta,8,polyline,LEERM,2026,Leg 2,ROS-5365,A,5,2.5,1,0,ACUR,0,,0,MD,0,0,,,,,,,,,,,,,,,,0.107
+188,ROS,2026,Astrea curta,9,polyline,LEERM,2026,Leg 2,ROS-5365,A,5,2.5,1,0,ACUR,0,,0,MD,0,3,,,,,,,,,,,,,,,,0.108
+191,ROS,2026,Montipora sp,12,polyline,LEERM,2026,Leg 2,ROS-5365,A,5,2.5,1,0,MOSP,0,,0,EN,0,1,,,,,,,,,,,,,,,,0.084
+192,ROS,2026,Favia stelligera,13,polyline,LEERM,2026,Leg 2,ROS-5365,A,5,2.5,1,0,FSTE,0,,0,EN,0,0,,,,,,,,,,,,,,,,0.229
+193,ROS,2026,Favia stelligera,14,polyline,LEERM,2026,Leg 2,ROS-5365,A,5,2.5,1,0,FSTE,0,,0,EN,0,6,,,,,,,,,,,,,,,,0.296
+194,ROS,2026,Astrea curta,15,polyline,LEERM,2026,Leg 2,ROS-5365,A,5,2.5,1,0,ACUR,0,,0,MD,0,2,,,,,,,,,,,,,,,,0.085
+195,ROS,2026,Astrea curta,16,polyline,LEERM,2026,Leg 2,ROS-5365,A,5,2.5,1,0,ACUR,0,,0,MD,0,4,,,,,,,,,,,,,,,,0.106
+196,ROS,2026,Porites sp,17,polyline,LEERM,2026,Leg 2,ROS-5365,A,5,2.5,1,0,POSP,0,,0,MD,0,45,,,,,,,,,,,,,,,,0.238
+421,ROS,2026,Astrea curta,19,polyline,LEERM,2026,Leg 2,ROS-5365,A,5,2.5,1,0,ACUR,0,,0,MD,0,5,,,,,,,,,,,,,,,,0.182
+422,ROS,2026,Astrea curta,20,polyline,LEERM,2026,Leg 2,ROS-5365,A,5,2.5,1,0,ACUR,0,,0,MD,0,0,,,,,,,,,,,,,,,,0.131
+423,ROS,2026,Astrea curta,21,polyline,LEERM,2026,Leg 2,ROS-5365,A,5,2.5,1,0,ACUR,0,,0,MD,0,2,GAST,2,,,,,,,,,,,,,,0.133
+424,ROS,2026,Astrea curta,24,polyline,LEERM,2026,Leg 2,ROS-5365,A,5,2.5,1,0,ACUR,0,,0,MD,0,4,,,,,,,,,,,,,,,,0.181
+425,ROS,2026,Astrea curta,26,polyline,LEERM,2026,Leg 2,ROS-5365,A,5,2.5,1,0,ACUR,0,,0,MD,0,0,,,,,,,,,,,,,,,,0.092
+426,ROS,2026,Astrea curta,27,polyline,LEERM,2026,Leg 2,ROS-5365,A,5,2.5,1,0,ACUR,0,,0,MD,0,1,,,,,,,,,,,,,,,,0.113
+427,ROS,2026,Favia stelligera,28,polyline,LEERM,2026,Leg 2,ROS-5365,A,5,2.5,1,0,FSTE,0,,0,EN,0,5,FISH,1,,,,,,,,,,,,,,0.173
+428,ROS,2026,Favia stelligera,30,polyline,LEERM,2026,Leg 2,ROS-5365,A,5,2.5,1,0,FSTE,0,,0,EN,0,2,,,,,,,,,,,,,,,,0.105
+429,ROS,2026,Montipora sp,32,polyline,LEERM,2026,Leg 2,ROS-5365,A,5,2.5,1,0,MOSP,0,,0,EN,0,60,,,,,,,,,,,,,,,,0.117
+430,ROS,2026,Porites sp,33,polyline,LEERM,2026,Leg 2,ROS-5365,A,5,2.5,1,0,POSP,0,,0,EN,0,8,,,,,,,,,,,,,,,,0.073
+431,ROS,2026,Montipora sp,34,polyline,LEERM,2026,Leg 2,ROS-5365,A,5,2.5,1,0,MOSP,0,,0,EN,0,35,,,,,,,,,,,,,,,,0.809
+432,ROS,2026,Montipora sp,35,polyline,LEERM,2026,Leg 2,ROS-5365,A,5,2.5,1,0,MOSP,0,,0,EN,0,2,,,,,,,,,,,,,,,,0.224
+433,ROS,2026,Pavona varians,36,polyline,LEERM,2026,Leg 2,ROS-5365,A,5,2.5,1,0,PVAR,0,,0,EN,0,2,,,,,,,,,,,,,,,,0.054
+434,ROS,2026,Montipora sp,37,polyline,LEERM,2026,Leg 2,ROS-5365,A,5,2.5,1,0,MOSP,0,,0,EN,0,5,,,,,,,,,,,,,,,,0.045
+435,ROS,2026,Montipora sp,38,polyline,LEERM,2026,Leg 2,ROS-5365,A,5,2.5,1,0,MOSP,0,,0,EN,0,55,,,,,,,,,,,,,,,,0.161
+436,ROS,2026,Montipora sp,39,polyline,LEERM,2026,Leg 2,ROS-5365,A,5,2.5,1,0,MOSP,0,,0,EN,0,3,,,,,,,,,,,,,,,,0.238
+437,ROS,2026,Astrea curta,41,polyline,LEERM,2026,Leg 2,ROS-5365,A,5,2.5,1,0,ACUR,0,,0,MD,0,0,,,,,,,,,,,,,,,,0.128
+438,ROS,2026,Astrea curta,42,polyline,LEERM,2026,Leg 2,ROS-5365,A,5,2.5,1,0,ACUR,0,,0,MD,0,0,,,,,,,,,,,,,,,,0.087
+439,ROS,2026,Astrea curta,43,polyline,LEERM,2026,Leg 2,ROS-5365,A,5,2.5,1,0,ACUR,0,,0,MD,0,3,,,,,,,,,,,,,,,,0.181
+442,ROS,2026,Montipora sp,47,polyline,LEERM,2026,Leg 2,ROS-5365,A,5,2.5,1,0,MOSP,0,,0,EN,0,10,,,,,,,,,,,,,,,,0.267
+443,ROS,2026,Favia sp,48,polyline,LEERM,2026,Leg 2,ROS-5365,A,5,2.5,1,0,FASP,0,,0,EN,0,40,,,,,,,,,,,,,,,,0.06
+444,ROS,2026,Montipora sp,49,polyline,LEERM,2026,Leg 2,ROS-5365,A,5,2.5,1,0,MOSP,0,,0,EN,0,6,,,,,,,,,,,,,,,,0.162
+445,ROS,2026,Montipora sp,50,polyline,LEERM,2026,Leg 2,ROS-5365,A,5,2.5,1,0,MOSP,0,,0,EN,0,2,,,,,,,,,,,,,,,,0.187
+446,ROS,2026,Montipora sp,51,polyline,LEERM,2026,Leg 2,ROS-5365,A,5,2.5,1,0,MOSP,0,,0,EN,0,2,,,,,,,,,,,,,,,,0.33
+447,ROS,2026,Astrea curta,52,polyline,LEERM,2026,Leg 2,ROS-5365,A,5,2.5,1,0,ACUR,0,,0,MD,0,1,,,,,,,,,,,,,,,,0.098
+448,ROS,2026,Montipora sp,53,polyline,LEERM,2026,Leg 2,ROS-5365,A,5,2.5,1,0,MOSP,0,,0,EN,0,1,,,,,,,,,,,,,,,,0.055
+449,ROS,2026,Astrea curta,54,polyline,LEERM,2026,Leg 2,ROS-5365,A,5,2.5,1,0,ACUR,0,,0,MD,0,0,,,,,,,,,,,,,,,,0.039
+451,ROS,2026,Porites sp,56,polyline,LEERM,2026,Leg 2,ROS-5365,A,5,2.5,1,0,POSP,0,,0,EN,0,5,PRED,93,,,,,,,,,,,,,,0.174
+452,ROS,2026,Fungia sp,57,polyline,LEERM,2026,Leg 2,ROS-5365,A,5,2.5,1,0,FUSP,0,,0,FL,0,0,,,,,,,,,,,,,,,,0.11
+453,ROS,2026,Fungia sp,58,polyline,LEERM,2026,Leg 2,ROS-5365,A,5,2.5,1,0,FUSP,0,,0,FL,0,0,,,,,,,,,,,,,,,,0.047
+454,ROS,2026,Astrea curta,60,polyline,LEERM,2026,Leg 2,ROS-5365,A,5,2.5,1,0,ACUR,0,,0,MD,0,0,,,,,,,,,,,,,,,,0.061
+455,ROS,2026,Astrea curta,61,polyline,LEERM,2026,Leg 2,ROS-5365,A,5,2.5,1,0,ACUR,0,,0,MD,0,8,,,,,,,,,,,,,,,,0.093
+457,ROS,2026,Astrea curta,63,polyline,LEERM,2026,Leg 2,ROS-5365,A,5,2.5,1,0,ACUR,0,,0,MD,0,20,,,,,,,,,,,,,,,,0.041
+458,ROS,2026,Porites sp,64,polyline,LEERM,2026,Leg 2,ROS-5365,A,5,2.5,1,0,POSP,0,,0,MD,0,8,,,,,,,,,,,,,,,,0.076
+459,ROS,2026,Montipora sp,65,polyline,LEERM,2026,Leg 2,ROS-5365,A,5,2.5,1,0,MOSP,0,,0,EN,0,5,,,,,,,,,,,,,,,,0.144
+460,ROS,2026,Astrea curta,66,polyline,LEERM,2026,Leg 2,ROS-5365,A,5,2.5,1,0,ACUR,0,,0,MD,0,6,,,,,,,,,,,,,,,,0.078
+461,ROS,2026,Montipora sp,67,polyline,LEERM,2026,Leg 2,ROS-5365,A,5,2.5,1,0,MOSP,0,,0,EN,0,10,,,,,,,,,,,,,,,,0.517
+463,ROS,2026,Favia sp,69,polyline,LEERM,2026,Leg 2,ROS-5365,A,5,2.5,1,0,FASP,0,,0,MD,0,5,,,,,,,,,,,,,,,,0.131
+464,ROS,2026,Favia sp,70,polyline,LEERM,2026,Leg 2,ROS-5365,A,5,2.5,1,0,FASP,0,,0,MD,0,3,FISH,2,,,,,,,,,,,,,,0.165
+465,ROS,2026,Astrea curta,71,polyline,LEERM,2026,Leg 2,ROS-5365,A,5,2.5,1,0,ACUR,0,,0,MD,0,0,,,,,,,,,,,,,,,,0.124
+466,ROS,2026,Montipora sp,72,polyline,LEERM,2026,Leg 2,ROS-5365,A,5,2.5,1,0,MOSP,0,,0,EN,0,10,FISH,1,,,,,,,,,,,,,,0.901
+467,ROS,2026,Montipora sp,73,polyline,LEERM,2026,Leg 2,ROS-5365,A,5,2.5,1,0,MOSP,0,,0,EN,0,2,,,,,,,,,,,,,,,,0.084
+470,ROS,2026,Montipora sp,78,polyline,LEERM,2026,Leg 2,ROS-5365,A,5,2.5,1,0,MOSP,0,,0,EN,0,10,GAST,15,,,,,,,,,,,,,,0.202
+471,ROS,2026,Montipora sp,79,polyline,LEERM,2026,Leg 2,ROS-5365,A,5,2.5,1,0,MOSP,0,,0,EN,0,2,,,,,,,,,,,,,,,,0.083
+472,ROS,2026,Astrea curta,80,polyline,LEERM,2026,Leg 2,ROS-5365,A,5,2.5,1,0,ACUR,0,,0,MD,0,1,,,,,,,,,,,,,,,,0.074
+473,ROS,2026,Astrea curta,83,polyline,LEERM,2026,Leg 2,ROS-5365,A,5,2.5,1,0,ACUR,0,,0,MD,0,5,,,,,,,,,,,,,,,,0.07
+474,ROS,2026,Astrea curta,84,polyline,LEERM,2026,Leg 2,ROS-5365,A,5,2.5,1,0,ACUR,0,,0,MD,0,3,,,,,,,,,,,,,,,,0.222
+475,ROS,2026,Montipora sp,85,polyline,LEERM,2026,Leg 2,ROS-5365,A,5,2.5,1,0,MOSP,0,,0,EN,0,3,,,,,,,BLE,50,2,,,,,,,0.083
+476,ROS,2026,Montipora sp,86,polyline,LEERM,2026,Leg 2,ROS-5365,A,5,2.5,1,0,MOSP,0,,0,EN,0,40,,,,,,,,,,,,,,,,0.055
+477,ROS,2026,Astrea curta,87,polyline,LEERM,2026,Leg 2,ROS-5365,A,5,2.5,1,0,ACUR,0,,0,MD,0,0,,,,,,,,,,,,,,,,0.044
+478,ROS,2026,Montipora sp,89,polyline,LEERM,2026,Leg 2,ROS-5365,A,5,2.5,1,0,MOSP,0,,0,EN,0,20,,,,,,,BLE,85,2,,,,,,,0.183
+479,ROS,2026,Montipora sp,90,polyline,LEERM,2026,Leg 2,ROS-5365,A,5,2.5,1,0,MOSP,0,,0,EN,0,8,,,,,,,,,,,,,,,,0.145
+480,ROS,2026,Astrea curta,91,polyline,LEERM,2026,Leg 2,ROS-5365,A,5,2.5,1,0,ACUR,0,,0,MD,0,3,,,,,,,,,,,,,,,,0.093
+481,ROS,2026,Montipora sp,92,polyline,LEERM,2026,Leg 2,ROS-5365,A,5,2.5,1,0,MOSP,0,,0,EN,0,10,,,,,,,,,,,,,,,,0.059
+482,ROS,2026,Montipora sp,93,polyline,LEERM,2026,Leg 2,ROS-5365,A,5,2.5,1,0,MOSP,0,,0,EN,0,5,,,,,,,,,,,,,,,,0.117
+483,ROS,2026,Montipora sp,94,polyline,LEERM,2026,Leg 2,ROS-5365,A,5,2.5,1,0,MOSP,0,,0,EN,0,0,,,,,,,,,,,,,,,,0.089
+484,ROS,2026,Montipora sp,95,polyline,LEERM,2026,Leg 2,ROS-5365,A,5,2.5,1,0,MOSP,0,,0,EN,0,20,,,,,,,,,,,,,,,,0.565
+485,ROS,2026,Montipora sp,96,polyline,LEERM,2026,Leg 2,ROS-5365,A,5,2.5,1,0,MOSP,0,,0,EN,0,15,,,,,,,,,,,,,,,,0.517
+486,ROS,2026,Montipora sp,98,polyline,LEERM,2026,Leg 2,ROS-5365,A,5,2.5,1,0,MOSP,0,,0,EN,0,50,,,,,,,,,,,,,,,,0.167
+487,ROS,2026,Montipora sp,99,polyline,LEERM,2026,Leg 2,ROS-5365,A,5,2.5,1,0,MOSP,0,,0,EN,0,15,,,,,,,,,,,,,,,,0.14
+488,ROS,2026,Acropora sp,100,polyline,LEERM,2026,Leg 2,ROS-5365,A,5,2.5,1,0,ACSP,0,,0,CB,0,0,,,,,,,,,,,,,,,,0.06
+489,ROS,2026,Porites sp,101,polyline,LEERM,2026,Leg 2,ROS-5365,A,5,2.5,1,0,POSP,0,,0,EN,0,0,,,,,,,,,,,,,,,,0.056
+490,ROS,2026,Porites sp,102,polyline,LEERM,2026,Leg 2,ROS-5365,A,5,2.5,1,0,POSP,0,,0,MD,0,0,,,,,,,,,,,,,,,,0.05
+491,ROS,2026,Porites sp,103,polyline,LEERM,2026,Leg 2,ROS-5365,A,5,2.5,1,0,POSP,0,,0,MD,0,1,,,,,,,,,,,,,,,,0.085
+492,ROS,2026,Astrea curta,104,polyline,LEERM,2026,Leg 2,ROS-5365,A,5,2.5,1,0,ACUR,0,,0,MD,0,0,,,,,,,,,,,,,,,,0.037
+493,ROS,2026,Astrea curta,84,polyline,LEERM,2026,Leg 2,ROS-5365,A,5,2.5,1,0,ACUR,0,,0,MD,0,10,,,,,,,,,,,,,,,,0.061
+494,ROS,2026,Astrea curta,85,polyline,LEERM,2026,Leg 2,ROS-5365,,5,1,1,0,ACUR,-1,CCAH,0,MD,0,,,,,,,,,,,,,,,,,0.037
+495,ROS,2026,Astrea curta,86,polyline,LEERM,2026,Leg 2,ROS-5365,,5,2.5,1,0,ACUR,0,,0,MD,0,0,,,,,,,,,,,,,,,,0.051
+567,ROS,2026,Montipora sp,105,polyline,LEERM,2026,Leg 2,ROS-5365,A,5,2.5,1,0,MOSP,0,,0,EN,0,0,,,,,,,,,,,,,,,,0.068
+571,ROS,2026,Astrea curta,106,polyline,LEERM,2026,Leg 2,ROS-5365,A,5,2.5,1,0,ACUR,0,,0,MD,0,5,,,,,,,,,,,,,,,,0.072
+572,ROS,2026,Montipora sp,107,polyline,LEERM,2026,Leg 2,ROS-5365,A,5,2.5,1,0,MOSP,0,,0,EN,0,15,,,,,,,,,,,,,,,,0.289
+666,ROS,2026,Montipora sp,86,polyline,LEERM,2026,Leg 2,ROS-5365,,5,2.5,1,0,MOSP,0,,0,EN,0,2,,,,,,,,,,,,,,,,0.098
+894,ROS,2026,Astrea curta,1,polyline,SJD,2026,SE2602,ROS-5365,B,5,2.5,1,0,ACUR,0,,0,MD,0,1,,,,,,,,,,,,,,,,0.174
+895,ROS,2026,Montipora sp,2,polyline,SJD,2026,SE2602,ROS-5365,B,5,2.5,1,0,MOSP,0,,0,EN,0,2,GAST,1,FISH,1,,,,,,,,,,,,0.671
+896,ROS,2026,Astrea curta,3,polyline,SJD,2026,SE2602,ROS-5365,B,5,2.5,1,0,ACUR,0,,0,MD,0,3,GAST,8,,,,,,,,,,,,,,0.098
+897,ROS,2026,Porites sp,4,polyline,SJD,2026,SE2602,ROS-5365,B,5,2.5,1,0,POSP,0,,0,MD,0,20,,,,,,,,,,,,,,,,0.204
+898,ROS,2026,Fungia sp,5,polyline,SJD,2026,SE2602,ROS-5365,B,5,2.5,1,0,FUSP,0,,0,FL,0,0,,,,,,,BLE,70,2,,,,,,,0.104
+902,ROS,2026,Acropora sp,9,polyline,SJD,2026,SE2602,ROS-5365,B,5,2.5,1,0,ACSP,0,,0,CB,0,0,,,,,,,,,,,,,,,,0.06
+903,ROS,2026,Porites sp,11,polyline,SJD,2026,SE2602,ROS-5365,B,5,2.5,1,0,POSP,0,,0,MD,0,20,,,,,,,,,,,,,,,,0.066
+904,ROS,2026,Porites sp,12,polyline,SJD,2026,SE2602,ROS-5365,B,5,2.5,1,0,POSP,0,,0,MD,0,0,,,,,,,,,,,,,,,,0.086
+905,ROS,2026,Favia stelligera,13,polyline,SJD,2026,SE2602,ROS-5365,B,5,2.5,1,0,FSTE,0,,0,LC,0,4,FISH,1,,,,,,,,,,,,,,0.346
+906,ROS,2026,Astrea curta,14,polyline,SJD,2026,SE2602,ROS-5365,B,5,2.5,1,0,ACUR,0,,0,MD,0,1,,,,,,,,,,,,,,,,0.113
+907,ROS,2026,Astrea curta,15,polyline,SJD,2026,SE2602,ROS-5365,B,5,2.5,1,0,ACUR,0,,0,MD,0,1,PRED,2,,,,,,,,,,,,,,0.09
+908,ROS,2026,Astrea curta,17,polyline,SJD,2026,SE2602,ROS-5365,B,5,2.5,1,0,ACUR,0,,-1,EN,0,0,,,,,,,,,,,,,,,,0.039
+909,ROS,2026,Favia stelligera,18,polyline,SJD,2026,SE2602,ROS-5365,B,5,1,1,0,FSTE,-1,CCAH,0,EN,0,0,,,,,,,,,,,,,,,,0.026
+910,ROS,2026,Porites sp,19,polyline,SJD,2026,SE2602,ROS-5365,B,5,1,1,0,POSP,-1,CCAH,0,EN,0,0,,,,,,,,,,,,,,,,0.029
+911,ROS,2026,Astrea curta,20,polyline,SJD,2026,SE2602,ROS-5365,B,5,2.5,1,0,ACUR,0,,0,MD,0,4,GAST,1,,,,,,,,,,,,,,0.545
+912,ROS,2026,Pavona varians,21,polyline,SJD,2026,SE2602,ROS-5365,B,5,2.5,1,0,PVAR,0,,0,EN,0,0,,,,,,,,,,,,,,,,0.057
+914,ROS,2026,Montipora sp,23,polyline,SJD,2026,SE2602,ROS-5365,B,5,2.5,1,0,MOSP,0,,0,EN,0,2,,,,,,,,,,,,,,,,0.24
+915,ROS,2026,Montipora sp,24,polyline,SJD,2026,SE2602,ROS-5365,B,5,2.5,1,0,MOSP,0,,0,EN,0,5,FISH,1,,,,,,,,,,,,,,0.99
+916,ROS,2026,Favia stelligera,25,polyline,SJD,2026,SE2602,ROS-5365,B,5,2.5,1,0,FSTE,0,,0,EN,0,5,,,,,,,,,,,,,,,,0.247
+917,ROS,2026,Astrea curta,26,polyline,SJD,2026,SE2602,ROS-5365,B,5,2.5,1,0,ACUR,0,,0,MD,0,6,,,,,,,,,,,,,,,,0.103
+918,ROS,2026,Montipora sp,28,polyline,SJD,2026,SE2602,ROS-5365,B,5,2.5,1,0,MOSP,0,,0,EN,0,5,,,,,,,,,,,,,,,,0.543
+919,ROS,2026,Astrea curta,29,polyline,SJD,2026,SE2602,ROS-5365,B,5,2.5,1,0,ACUR,0,,0,MD,0,1,,,,,,,,,,,,,,,,0.133
+920,ROS,2026,Astrea curta,30,polyline,SJD,2026,SE2602,ROS-5365,B,5,2.5,1,0,ACUR,0,,0,MD,0,4,,,,,,,,,,,,,,,,0.076
+921,ROS,2026,Pavona chiriquiensis,31,polyline,SJD,2026,SE2602,ROS-5365,B,5,2.5,1,0,PCHI,0,,0,EN,0,1,,,,,,,,,,,,,,,,0.055
+922,ROS,2026,Astrea curta,32,polyline,SJD,2026,SE2602,ROS-5365,B,5,2.5,1,0,ACUR,0,,0,MD,0,3,,,,,,,,,,,,,,,,0.108
+923,ROS,2026,Astrea curta,33,polyline,SJD,2026,SE2602,ROS-5365,B,5,2.5,1,0,ACUR,0,,0,MD,0,1,,,,,,,,,,,,,,,,0.109
+924,ROS,2026,Porites sp,34,polyline,SJD,2026,SE2602,ROS-5365,B,5,2.5,1,0,POSP,0,,0,EN,0,2,,,,,,,,,,,,,,,,0.372
+925,ROS,2026,Astrea curta,35,polyline,SJD,2026,SE2602,ROS-5365,B,5,2.5,1,0,ACUR,0,,0,MD,0,3,,,,,,,,,,,,,,,,0.201
+926,ROS,2026,Astrea curta,36,polyline,SJD,2026,SE2602,ROS-5365,B,5,2.5,1,0,ACUR,0,,0,MD,0,1,,,,,,,,,,,,,,,,0.091
+927,ROS,2026,Astrea curta,37,polyline,SJD,2026,SE2602,ROS-5365,B,5,2.5,1,0,ACUR,0,,0,MD,0,0,,,,,,,,,,,,,,,,0.134
+928,ROS,2026,Astrea curta,40,polyline,SJD,2026,SE2602,ROS-5365,B,5,2.5,1,0,ACUR,0,,0,MD,0,3,,,,,,,,,,,,,,,,0.183
+1005,ROS,2026,Porites sp,41,polyline,SJD,2026,SE2602,ROS-5365,B,5,2.5,1,0,POSP,0,,0,MD,0,35,GAST,50,,,,,,,,,,,,,,0.18
+1006,ROS,2026,Montipora sp,42,polyline,SJD,2026,SE2602,ROS-5365,B,5,2.5,1,0,MOSP,0,,0,EN,0,20,,,,,,,,,,,,,,,,0.227
+1008,ROS,2026,Astrea curta,45,polyline,SJD,2026,SE2602,ROS-5365,B,5,2.5,1,0,ACUR,0,,0,MD,0,50,,,,,,,,,,,,,,,,0.106
+1010,ROS,2026,Astrea curta,47,polyline,SJD,2026,SE2602,ROS-5365,B,5,2.5,1,0,ACUR,0,,0,EN,0,30,,,,,,,,,,,,,,,,0.071
+1011,ROS,2026,Fungia sp,48,polyline,SJD,2026,SE2602,ROS-5365,B,5,2.5,1,0,FUSP,0,,0,FL,0,0,,,,,,,,,,,,,,,,0.107
+1012,ROS,2026,Fungia sp,49,polyline,SJD,2026,SE2602,ROS-5365,B,5,2.5,1,0,FUSP,0,,0,FL,0,0,,,,,,,,,,,,,,,,0.054
+1013,ROS,2026,Astrea curta,50,polyline,SJD,2026,SE2602,ROS-5365,B,5,2.5,1,0,ACUR,0,,0,MD,0,2,,,,,,,,,,,,,,,,0.056
+1014,ROS,2026,Astrea curta,51,polyline,SJD,2026,SE2602,ROS-5365,B,5,2.5,1,0,ACUR,0,,0,MD,0,15,,,,,,,,,,,,,,,,0.09
+1015,ROS,2026,Astrea curta,52,polyline,SJD,2026,SE2602,ROS-5365,B,5,2.5,1,0,ACUR,0,,-1,EN,0,0,,,,,,,,,,,,,,,,0.049
+1016,ROS,2026,Favia stelligera,54,polyline,SJD,2026,SE2602,ROS-5365,B,5,2.5,1,0,FSTE,0,,0,MD,0,8,,,,,,,,,,,,,,,,0.121
+1018,ROS,2026,Favia stelligera,56,polyline,SJD,2026,SE2602,ROS-5365,B,5,2.5,1,0,FSTE,0,,0,MD,0,1,FISH,2,,,,,,,,,,,,,,0.155
+1019,ROS,2026,Montipora sp,58,polyline,SJD,2026,SE2602,ROS-5365,B,5,2.5,1,0,MOSP,0,,0,EN,0,2,,,,,,,,,,,,,,,,0.16
+1020,ROS,2026,Astrea curta,59,polyline,SJD,2026,SE2602,ROS-5365,B,5,2.5,1,0,ACUR,0,,0,MD,0,2,,,,,,,,,,,,,,,,0.214
+1021,ROS,2026,Astrea curta,60,polyline,SJD,2026,SE2602,ROS-5365,B,5,2.5,1,0,ACUR,0,,0,MD,0,10,,,,,,,,,,,,,,,,0.128
+1022,ROS,2026,Montipora sp,61,polyline,SJD,2026,SE2602,ROS-5365,B,5,2.5,1,0,MOSP,0,,0,EN,0,2,FISH,1,,,,,,,,,,,,,,1.308
+1023,ROS,2026,Porites sp,62,polyline,SJD,2026,SE2602,ROS-5365,B,5,2.5,1,0,POSP,0,,0,MD,0,2,,,,,,,,,,,,,,,,0.08
+1024,ROS,2026,Porites sp,63,polyline,SJD,2026,SE2602,ROS-5365,B,5,2.5,1,0,POSP,0,,0,MD,0,50,COTS,20,,,,,,,,,,,,,,0.111
+1025,ROS,2026,Astrea curta,64,polyline,SJD,2026,SE2602,ROS-5365,B,5,2.5,1,0,ACUR,0,,0,MD,0,1,,,,,,,,,,,,,,,,0.092
+275,ROS,2026,Porites sp,1,polyline,MW,2026,SE2602,ROS-5365,B,5,2.5,1,0,POSP,0,,0,EN,0,12,,,,,,,,,,,,,,,,0.317
+276,ROS,2026,Porites sp,2,polyline,MW,2026,SE2602,ROS-5365,B,5,2.5,1,0,POSP,0,,0,EN,0,50,,,,,,,,,,,,,,,,0.082
+277,ROS,2026,Fungia sp,3,polyline,MW,2026,SE2602,ROS-5365,B,5,2.5,1,0,FUSP,0,,0,FL,0,0,,,,,,,,,,,,,,,,0.103
+278,ROS,2026,Astrea curta,4,polyline,MW,2026,SE2602,ROS-5365,B,5,2.5,1,0,ACUR,0,,0,MD,0,5,,,,,,,,,,,,,,,,0.529
+279,ROS,2026,Astrea curta,5,polyline,MW,2026,SE2602,ROS-5365,B,5,2.5,1,0,ACUR,0,,0,MD,0,60,,,,,,,,,,,,,,,,0.177
+282,ROS,2026,Montipora sp,8,polyline,MW,2026,SE2602,ROS-5365,B,5,2.5,1,0,MOSP,0,,0,EN,0,33,,,,,,,,,,,,,,,,0.457
+283,ROS,2026,Porites sp,9,polyline,MW,2026,SE2602,ROS-5365,B,5,2.5,1,0,POSP,0,,0,EN,0,55,,,,,,,,,,,,,,,,0.189
+284,ROS,2026,Astrea curta,10,polyline,MW,2026,SE2602,ROS-5365,B,5,2.5,1,0,ACUR,0,,0,MD,0,10,,,,,,,,,,,,,,,,0.114
+285,ROS,2026,Astrea curta,11,polyline,MW,2026,SE2602,ROS-5365,B,5,2.5,1,0,ACUR,0,,0,MD,0,5,,,,,,,,,,,,,,,,0.103
+286,ROS,2026,Montipora sp,12,polyline,MW,2026,SE2602,ROS-5365,B,5,2.5,1,0,MOSP,0,,0,EN,0,0,,,,,,,,,,,,,,,,0.093
+288,ROS,2026,Montipora sp,14,polyline,MW,2026,SE2602,ROS-5365,B,5,2.5,1,0,MOSP,0,,0,EN,0,20,,,,,,,,,,,,,,,,0.512
+289,ROS,2026,Montipora sp,17,polyline,MW,2026,SE2602,ROS-5365,B,5,2.5,1,0,MOSP,0,,0,EN,0,6,,,,,,,,,,,,,,,,0.064
+290,ROS,2026,Astrea curta,19,polyline,MW,2026,SE2602,ROS-5365,B,5,2.5,1,0,ACUR,0,,0,MD,0,5,,,,,,,,,,,,,,,,0.09
+291,ROS,2026,Astrea curta,20,polyline,MW,2026,SE2602,ROS-5365,B,5,2.5,1,0,ACUR,0,,0,MD,0,15,,,,,,,,,,,,,,,,0.088
+292,ROS,2026,Montipora sp,21,polyline,MW,2026,SE2602,ROS-5365,B,5,2.5,1,0,MOSP,0,,0,EN,0,20,,,,,,,,,,,,,,,,0.606
+293,ROS,2026,Favia stelligera,22,polyline,MW,2026,SE2602,ROS-5365,B,5,2.5,1,0,FSTE,0,,0,MD,0,10,,,,,,,,,,,,,,,,0.346
+294,ROS,2026,Astrea curta,23,polyline,MW,2026,SE2602,ROS-5365,B,5,2.5,1,0,ACUR,0,,0,MD,0,5,,,,,,,,,,,,,,,,0.113
+296,ROS,2026,Astrea curta,25,polyline,MW,2026,SE2602,ROS-5365,B,5,2.5,1,0,ACUR,0,,0,MD,0,30,,,,,,,,,,,,,,,,0.167
+297,ROS,2026,Astrea curta,26,polyline,MW,2026,SE2602,ROS-5365,B,5,2.5,1,0,ACUR,0,,0,MD,0,5,,,,,,,,,,,,,,,,0.091
+298,ROS,2026,Astrea curta,27,polyline,MW,2026,SE2602,ROS-5365,B,5,2.5,1,0,ACUR,0,,0,MD,0,8,,,,,,,,,,,,,,,,0.185
+299,ROS,2026,Montipora sp,28,polyline,MW,2026,SE2602,ROS-5365,B,5,2.5,1,0,MOSP,0,,0,EN,0,25,,,,,,,,,,,,,,,,0.29
+300,ROS,2026,Astrea curta,29,polyline,MW,2026,SE2602,ROS-5365,B,5,2.5,1,0,ACUR,0,,0,MD,0,5,,,,,,,,,,,,,,,,0.116
+301,ROS,2026,Astrea curta,30,polyline,MW,2026,SE2602,ROS-5365,B,5,2.5,1,0,ACUR,0,,0,MD,0,3,,,,,,,,,,,,,,,,0.095
+302,ROS,2026,Astrea curta,31,polyline,MW,2026,SE2602,ROS-5365,B,5,2.5,1,0,ACUR,0,,0,MD,0,3,,,,,,,,,,,,,,,,0.135
+304,ROS,2026,Astrea curta,33,polyline,MW,2026,SE2602,ROS-5365,B,5,2.5,1,0,ACUR,0,,0,MD,0,3,,,,,,,,,,,,,,,,0.079
+305,ROS,2026,Porites sp,34,polyline,MW,2026,SE2602,ROS-5365,B,5,2.5,1,0,POSP,0,,0,EN,0,5,,,,,,,,,,,,,,,,0.075
+306,ROS,2026,Astrea curta,35,polyline,MW,2026,SE2602,ROS-5365,B,5,2.5,1,0,ACUR,0,,0,MD,0,23,,,,,,,,,,,,,,,,0.089
+307,ROS,2026,Astrea curta,36,polyline,MW,2026,SE2602,ROS-5365,B,5,2.5,1,0,ACUR,0,,0,MD,0,3,,,,,,,,,,,,,,,,0.06
+308,ROS,2026,Montipora sp,37,polyline,MW,2026,SE2602,ROS-5365,B,5,2.5,1,0,MOSP,0,,0,EN,0,20,,,,,,,,,,,,,,,,0.38
+309,ROS,2026,Montipora sp,38,polyline,MW,2026,SE2602,ROS-5365,B,5,2.5,1,0,MOSP,0,,0,EN,0,2,,,,,,,,,,,,,,,,0.173
+310,ROS,2026,Astrea curta,39,polyline,MW,2026,SE2602,ROS-5365,B,5,2.5,1,0,ACUR,0,,0,MD,0,6,,,,,,,,,,,,,,,,0.206
+311,ROS,2026,Montipora sp,40,polyline,MW,2026,SE2602,ROS-5365,B,5,2.5,1,0,MOSP,0,,0,EN,0,47,,,,,,,,,,,,,,,,0.279
+312,ROS,2026,Favia stelligera,41,polyline,MW,2026,SE2602,ROS-5365,B,5,2.5,1,0,FSTE,0,,0,ML,0,8,,,,,,,,,,,,,,,,0.124
+313,ROS,2026,Montipora sp,42,polyline,MW,2026,SE2602,ROS-5365,B,5,2.5,1,0,MOSP,0,,0,EN,0,0,,,,,,,,,,,,,,,,0.12
+314,ROS,2026,Montipora sp,43,polyline,MW,2026,SE2602,ROS-5365,B,5,2.5,1,0,MOSP,0,,0,EN,0,10,,,,,,,,,,,,,,,,0.555
+315,ROS,2026,Astrea curta,44,polyline,MW,2026,SE2602,ROS-5365,B,5,2.5,1,0,ACUR,0,,0,MD,0,2,,,,,,,,,,,,,,,,0.22
+316,ROS,2026,Astrea curta,45,polyline,MW,2026,SE2602,ROS-5365,B,5,2.5,1,0,ACUR,0,,0,MD,0,11,,,,,,,,,,,,,,,,0.12
+318,ROS,2026,Astrea curta,47,polyline,MW,2026,SE2602,ROS-5365,B,5,2.5,1,0,ACUR,0,,0,MD,0,7,,,,,,,,,,,,,,,,0.095
+319,ROS,2026,Astrea curta,48,polyline,MW,2026,SE2602,ROS-5365,B,5,2.5,1,0,ACUR,0,,0,MD,0,2,GAST,4,,,,,,,,,,,,,,0.12
+320,ROS,2026,Favia stelligera,49,polyline,MW,2026,SE2602,ROS-5365,B,5,2.5,1,0,FSTE,0,,0,MD,0,4,,,,,,,,,,,,,,,,0.099
+321,ROS,2026,Montipora sp,50,polyline,MW,2026,SE2602,ROS-5365,B,5,2.5,1,0,MOSP,0,,0,EN,0,15,,,,,,,,,,,,,,,,0.133
+322,ROS,2026,Montipora sp,51,polyline,MW,2026,SE2602,ROS-5365,B,5,2.5,1,0,MOSP,0,,0,EN,0,20,,,,,,,,,,,,,,,,0.78
+323,ROS,2026,Fungia sp,52,polyline,MW,2026,SE2602,ROS-5365,B,5,2.5,1,0,FUSP,0,,0,FL,0,0,,,,,,,,,,,,,,,,0.113
+342,ROS,2026,Montipora sp,54,polyline,MW,2026,SE2602,ROS-5365,B,5,2.5,1,0,MOSP,0,,0,EN,0,0,,,,,,,,,,,,,,,,0.051
+1331,ROS,2026,Acropora sp,56,polyline,MW,2026,SE2602,ROS-5365,B,5,2.5,1,0,ACSP,0,,0,CB,0,0,,,,,,,,,,,,,,,,0.062
+1332,ROS,2026,Porites sp,57,polyline,MW,2026,SE2602,ROS-5365,B,5,2.5,1,0,POSP,0,,0,EN,0,30,,,,,,,,,,,,,,,,0.067
+1340,ROS,2026,Fungia sp,51,polyline,MW,2026,SE2602,ROS-5365,B,5,2.5,1,0,FUSP,0,,0,FL,0,0,,,,,,,,,,,,,,,,0.068
+1341,ROS,2026,Montipora sp,52,polyline,MW,2026,SE2602,ROS-5365,B,5,2.5,1,0,MOSP,0,,0,EN,0,3,,,,,,,,,,,,,,,,0.2
+1356,ROS,2026,Porites sp,58,polyline,MW,2026,SE2602,ROS-5365,B,5,2.5,1,0,POSP,0,,0,EN,0,55,,,,,,,,,,,,,,,,0.177
+1357,ROS,2026,Astrea curta,59,polyline,MW,2026,SE2602,ROS-5365,B,5,2.5,1,0,ACUR,0,,0,MD,0,22,,,,,,,,,,,,,,,,0.087
+1358,ROS,2026,Porites sp,60,polyline,MW,2026,SE2602,ROS-5365,B,5,2.5,1,0,POSP,0,,0,EN,0,50,PRED,20,,,,,,,,,,,,,,0.089
+1359,ROS,2026,Montipora sp,61,polyline,MW,2026,SE2602,ROS-5365,B,5,2.5,1,0,MOSP,0,,0,EN,0,0,,,,,,,,,,,,,,,,0.092
+1360,ROS,2026,Astrea curta,62,polyline,MW,2026,SE2602,ROS-5365,B,5,2.5,1,0,ACUR,0,,0,EN,0,30,,,,,,,,,,,,,,,,0.065
+930,KIN,2026,Astrea curta,1,polyline,LEERM,2026,Leg 1,KIN-5192,A,5,2.5,1,0,ACUR,0,,0,MD,0,2,,,,,,,,,,,,,,,,0.111
+931,KIN,2026,Pocillopora meandrina/verrucosa complex,2,polyline,LEERM,2026,Leg 1,KIN-5192,A,5,2.5,1,0,PMVC,0,,0,BR,0,0,,,,,,,,,,,,,,,,0.124
+932,KIN,2026,Porites sp,4,polyline,LEERM,2026,Leg 1,KIN-5192,A,5,2.5,1,0,POSP,0,,0,MD,0,1,,,,,,,,,,,,,,,,0.227
+933,KIN,2026,Astrea curta,5,polyline,LEERM,2026,Leg 1,KIN-5192,A,5,2.5,1,0,ACUR,0,,-1,EN,0,0,,,,,,,,,,,,,,,,0.041
+934,KIN,2026,Phymastrea sp,6,polyline,LEERM,2026,Leg 1,KIN-5192,A,5,2.5,1,0,PHSP,0,,0,EN,0,4,,,,,,,,,,,,,,,,0.107
+935,KIN,2026,Fungia sp,7,polyline,LEERM,2026,Leg 1,KIN-5192,A,5,2.5,1,0,FUSP,0,,0,FL,0,0,,,,,,,,,,,,,,,,0.126
+936,KIN,2026,Favites sp,8,polyline,LEERM,2026,Leg 1,KIN-5192,A,5,2.5,1,0,FAVS,0,,0,EN,0,3,,,,,,,,,,,,,,,,0.17
+937,KIN,2026,Favites sp,9,polyline,LEERM,2026,Leg 1,KIN-5192,A,5,2.5,1,0,FAVS,0,,0,EN,0,15,,,,,,,,,,,,,,,,0.239
+938,KIN,2026,Favites sp,10,polyline,LEERM,2026,Leg 1,KIN-5192,A,5,2.5,1,0,FAVS,0,,0,EN,0,5,,,,,,,,,,,,,,,,0.147
+939,KIN,2026,Fungia sp,11,polyline,LEERM,2026,Leg 1,KIN-5192,A,5,2.5,1,0,FUSP,0,,0,FL,0,0,,,,,,,,,,,,,,,,0.092
+940,KIN,2026,Fungia sp,12,polyline,LEERM,2026,Leg 1,KIN-5192,A,5,2.5,1,0,FUSP,0,,0,FL,0,0,,,,,,,,,,,,,,,,0.117
+941,KIN,2026,Favia stelligera,13,polyline,LEERM,2026,Leg 1,KIN-5192,A,5,2.5,1,0,FSTE,0,,0,EN,0,1,,,,,,,,,,,,,,,,0.133
+944,KIN,2026,Phymastrea sp,17,polyline,LEERM,2026,Leg 1,KIN-5192,A,5,2.5,1,0,PHSP,0,,0,EN,0,8,,,,,,,,,,,,,,,,0.083
+945,KIN,2026,Pavona chiriquiensis,20,polyline,LEERM,2026,Leg 1,KIN-5192,A,5,2.5,1,0,PCHI,0,,0,EN,0,60,,,,,,,,,,,,,,,,0.278
+946,KIN,2026,Astrea curta,21,polyline,LEERM,2026,Leg 1,KIN-5192,A,5,2.5,1,0,ACUR,0,,0,MD,0,8,,,,,,,,,,,,,,,,0.1
+947,KIN,2026,Favites sp,22,polyline,LEERM,2026,Leg 1,KIN-5192,A,5,2.5,1,0,FAVS,0,,0,EN,0,0,,,,,,,,,,,,,,,,0.104
+948,KIN,2026,Pavona chiriquiensis,24,polyline,LEERM,2026,Leg 1,KIN-5192,A,5,2.5,1,0,PCHI,0,,0,EN,0,0,,,,,,,,,,,,,,,,0.05
+950,KIN,2026,Pavona duerdeni,26,polyline,LEERM,2026,Leg 1,KIN-5192,A,5,2.5,1,0,PDUE,0,,0,ML,0,0,,,,,,,,,,,,,,,,0.11
+951,KIN,2026,Pavona duerdeni,27,polyline,LEERM,2026,Leg 1,KIN-5192,A,5,2.5,1,0,PDUE,0,,0,ML,0,35,,,,,,,,,,,,,,,,0.416
+952,KIN,2026,Montipora sp,28,polyline,LEERM,2026,Leg 1,KIN-5192,A,5,2.5,1,0,MOSP,0,,0,EN,0,2,,,,,,,,,,,,,,,,0.129
+953,KIN,2026,Phymastrea sp,29,polyline,LEERM,2026,Leg 1,KIN-5192,A,5,2.5,1,0,PHSP,0,,0,EN,0,15,,,,,,,,,,,,,,,,0.194
+954,KIN,2026,Favites sp,30,polyline,LEERM,2026,Leg 1,KIN-5192,A,5,2.5,1,0,FAVS,0,,0,EN,0,0,,,,,,,,,,,,,,,,0.057
+955,KIN,2026,Phymastrea sp,31,polyline,LEERM,2026,Leg 1,KIN-5192,A,5,2.5,1,0,PHSP,0,,0,EN,0,5,,,,,,,,,,,,,,,,0.085
+956,KIN,2026,Porites sp,32,polyline,LEERM,2026,Leg 1,KIN-5192,A,5,2.5,1,0,POSP,0,,0,MD,0,45,TLS,2,,,,,,,,,,,,,,0.338
+957,KIN,2026,Pocillopora meandrina/verrucosa complex,33,polyline,LEERM,2026,Leg 1,KIN-5192,A,5,2.5,1,0,PMVC,0,,0,BR,0,75,,,,,,,FUG,15,,,,,,,,0.318
+958,KIN,2026,Psammocora sp,34,polyline,LEERM,2026,Leg 1,KIN-5192,A,5,2.5,1,0,PSSP,0,,0,MD,0,15,,,,,,,SGA,6,,,,,,,,0.097
+959,KIN,2026,Phymastrea sp,36,polyline,LEERM,2026,Leg 1,KIN-5192,A,5,2.5,1,0,PHSP,0,,0,EN,0,5,,,,,,,FUG,5,,,,,,,,0.126
+960,KIN,2026,Astrea sp,37,polyline,LEERM,2026,Leg 1,KIN-5192,A,5,2.5,1,0,ASTS,0,,0,EN,0,3,,,,,,,,,,,,,,,,0.068
+961,KIN,2026,Favites sp,38,polyline,LEERM,2026,Leg 1,KIN-5192,A,5,2.5,1,0,FAVS,0,,0,EN,0,5,,,,,,,,,,,,,,,,0.149
+962,KIN,2026,Phymastrea sp,39,polyline,LEERM,2026,Leg 1,KIN-5192,A,5,2.5,1,0,PHSP,0,,0,EN,0,1,,,,,,,,,,,,,,,,0.088
+963,KIN,2026,Psammocora profundacella,41,polyline,LEERM,2026,Leg 1,KIN-5192,A,5,2.5,1,0,PPRO,0,,-1,EN,0,0,,,,,,,,,,,,,,,,0.032
+964,KIN,2026,Favia stelligera,42,polyline,LEERM,2026,Leg 1,KIN-5192,A,5,2.5,1,0,FSTE,0,,0,EN,0,0,,,,,,,,,,,,,,,,0.103
+965,KIN,2026,Pavona chiriquiensis,43,polyline,LEERM,2026,Leg 1,KIN-5192,A,5,2.5,1,0,PCHI,0,,0,EN,0,8,,,,,,,,,,,,,,,,0.336
+966,KIN,2026,Favites sp,44,polyline,LEERM,2026,Leg 1,KIN-5192,A,5,2.5,1,0,FAVS,0,,0,EN,0,15,,,,,,,,,,,,,,,,0.181
+967,KIN,2026,Psammocora sp,48,polyline,LEERM,2026,Leg 1,KIN-5192,A,5,2.5,1,0,PSSP,0,,0,MD,0,40,TLS,5,,,,,,,,,,,,,,0.115
+968,KIN,2026,Phymastrea sp,49,polyline,LEERM,2026,Leg 1,KIN-5192,A,5,2.5,1,0,PHSP,0,,0,EN,0,2,,,,,,,,,,,,,,,,0.073
+969,KIN,2026,Favites sp,50,polyline,LEERM,2026,Leg 1,KIN-5192,A,5,2.5,1,0,FAVS,0,,0,EN,0,15,,,,,,,,,,,,,,,,0.204
+971,KIN,2026,Favia stelligera,52,polyline,LEERM,2026,Leg 1,KIN-5192,A,5,2.5,1,0,FSTE,0,,0,EN,0,3,GAST,2,,,,,,,,,,,,,,0.236
+972,KIN,2026,Astrea sp,53,polyline,LEERM,2026,Leg 1,KIN-5192,A,5,2.5,1,0,ASTS,0,,0,EN,0,1,,,,,,,,,,,,,,,,0.054
+973,KIN,2026,Phymastrea sp,54,polyline,LEERM,2026,Leg 1,KIN-5192,A,5,2.5,1,0,PHSP,0,,0,EN,0,2,,,,,,,,,,,,,,,,0.208
+974,KIN,2026,Favites sp,55,polyline,LEERM,2026,Leg 1,KIN-5192,A,5,2.5,1,0,FAVS,0,,0,EN,0,5,,,,,,,,,,,,,,,,0.127
+975,KIN,2026,Favites sp,56,polyline,LEERM,2026,Leg 1,KIN-5192,A,5,2.5,1,0,FAVS,0,,0,EN,0,2,,,,,,,,,,,,,,,,0.092
+976,KIN,2026,Astrea sp,57,polyline,LEERM,2026,Leg 1,KIN-5192,A,5,2.5,1,0,ASTS,0,,0,EN,0,3,,,,,,,,,,,,,,,,0.208
+977,KIN,2026,Leptastrea sp,59,polyline,LEERM,2026,Leg 1,KIN-5192,A,5,2.5,1,0,LEPT,0,,0,EN,0,20,,,,,,,,,,,,,,,,0.236
+978,KIN,2026,Porites sp,60,polyline,LEERM,2026,Leg 1,KIN-5192,A,5,2.5,1,0,POSP,0,,0,EN,0,3,,,,,,,,,,,,,,,,0.228
+979,KIN,2026,Favia stelligera,61,polyline,LEERM,2026,Leg 1,KIN-5192,A,5,2.5,1,0,FSTE,0,,0,MD,0,0,,,,,,,,,,,,,,,,0.053
+980,KIN,2026,Favia stelligera,62,polyline,LEERM,2026,Leg 1,KIN-5192,A,5,2.5,1,0,FSTE,0,,0,LA,0,2,,,,,,,,,,,,,,,,0.091
+981,KIN,2026,Leptastrea sp,63,polyline,LEERM,2026,Leg 1,KIN-5192,A,5,2.5,1,0,LEPT,0,,0,EN,0,2,,,,,,,,,,,,,,,,0.119
+982,KIN,2026,Astrea sp,64,polyline,LEERM,2026,Leg 1,KIN-5192,A,5,2.5,1,0,ASTS,0,,0,EN,0,4,,,,,,,,,,,,,,,,0.156
+983,KIN,2026,Porites sp,65,polyline,LEERM,2026,Leg 1,KIN-5192,A,5,2.5,1,0,POSP,0,,0,LA,0,2,,,,,,,,,,,,,,,,0.424
+984,KIN,2026,Favia stelligera,66,polyline,LEERM,2026,Leg 1,KIN-5192,A,5,2.5,1,0,FSTE,0,,0,LC,0,4,,,,,,,,,,,,,,,,0.567
+985,KIN,2026,Phymastrea sp,67,polyline,LEERM,2026,Leg 1,KIN-5192,A,5,2.5,1,0,PHSP,0,,0,EN,0,2,,,,,,,,,,,,,,,,0.107
+986,KIN,2026,Favites sp,68,polyline,LEERM,2026,Leg 1,KIN-5192,A,5,2.5,1,0,FAVS,0,,0,EN,0,1,,,,,,,,,,,,,,,,0.06
+987,KIN,2026,Phymastrea sp,69,polyline,LEERM,2026,Leg 1,KIN-5192,A,5,2.5,1,0,PHSP,0,,0,EN,0,5,,,,,,,,,,,,,,,,0.06
+988,KIN,2026,Favites sp,70,polyline,LEERM,2026,Leg 1,KIN-5192,A,5,2.5,1,0,FAVS,0,,0,EN,0,3,,,,,,,,,,,,,,,,0.124
+990,KIN,2026,Pavona chiriquiensis,72,polyline,LEERM,2026,Leg 1,KIN-5192,A,5,2.5,1,0,PCHI,0,,0,EN,0,2,,,,,,,,,,,,,,,,0.127
+992,KIN,2026,Favia sp,74,polyline,LEERM,2026,Leg 1,KIN-5192,A,5,2.5,1,0,FASP,0,,0,EN,0,2,,,,,,,,,,,,,,,,0.12
+993,KIN,2026,Favites sp,75,polyline,LEERM,2026,Leg 1,KIN-5192,A,5,2.5,1,0,FAVS,0,,0,EN,0,4,,,,,,,,,,,,,,,,0.163
+994,KIN,2026,Porites sp,76,polyline,LEERM,2026,Leg 1,KIN-5192,A,5,2.5,1,0,POSP,0,,-1,EN,0,0,,,,,,,,,,,,,,,,0.046
+995,KIN,2026,Astrea sp,78,polyline,LEERM,2026,Leg 1,KIN-5192,A,5,2.5,1,0,ASTS,0,,0,EN,0,2,,,,,,,,,,,,,,,,0.069
+996,KIN,2026,Favia stelligera,79,polyline,LEERM,2026,Leg 1,KIN-5192,A,5,2.5,1,0,FSTE,0,,0,ML,0,3,,,,,,,,,,,,,,,,0.112
+997,KIN,2026,Porites sp,80,polyline,LEERM,2026,Leg 1,KIN-5192,A,5,2.5,1,0,POSP,0,,0,MD,0,20,,,,,,,,,,,,,,,,0.18
+998,KIN,2026,Pavona maldivensis,81,polyline,LEERM,2026,Leg 1,KIN-5192,A,5,2.5,1,0,PMAL,0,,0,BR,0,0,,,,,,,,,,,,,,,,0.064
+999,KIN,2026,Favites sp,82,polyline,LEERM,2026,Leg 1,KIN-5192,A,5,2.5,1,0,FAVS,0,,0,EN,0,0,,,,,,,,,,,,,,,,0.067
+1000,KIN,2026,Phymastrea sp,83,polyline,LEERM,2026,Leg 1,KIN-5192,A,5,2.5,1,0,PHSP,0,,0,EN,0,0,,,,,,,,,,,,,,,,0.057
+1001,KIN,2026,Favites sp,84,polyline,LEERM,2026,Leg 1,KIN-5192,A,5,2.5,1,0,FAVS,0,,0,EN,0,10,,,,,,,,,,,,,,,,0.069
+1002,KIN,2026,Pavona duerdeni,85,polyline,LEERM,2026,Leg 1,KIN-5192,A,5,2.5,1,0,PDUE,0,,0,ML,0,10,FISH,2,,,,,,,,,,,,,,0.211
+1003,KIN,2026,Favites sp,86,polyline,LEERM,2026,Leg 1,KIN-5192,A,5,2.5,1,0,FAVS,0,,0,EN,0,2,,,,,,,,,,,,,,,,0.05
+1004,KIN,2026,Favites sp,87,polyline,LEERM,2026,Leg 1,KIN-5192,A,5,2.5,1,0,FAVS,0,,0,EN,0,50,,,,,,,,,,,,,,,,0.177
+1136,KIN,2026,Porites sp,89,polyline,LEERM,2026,Leg 1,KIN-5192,A,5,2.5,1,0,POSP,0,,-1,EN,0,0,,,,,,,,,,,,,,,,0.025
+1208,KIN,2026,Porites sp,90,polyline,LEERM,2026,Leg 1,KIN-5192,A,5,2.5,1,0,POSP,0,,0,LA,0,5,FISH,1,,,,,,,,,,,,,,0.585
+1026,KIN,2026,Pocillopora sp,1,polyline,SJD,2026,SE2602,KIN-5192,B,5,2.5,1,0,POCS,0,,0,BR,0,1,,,,,,,,,,,,,,,,0.067
+1027,KIN,2026,Favites sp,2,polyline,SJD,2026,SE2602,KIN-5192,B,5,2.5,1,0,FAVS,0,,0,EN,0,1,,,,,,,,,,,,,,,,0.071
+1029,KIN,2026,Fungia sp,4,polyline,SJD,2026,SE2602,KIN-5192,B,5,2.5,1,0,FUSP,0,,0,FL,0,0,,,,,,,,,,,,,,,,0.113
+1030,KIN,2026,Favia stelligera,5,polyline,SJD,2026,SE2602,KIN-5192,B,5,2.5,1,0,FSTE,0,,0,ML,0,10,FISH,1,,,,,,,,,,,,,,0.433
+1031,KIN,2026,Phymastrea sp,6,polyline,SJD,2026,SE2602,KIN-5192,B,5,2.5,1,0,PHSP,0,,0,EN,0,3,,,,,,,,,,,,,,,,0.114
+1032,KIN,2026,Alveopora sp,8,polyline,SJD,2026,SE2602,KIN-5192,B,5,2.5,1,0,ALSP,0,,0,EN,0,6,,,,,,,,,,,,,,,,0.329
+1033,KIN,2026,Porites sp,9,polyline,SJD,2026,SE2602,KIN-5192,B,5,2.5,1,0,POSP,0,,0,MD,0,1,,,,,,,,,,,,,,,,0.222
+1036,KIN,2026,Favites sp,12,polyline,SJD,2026,SE2602,KIN-5192,B,5,2.5,1,0,FAVS,0,,0,EN,0,21,,,,,,,,,,,,,,,,0.078
+1037,KIN,2026,Phymastrea sp,13,polyline,SJD,2026,SE2602,KIN-5192,B,5,2.5,1,0,PHSP,0,,0,EN,0,3,,,,,,,,,,,,,,,,0.064
+1039,KIN,2026,Fungia sp,15,polyline,SJD,2026,SE2602,KIN-5192,B,5,2.5,1,0,FUSP,0,,0,FL,0,0,,,,,,,,,,,,,,,,0.109
+1040,KIN,2026,Favia stelligera,16,polyline,SJD,2026,SE2602,KIN-5192,B,5,2.5,1,0,FSTE,0,,0,ML,0,2,,,,,,,,,,,,,,,,0.147
+1041,KIN,2026,Astrea sp,17,polyline,SJD,2026,SE2602,KIN-5192,B,5,2.5,1,0,ASTS,0,,0,EN,0,2,,,,,,,,,,,,,,,,0.263
+1042,KIN,2026,Astrea curta,19,polyline,SJD,2026,SE2602,KIN-5192,B,5,2.5,1,0,ACUR,0,,0,MD,0,1,,,,,,,,,,,,,,,,0.124
+1043,KIN,2026,Pocillopora meandrina/verrucosa complex,20,polyline,SJD,2026,SE2602,KIN-5192,B,5,2.5,1,0,PMVC,0,,0,BR,0,0,,,,,,,,,,,,,,,,0.134
+1044,KIN,2026,Fungia sp,21,polyline,SJD,2026,SE2602,KIN-5192,B,5,2.5,1,0,FUSP,0,,0,FL,0,0,,,,,,,,,,,,,,,,0.096
+1045,KIN,2026,Fungia sp,22,polyline,SJD,2026,SE2602,KIN-5192,B,5,2.5,1,0,FUSP,0,,0,FL,0,0,,,,,,,,,,,,,,,,0.121
+1046,KIN,2026,Porites sp,23,polyline,SJD,2026,SE2602,KIN-5192,B,5,2.5,1,0,POSP,0,,0,EN,0,3,,,,,,,,,,,,,,,,0.077
+1048,KIN,2026,Porites sp,26,polyline,SJD,2026,SE2602,KIN-5192,B,5,2.5,1,0,POSP,0,,0,MD,0,2,,,,,,,,,,,,,,,,0.334
+1049,KIN,2026,Porites sp,28,polyline,SJD,2026,SE2602,KIN-5192,B,5,2.5,1,0,POSP,0,,0,MD,0,1,GAST,2,,,,,,,,,,,,,,0.129
+1050,KIN,2026,Phymastrea sp,29,polyline,SJD,2026,SE2602,KIN-5192,B,5,2.5,1,0,PHSP,0,,0,EN,0,4,,,,,,,,,,,,,,,,0.077
+1053,KIN,2026,Astrea curta,32,polyline,SJD,2026,SE2602,KIN-5192,B,5,2.5,1,0,ACUR,0,,0,EN,0,3,,,,,,,,,,,,,,,,0.103
+1054,KIN,2026,Favites sp,33,polyline,SJD,2026,SE2602,KIN-5192,B,5,2.5,1,0,FAVS,0,,0,EN,0,1,,,,,,,,,,,,,,,,0.129
+1055,KIN,2026,Porites sp,34,polyline,SJD,2026,SE2602,KIN-5192,B,5,2.5,1,0,POSP,0,,-1,EN,0,0,,,,,,,,,,,,,,,,0.044
+1056,KIN,2026,Astrea sp,35,polyline,SJD,2026,SE2602,KIN-5192,B,5,2.5,1,0,ASTS,0,,0,EN,0,1,,,,,,,,,,,,,,,,0.206
+1057,KIN,2026,Favia stelligera,36,polyline,SJD,2026,SE2602,KIN-5192,B,5,2.5,1,0,FSTE,0,,0,ML,0,30,,,,,,,,,,,,,,,,0.264
+1058,KIN,2026,Phymastrea sp,37,polyline,SJD,2026,SE2602,KIN-5192,B,5,2.5,1,0,PHSP,0,,0,EN,0,30,,,,,,,,,,,,,,,,0.122
+1059,KIN,2026,Porites sp,38,polyline,SJD,2026,SE2602,KIN-5192,B,5,2.5,1,0,POSP,0,,0,EN,0,2,,,,,,,,,,,,,,,,0.129
+1060,KIN,2026,Pocillopora meandrina/verrucosa complex,39,polyline,SJD,2026,SE2602,KIN-5192,B,5,2.5,1,0,PMVC,0,,0,BR,0,60,,,,,,,,,,,,,,,,0.336
+1061,KIN,2026,Phymastrea sp,40,polyline,SJD,2026,SE2602,KIN-5192,B,5,2.5,1,0,PHSP,0,,0,EN,0,10,,,,,,,,,,,,,,,,0.081
+1062,KIN,2026,Favites sp,42,polyline,SJD,2026,SE2602,KIN-5192,B,5,2.5,1,0,FAVS,0,,0,MD,0,0,,,,,,,,,,,,,,,,0.057
+1063,KIN,2026,Favites sp,44,polyline,SJD,2026,SE2602,KIN-5192,B,5,2.5,1,0,FAVS,0,,0,EN,0,1,,,,,,,,,,,,,,,,0.185
+1064,KIN,2026,Psammocora sp,45,polyline,SJD,2026,SE2602,KIN-5192,B,5,2.5,1,0,PSSP,0,,0,MD,0,2,,,,,,,,,,,,,,,,0.118
+1065,KIN,2026,Pavona chiriquiensis,46,polyline,SJD,2026,SE2602,KIN-5192,B,5,2.5,1,0,PCHI,0,,0,EN,0,1,,,,,,,,,,,,,,,,0.344
+1067,KIN,2026,Phymastrea sp,49,polyline,SJD,2026,SE2602,KIN-5192,B,5,2.5,1,0,PHSP,0,,0,EN,0,55,,,,,,,,,,,,,,,,0.216
+1068,KIN,2026,Psammocora profundacella,50,polyline,SJD,2026,SE2602,KIN-5192,B,,2.5,1,0,PPRO,0,,0,MD,0,3,,,,,,,,,,,,,,,,0.06
+1070,KIN,2026,Porites sp,52,polyline,SJD,2026,SE2602,KIN-5192,B,5,2.5,1,0,POSP,0,,0,LA,0,1,FISH,1,,,,,,,,,,,,,,0.608
+1071,KIN,2026,Favia stelligera,53,polyline,SJD,2026,SE2602,KIN-5192,B,5,2.5,1,0,FSTE,0,,0,MD,0,1,GAST,1,,,,,,,,,,,,,,0.288
+1072,KIN,2026,Phymastrea sp,54,polyline,SJD,2026,SE2602,KIN-5192,B,5,2.5,1,0,PHSP,0,,0,EN,0,1,,,,,,,,,,,,,,,,0.198
+1073,KIN,2026,Phymastrea sp,55,polyline,SJD,2026,SE2602,KIN-5192,B,5,2.5,1,0,PHSP,0,,0,EN,0,1,,,,,,,,,,,,,,,,0.116
+1074,KIN,2026,Astrea curta,56,polyline,SJD,2026,SE2602,KIN-5192,B,5,2.5,1,0,ACUR,0,,0,EN,0,5,,,,,,,,,,,,,,,,0.058
+1075,KIN,2026,Favia stelligera,58,polyline,SJD,2026,SE2602,KIN-5192,B,5,2.5,1,0,FSTE,0,,0,ML,0,2,,,,,,,,,,,,,,,,0.121
+1076,KIN,2026,Pavona chiriquiensis,59,polyline,SJD,2026,SE2602,KIN-5192,B,5,2.5,1,0,PCHI,0,,0,EN,0,1,,,,,,,,,,,,,,,,0.139
+1077,KIN,2026,Favia sp,60,polyline,SJD,2026,SE2602,KIN-5192,B,5,2.5,1,0,FASP,0,,0,EN,0,30,PRED,2,,,,,,,,,,,,,,0.14
+1078,KIN,2026,Astrea sp,61,polyline,SJD,2026,SE2602,KIN-5192,B,5,2.5,1,0,ASTS,0,,0,EN,0,2,,,,,,,FUG,90,,,,,,,,0.148
+1079,KIN,2026,Porites sp,62,polyline,SJD,2026,SE2602,KIN-5192,B,5,2.5,1,0,POSP,0,,0,EN,0,2,,,,,,,,,,,,,,,,0.049
+1080,KIN,2026,Favia stelligera,63,polyline,SJD,2026,SE2602,KIN-5192,B,5,2.5,1,0,FSTE,0,,0,ML,0,3,,,,,,,,,,,,,,,,0.586
+1084,KIN,2026,Favites sp,69,polyline,SJD,2026,SE2602,KIN-5192,B,5,2.5,1,0,FAVS,0,,0,EN,0,1,,,,,,,,,,,,,,,,0.067
+1085,KIN,2026,Porites sp,70,polyline,SJD,2026,SE2602,KIN-5192,B,5,2.5,1,0,POSP,0,,0,MD,0,1,FISH,1,,,,,,,,,,,,,,0.437
+1086,KIN,2026,Astrea sp,71,polyline,SJD,2026,SE2602,KIN-5192,B,5,2.5,1,0,ASTS,0,,0,EN,0,3,,,,,,,,,,,,,,,,0.163
+1087,KIN,2026,Favia stelligera,72,polyline,SJD,2026,SE2602,KIN-5192,B,5,2.5,1,0,FSTE,0,,0,MD,0,5,,,,,,,,,,,,,,,,0.181
+1088,KIN,2026,Leptastrea sp,73,polyline,SJD,2026,SE2602,KIN-5192,B,5,2.5,1,0,LEPT,0,,0,EN,0,1,,,,,,,,,,,,,,,,0.101
+1089,KIN,2026,Porites sp,74,polyline,SJD,2026,SE2602,KIN-5192,B,5,2.5,1,0,POSP,0,,0,MD,0,1,,,,,,,,,,,,,,,,0.225
+1090,KIN,2026,Leptastrea sp,75,polyline,SJD,2026,SE2602,KIN-5192,B,5,2.5,1,0,LEPT,0,,0,EN,0,3,,,,,,,,,,,,,,,,0.239
+1091,KIN,2026,Leptastrea sp,76,polyline,SJD,2026,SE2602,KIN-5192,B,5,2.5,1,0,LEPT,0,,-1,EN,0,0,,,,,,,,,,,,,,,,0.049
+1092,KIN,2026,Favia stelligera,77,polyline,SJD,2026,SE2602,KIN-5192,B,5,2.5,1,0,FSTE,0,,0,MD,0,1,GAST,2,,,,,,,,,,,,,,0.107
+1093,KIN,2026,Favites sp,78,polyline,SJD,2026,SE2602,KIN-5192,B,5,2.5,1,0,FAVS,0,,0,EN,0,20,,,,,,,,,,,,,,,,0.095
+1094,KIN,2026,Favites sp,79,polyline,SJD,2026,SE2602,KIN-5192,B,5,2.5,1,0,FAVS,0,,0,EN,0,1,,,,,,,,,,,,,,,,0.092
+1095,KIN,2026,Astrea sp,80,polyline,SJD,2026,SE2602,KIN-5192,B,5,2.5,1,0,ASTS,0,,0,EN,0,2,,,,,,,,,,,,,,,,0.18
+1097,KIN,2026,Psammocora profundacella,84,polyline,SJD,2026,SE2602,KIN-5192,B,5,2.5,1,0,PPRO,0,,0,MD,0,70,,,,,,,,,,,,,,,,0.111
+1098,KIN,2026,Coscinaraea sp,85,polyline,SJD,2026,SE2602,KIN-5192,B,5,2.5,1,0,COSP,0,,0,MD,0,10,,,,,,,SGA,5,,,,,,,,0.17
+1148,KIN,2026,Pavona duerdeni,88,polyline,SJD,2026,SE2602,KIN-5192,B,5,2.5,1,0,PDUE,0,,0,ML,0,1,,,,,,,,,,,,,,,,0.112
+1155,KIN,2026,Astrea curta,89,polyline,SJD,2026,SE2602,KIN-5192,B,5,2.5,1,0,ACUR,0,,0,EN,0,50,,,,,,,,,,,,,,,,0.067
+1171,KIN,2026,Pavona chiriquiensis,90,polyline,SJD,2026,SE2602,KIN-5192,B,5,2.5,1,0,PCHI,0,,0,EN,0,5,,,,,,,,,,,,,,,,0.302
+1209,KIN,2026,Phymastrea sp,91,polyline,SJD,2026,SE2602,KIN-5192,B,5,2.5,1,0,PHSP,0,,0,EN,0,35,,,,,,,,,,,,,,,,0.23
+1210,KIN,2026,Phymastrea sp,92,polyline,SJD,2026,SE2602,KIN-5192,B,5,2.5,1,0,PHSP,0,,-1,EN,0,0,,,,,,,,,,,,,,,,0.034
+1212,KIN,2026,Favites sp,93,polyline,SJD,2026,SE2602,KIN-5192,B,5,2.5,1,0,FAVS,0,,0,EN,0,5,,,,,,,,,,,,,,,,0.123
+1220,KIN,2026,Phymastrea sp,94,polyline,SJD,2026,SE2602,KIN-5192,B,5,2.5,1,0,PHSP,0,,0,EN,0,8,,,,,,,,,,,,,,,,0.219
+209,KIN,2026,Pavona sp,1,polyline,MNW,2026,SE2602,KIN-5192,B,5,2.5,1,0,PAVS,0,,0,ML,0,25,,,,,,,,,,,,,,,,0.327
+210,KIN,2026,Favites sp,2,polyline,MNW,2026,SE2602,KIN-5192,B,5,2.5,1,0,FAVS,0,,0,EN,0,0,,,,,,,,,,,,,,,,0.066
+212,KIN,2026,Pocillopora sp,4,polyline,MNW,2026,SE2602,KIN-5192,B,5,2.5,1,0,POCS,0,,0,BR,0,0,,,,,,,,,,,,,,,,0.078
+213,KIN,2026,Astrea curta,5,polyline,MNW,2026,SE2602,KIN-5192,B,5,2.5,1,0,ACUR,0,,0,EN,0,10,,,,,,,,,,,,,,,,0.062
+215,KIN,2026,Porites sp,8,polyline,MNW,2026,SE2602,KIN-5192,B,5,2.5,1,0,POSP,0,,0,MD,0,50,,,,,,,,,,,,,,,,0.264
+216,KIN,2026,Astrea sp,9,polyline,MNW,2026,SE2602,KIN-5192,B,5,2.5,1,0,ASTS,0,,0,MD,0,30,,,,,,,,,,,,,,,,0.113
+217,KIN,2026,Fungia sp,10,polyline,MNW,2026,SE2602,KIN-5192,B,5,2.5,1,0,FUSP,0,,0,FL,0,0,,,,,,,,,,,,,,,,0.088
+218,KIN,2026,Phymastrea sp,12,polyline,MNW,2026,SE2602,KIN-5192,B,5,2.5,1,0,PHSP,0,,0,EN,0,17,,,,,,,,,,,,,,,,0.152
+219,KIN,2026,Phymastrea sp,13,polyline,MNW,2026,SE2602,KIN-5192,B,5,2.5,1,0,PHSP,0,,0,EN,0,20,,,,,,,,,,,,,,,,0.061
+220,KIN,2026,Pocillopora sp,14,polyline,MNW,2026,SE2602,KIN-5192,B,5,2.5,1,0,POCS,0,,0,BR,0,0,,,,,,,,,,,,,,,,0.13
+222,KIN,2026,Montipora sp,20,polyline,MNW,2026,SE2602,KIN-5192,B,5,2.5,1,0,MOSP,0,,0,EN,0,5,,,,,,,,,,,,,,,,0.075
+223,KIN,2026,Phymastrea sp,21,polyline,MNW,2026,SE2602,KIN-5192,B,5,2.5,1,0,PHSP,0,,0,EN,0,20,,,,,,,,,,,,,,,,0.131
+224,KIN,2026,Fungia sp,22,polyline,MNW,2026,SE2602,KIN-5192,B,5,2.5,1,0,FUSP,0,,0,FL,0,0,,,,,,,,,,,,,,,,0.096
+225,KIN,2026,Fungia sp,23,polyline,MNW,2026,SE2602,KIN-5192,B,5,2.5,1,0,FUSP,0,,0,FL,0,0,,,,,,,,,,,,,,,,0.118
+226,KIN,2026,Astrea curta,24,polyline,MNW,2026,SE2602,KIN-5192,B,5,2.5,1,0,ACUR,0,,0,MD,0,0,,,,,,,,,,,,,,,,0.116
+227,KIN,2026,Phymastrea sp,25,polyline,MNW,2026,SE2602,KIN-5192,B,5,2.5,1,0,PHSP,0,,0,EN,0,2,,,,,,,,,,,,,,,,0.074
+228,KIN,2026,Porites sp,26,polyline,MNW,2026,SE2602,KIN-5192,B,5,2.5,1,0,POSP,0,,0,EN,0,5,,,,,,,,,,,,,,,,0.133
+229,KIN,2026,Pavona chiriquiensis,27,polyline,MNW,2026,SE2602,KIN-5192,B,5,2.5,1,0,PCHI,0,,0,EN,0,55,,,,,,,,,,,,,,,,0.255
+230,KIN,2026,Astrea curta,28,polyline,MNW,2026,SE2602,KIN-5192,B,5,2.5,1,0,ACUR,0,,0,MD,0,10,,,,,,,,,,,,,,,,0.101
+232,KIN,2026,Phymastrea sp,30,polyline,MNW,2026,SE2602,KIN-5192,B,5,2.5,1,0,PHSP,0,,0,EN,0,0,,,,,,,,,,,,,,,,0.094
+233,KIN,2026,Phymastrea sp,31,polyline,MNW,2026,SE2602,KIN-5192,B,5,2.5,1,0,PHSP,0,,0,EN,0,52,,,,,,,,,,,,,,,,0.069
+234,KIN,2026,Pocillopora sp,32,polyline,MNW,2026,SE2602,KIN-5192,B,5,2.5,1,0,POCS,0,,0,BR,0,75,,,,,,,,,,,,,,,,0.333
+235,KIN,2026,Favia sp,33,polyline,MNW,2026,SE2602,KIN-5192,B,5,2.5,1,0,FASP,0,,0,MD,0,5,,,,,,,,,,,,,,,,0.198
+236,KIN,2026,Montipora sp,34,polyline,MNW,2026,SE2602,KIN-5192,B,5,2.5,1,0,MOSP,0,,0,EN,0,2,,,,,,,,,,,,,,,,0.125
+237,KIN,2026,Porites sp,35,polyline,MNW,2026,SE2602,KIN-5192,B,5,2.5,1,0,POSP,0,,0,EN,0,48,,,,,,,,,,,,,,,,0.349
+238,KIN,2026,Pavona chiriquiensis,36,polyline,MNW,2026,SE2602,KIN-5192,B,5,2.5,1,0,PCHI,0,,0,EN,0,35,,,,,,,,,,,,,,,,0.42
+239,KIN,2026,Phymastrea sp,37,polyline,MNW,2026,SE2602,KIN-5192,B,5,2.5,1,0,PHSP,0,,0,EN,0,80,,,,,,,,,,,,,,,,0.173
+240,KIN,2026,Porites sp,38,polyline,MNW,2026,SE2602,KIN-5192,B,5,2.5,1,0,POSP,0,,0,EN,0,10,,,,,,,PRS,5,,,,,,,,0.621
+243,KIN,2026,Phymastrea sp,41,polyline,MNW,2026,SE2602,KIN-5192,B,5,2.5,1,0,PHSP,0,,0,EN,0,5,,,,,,,,,,,,,,,,0.207
+244,KIN,2026,Phymastrea sp,42,polyline,MNW,2026,SE2602,KIN-5192,B,5,2.5,1,0,PHSP,0,,0,EN,0,5,,,,,,,,,,,,,,,,0.061
+245,KIN,2026,Favia stelligera,43,polyline,MNW,2026,SE2602,KIN-5192,B,5,2.5,1,0,FSTE,0,,0,ML,0,30,,,,,,,,,,,,,,,,0.288
+246,KIN,2026,Phymastrea sp,45,polyline,MNW,2026,SE2602,KIN-5192,B,5,2.5,1,0,PHSP,0,,0,EN,0,80,,,,,,,,,,,,,,,,0.247
+247,KIN,2026,Phymastrea sp,46,polyline,MNW,2026,SE2602,KIN-5192,B,5,2.5,1,0,PHSP,0,,0,EN,0,30,,,,,,,,,,,,,,,,0.174
+248,KIN,2026,Goniastrea sp,47,polyline,MNW,2026,SE2602,KIN-5192,B,5,2.5,1,0,GONS,0,,0,MD,0,23,,,,,,,,,,,,,,,,0.097
+249,KIN,2026,Astrea sp,48,polyline,MNW,2026,SE2602,KIN-5192,B,5,2.5,1,0,ASTS,0,,0,EN,0,3,,,,,,,,,,,,,,,,0.148
+250,KIN,2026,Favites sp,49,polyline,MNW,2026,SE2602,KIN-5192,B,5,2.5,1,0,FAVS,0,,0,EN,0,2,,,,,,,,,,,,,,,,0.148
+251,KIN,2026,Favia sp,50,polyline,MNW,2026,SE2602,KIN-5192,B,5,2.5,1,0,FASP,0,,0,EN,0,90,,,,,,,,,,,,,,,,0.051
+252,KIN,2026,Favia stelligera,51,polyline,MNW,2026,SE2602,KIN-5192,B,5,2.5,1,0,FSTE,0,,0,MD,0,25,,,,,,,,,,,,,,,,0.154
+254,KIN,2026,Goniastrea sp,53,polyline,MNW,2026,SE2602,KIN-5192,B,5,2.5,1,0,GONS,0,,0,MD,0,90,,,,,,,,,,,,,,,,0.127
+255,KIN,2026,Porites sp,54,polyline,MNW,2026,SE2602,KIN-5192,B,5,2.5,1,0,POSP,0,,0,MD,0,10,,,,,,,,,,,,,,,,0.225
+256,KIN,2026,Leptastrea purpurea,56,polyline,MNW,2026,SE2602,KIN-5192,B,5,2.5,1,0,LPUR,0,,0,EN,0,25,,,,,,,,,,,,,,,,0.243
+257,KIN,2026,Porites sp,57,polyline,MNW,2026,SE2602,KIN-5192,B,5,2.5,1,0,POSP,0,,0,EN,0,15,,,,,,,,,,,,,,,,0.438
+258,KIN,2026,Phymastrea sp,58,polyline,MNW,2026,SE2602,KIN-5192,B,5,2.5,1,0,PHSP,0,,0,EN,0,3,,,,,,,,,,,,,,,,0.097
+259,KIN,2026,Astrea curta,59,polyline,MNW,2026,SE2602,KIN-5192,B,5,2.5,1,0,ACUR,0,,0,EN,0,5,,,,,,,,,,,,,,,,0.145
+260,KIN,2026,Leptastrea purpurea,60,polyline,MNW,2026,SE2602,KIN-5192,B,5,2.5,1,0,LPUR,0,,0,EN,0,3,,,,,,,,,,,,,,,,0.093
+261,KIN,2026,Favia stelligera,61,polyline,MNW,2026,SE2602,KIN-5192,B,5,2.5,1,0,FSTE,0,,0,MD,0,5,,,,,,,,,,,,,,,,0.097
+262,KIN,2026,Favia stelligera,64,polyline,MNW,2026,SE2602,KIN-5192,B,5,2.5,1,0,FSTE,0,,0,ML,0,10,,,,,,,,,,,,,,,,0.576
+263,KIN,2026,Pavona chiriquiensis,65,polyline,MNW,2026,SE2602,KIN-5192,B,5,2.5,1,0,PCHI,0,,0,EN,0,5,,,,,,,,,,,,,,,,0.13
+264,KIN,2026,Astrea sp,66,polyline,MNW,2026,SE2602,KIN-5192,B,5,2.5,1,0,ASTS,0,,0,EN,0,80,,,,,,,,,,,,,,,,0.09
+265,KIN,2026,Phymastrea sp,67,polyline,MNW,2026,SE2602,KIN-5192,B,5,2.5,1,0,PHSP,0,,0,EN,0,10,,,,,,,,,,,,,,,,0.152
+268,KIN,2026,Pavona sp,70,polyline,MNW,2026,SE2602,KIN-5192,B,5,2.5,1,0,PAVS,0,,0,ML,0,0,,,,,,,,,,,,,,,,0.113
+269,KIN,2026,Porites sp,71,polyline,MNW,2026,SE2602,KIN-5192,B,5,2.5,1,0,POSP,0,,0,EN,0,65,,,,,,,,,,,,,,,,0.221
+270,KIN,2026,Leptastrea sp,73,polyline,MNW,2026,SE2602,KIN-5192,B,5,2.5,1,0,LEPT,0,,0,EN,0,70,,,,,,,,,,,,,,,,0.073
+271,KIN,2026,Favia sp,74,polyline,MNW,2026,SE2602,KIN-5192,B,5,2.5,1,0,FASP,0,,0,EN,0,10,,,,,,,,,,,,,,,,0.129
+272,KIN,2026,Phymastrea sp,75,polyline,MNW,2026,SE2602,KIN-5192,B,5,1,1,0,PHSP,-1,TURFH,0,EN,0,,,,,,,,,,,,,,,,,0.047
+1326,KIN,2026,Porites sp,78,polyline,MNW,2026,SE2602,KIN-5192,B,5,2.5,1,0,POSP,0,,0,EN,0,35,,,,,,,,,,,,,,,,0.213
+1327,KIN,2026,Favites sp,79,polyline,MNW,2026,SE2602,KIN-5192,B,5,2.5,1,0,FAVS,0,,0,EN,0,3,,,,,,,,,,,,,,,,0.077
+1328,KIN,2026,Fungia sp,68,polyline,MNW,2026,SE2602,KIN-5192,B,5,2.5,1,0,FUSP,0,,0,FL,0,0,,,,,,,,,,,,,,,,0.111
+1329,KIN,2026,Favia sp,68,polyline,MNW,2026,SE2602,KIN-5192,B,5,2.5,1,0,FASP,0,,0,FL,0,0,,,,,,,,,,,,,,,,0.075
+1330,KIN,2026,Favites sp,64,polyline,MNW,2026,SE2602,KIN-5192,B,5,2.5,1,0,FAVS,0,,0,EN,0,0,,,,,,,,,,,,,,,,0.052
+1349,KIN,2026,Astrea sp,80,polyline,MNW,2026,Leg 1,KIN-5192,A,,2.5,1,0,ASTS,0,,0,EN,0,2,,,,,,,,,,,,,,,,0.05
+1350,KIN,2026,Pavona sp,81,polyline,MNW,2026,Leg 1,KIN-5192,A,,2.5,1,0,PAVS,0,,0,ML,0,30,,,,,,,,,,,,,,,,0.109
+1351,KIN,2026,Favites sp,82,polyline,MNW,2026,Leg 1,KIN-5192,A,,2.5,1,0,FAVS,0,,0,EN,0,2,,,,,,,,,,,,,,,,0.062
+1353,KIN,2026,Phymastrea sp,84,polyline,MNW,2026,Leg 1,KIN-5192,A,,,1,0,PHSP,0,,0,EN,0,5,,,,,,,,,,,,,,,,0.089
+1354,KIN,2026,Phymastrea sp,85,polyline,MNW,2026,Leg 1,KIN-5192,A,,2.5,1,0,PHSP,0,,0,EN,0,3,PRED,3,,,,,,,,,,,,,,0.062
+1355,KIN,2026,Pavona sp,67,polyline,MNW,2026,Leg 1,KIN-5192,A,,,1,0,PAVS,0,,0,ML,0,60,,,,,,,,,,,,,,,,0.262
+727,TUT,2026,Acropora sp,5,polyline,LEERM,2026,Leg 2,TUT-6171,A,10,2.5,1,0,ACSP,0,,0,AR,0,30,,,,,,,,,,,,,,,,1.019
+728,TUT,2026,Acropora sp,6,polyline,LEERM,2026,Leg 2,TUT-6171,A,10,2.5,1,0,ACSP,0,,0,AR,0,15,,,,,,,,,,,,,,,,0.263
+729,TUT,2026,Acropora sp,7,polyline,LEERM,2026,Leg 2,TUT-6171,A,10,2.5,1,0,ACSP,0,,0,AR,0,0,,,,,,,,,,,,,,,,0.162
+730,TUT,2026,Herpolitha sp,8,polyline,LEERM,2026,Leg 2,TUT-6171,A,10,2.5,1,0,HERS,0,,0,FL,0,0,,,,,,,,,,,,,,,,0.253
+731,TUT,2026,Acropora sp,9,polyline,LEERM,2026,Leg 2,TUT-6171,A,10,2.5,1,0,ACSP,0,,0,AR,0,2,,,,,,,,,,,,,,,,0.144
+732,TUT,2026,Montipora sp,10,polyline,LEERM,2026,Leg 2,TUT-6171,A,10,2.5,1,0,MOSP,0,,0,EN,0,6,,,,,,,,,,,,,,,,0.104
+733,TUT,2026,Montipora sp,11,polyline,LEERM,2026,Leg 2,TUT-6171,A,10,2.5,1,0,MOSP,0,,0,EN,0,2,,,,,,,,,,,,,,,,0.066
+734,TUT,2026,Pavona varians,12,polyline,LEERM,2026,Leg 2,TUT-6171,A,10,2.5,1,0,PVAR,0,,0,EN,0,8,GAST,45,,,,,,,,,,,,,,0.284
+735,TUT,2026,Montipora sp,13,polyline,LEERM,2026,Leg 2,TUT-6171,A,10,2.5,1,0,MOSP,0,,0,EN,0,2,,,,,,,,,,,,,,,,0.046
+736,TUT,2026,Galaxea sp,14,polyline,LEERM,2026,Leg 2,TUT-6171,A,10,2.5,1,0,GASP,0,,0,EN,0,0,,,,,,,,,,,,,,,,0.14
+737,TUT,2026,Acropora sp,16,polyline,LEERM,2026,Leg 2,TUT-6171,A,10,2.5,1,0,ACSP,0,,0,AR,0,20,GAST,5,,,,,,,,,,,,,,0.267
+738,TUT,2026,Acropora sp,18,polyline,LEERM,2026,Leg 2,TUT-6171,A,10,2.5,1,0,ACSP,0,,0,CB,0,0,,,,,,,,,,,,,,,,0.072
+739,TUT,2026,Montipora sp,21,polyline,LEERM,2026,Leg 2,TUT-6171,A,10,2.5,1,0,MOSP,0,,0,EN,0,7,,,,,,,,,,,,,,,,0.128
+740,TUT,2026,Acropora sp,22,polyline,LEERM,2026,Leg 2,TUT-6171,A,10,2.5,1,0,ACSP,0,,0,AR,0,4,,,,,,,,,,,,,,,,0.227
+741,TUT,2026,Acropora sp,23,polyline,LEERM,2026,Leg 2,TUT-6171,A,10,2.5,1,0,ACSP,0,,0,CB,0,0,,,,,,,,,,,,,,,,0.086
+742,TUT,2026,Porites monticulosa/rus complex,24,polyline,LEERM,2026,Leg 2,TUT-6171,A,10,2.5,1,0,PMRC,0,,0,LC,0,20,,,,,,,,,,,,,,,,0.38
+744,TUT,2026,Acropora sp,26,polyline,LEERM,2026,Leg 2,TUT-6171,A,10,2.5,1,0,ACSP,0,,0,CB,0,4,,,,,,,,,,,,,,,,0.07
+745,TUT,2026,Acropora sp,29,polyline,LEERM,2026,Leg 2,TUT-6171,A,10,2.5,1,0,ACSP,0,,0,CB,0,2,,,,,,,,,,,,,,,,0.05
+746,TUT,2026,Acropora sp,30,polyline,LEERM,2026,Leg 2,TUT-6171,A,10,2.5,1,0,ACSP,0,,0,CB,0,1,,,,,,,,,,,,,,,,0.088
+747,TUT,2026,Cyphastrea sp,31,polyline,LEERM,2026,Leg 2,TUT-6171,A,10,2.5,1,0,CYPS,0,,0,EN,0,8,GAST,3,,,,,,,,,,,,,,0.233
+748,TUT,2026,Pocillopora sp,32,polyline,LEERM,2026,Leg 2,TUT-6171,A,10,2.5,1,0,POCS,0,,0,BR,0,10,,,,,,,,,,,,,,,,0.075
+749,TUT,2026,Porites vaughani,33,polyline,LEERM,2026,Leg 2,TUT-6171,A,10,2.5,1,0,PVAU,0,,0,MD,0,3,TLS,80,,,,,,,,,,,,,,0.053
+822,TUT,2026,Porites monticulosa/rus complex,35,polyline,LEERM,2026,Leg 2,TUT-6171,A,10,2.5,1,0,PMRC,0,,0,LC,0,5,,,,,,,,,,,,,,,,0.071
+823,TUT,2026,Acropora sp,36,polyline,LEERM,2026,Leg 2,TUT-6171,A,10,1,1,0,ACSP,-1,TURFH,0,AR,0,0,,,,,,,,,,,,,,,,0.039
+824,TUT,2026,Acropora sp,37,polyline,LEERM,2026,Leg 2,TUT-6171,A,10,2.5,1,0,ACSP,0,,0,AR,0,40,,,,,,,,,,,,,,,,0.218
+825,TUT,2026,Acropora sp,38,polyline,LEERM,2026,Leg 2,TUT-6171,A,10,2.5,1,0,ACSP,0,,0,AR,0,5,,,,,,,,,,,,,,,,0.253
+826,TUT,2026,Montipora sp,39,polyline,LEERM,2026,Leg 2,TUT-6171,A,10,2.5,1,0,MOSP,0,,0,EN,0,6,,,,,,,,,,,,,,,,0.06
+827,TUT,2026,Montipora sp,40,polyline,LEERM,2026,Leg 2,TUT-6171,A,10,2.5,1,0,MOSP,0,,0,EN,0,5,,,,,,,,,,,,,,,,0.076
+831,TUT,2026,Porites monticulosa/rus complex,41,polyline,LEERM,2026,Leg 2,TUT-6171,A,10,2.5,1,0,PMRC,0,,0,EN,0,15,,,,,,,,,,,,,,,,0.082
+542,TUT,2026,Acropora sp,1,polyline,SJD,2026,SE2602,TUT-6171,B,10,2.5,1,0,ACSP,0,,0,AR,0,10,,,,,,,,,,,,,,,,0.652
+544,TUT,2026,Acropora sp,2,polyline,SJD,2026,SE2602,TUT-6171,B,10,2.5,1,0,ACSP,0,,0,AR,0,8,,,,,,,,,,,,,,,,0.224
+548,TUT,2026,Acropora sp,6,polyline,SJD,2026,SE2602,TUT-6171,B,10,2.5,1,0,ACSP,0,,0,CB,0,15,,,,,,,,,,,,,,,,0.402
+549,TUT,2026,Acropora sp,8,polyline,SJD,2026,SE2602,TUT-6171,B,10,2.5,1,0,ACSP,0,,0,AR,0,0,,,,,,,,,,,,,,,,0.288
+551,TUT,2026,Acropora sp,9,polyline,SJD,2026,SE2602,TUT-6171,B,10,2.5,1,0,ACSP,0,,0,AR,0,1,,,,,,,,,,,,,,,,0.159
+1222,TUT,2026,Acropora sp,10,polyline,SJD,2026,SE2602,TUT-6171,B,10,2.5,1,0,ACSP,0,,0,AR,0,6,,,,,,,,,,,,,,,,0.571
+1223,TUT,2026,Acropora sp,11,polyline,SJD,2026,SE2602,TUT-6171,B,10,2.5,1,0,ACSP,0,,0,CB,0,3,,,,,,,,,,,,,,,,0.252
+1224,TUT,2026,Acropora sp,13,polyline,SJD,2026,SE2602,TUT-6171,B,10,2.5,1,0,ACSP,0,,0,CB,0,45,,,,,,,,,,,,,,,,0.807
+1225,TUT,2026,Acropora sp,15,polyline,SJD,2026,SE2602,TUT-6171,B,10,2.5,1,0,ACSP,0,,0,CB,0,0,,,,,,,,,,,,,,,,0.057
+1226,TUT,2026,Acropora sp,16,polyline,SJD,2026,SE2602,TUT-6171,B,10,2.5,1,0,ACSP,-1,TURFH,0,AR,0,0,,,,,,,,,,,,,,,,0.042
+1227,TUT,2026,Acropora sp,17,polyline,SJD,2026,SE2602,TUT-6171,B,10,2.5,1,0,ACSP,0,,0,AR,0,0,,,,,,,,,,,,,,,,0.163
+1228,TUT,2026,Acropora sp,18,polyline,SJD,2026,SE2602,TUT-6171,B,10,2.5,1,0,ACSP,0,,-1,EN,0,0,,,,,,,,,,,,,,,,0.041
+1229,TUT,2026,Herpolitha sp,20,polyline,SJD,2026,SE2602,TUT-6171,B,10,2.5,1,0,HERS,0,,0,FL,0,0,,,,,,,,,,,,,,,,0.258
+1230,TUT,2026,Acropora sp,21,polyline,SJD,2026,SE2602,TUT-6171,B,10,2.5,1,0,ACSP,0,,-1,EN,0,0,,,,,,,,,,,,,,,,0.047
+1231,TUT,2026,Acropora sp,22,polyline,SJD,2026,SE2602,TUT-6171,B,10,2.5,1,0,ACSP,0,,0,AR,0,0,,,,,,,,,,,,,,,,0.143
+1234,TUT,2026,Acropora sp,28,polyline,SJD,2026,SE2602,TUT-6171,B,10,2.5,1,0,ACSP,0,,0,CB,0,5,GAST,2,,,,,,,,,,,,,,0.268
+1237,TUT,2026,Galaxea sp,30,polyline,SJD,2026,SE2602,TUT-6171,B,10,2.5,1,0,GASP,0,,0,EN,0,1,,,,,,,,,,,,,,,,0.145
+1238,TUT,2026,Acropora sp,31,polyline,SJD,2026,SE2602,TUT-6171,B,10,2.5,1,0,ACSP,0,,0,CB,0,3,,,,,,,,,,,,,,,,0.051
+1239,TUT,2026,Acropora sp,33,polyline,SJD,2026,SE2602,TUT-6171,B,10,2.5,1,0,ACSP,0,,0,CB,0,1,,,,,,,,,,,,,,,,0.088
+1245,TUT,2026,Acropora sp,34,polyline,SJD,2026,SE2602,TUT-6171,B,10,2.5,1,0,ACSP,0,,0,CB,0,2,,,,,,,,,,,,,,,,0.071
+1252,TUT,2026,Acropora sp,37,polyline,SJD,2026,SE2602,TUT-6171,B,10,2.5,1,0,ACSP,0,,0,CB,0,1,,,,,,,,,,,,,,,,0.061
+1253,TUT,2026,Pavona varians,38,polyline,SJD,2026,SE2602,TUT-6171,B,10,2.5,1,0,PVAR,0,,0,EN,0,3,PRED,45,,,,,,,,,,,,,,0.281
+1254,TUT,2026,Acropora sp,39,polyline,SJD,2026,SE2602,TUT-6171,B,10,2.5,1,0,ACSP,0,,-1,EN,0,0,,,,,,,,,,,,,,,,0.044
+1256,TUT,2026,Acropora sp,44,polyline,SJD,2026,SE2602,TUT-6171,B,10,2.5,1,0,ACSP,0,,0,CB,0,6,,,,,,,,,,,,,,,,0.225
+1257,TUT,2026,Acropora sp,45,polyline,SJD,2026,SE2602,TUT-6171,B,10,2.5,1,0,ACSP,0,,0,CB,0,0,,,,,,,,,,,,,,,,0.086
+1258,TUT,2026,Acropora sp,46,polyline,SJD,2026,SE2602,TUT-6171,B,10,2.5,1,0,ACSP,0,,0,CB,0,2,,,,,,,,,,,,,,,,0.079
+1259,TUT,2026,Acropora sp,48,polyline,SJD,2026,SE2602,TUT-6171,B,10,2.5,1,0,ACSP,0,,0,EN,0,8,,,,,,,,,,,,,,,,0.161
+1261,TUT,2026,Acropora sp,50,polyline,SJD,2026,SE2602,TUT-6171,B,10,2.5,1,0,ACSP,0,,0,CB,0,2,,,,,,,,,,,,,,,,0.076
+1290,TUT,2026,Acropora sp,51,polyline,SJD,2026,SE2602,TUT-6171,B,10,2.5,1,0,ACSP,0,,0,EN,0,60,,,,,,,,,,,,,,,,0.199
+1292,TUT,2026,Pavona chiriquiensis,52,polyline,SJD,2026,SE2602,TUT-6171,B,10,2.5,1,0,PCHI,0,,0,EN,0,10,,,,,,,,,,,,,,,,0.08
+25,TUT,2026,Acropora sp,1,,MW,2026,SE2602,TUT-6171,A,10,2.5,1,0,ACSP,0,,0,TB,0,33,,,,,,,,,,,,,,,,1.014
+29,TUT,2026,Acropora sp,2,,MW,2026,SE2602,TUT-6171,A,10,2.5,1,0,ACSP,0,,0,AR,0,10,,,,,,,,,,,,,,,,0.709
+31,TUT,2026,Acropora sp,3,polyline,MW,2026,SE2602,TUT-6171,A,10,2.5,1,0,ACSP,0,,0,AR,0,2,,,,,,,,,,,,,,,,0.165
+44,TUT,2026,Cyphastrea sp,4,,MW,2026,SE2602,TUT-6171,A,10,2.5,1,0,CYPS,0,,0,MD,0,15,,,,,,,,,,,,,,,,0.221
+47,TUT,2026,Fungia sp,5,,MW,2026,SE2602,TUT-6171,A,10,2.5,1,0,FUSP,0,,0,FL,0,0,,,,,,,,,,,,,,,,0.248
+48,TUT,2026,Acropora sp,6,,MW,2026,SE2602,TUT-6171,A,10,2.5,1,0,ACSP,0,,0,BR,0,0,,,,,,,,,,,,,,,,0.148
+49,TUT,2026,Montipora sp,7,,MW,2026,SE2602,TUT-6171,A,10,2.5,1,0,MOSP,0,,0,EN,0,61,,,,,,,,,,,,,,,,0.11
+55,TUT,2026,Montipora sp,9,,MW,2026,SE2602,TUT-6171,A,10,2.5,1,0,MOSP,0,,0,EN,0,3,,,,,,,,,,,,,,,,0.054
+58,TUT,2026,Acropora sp,11,,MW,2026,SE2602,TUT-6171,A,10,2.5,1,0,ACSP,0,,0,BR,0,3,,,,,,,,,,,,,,,,0.219
+59,TUT,2026,Pavona varians,12,,MW,2026,SE2602,TUT-6171,A,10,2.5,1,0,PVAR,0,,0,EN,0,25,PRED,35,,,,,,,,,,,,,,0.293
+60,TUT,2026,Galaxea sp,13,,MW,2026,SE2602,TUT-6171,A,10,2.5,1,0,GASP,0,,0,EN,0,3,,,,,,,,,,,,,,,,0.123
+61,TUT,2026,Acropora sp,14,,MW,2026,SE2602,TUT-6171,A,10,2.5,1,0,ACSP,0,,0,BR,0,52,,,,,,,,,,,,,,,,0.283
+62,TUT,2026,Montipora sp,15,,MW,2026,SE2602,TUT-6171,A,10,2.5,1,0,MOSP,0,,0,EN,0,5,,,,,,,,,,,,,,,,0.158
+65,TUT,2026,Acropora sp,18,,MW,2026,SE2602,TUT-6171,A,10,2.5,1,0,ACSP,0,,0,BR,0,50,,,,,,,,,,,,,,,,0.4
+76,TUT,2026,Acropora sp,19,,MW,2026,SE2602,TUT-6171,A,10,2.5,1,0,ACSP,0,,0,TB,0,0,,,,,,,,,,,,,,,,0.345
+79,TUT,2026,Porites sp,20,,MW,2026,SE2602,TUT-6171,A,10,2.5,1,0,POSP,0,,0,EN,0,0,,,,,,,,,,,,,,,,0.054
+80,TUT,2026,Acropora sp,21,,MW,2026,SE2602,TUT-6171,A,10,2.5,1,0,ACSP,0,,0,BR,0,3,,,,,,,,,,,,,,,,0.068
+81,TUT,2026,Acropora sp,22,,MW,2026,SE2602,TUT-6171,A,10,2.5,1,0,ACSP,0,,0,BR,0,5,,,,,,,,,,,,,,,,0.074
+82,TUT,2026,Montipora sp,23,,MW,2026,SE2602,TUT-6171,A,10,2.5,1,0,MOSP,0,,0,MD,0,40,,,,,,,,,,,,,,,,0.121
+86,TUT,2026,Acropora sp,25,,MW,2026,SE2602,TUT-6171,A,10,2.5,1,0,ACSP,0,,0,TB,0,96,,,,,,,,,,,,,,,,0.452
+87,TUT,2026,Acropora sp,26,,MW,2026,SE2602,TUT-6171,A,10,2.5,1,0,ACSP,0,,0,BR,0,90,,,,,,,,,,,,,,,,0.24
+91,TUT,2026,Acropora sp,27,,MW,2026,SE2602,TUT-6171,A,10,2.5,1,0,ACSP,0,,0,BR,0,5,,,,,,,,,,,,,,,,0.076
+92,TUT,2026,Montipora sp,28,,MW,2026,SE2602,TUT-6171,A,10,2.5,1,0,MOSP,0,,0,EN,0,45,,,,,,,,,,,,,,,,0.114
+101,TUT,2026,Montipora sp,29,,MW,2026,SE2602,TUT-6171,A,10,2.5,1,0,MOSP,0,,0,EN,0,30,,,,,,,,,,,,,,,,0.085
+206,TUT,2026,Acropora sp,33,polyline,MW,2026,SE2602,TUT-6171,A,10,2.5,1,0,ACSP,0,,0,BR,0,20,,,,,,,,,,,,,,,,0.277
+207,TUT,2026,Acropora sp,34,polyline,MW,2026,SE2602,TUT-6171,A,10,2.5,1,0,ACSP,0,,0,BR,0,35,GAST,5,,,,,,,,,,,,,,0.13
+568,TUT,2026,Acropora sp,36,polyline,MW,2026,SE2602,TUT-6171,A,10,2.5,1,0,ACSP,0,,0,AR,0,5,,,,,,,,,,,,,,,,0.262
+577,TUT,2026,Montipora sp,38,polyline,MW,2026,SE2602,TUT-6171,A,10,2.5,1,0,MOSP,0,,0,EN,0,10,,,,,,,,,,,,,,,,0.071
+1273,TUT,2026,Acropora sp,39,polyline,MW,2026,SE2602,TUT-6171,A,10,2.5,1,0,ACSP,0,,0,BR,0,13,,,,,,,,,,,,,,,,0.799
+1274,TUT,2026,Acropora sp,40,polyline,MW,2026,SE2602,TUT-6171,A,10,2.5,1,0,ACSP,0,,0,BR,0,0,,,,,,,,,,,,,,,,0.133
+1275,TUT,2026,Montipora sp,41,polyline,MW,2026,SE2602,TUT-6171,A,10,2.5,1,0,MOSP,0,,0,EN,0,5,,,,,,,,,,,,,,,,0.064
+1277,TUT,2026,Montipora sp,43,polyline,MW,2026,SE2602,TUT-6171,A,10,2.5,1,0,MOSP,0,,0,EN,0,3,GAST,10,,,,,,,,,,,,,,0.053
+541,PAL,2026,,1,polyline,CGA,2026,Leg 1,PAL-5261,B,5,2.5,1,0,,0,,0,BR,0,1,FISH,1,,,,,,,,,,,,,,0.203
+543,PAL,2026,,2,polyline,CGA,2026,Leg 1,PAL-5261,B,5,1,1,0,,-1,TURFH,0,PL,0,,,,,,,,,,,,,,,,,0.048
+545,PAL,2026,,3,polyline,CGA,2026,Leg 1,PAL-5261,B,5,2.5,1,0,,0,,0,PL,0,5,,,,,,,,,,,,,,,,0.094
+547,PAL,2026,,4,polyline,CGA,2026,Leg 1,PAL-5261,B,5,1,1,0,,-1,TURFH,0,EN,0,,,,,,,,,,,,,,,,,0.035
+550,PAL,2026,,5,polyline,CGA,2026,Leg 1,PAL-5261,B,5,2.5,1,0,,0,,0,MD,0,80,,,,,,,,,,,,,,,,0.081
+552,PAL,2026,,6,polyline,CGA,2026,Leg 1,PAL-5261,B,5,2.5,1,0,,0,,0,BR,0,1,,,,,,,,,,,,,,,,0.069
+553,PAL,2026,,7,polyline,CGA,2026,Leg 1,PAL-5261,B,5,2.5,1,0,,0,,0,ML,0,80,,,,,,,,,,,,,,,,0.119
+555,PAL,2026,,8,polyline,CGA,2026,Leg 1,PAL-5261,B,5,2.5,1,0,,0,,0,EN,0,8,,,,,,,,,,,,,,,,0.066
+556,PAL,2026,,9,polyline,CGA,2026,Leg 1,PAL-5261,B,5,2.5,1,0,,0,,0,ML,0,35,,,,,,,,,,,,,,,,0.197
+557,PAL,2026,,10,polyline,CGA,2026,Leg 1,PAL-5261,B,5,2.5,1,0,,0,,0,BR,0,0,,,,,,,,,,,,,,,,0.059
+558,PAL,2026,,11,polyline,CGA,2026,Leg 1,PAL-5261,B,5,2.5,1,0,,0,,0,PL,0,55,,,,,,,,,,,,,,,,0.116
+559,PAL,2026,,12,polyline,CGA,2026,Leg 1,PAL-5261,B,5,2.5,1,0,,0,,0,EN,0,60,,,,,,,,,,,,,,,,0.141
+560,PAL,2026,,13,polyline,CGA,2026,Leg 1,PAL-5261,B,5,2.5,1,0,,0,,0,BR,0,0,FISH,1,,,,,,,,,,,,,,0.059
+561,PAL,2026,,14,polyline,CGA,2026,Leg 1,PAL-5261,B,5,2.5,1,0,,0,,0,ML,0,1,FISH,1,,,,,,,,,,,,,,0.079
+562,PAL,2026,,15,polyline,CGA,2026,Leg 1,PAL-5261,B,5,2.5,1,0,,0,,0,EN,0,5,,,,,,,,,,,,,,,,0.105
+563,PAL,2026,,16,polyline,CGA,2026,Leg 1,PAL-5261,B,5,2.5,1,0,,0,,0,ML,0,20,,,,,,,,,,,,,,,,0.114
+564,PAL,2026,,17,polyline,CGA,2026,Leg 1,PAL-5261,B,5,2.5,1,0,,0,,0,BR,0,2,,,,,,,,,,,,,,,,0.067
+565,PAL,2026,,18,polyline,CGA,2026,Leg 1,PAL-5261,B,5,2.5,1,0,,0,,0,BR,0,1,,,,,,,,,,,,,,,,0.08
+1333,PAL,2026,,19,polyline,CGA,2026,Leg 1,PAL-5261,B,,,1,0,,-1,TURFH,0,EN,0,,,,,,,,,,,,,,,,,0.049
+1334,PAL,2026,,20,polyline,CGA,2026,Leg 1,PAL-5261,B,,,,0,,0,,-1,EN,0,,,,,,,,,,,,,,,,,0.039
+1335,PAL,2026,,21,polyline,CGA,2026,Leg 1,PAL-5261,B,,,,0,,0,,0,BR,0,2,DAMG,5,,,,,,,,,,,,,,0.1
+1336,PAL,2026,,22,polyline,CGA,2026,Leg 1,PAL-5261,B,,,,0,,0,,0,ML,0,6,,,,,,,,,,,,,,,,0.068
+1337,PAL,2026,,23,polyline,CGA,2026,Leg 1,PAL-5261,B,,,,0,,0,,0,EN,0,75,,,,,,,,,,,,,,,,0.204
+1339,PAL,2026,,24,polyline,CGA,2026,Leg 1,PAL-5261,B,,,,0,,0,,0,ML,0,25,,,,,,,,,,,,,,,,0.068
+519,PAL,2026,Porites sp,1,polyline,MW,2026,SE2602,PAL-5261,B,10,1,1,0,POSP,-1,TURFH,0,EN,0,,,,,,,,,,,,,,,,,0.032
+520,PAL,2026,Pocillopora meandrina/verrucosa complex,2,polyline,MW,2026,SE2602,PAL-5261,B,10,2.5,1,0,PMVC,0,,0,BR,0,6,,,,,,,,,,,,,,,,0.188
+521,PAL,2026,Pocillopora sp,3,polyline,MW,2026,SE2602,PAL-5261,B,10,2.5,1,0,POCS,0,,0,BR,0,0,,,,,,,,,,,,,,,,0.069
+522,PAL,2026,Turbinaria sp,4,polyline,MW,2026,SE2602,PAL-5261,B,10,2.5,1,0,TURS,0,,0,FO,0,2,,,,,,,,,,,,,,,,0.082
+523,PAL,2026,Porites sp,5,polyline,MW,2026,SE2602,PAL-5261,B,10,2.5,1,0,POSP,0,,0,EN,0,0,,,,,,,,,,,,,,,,0.05
+524,PAL,2026,Pavona sp,7,polyline,MW,2026,SE2602,PAL-5261,B,10,2.5,1,0,PAVS,0,,0,EN,0,30,,,,,,,,,,,,,,,,0.063
+525,PAL,2026,Pocillopora meandrina/verrucosa complex,8,polyline,MW,2026,SE2602,PAL-5261,B,10,2.5,1,0,PMVC,0,,0,BR,0,0,,,,,,,,,,,,,,,,0.095
+527,PAL,2026,Turbinaria sp,9,polyline,MW,2026,SE2602,PAL-5261,B,10,2.5,1,0,TURS,0,,0,EN,0,57,,,,,,,,,,,,,,,,0.084
+528,PAL,2026,Pavona duerdeni,10,polyline,MW,2026,SE2602,PAL-5261,B,10,2.5,1,0,PDUE,0,,0,ML,0,70,,,,,,,,,,,,,,,,0.442
+529,PAL,2026,Astrea curta,11,polyline,MW,2026,SE2602,PAL-5261,B,10,2.5,1,0,ACUR,0,,0,EN,0,10,,,,,,,,,,,,,,,,0.065
+530,PAL,2026,Pocillopora meandrina/verrucosa complex,12,polyline,MW,2026,SE2602,PAL-5261,B,10,2.5,1,0,PMVC,0,,0,BR,0,35,,,,,,,,,,,,,,,,0.136
+531,PAL,2026,Pavona varians,13,polyline,MW,2026,SE2602,PAL-5261,B,10,2.5,1,0,PVAR,0,,0,EN,0,40,,,,,,,,,,,,,,,,0.083
+532,PAL,2026,Pocillopora sp,14,polyline,MW,2026,SE2602,PAL-5261,B,10,2.5,1,0,POCS,0,,0,BR,0,2,,,,,,,,,,,,,,,,0.081
+533,PAL,2026,Pocillopora sp,15,polyline,MW,2026,SE2602,PAL-5261,B,10,2.5,1,0,POCS,0,,0,BR,0,63,,,,,,,,,,,,,,,,0.063
+534,PAL,2026,Astrea sp,16,polyline,MW,2026,SE2602,PAL-5261,B,10,2.5,1,0,ASTS,0,,0,BR,0,6,,,,,,,,,,,,,,,,0.102
+535,PAL,2026,Pavona varians,17,polyline,MW,2026,SE2602,PAL-5261,B,10,2.5,1,0,PVAR,0,,0,EN,0,85,,,,,,,,,,,,,,,,0.203
+566,PAL,2026,Pavona sp,18,polyline,MW,2026,SE2602,PAL-5261,B,10,2.5,1,0,PAVS,0,,0,ML,0,90,,,,,,,,,,,,,,,,0.18
+821,PAL,2026,Pocillopora sp,19,polyline,MW,2026,SE2602,PAL-5261,B,10,2.5,1,0,POCS,0,,0,BR,0,3,,,,,,,,,,,,,,,,0.059
+1278,PAL,2026,Pavona varians,20,polyline,MW,2026,SE2602,PAL-5261,B,10,2.5,1,0,PVAR,0,,0,EN,0,3,,,,,,,,,,,,,,,,0.1
+1279,PAL,2026,Pavona sp,21,polyline,MW,2026,SE2602,PAL-5261,B,10,2.5,1,0,PAVS,0,,0,EN,0,2,,,,,,,,,,,,,,,,0.062
+1361,PAL,2026,Favia sp,21,polyline,MW,2026,SE2602,PAL-5261,B,10,2.5,1,0,FASP,0,,0,EN,0,0,,,,,,,,,,,,,,,,0.053
+1362,PAL,2026,Porites sp,22,polyline,MW,2026,SE2602,PAL-5261,B,10,2.5,1,0,POSP,0,,0,MD,0,25,,,,,,,,,,,,,,,,0.06
+667,PAL,2026,Pocillopora meandrina/verrucosa complex,1,polyline,LEERM,2026,Leg 1,PAL-5261,A,10,2.5,1,0,PMVC,0,,0,BR,0,6,FISH,1,,,,,,,,,,,,,,0.201
+668,PAL,2026,Favites sp,2,polyline,LEERM,2026,Leg 1,PAL-5261,A,10,2.5,1,0,FAVS,0,,0,EN,0,10,,,,,,,,,,,,,,,,0.051
+669,PAL,2026,Favites sp,3,polyline,LEERM,2026,Leg 1,PAL-5261,A,10,2.5,1,0,FAVS,0,,0,EN,0,5,,,,,,,,,,,,,,,,0.062
+670,PAL,2026,Porites sp,4,polyline,LEERM,2026,Leg 1,PAL-5261,A,10,2.5,1,0,POSP,0,,0,MD,0,30,,,,,,,,,,,,,,,,0.315
+671,PAL,2026,Turbinaria sp,5,polyline,LEERM,2026,Leg 1,PAL-5261,A,10,2.5,1,0,TURS,0,,0,FO,0,2,,,,,,,,,,,,,,,,0.094
+672,PAL,2026,Porites sp,6,polyline,LEERM,2026,Leg 1,PAL-5261,A,10,2.5,1,0,POSP,0,,0,EN,0,1,,,,,,,,,,,,,,,,0.054
+673,PAL,2026,Turbinaria sp,7,polyline,LEERM,2026,Leg 1,PAL-5261,A,10,2.5,1,0,TURS,0,,-1,EN,0,0,,,,,,,,,,,,,,,,0.035
+674,PAL,2026,Favites sp,8,polyline,LEERM,2026,Leg 1,PAL-5261,A,10,2.5,1,0,FAVS,0,,-1,EN,0,0,,,,,,,,,,,,,,,,0.02
+675,PAL,2026,Pocillopora meandrina/verrucosa complex,9,polyline,LEERM,2026,Leg 1,PAL-5261,A,10,2.5,1,0,PMVC,0,,0,BR,0,0,,,,,,,,,,,,,,,,0.071
+676,PAL,2026,Pavona chiriquiensis,10,polyline,LEERM,2026,Leg 1,PAL-5261,A,10,2.5,1,0,PCHI,0,,0,EN,0,8,,,,,,,,,,,,,,,,0.077
+677,PAL,2026,Pavona duerdeni,12,polyline,LEERM,2026,Leg 1,PAL-5261,A,10,2.5,1,0,PDUE,0,,0,ML,0,60,,,,,,,,,,,,,,,,0.118
+678,PAL,2026,Pavona sp,13,polyline,LEERM,2026,Leg 1,PAL-5261,A,10,2.5,1,0,PAVS,0,,0,ML,0,45,,,,,,,,,,,,,,,,0.197
+679,PAL,2026,Pocillopora meandrina/verrucosa complex,14,polyline,LEERM,2026,Leg 1,PAL-5261,A,10,2.5,1,0,PMVC,0,,0,BR,0,0,,,,,,,,,,,,,,,,0.08
+680,PAL,2026,Pocillopora meandrina/verrucosa complex,15,polyline,LEERM,2026,Leg 1,PAL-5261,A,10,2.5,1,0,PMVC,0,,0,BR,0,0,,,,,,,,,,,,,,,,0.074
+681,PAL,2026,Pocillopora meandrina/verrucosa complex,16,polyline,LEERM,2026,Leg 1,PAL-5261,A,10,2.5,1,0,PMVC,0,,0,BR,0,1,,,,,,,,,,,,,,,,0.079
+684,PAL,2026,Favia sp,19,polyline,LEERM,2026,Leg 1,PAL-5261,A,10,2.5,1,0,FASP,0,,0,EN,0,3,,,,,,,,,,,,,,,,0.064
+688,PAL,2026,Pocillopora meandrina/verrucosa complex,21,polyline,LEERM,2026,Leg 1,PAL-5261,A,10,2.5,1,0,PMVC,0,,0,BR,0,0,,,,,,,,,,,,,,,,0.058
+690,PAL,2026,Favia sp,24,polyline,LEERM,2026,Leg 1,PAL-5261,A,10,2.5,1,0,FASP,0,,0,EN,0,15,,,,,,,,,,,,,,,,0.11
+691,PAL,2026,Pavona duerdeni,25,polyline,LEERM,2026,Leg 1,PAL-5261,A,10,2.5,1,0,PDUE,0,,0,ML,0,30,,,,,,,,,,,,,,,,0.106
+692,PAL,2026,Pocillopora sp,26,polyline,LEERM,2026,Leg 1,PAL-5261,A,10,2.5,1,0,POCS,0,,0,BR,0,2,,,,,,,,,,,,,,,,0.066
+694,PAL,2026,Pavona sp,27,polyline,LEERM,2026,Leg 1,PAL-5261,A,10,2.5,1,0,PAVS,0,,0,ML,0,5,,,,,,,,,,,,,,,,0.07
+695,PAL,2026,Pocillopora meandrina/verrucosa complex,28,polyline,LEERM,2026,Leg 1,PAL-5261,A,10,2.5,1,0,PMVC,0,,0,BR,0,0,FISH,1,DAMG,8,,,,,,,,,,,,0.097
+697,PAL,2026,Pavona chiriquiensis,30,polyline,LEERM,2026,Leg 1,PAL-5261,A,10,2.5,1,0,PCHI,0,,-1,EN,0,0,,,,,,,,,,,,,,,,0.046
+698,PAL,2026,Pavona chiriquiensis,31,polyline,LEERM,2026,Leg 1,PAL-5261,A,10,2.5,1,0,PCHI,0,,0,EN,0,8,,,,,,,,,,,,,,,,0.063
+699,PAL,2026,Pavona chiriquiensis,32,polyline,LEERM,2026,Leg 1,PAL-5261,A,10,2.5,1,0,PCHI,0,,0,EN,0,5,,,,,,,,,,,,,,,,0.057
+701,PAL,2026,Pavona sp,33,polyline,LEERM,2026,Leg 1,PAL-5261,A,10,2.5,1,0,PAVS,0,,0,ML,0,50,,,,,,,,,,,,,,,,0.065
+702,PAL,2026,Pavona chiriquiensis,34,polyline,LEERM,2026,Leg 1,PAL-5261,A,10,2.5,1,0,PCHI,0,,0,EN,0,2,,,,,,,,,,,,,,,,0.098
+723,PAL,2026,Turbinaria sp,35,polyline,LEERM,2026,Leg 1,PAL-5261,A,10,2.5,1,0,TURS,0,,0,EN,0,60,,,,,,,,,,,,,,,,0.118
+724,PAL,2026,Porites sp,36,polyline,LEERM,2026,Leg 1,PAL-5261,A,10,2.5,1,0,POSP,0,,-1,EN,0,0,,,,,,,,,,,,,,,,0.02
+725,PAL,2026,Favites sp,37,polyline,LEERM,2026,Leg 1,PAL-5261,A,10,2.5,1,0,FAVS,0,,-1,EN,0,0,,,,,,,,,,,,,,,,0.036
+726,PAL,2026,Pavona chiriquiensis,38,polyline,LEERM,2026,Leg 1,PAL-5261,A,10,2.5,1,0,PCHI,0,,-1,EN,0,0,,,,,,,,,,,,,,,,0.021
+6,PAL,2026,,1,,MIA.LAMIRAND,2026,Leg 1,PAL-5261,A,,,,0,,0,,0,,0,,,,,,,,,,,,,,,,,0.055
+9,PAL,2026,,2,,MIA.LAMIRAND,2026,Leg 1,PAL-5261,A,,,,0,,0,,0,,0,,,,,,,,,,,,,,,,,0.097
+12,PAL,2026,,3,,MIA.LAMIRAND,2026,Leg 1,PAL-5261,A,,,,0,,0,,0,,0,,,,,,,,,,,,,,,,,0.038
+13,PAL,2026,,4,,MIA.LAMIRAND,2026,Leg 1,PAL-5261,A,,,,0,,0,,0,,0,,,,,,,,,,,,,,,,,0.075
+18,PAL,2026,,5,,MIA.LAMIRAND,2026,Leg 1,PAL-5261,A,,,,0,,0,,0,,0,,,,,,,,,,,,,,,,,0.084
+30,PAL,2026,Pocillopora meandrina,6,polyline,MIA.LAMIRAND,2026,Leg 1,PAL-5261,A,,,,0,PMEA,0,,0,,0,,,,,,,,,,,,,,,,,0.189
+34,PAL,2026,Pocillopora meandrina,7,polyline,MIA.LAMIRAND,2026,Leg 1,PAL-5261,,,,,0,PMEA,0,,0,BR,0,3,FISH,2,,,,,,,,,,,,,,0.197
+35,PAL,2026,,8,,MIA.LAMIRAND,2026,Leg 1,PAL-5261,,,,,0,,0,,0,,0,,,,,,,,,,,,,,,,,0.036
+36,PAL,2026,,9,,MIA.LAMIRAND,2026,Leg 1,PAL-5261,,,,,0,,0,,0,,0,,,,,,,,,,,,,,,,,0.087
+37,PAL,2026,,10,,MIA.LAMIRAND,2026,Leg 1,PAL-5261,,,,,0,,0,,0,,0,,,,,,,,,,,,,,,,,0.084
+38,PAL,2026,,13,,MIA.LAMIRAND,2026,Leg 1,PAL-5261,,,,,0,,0,,0,,0,,,,,,,,,,,,,,,,,0.061
+39,PAL,2026,,14,,MIA.LAMIRAND,2026,Leg 1,PAL-5261,,,,,0,,0,,0,,0,,,,,,,,,,,,,,,,,0.063
+40,PAL,2026,,15,,MIA.LAMIRAND,2026,Leg 1,PAL-5261,,,,,0,,0,,0,,0,,,,,,,,,,,,,,,,,0.114
+41,PAL,2026,,16,,MIA.LAMIRAND,2026,Leg 1,PAL-5261,,,,,0,,0,,0,,0,,,,,,,,,,,,,,,,,0.2
+42,PAL,2026,,17,,MIA.LAMIRAND,2026,Leg 1,PAL-5261,,,,,0,,0,,0,,0,,,,,,,,,,,,,,,,,0.12
+43,PAL,2026,,18,,MIA.LAMIRAND,2026,Leg 1,PAL-5261,,,,,0,,0,,0,,0,,,,,,,,,,,,,,,,,0.058
+45,PAL,2026,,19,,MIA.LAMIRAND,2026,Leg 1,PAL-5261,,,,,0,,0,,0,,0,,,,,,,,,,,,,,,,,0.117
+46,PAL,2026,,20,,MIA.LAMIRAND,2026,Leg 1,PAL-5261,,,,,0,,0,,0,,0,,,,,,,,,,,,,,,,,0.069
+50,PAL,2026,,21,,MIA.LAMIRAND,2026,Leg 1,PAL-5261,,,,,0,,0,,0,,0,,,,,,,,,,,,,,,,,0.094
+52,PAL,2026,,22,,MIA.LAMIRAND,2026,Leg 1,PAL-5261,,,,,0,,0,,0,,0,,,,,,,,,,,,,,,,,0.1
+53,PAL,2026,,24,,MIA.LAMIRAND,2026,Leg 1,PAL-5261,,,,,0,,0,,0,,0,,,,,,,,,,,,,,,,,0.07
+54,PAL,2026,,25,,MIA.LAMIRAND,2026,Leg 1,PAL-5261,,,,,0,,0,,0,,0,,,,,,,,,,,,,,,,,0.211
+57,PAL,2026,,26,,MIA.LAMIRAND,2026,Leg 1,PAL-5261,,,,,0,,0,,0,,0,,,,,,,,,,,,,,,,,0.073
+73,PAL,2026,Pavona varians,22,polyline,MIA.LAMIRAND,2026,Leg 1,PAL-5261,A,,,,0,PVAR,0,,0,,0,,,,,,,,,,,,,,,,,0.154
+94,PAL,2026,Leptastrea sp,23,polyline,MIA.LAMIRAND,2026,Leg 1,PAL-5261,,,,,0,LEPT,0,,0,EN,0,2,,,,,,,,,,,,,,,,0.057
+1401,TUT,2026,Montipora sp,1,polyline,CORINNE,2026,Leg 2,TUT-6193,A,,,1,0,MOSP,0,,0,EN,0,45,,,,,,,,,,,,,,,,0.352
+1402,TUT,2026,Montipora sp,2,polyline,CORINNE,2026,Leg 2,TUT-6193,,,,,0,MOSP,0,,0,EN,0,20,,,,,,,,,,,,,,,,0.651
+1403,TUT,2026,Montipora sp,3,polyline,CORINNE,2026,Leg 2,TUT-6193,,,,,0,MOSP,0,,0,EN,0,5,,,,,,,,,,,,,,,,0.066
+1404,TUT,2026,Montipora sp,4,polyline,CORINNE,2026,Leg 2,TUT-6193,,,,,0,MOSP,0,,0,EN,0,20,,,,,,,,,,,,,,,,0.373
+1405,TUT,2026,Montipora sp,5,polyline,CORINNE,2026,Leg 2,TUT-6193,,,,,0,MOSP,0,,0,EN,0,15,,,,,,,,,,,,,,,,0.297
+1406,TUT,2026,Montipora sp,6,polyline,CORINNE,2026,Leg 2,TUT-6193,,,,,0,MOSP,0,,0,EN,0,4,,,,,,,,,,,,,,,,0.073
+1407,TUT,2026,Montipora sp,7,polyline,CORINNE,2026,Leg 2,TUT-6193,,,,,0,MOSP,0,,0,EN,0,8,,,,,,,,,,,,,,,,0.229
+1408,TUT,2026,Porites monticulosa/rus complex,8,polyline,CORINNE,2026,Leg 2,TUT-6193,,,,,0,PMRC,0,,0,LC,0,10,,,,,,,,,,,,,,,,0.141
+1409,TUT,2026,Montipora sp,9,polyline,CORINNE,2026,Leg 2,TUT-6193,,,,,0,MOSP,0,,0,EN,0,10,,,,,,,,,,,,,,,,0.275
+1410,TUT,2026,Porites monticulosa/rus complex,10,polyline,CORINNE,2026,Leg 2,TUT-6193,,,,,0,PMRC,0,,0,LC,0,3,,,,,,,,,,,,,,,,0.155
+1411,TUT,2026,Montipora sp,11,polyline,CORINNE,2026,Leg 2,TUT-6193,,,,,0,MOSP,0,,0,EN,0,9,,,,,,,,,,,,,,,,0.215
+1412,TUT,2026,Montipora sp,12,polyline,CORINNE,2026,Leg 2,TUT-6193,,,,,0,MOSP,0,,0,EN,0,3,,,,,,,,,,,,,,,,0.218
+1413,TUT,2026,Porites monticulosa/rus complex,13,polyline,CORINNE,2026,Leg 2,TUT-6193,,,,,0,PMRC,0,,0,LC,0,8,,,,,,,,,,,,,,,,0.234
+1414,TUT,2026,Porites monticulosa/rus complex,14,polyline,CORINNE,2026,Leg 2,TUT-6193,,,,,0,PMRC,0,,0,LC,0,2,,,,,,,,,,,,,,,,0.181
+1415,TUT,2026,Montipora sp,15,polyline,CORINNE,2026,Leg 2,TUT-6193,A,,,1,0,MOSP,0,,0,EN,0,20,,,,,,,,,,,,,,,,0.355
+1416,TUT,2026,Montipora sp,16,polyline,CORINNE,2026,Leg 2,TUT-6193,,,,,0,MOSP,0,,0,MD,0,3,,,,,,,,,,,,,,,,0.078

@@ -16,6 +16,8 @@ source("C:/Users/jonathan.charendoff/Downloads/core_functions.R")
 ad_sfm<-read.csv("T:/Benthic/Data/SfM/Calibration QC/2025/MARAMP25_SfMAdult_CLEANED.csv")
 j_sfm<-read.csv("T:/Benthic/Data/SfM/Calibration QC/2025/MARAMP25_SfMJuv_CLEANED.csv") 
 
+ad_sfm <- sfm %>% filter(JUVENILE != -1)
+j_sfm <- sfm %>% filter(JUVENILE == -1)
 
 #Check number of unique site-segments
 t1<-ddply(ad_sfm,.(SITE,SEGMENT),summarize,n=length(unique(ANALYST)))
