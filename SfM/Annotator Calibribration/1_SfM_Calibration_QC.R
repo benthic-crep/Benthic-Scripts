@@ -28,12 +28,29 @@ names(v2) <- toupper(names(v2))
 
 
 # ad hoc QC
+
 v2 <- v2 %>% filter(SITE != "TUT-6193",ANALYST != "MSL") %>%
-             mutate(SPCODE = recode(SPCODE, "PHSP" = "PHS")) %>%
+             mutate(SPCODE = recode(SPCODE, "PHS" = "PHSP")) %>%
              dplyr::rename(COLONYLENGTH = LINE_LENGTH_M) %>%
-             mutate(ANALYST = recode(ANALYST, "RML = LEERM",
-                                              "MNW" = "MW",
+             mutate(ANALYST = recode(ANALYST, "LEERM" = "RML",
+                                              "MW" = "MNW",
+                                              "CGA" = "CGA",
+                                              "MNW" = "MNW",
+                                              "SJD" = "SJD",
+                                              "CORINNE" = "CGA",
                                               "MIA.LAMIRAND" = "MSL"))
+
+v2$GENUSCODE <- as.character(v2$SPCODE)
+v2$GENUSCODE[v2$GENUSCODE %in% c("PMRC", "PLOB", "PLUT","PVAU")] <- "POSP"
+v2$GENUSCODE[v2$GENUSCODE %in% c("PMVC", "PGWC")] <- "POCS"
+v2$GENUSCODE[v2$GENUSCODE %in% c("PVAR", "PDUE", "PCHI", "PMAL")] <- "PAVS"
+v2$GENUSCODE[v2$GENUSCODE %in% c("GEDW")] <- "GONS"
+v2$GENUSCODE[v2$GENUSCODE %in% c("FSTE")] <- "FASP"
+v2$GENUSCODE[v2$GENUSCODE %in% c("PPRO")] <- "PSSP"
+v2$GENUSCODE[v2$GENUSCODE %in% c("LPUR", "LTRA", "LBEW")] <- "LEPT"
+v2$GENUSCODE[v2$GENUSCODE %in% c("ACUR")] <- "ASTS"
+v2$GENUSCODE[v2$GENUSCODE %in% c("PPIN", "PLDA")] <- "PLSP" 
+
 
 v2$SEGAREA <- ifelse(v2$JUVENILE == "-1",1,2.5)
 
