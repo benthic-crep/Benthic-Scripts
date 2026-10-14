@@ -15,8 +15,8 @@ source("C:/Users/Corinne.Amir/Documents/GitHub/fish-paste/lib/GIS_functions.R")
 
 # SFM/ADULT: CLEAN ANALYSIS READY DATA ----------------------------------------------------
 
-df<-read.csv("T:/Benthic/Data/SfM/Calibration QC/2025/MARAMP25_Calib_QCdsfm_ADULT.csv")
-
+#df<-read.csv("T:/Benthic/Data/SfM/Calibration QC/2025/MARAMP25_Calib_QCdsfm_ADULT.csv")
+df <- sfm
 
 x<-df
 tail(x)
@@ -66,17 +66,23 @@ nrow(df);nrow(x) #make sure rows weren't dropped
 ##Look for NAs where there wasn't a match between lookup and annotation code
 
 #SfM/ADULT: Merge Adult data and  SURVEY MASTER  -------------------------------------
-#survey_master<-read.csv("C:/Users/Courtney.S.Couch/Documents/GitHub/fish-paste/data/SURVEY MASTER.csv")
-setwd("C:/Users/Jonathan.Charendoff/Documents/GitHub/Benthic-Scripts/SfM")
-survey_master <- read.csv("SURVEY MASTER_OCT25.csv")[]
+setwd("C:/Users/corinne.amir/Documents/GitHub/Benthic-Scripts/SfM")
+survey_master <- read.csv("SURVEY_MASTER_ASPRIA26.csv")
 
 colnames(survey_master)[colnames(survey_master)=="LATITUDE_SV"]<-"LATITUDE" #Change column name
 colnames(survey_master)[colnames(survey_master)=="LONGITUDE_SV"]<-"LONGITUDE" #Change column name
 x$SITE <- SiteNumLeadingZeros(as.factor(x$SITE))
+names(survey_master) <- toupper(names(survey_master))
+survey_master$OBS_YEAR <- as.factor("2026")
 
 
-x<-left_join(x,survey_master[,c("REGION","OBS_YEAR","ISLAND","SITEVISITID","SITE","SEC_NAME",
-                            "REEF_ZONE","DEPTH_BIN","HABITAT_CODE","LATITUDE","LONGITUDE","new_MIN_DEPTH_M","new_MAX_DEPTH_M")],by=c("OBS_YEAR","SITE"))
+# x<-left_join(x,survey_master[,c("REGION","OBS_YEAR","ISLAND","SITEVISITID","SITE","SEC_NAME",
+#                             "REEF_ZONE","DEPTH_BIN","HABITAT_CODE","LATITUDE","LONGITUDE","new_MIN_DEPTH_M","new_MAX_DEPTH_M")],by=c("OBS_YEAR","SITE"))
+x<-left_join(x,survey_master %>%
+               dplyr::select(SITE, ISLAND, SITEVISITID) %>%
+               dplyr::distinct(),
+             by = c("SITE", "ISLAND"))
+                          
 
 head(x)
 nrow(x)
@@ -149,7 +155,6 @@ x<-x[,c("ANALYST", "REGION","OBS_YEAR","ISLAND","SEC_NAME","SITEVISITID","SITE",
   "RDEXTENT3","CONDITION_1","EXTENT_1","SEVERITY_1","CONDITION_2","EXTENT_2","SEVERITY_2","CONDITION_3","EXTENT_3","SEVERITY_3")]
 
 
-## CLEAN UP NAs ##
 NegNineCheckCols=c("RDEXTENT1","GENRD1","RD1","RDEXTENT2","GENRD2","RD2","GENRD3","RD3",
                    "RDEXTENT3","CONDITION_1","CONDITION_2","CONDITION_3","EXTENT_1","EXTENT_2","EXTENT_3","SEVERITY_1",
                    "SEVERITY_2","SEVERITY_3","GENUS_CODE","S_ORDER")

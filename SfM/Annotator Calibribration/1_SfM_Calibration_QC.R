@@ -16,19 +16,18 @@ library(reshape)
 
 # Read in V2 geodatabase --------------------------------------------------
 
-v2 <- read.csv("N:/StRS_Sites_Projects/REA Belts/Data Output/CALIBRATION/2026/FY27_calibration.csv")
-# sitelist <- read.csv("N:/StRS_Sites_Projects/REA Belts/Data Output/CALIBRATION/MARAMP25_Calib_Meta.csv")
+v2 <- read.csv("N:/StRS_Sites_Projects/REA Belts/Data Output/CALIBRATION/2026/ASPRIA26_belts_calibration_10-13-2026.csv")
+sitelist <- read.csv("N:/StRS_Sites_Projects/REA Belts/Data Output/CALIBRATION/2026/ASPRIA26_Calib_Meta.csv")
 
 
 #Rename and filter CAT export columns
 colnames(v2)
 
-v2 <- v2 %>% dplyr::select(-c(project_region,project_year,taxon_name,type))
+v2 <- v2 %>% dplyr::select(-c(project_year,taxon_name,type))
 names(v2) <- toupper(names(v2))
 
 
-# ad hoc QC
-
+# ad hoc QC for CAT calibration
 v2 <- v2 %>% filter(SITE != "TUT-6193",ANALYST != "MSL") %>%
              mutate(SPCODE = recode(SPCODE, "PHS" = "PHSP")) %>%
              dplyr::rename(COLONYLENGTH = LINE_LENGTH_M) %>%
@@ -40,21 +39,10 @@ v2 <- v2 %>% filter(SITE != "TUT-6193",ANALYST != "MSL") %>%
                                               "CORINNE" = "CGA",
                                               "MIA.LAMIRAND" = "MSL"))
 
-v2$GENUSCODE <- as.character(v2$SPCODE)
-v2$GENUSCODE[v2$GENUSCODE %in% c("PMRC", "PLOB", "PLUT","PVAU")] <- "POSP"
-v2$GENUSCODE[v2$GENUSCODE %in% c("PMVC", "PGWC")] <- "POCS"
-v2$GENUSCODE[v2$GENUSCODE %in% c("PVAR", "PDUE", "PCHI", "PMAL")] <- "PAVS"
-v2$GENUSCODE[v2$GENUSCODE %in% c("GEDW")] <- "GONS"
-v2$GENUSCODE[v2$GENUSCODE %in% c("FSTE")] <- "FASP"
-v2$GENUSCODE[v2$GENUSCODE %in% c("PPRO")] <- "PSSP"
-v2$GENUSCODE[v2$GENUSCODE %in% c("LPUR", "LTRA", "LBEW")] <- "LEPT"
-v2$GENUSCODE[v2$GENUSCODE %in% c("ACUR")] <- "ASTS"
-v2$GENUSCODE[v2$GENUSCODE %in% c("PPIN", "PLDA")] <- "PLSP" 
-
-
+# Make additional columns
 v2$SEGAREA <- ifelse(v2$JUVENILE == "-1",1,2.5)
-
-
+v2$ISLAND <- paste0(substr(v2$SITE, 1, 3))
+v2$REGION <- ifelse(v2$ISLAND %in% c("TUT","ROS","TAU","OFU"),"SAMOA","PRIAs")
 
 
 #Reformat v2 Site names
