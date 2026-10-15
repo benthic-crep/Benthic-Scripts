@@ -4,20 +4,17 @@
 rm(list=ls())
 
 #LOAD LIBRARY FUNCTIONS ... 
-source("C:/Users/Jonathan.Charendoff/Documents/GitHub/Benthic-Scripts/Functions/Benthic_Functions_newApp_vTAOfork.R")
-source("C:/Users/Jonathan.Charendoff/Documents/GitHub/fish-paste/lib/core_functions.R")
-source("C:/Users/Jonathan.Charendoff/Documents/GitHub/fish-paste/lib/GIS_functions.R")
-# source("C:/Users/Corinne.Amir/Documents/GitHub/Benthic-Scripts/Functions/Benthic_Functions_newApp_vTAOfork.R")
-# source("C:/Users/Corinne.Amir/Documents/GitHub/fish-paste/lib/core_functions.R")
-# source("C:/Users/Corinne.Amir/Documents/GitHub/fish-paste/lib/GIS_functions.R")
-source("C:/Users/jonathan.charendoff/Downloads/core_functions.R")
+source("C:/Users/Corinne.Amir/Documents/GitHub/Benthic-Scripts/Functions/Benthic_Functions_newApp_vTAOfork.R")
+source("C:/Users/Corinne.Amir/Documents/GitHub/fish-paste/lib/core_functions.R")
+source("C:/Users/Corinne.Amir/Documents/GitHub/fish-paste/lib/GIS_functions.R")
+source("C:/Users/Corinne.Amir/Downloads/core_functions.R")
 
 #Read in files
 ad_sfm<-read.csv("T:/Benthic/Data/SfM/Calibration QC/2025/MARAMP25_SfMAdult_CLEANED.csv")
 j_sfm<-read.csv("T:/Benthic/Data/SfM/Calibration QC/2025/MARAMP25_SfMJuv_CLEANED.csv") 
 
-ad_sfm <- sfm %>% filter(JUVENILE != -1)
-j_sfm <- sfm %>% filter(JUVENILE == -1)
+ad_sfm <- a %>% filter(JUVENILE != -1)
+j_sfm <- a %>% filter(JUVENILE == -1)
 
 #Check number of unique site-segments
 t1<-ddply(ad_sfm,.(SITE,SEGMENT),summarize,n=length(unique(ANALYST)))
@@ -25,28 +22,27 @@ t2<-ddply(j_sfm,.(SITE,SEGMENT),summarize,n=length(unique(ANALYST)))
 t1
 t2
 
+#CGA three juvs without species code in palmyra
 
 
 
 ###FOR CALIBRATION: Use this script to assign transect
 #Create Transect column and use this to code duplicate segments
 ad_sfm<-ad_sfm %>% mutate(TRANSECT=recode(ANALYST,
-                                        `JC`="1",
-                                        `MSL`="2",
-                                        `CA`="3",
-                                        `RML` = "4",
-                                        `SJD`="5"))
+                                        `MNW`="1",
+                                        `SJD`="2",
+                                        `CGA`="3",
+                                        `RML` = "4"))
 #Check that segments were changed correctly
 ad_sfm<-droplevels(ad_sfm)
 table(ad_sfm$SITE,ad_sfm$TRANSECT)
 
 #Create Transect column and use this to code duplicate segments
 j_sfm<-j_sfm %>% mutate(TRANSECT=recode(ANALYST,
-                                        `JC`="1",
-                                        `MSL`="2",
-                                        `CA`="3",
-                                        `RML` = "4",
-                                        `SJD`="5"))
+                                        `MNW`="1",
+                                        `SJD`="2",
+                                        `CGA`="3",
+                                        `RML` = "4"))
 #Check that segments were changed correctly
 j_sfm<-droplevels(j_sfm)
 table(j_sfm$SITE,j_sfm$TRANSECT)
@@ -55,11 +51,14 @@ table(j_sfm$SITE,j_sfm$TRANSECT)
 
 
 ##Calcuate segment and transect area and add column for transect area
-ad_sfm$MISSIONID<-"SE2503"
-j_sfm$MISSIONID<-"SE2503"
+ad_sfm$METHOD<-"SfM"
+j_sfm$METHOD<-"SfM"
 
-ad_sfm$TRANSECTAREA<-ad_sfm$SEGAREA #check if needed
-j_sfm$TRANSECTAREA<-j_sfm$SEGAREA #check if needed
+ad_sfm$MISSIONID<-"SE2602"
+j_sfm$MISSIONID<-"SE2602"
+
+# ad_sfm$TRANSECTAREA<-ad_sfm$SEGAREA #check if needed
+# j_sfm$TRANSECTAREA<-j_sfm$SEGAREA #check if needed
 
 ad_sfm$Fragment <- 0
 j_sfm$Fragment <- 0
@@ -68,33 +67,36 @@ j_sfm$Fragment <- 0
 t1<-ddply(ad_sfm,.(SITE,SEGMENT),summarize,n=length(unique(ANALYST)));nrow(t1[t1$n>1,])
 t2<-ddply(j_sfm,.(SITE,SEGMENT),summarize,n=length(unique(ANALYST)));nrow(t1[t1$n>1,]) 
 
+
 ########################### 8/25/22
 #Create a look up table of all of the colony attributes- you will need this for the functions below
-SURVEY_COL<-c("SITEVISITID", "OBS_YEAR", "REGION", "ISLAND","SEC_NAME", "SITE", "REEF_ZONE",
-              "DEPTH_BIN", "LATITUDE", "LONGITUDE","new_MIN_DEPTH_M","new_MAX_DEPTH_M","SEGMENT","COLONYID","GENUS_CODE","TAXONCODE","SPCODE","COLONYLENGTH")
+# SURVEY_COL<-c("SITEVISITID", "OBS_YEAR", "REGION", "ISLAND","SEC_NAME", "SITE", "REEF_ZONE",
+#               "DEPTH_BIN", "LATITUDE", "LONGITUDE","new_MIN_DEPTH_M","new_MAX_DEPTH_M","SEGMENT","COLONYID","GENUS_CODE","TAXONCODE","SPCODE","COLONYLENGTH")
+# survey_colony<-unique(ad_sfm[,SURVEY_COL])
+# 
+# SURVEY_SITE<-c("SITEVISITID", "OBS_YEAR", "REGION", "ISLAND","SEC_NAME", "SITE", "REEF_ZONE",
+#                "DEPTH_BIN", "LATITUDE", "LONGITUDE","new_MIN_DEPTH_M","new_MAX_DEPTH_M")
+# survey_site<-unique(ad_sfm[,SURVEY_SITE])
+# 
+# SURVEY_Seg<-c("SITEVISITID", "OBS_YEAR", "REGION", "ISLAND","SEC_NAME", "SITE", "REEF_ZONE",
+#               "DEPTH_BIN","HABITAT_CODE", "LATITUDE", "LONGITUDE","new_MIN_DEPTH_M","new_MAX_DEPTH_M","SEGMENT")
+# survey_segment<-unique(ad_sfm[,SURVEY_Seg])
+
+SURVEY_COL<-c("SITEVISITID", "OBS_YEAR", "SITE", "COLONYID","SPCODE","COLONYLENGTH")
 survey_colony<-unique(ad_sfm[,SURVEY_COL])
 
-SURVEY_SITE<-c("SITEVISITID", "OBS_YEAR", "REGION", "ISLAND","SEC_NAME", "SITE", "REEF_ZONE",
-               "DEPTH_BIN", "LATITUDE", "LONGITUDE","new_MIN_DEPTH_M","new_MAX_DEPTH_M")
+SURVEY_SITE<-c("SITEVISITID", "OBS_YEAR",  "SITE")
 survey_site<-unique(ad_sfm[,SURVEY_SITE])
 
-SURVEY_Seg<-c("SITEVISITID", "OBS_YEAR", "REGION", "ISLAND","SEC_NAME", "SITE", "REEF_ZONE",
-              "DEPTH_BIN","HABITAT_CODE", "LATITUDE", "LONGITUDE","new_MIN_DEPTH_M","new_MAX_DEPTH_M","SEGMENT")
+SURVEY_Seg<-c("SITEVISITID", "OBS_YEAR", "SITE")
 survey_segment<-unique(ad_sfm[,SURVEY_Seg])
+
+
 
 #Combine juvenile and adult data
 aj_sfm<-full_join(ad_sfm,j_sfm) #fixes NA problem
 
 
-#Create a site list containing list of sites double surveyed by sfm and divers
-aj_sfm$MethodRep <- paste0(aj_sfm$METHOD,"_",aj_sfm$TRANSECT)
-aj_sfm$SS <- paste0(aj_sfm$SITE,"_",aj_sfm$SEGMENT)
-
-seglist <- as.data.frame.matrix(table(aj_sfm$SS, aj_sfm$MethodRep));dim(seglist)
-seglist$SS <-rownames(seglist)
-seglist<-seglist %>% filter(seglist$SfM_1!=0);dim(seglist)
-seglist<-seglist %>% filter(seglist$SfM_2!=0);dim(seglist)
-#Once filtering is completed, nrow should = 43 (FOR COMPARISON)
 
 write.csv(seglist,file="T:/Benthic/Data/SfM/Calibration QC/Comparison_seglist.csv",row.names = F)
 
@@ -110,12 +112,10 @@ write.csv(seglist,file="T:/Benthic/Data/SfM/Calibration QC/Comparison_seglist.cs
 
 
 # GENERATE SUMMARY METRICS at the Segment-leveL BY GENUS--------------------------------------------------
-ad_sfm$METHOD <- "SfM"
-j_sfm$METHOD <- "SfM"
 
 #Calc_ColDen_Transect
-acd.gen<-Calc_ColDen_Seg(data = ad_sfm,grouping_field = "GENUS_CODE");colnames(acd.gen)[colnames(acd.gen)=="ColCount"]<-"AdColCount";colnames(acd.gen)[colnames(acd.gen)=="ColDen"]<-"AdColDen";colnames(acd.gen)[colnames(acd.gen)=="SEGAREA"]<-"SEGAREA_ad"# calculate density at genus level as well as total
-jcd.gen<-Calc_ColDen_Seg(j_sfm,"GENUS_CODE"); colnames(jcd.gen)[colnames(jcd.gen)=="ColCount"]<-"JuvColCount";colnames(jcd.gen)[colnames(jcd.gen)=="ColDen"]<-"JuvColDen"
+acd.gen<-Calc_ColDen_Seg(data = ad_sfm,grouping_field = "SPCODE");colnames(acd.gen)[colnames(acd.gen)=="ColCount"]<-"AdColCount";colnames(acd.gen)[colnames(acd.gen)=="ColDen"]<-"AdColDen";colnames(acd.gen)[colnames(acd.gen)=="SEGAREA"]<-"SEGAREA_ad"# calculate density at genus level as well as total
+jcd.gen<-Calc_ColDen_Seg(j_sfm,"SPCODE"); colnames(jcd.gen)[colnames(jcd.gen)=="ColCount"]<-"JuvColCount";colnames(jcd.gen)[colnames(jcd.gen)=="ColDen"]<-"JuvColDen"
 jcd.gen<-subset(jcd.gen,select=-c(SEGAREA))
 
 

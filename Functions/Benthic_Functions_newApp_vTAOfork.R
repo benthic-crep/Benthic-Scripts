@@ -278,7 +278,8 @@ Calc_ColDen_Seg<-function(data, grouping_field="GENUS_CODE"){
 #may be worth changing to "Calc_ColMetric_Seg<-function(data, grouping_field, pool_fields)" and finding a workaround for the dcast warning before it turns into an error
 Calc_ColMetric_Seg<-function(data, grouping_field="GENUS_CODE", pool_fields=c("COLONYLENGTH","RDEXTENT1", "RDEXTENT2","OLDDEAD","SEVERITY","EXTENT")) {
 
-  scl<-subset(data,Fragment==0&S_ORDER=="Scleractinia") #excludes fragments and anything that isn't a hard coral
+  # scl<-subset(data,Fragment==0&S_ORDER=="Scleractinia") #excludes fragments and anything that isn't a hard coral
+  scl<-data
   scl$GROUP<-scl[,grouping_field]
   scl$y <- rowSums(scl[,pool_fields,drop=FALSE], na.rm=TRUE) #this will allow you to add the 2 recent dead columns if you are looking at this metric
 

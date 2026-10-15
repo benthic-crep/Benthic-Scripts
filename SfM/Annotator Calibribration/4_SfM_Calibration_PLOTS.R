@@ -29,26 +29,23 @@ data.sum<-subset(data.sum,Metric %in% c("AdColDen","JuvColDen","Ave.cl","Ave.od"
 
 #Convert transect back to analyst for plots
 data.sum<-data.sum %>% mutate(ANALYST=dplyr::recode(TRANSECT,
-                                          `1`="Jonny",
-                                          `2`= "Mia",
+                                          `1`="Michaela",
+                                          `2`= "Sam",
                                           `3`="Corinne",
-                                          `4`="Ro",
-                                          `5`="Sam"))
+                                          `4`="Ro"))
 
 data.gen<-data.gen %>% mutate(ANALYST=dplyr::recode(TRANSECT,
-                                                    `1`="Jonny",
-                                                    `2`= "Mia",
+                                                    `1`="Michaela",
+                                                    `2`= "Sam",
                                                     `3`="Corinne",
-                                                    `4`="Ro",
-                                                    `5`="Sam"))
+                                                    `4`="Ro"))
 
 ##Generate plot by segment
 data.l<-data.l %>% mutate(ANALYST=dplyr::recode(TRANSECT,
-                                                `1`="Jonny",
-                                                `2`= "Mia",
+                                                `1`="Michaela",
+                                                `2`= "Sam",
                                                 `3`="Corinne",
-                                                `4`="Ro",
-                                                `5`="Sam"))
+                                                `4`="Ro"))
 
 data.l<-left_join(data.l, segs, by = 'SS')
 data.l<-subset(data.l,Metric %in% c("AdColDen","JuvColDen","Ave.cl","Ave.od","Ave.rd","DZGN_G_prev","BLE_prev","CHRO_prev"))

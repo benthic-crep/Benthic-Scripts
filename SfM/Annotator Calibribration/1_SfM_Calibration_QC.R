@@ -8,6 +8,7 @@ source("C:/Users/Corinne.Amir/Documents/GitHub/Benthic-Scripts/Functions/Benthic
 source("C:/Users/Corinne.Amir/Documents/GitHub/Benthic-Scripts/Functions/core_functions.R")
 
 
+
 # Read dataframes pulled directly from geodatabases
 setwd("C:/Users/Corinne.Amir/Documents/GitHub/Benthic-Scripts/SfM/Annotator Calibribration/Outputs/2026/")
 
@@ -15,6 +16,10 @@ library(tidyverse)
 library(reshape)
 
 # Read in V2 geodatabase --------------------------------------------------
+
+file.choose()
+v2 <- read.csv("/Users/corin/Benthic-Scripts/SfM/Annotator Calibribration/Outputs/2026/ASPRIA26_qcd_10-12-2026")
+sitelist <- read.csv("/Users/corin/Benthic-Scripts/SfM/SURVEY_MASTER_ASPRIA26.csv")
 
 v2 <- read.csv("N:/StRS_Sites_Projects/REA Belts/Data Output/CALIBRATION/2026/ASPRIA26_belts_calibration_10-13-2026.csv")
 sitelist <- read.csv("N:/StRS_Sites_Projects/REA Belts/Data Output/CALIBRATION/2026/ASPRIA26_Calib_Meta.csv")
@@ -37,7 +42,8 @@ v2 <- v2 %>% filter(SITE != "TUT-6193",ANALYST != "MSL") %>%
                                               "MNW" = "MNW",
                                               "SJD" = "SJD",
                                               "CORINNE" = "CGA",
-                                              "MIA.LAMIRAND" = "MSL"))
+                                              "MIA.LAMIRAND" = "MSL")) %>%
+            dplyr::rename(COLONYID = COLONY_ID)
 
 # Make additional columns
 v2$SEGAREA <- ifelse(v2$JUVENILE == "-1",1,2.5)

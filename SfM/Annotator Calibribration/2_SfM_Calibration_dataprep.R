@@ -60,6 +60,14 @@ x<-CreateGenRDCode(x,"RD1","GENRD1",gencodes)
 x<-CreateGenRDCode(x,"RD2","GENRD2",gencodes)
 x<-CreateGenRDCode(x,"RD3","GENRD3",gencodes)
 
+#workaround for adding genrd
+x$GENRD1 <- ifelse(x$RD1 %in% c("GAST","FISH","COTS","PRED"),"PRED",NA)
+x$GENRD2 <- ifelse(x$RD2 %in% c("GAST","FISH","COTS","PRED"),"PRED",NA)
+x$GENRD3 <- ifelse(x$RD3 %in% c("GAST","FISH","COTS","PRED"),"PRED",NA)
+x$GENRD1 <- ifelse(x$RD1 =="TLS","PRED",as.character(x$GENRD1))
+x$GENRD1 <- ifelse(x$RD1 =="DAMG","DAMG",as.character(x$GENRD1))
+x$GENRD2 <- ifelse(x$RD2 =="DAMG","DAMG",as.character(x$GENRD1))
+
 head(x)
 nrow(df);nrow(x) #make sure rows weren't dropped
 
@@ -67,21 +75,23 @@ nrow(df);nrow(x) #make sure rows weren't dropped
 
 #SfM/ADULT: Merge Adult data and  SURVEY MASTER  -------------------------------------
 setwd("C:/Users/corinne.amir/Documents/GitHub/Benthic-Scripts/SfM")
+survey_master <- read.csv("/Users/corin/Benthic-Scripts/SfM/SURVEY_MASTER_ASPRIA26.csv")
 survey_master <- read.csv("SURVEY_MASTER_ASPRIA26.csv")
 
+names(survey_master) <- toupper(names(survey_master))
 colnames(survey_master)[colnames(survey_master)=="LATITUDE_SV"]<-"LATITUDE" #Change column name
 colnames(survey_master)[colnames(survey_master)=="LONGITUDE_SV"]<-"LONGITUDE" #Change column name
-x$SITE <- SiteNumLeadingZeros(as.factor(x$SITE))
-names(survey_master) <- toupper(names(survey_master))
+# x$SITE <- SiteNumLeadingZeros(as.factor(x$SITE))
 survey_master$OBS_YEAR <- as.factor("2026")
+survey_master <- filter(survey_master, TYPE != "Oceanography")
 
 
 # x<-left_join(x,survey_master[,c("REGION","OBS_YEAR","ISLAND","SITEVISITID","SITE","SEC_NAME",
 #                             "REEF_ZONE","DEPTH_BIN","HABITAT_CODE","LATITUDE","LONGITUDE","new_MIN_DEPTH_M","new_MAX_DEPTH_M")],by=c("OBS_YEAR","SITE"))
-x<-left_join(x,survey_master %>%
-               dplyr::select(SITE, ISLAND, SITEVISITID) %>%
+a<-left_join(x,survey_master %>%
+               dplyr::select(SITE, SITEVISITID) %>%
                dplyr::distinct(),
-             by = c("SITE", "ISLAND"))
+             by = c("SITE"))
                           
 
 head(x)
