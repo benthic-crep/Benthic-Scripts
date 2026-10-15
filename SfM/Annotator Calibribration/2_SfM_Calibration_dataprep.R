@@ -60,13 +60,13 @@ x<-CreateGenRDCode(x,"RD1","GENRD1",gencodes)
 x<-CreateGenRDCode(x,"RD2","GENRD2",gencodes)
 x<-CreateGenRDCode(x,"RD3","GENRD3",gencodes)
 
-#workaround for adding genrd
-x$GENRD1 <- ifelse(x$RD1 %in% c("GAST","FISH","COTS","PRED"),"PRED",NA)
-x$GENRD2 <- ifelse(x$RD2 %in% c("GAST","FISH","COTS","PRED"),"PRED",NA)
-x$GENRD3 <- ifelse(x$RD3 %in% c("GAST","FISH","COTS","PRED"),"PRED",NA)
-x$GENRD1 <- ifelse(x$RD1 =="TLS","PRED",as.character(x$GENRD1))
-x$GENRD1 <- ifelse(x$RD1 =="DAMG","DAMG",as.character(x$GENRD1))
-x$GENRD2 <- ifelse(x$RD2 =="DAMG","DAMG",as.character(x$GENRD1))
+# #workaround for adding genrd
+# x$GENRD1 <- ifelse(x$RD1 %in% c("GAST","FISH","COTS","PRED"),"PRED",NA)
+# x$GENRD2 <- ifelse(x$RD2 %in% c("GAST","FISH","COTS","PRED"),"PRED",NA)
+# x$GENRD3 <- ifelse(x$RD3 %in% c("GAST","FISH","COTS","PRED"),"PRED",NA)
+# x$GENRD1 <- ifelse(x$RD1 =="TLS","PRED",as.character(x$GENRD1))
+# x$GENRD1 <- ifelse(x$RD1 =="DAMG","DAMG",as.character(x$GENRD1))
+# x$GENRD2 <- ifelse(x$RD2 =="DAMG","DAMG",as.character(x$GENRD1))
 
 head(x)
 nrow(df);nrow(x) #make sure rows weren't dropped
@@ -88,11 +88,11 @@ survey_master <- filter(survey_master, TYPE != "Oceanography")
 
 # x<-left_join(x,survey_master[,c("REGION","OBS_YEAR","ISLAND","SITEVISITID","SITE","SEC_NAME",
 #                             "REEF_ZONE","DEPTH_BIN","HABITAT_CODE","LATITUDE","LONGITUDE","new_MIN_DEPTH_M","new_MAX_DEPTH_M")],by=c("OBS_YEAR","SITE"))
-a<-left_join(x,survey_master %>%
+x<-left_join(x,survey_master %>%
                dplyr::select(SITE, SITEVISITID) %>%
                dplyr::distinct(),
              by = c("SITE"))
-                          
+
 
 head(x)
 nrow(x)
@@ -100,13 +100,14 @@ nrow(x)
 
 #SfM/ADULT: Assign TAXONCODE --------------------------------------------------------
 #read in list of taxa that we feel comfortable identifying to species or genus level. Note, taxa lists vary by year and region. This will need to be updated through time.
-taxa<-read.csv("T:/Benthic/Data/Lookup Tables/2013-24_Taxa_MASTER_draft.csv") #change when final name is made
-taxa$OBS_YEAR<-as.numeric(as.character(taxa$OBS_YEAR))
+taxa<-read.csv("T:/Benthic/Data/Lookup Tables/2013-25_Taxa_MASTER.csv") #change when final name is made
+# taxa$OBS_YEAR<-as.numeric(as.character(taxa$OBS_YEAR))
 
 x$SPCODE<-ifelse(x$NO_COLONY==-1,"AAAA",as.character(x$SPCODE)) 
 
 
 #Convert SPCODE in raw colony data to TAXONCODE -generates a look up table
+x$OBS_YEAR <- as.character(x$OBS_YEAR)
 x$TAXONCODE<-Convert_to_Taxoncode(x,taxa)
 
 #Check to make sure SPCODE was converted correctly
@@ -211,14 +212,17 @@ x[is.na(x$CONDITION_3),"CONDITION_3"]<-"NONE"
 head(x)
 
 awd<-droplevels(x)
-write.csv(awd,file="T:/Benthic/Data/SfM/Calibration QC/2025/MARAMP25_SfMAdult_CLEANED.csv",row.names = F)
+write.csv(awd,file="T:/Benthic/Data/SfM/Calibration QC/2025/ASPRIA26_SfMAdult_CLEANED.csv",row.names = F)
+write.csv(awd,file="N:/StRS_Sites_Projects/REA Belts/Data Output/CALIBRATION/2026/ASPRIA26_SfMAdult_CLEANED.csv",row.names = F)
+write.csv(awd,file="C:/Users/corinne.amir/Documents/GitHub/Benthic-Scripts/SfM/Annotator Calibribration/Outputs/2026/ASPRIA26_SfMAdult_CLEANED.csv",row.names = F)
+
 
 #Check number of Site-Segments that contain at least 2 annotators ----------------------------------------------------
-x$ANALYST <- as.factor(x$ANALYST)
-analyst.per.ss<-x %>% filter(ANALYST=="JC" | ANALYST=="MSL" | ANALYST=="NBO")
-analyst.per.ss$ANALYST<-droplevels(analyst.per.ss$ANALYST)
-analyst.per.ss <- ddply(x,.(SITE, SEGMENT), summarize, num.analyst = n_distinct(ANALYST))
-analyst.per.ss <- filter(analyst.per.ss, num.analyst>1) 
+# x$ANALYST <- as.factor(x$ANALYST)
+# analyst.per.ss<-x %>% filter(ANALYST=="CGA" | ANALYST=="SJD" | ANALYST=="NBO")
+# analyst.per.ss$ANALYST<-droplevels(analyst.per.ss$ANALYST)
+# analyst.per.ss <- ddply(x,.(SITE, SEGMENT), summarize, num.analyst = n_distinct(ANALYST))
+# analyst.per.ss <- filter(analyst.per.ss, num.analyst>1) 
 
 
 # SFM/JUVENILE: CLEAN ANALYSIS READY DATA -------------------------------------
