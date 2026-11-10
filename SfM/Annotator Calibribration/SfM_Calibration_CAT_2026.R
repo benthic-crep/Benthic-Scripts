@@ -319,7 +319,7 @@ p7 <- ggplot(grd_counts, aes(ANALYST, N, fill = GENRD)) +
   facet_wrap(~SITE) +
   labs(x = "Recent mortality cause", y = "Number of occurrences",
        fill = "GENRD",
-       title = "Recent mortality causes recorded by annotator and site") +
+       title = "Recent dead causes by #occurrence") +
   theme_bw()
 p7
 
@@ -348,11 +348,55 @@ p7 <- ggplot(genrd_mean, aes(ANALYST, MEAN_RD, fill = GENRD)) +
                 position = position_dodge(width = 0.9, preserve = "single"),
                 width = 0.2, na.rm = TRUE) +
   facet_wrap(~SITE, scales = "free_y") +
-  labs(x = "", y = "Mean % (± SE)",
+  labs(x = "", y = "Mean % (± SE)", 
        fill = "Annotator",
        title = "Mean recent dead by general category") +
   theme_bw()
 p7
+
+
+# Recent dead occurrence
+rd_counts <- x %>%
+  dplyr::select(SITE, ANALYST, RDCAUSE1, RDCAUSE2, RDCAUSE3) %>%
+  dplyr::mutate(dplyr::across(dplyr::starts_with("RDCAUSE"), as.character)) %>%
+  tidyr::pivot_longer(dplyr::starts_with("RDCAUSE"),
+                      names_to = "SLOT", values_to = "RDCAUSE") %>%
+  dplyr::filter(!is.na(RDCAUSE), RDCAUSE != "") %>%
+  dplyr::count(SITE, ANALYST, RDCAUSE, name = "N") %>%
+  filter(RDCAUSE != "NONE")
+
+rd_count <- ggplot(rd_counts, aes(ANALYST, N, fill =RDCAUSE)) +
+  geom_col(position = position_dodge(preserve = "single"),color = "black") +
+  facet_wrap(~SITE) +
+  labs(x = "", y = "Number of occurrences",
+       fill = "RDCAUSE",
+       title = "Recent dead #occurrence per site") +
+  theme_bw()
+rd_count
+
+# Recent dead extent (incl all and just RD > 0)
+rd_colony <- cal %>%
+  dplyr::filter(JUVENILE == 0, NO_COLONY == 0) %>%
+  dplyr::mutate(RD_TOTAL = rowSums(cbind(as.numeric(RD_1), as.numeric(RD_2), as.numeric(RD_3)),
+                                   na.rm = TRUE)) %>%
+  dplyr::filter(RD_TOTAL > 0)
+
+rd_analyst <- rd_colony %>%
+  dplyr::group_by(ANALYST) %>%
+  dplyr::summarise(N       = dplyr::n(),
+                   MEAN_RD = mean(RD_TOTAL),
+                   SE      = sd(RD_TOTAL) / sqrt(dplyr::n()),
+                   .groups = "drop")
+
+p_rd <- ggplot(rd_analyst, aes(ANALYST, MEAN_RD, fill = ANALYST)) +
+  geom_col() +
+  geom_errorbar(aes(ymin = MEAN_RD - SE, ymax = MEAN_RD + SE), width = 0.3) +
+  scale_y_continuous(expand = expansion(mult = c(0, 0.05))) +
+  labs(x = NULL, y = "Mean recent mortality per colony (%, ± SE)",
+       title = "Average recent dead of colonies with recent dead recording") +
+  theme_bw() +
+  theme(legend.position = "none")
+p_rd
 
 # predation prevalence 
 grd_counts <- x %>%
@@ -408,8 +452,120 @@ p7
 
 # bleaching prevalence
 
-#Species diversity 
+#Species diversity count
+head(sort(table(x$SPCODE), decreasing = TRUE), 60)
+
+top30 <- x %>%
+  dplyr::filter(!is.na(SPCODE), SPCODE != "") %>%
+  dplyr::count(SPCODE, sort = TRUE) %>%
+  dplyr::slice_head(n = 30) %>%
+  dplyr::pull(SPCODE)
+
+sp_size <- x %>%
+  dplyr::filter(SPCODE %in% top30) %>%
+  dplyr::group_by(SPCODE, ANALYST) %>%
+  dplyr::summarise(N    = dplyr::n(),
+                   MEAN = mean(COLONYLENGTH),
+                   SE   = sd(COLONYLENGTH) / sqrt(dplyr::n()),
+                   .groups = "drop") %>%
+  dplyr::mutate(SPCODE = factor(SPCODE, levels = top30))   # panels ordered by abundance
+
+p_sp <- ggplot(sp_size, aes(ANALYST, MEAN, fill = ANALYST)) +
+  geom_col() +
+  geom_errorbar(aes(ymin = MEAN - SE, ymax = MEAN + SE), width = 0.2, na.rm = TRUE) +
+  facet_wrap(~SPCODE, scales = "free_y") +
+  scale_y_continuous(expand = expansion(mult = c(0, 0.05))) +
+  labs(x = NULL, y = "Mean colony length (m)", fill = "Annotator",
+       title = "Average colony length for common species") +
+  theme_bw() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1), legend.position ="none")
+p_sp
+
 
 # genus diversity
+head(sort(table(x$GENUS_CODE), decreasing = TRUE), 40)
+
+top20 <- x %>%
+  dplyr::filter(!is.na(GENUS_CODE), GENUS_CODE != "") %>%
+  dplyr::count(GENUS_CODE, sort = TRUE) %>%
+  dplyr::slice_head(n = 20) %>%
+  dplyr::pull(GENUS_CODE)
+
+gen_size <- x %>%
+  dplyr::filter(GENUS_CODE %in% top20) %>%
+  dplyr::group_by(GENUS_CODE, ANALYST) %>%
+  dplyr::summarise(N    = dplyr::n(),
+                   MEAN = mean(COLONYLENGTH),
+                   SE   = sd(COLONYLENGTH) / sqrt(dplyr::n()),
+                   .groups = "drop") %>%
+  dplyr::mutate(GENUS_CODE = factor(GENUS_CODE, levels = top20)) 
+
+p_gen <- ggplot(gen_size, aes(ANALYST, MEAN, fill = ANALYST)) +
+  geom_col() +
+  geom_errorbar(aes(ymin = MEAN - SE, ymax = MEAN + SE), width = 0.2, na.rm = TRUE) +
+  facet_wrap(~GENUS_CODE, scales = "free_y") +
+  scale_y_continuous(expand = expansion(mult = c(0, 0.05))) +
+  labs(x = NULL, y = "Mean colony length (m)", fill = "Annotator",
+       title = "Average colony length for common genera") +
+  theme_bw() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1), legend.position ="none")
+p_gen
+
+
+# Size frequency distribution
+mean_len <- x %>%
+  dplyr::group_by(ANALYST) %>%
+  dplyr::summarise(MEAN = mean(COLONYLENGTH), .groups = "drop")
+
+p_sfd <- ggplot(filter(x, NO_COLONY != -1), aes(COLONYLENGTH, fill = ANALYST)) +
+  geom_histogram(bins = 40, colour = "white") +
+  geom_vline(data = mean_len, aes(xintercept = MEAN),
+             colour = "black", linetype = "dashed", linewidth = 0.8) +
+  scale_x_log10() +
+  facet_wrap(~ANALYST, ncol = 1) +
+  labs(x = "Colony length (cm, log scale)", y = "Number of colonies",
+       title = "Size frequency distribution by annotator") +
+  theme_bw() +
+  theme(legend.position = "none")
+p_sfd
+
+
+# All annotators overlaid as sfd density curves (easier to compare shapes)
+p_sfd_dens <- ggplot(filter(x, NO_COLONY != -1), aes(COLONYLENGTH, colour = ANALYST)) +
+  geom_density(linewidth = 2) +
+  scale_x_log10() +
+  labs(x = "Colony length (cm, log scale)", y = "Density", colour = "Annotator",
+       title = "Size frequency distribution by annotator") +
+  theme_bw()
+p_sfd_dens
+
+
+# Lumping vs splitting plot
+lumpsplit <- x %>%
+  dplyr::filter(NO_COLONY != -1, JUVENILE != -1,!is.na(OLD_DEAD)) %>%
+  dplyr::group_by(ANALYST) %>%
+  dplyr::summarise(N        = dplyr::n(),
+                   MEAN_OD  = mean(OLD_DEAD),
+                   SE_OD    = sd(OLD_DEAD) / sqrt(dplyr::n()),
+                   MEAN_LEN = mean(COLONYLENGTH),
+                   SE_LEN   = sd(COLONYLENGTH) / sqrt(dplyr::n()),
+                   .groups = "drop")
+
+ls <- ggplot(lumpsplit, aes(MEAN_OD, MEAN_LEN, colour = ANALYST, label = ANALYST)) +
+  geom_errorbar(aes(ymin = MEAN_LEN - SE_LEN, ymax = MEAN_LEN + SE_LEN), width = 0) +
+  geom_errorbarh(aes(xmin = MEAN_OD - SE_OD, xmax = MEAN_OD + SE_OD), height = 0) +
+  geom_point(size = 4) +
+  geom_text(vjust = -1.2, show.legend = FALSE) +
+  annotate("segment", x = -Inf, xend = Inf, y = Inf, yend = -Inf,
+           colour = "black", linetype = "dashed",fontface = "bold") +
+  annotate("text", x = -Inf, y = -Inf, label = "Splitter",
+           hjust = -0.2, vjust = -0.8, size = 5, fontface = "bold", colour = "grey30") +
+  annotate("text", x = Inf, y = Inf, label = "Lumper",
+           hjust = 1.2, vjust = 1.8, size = 5, fontface = "bold", colour = "grey30") +
+  labs(x = "Mean old dead (%, ± SE)", y = "Mean colony length (m, ± SE)",
+       colour = "Annotator",
+       title = "Lumpers vs Splitters") +
+  theme_bw()
+ls
 
 
