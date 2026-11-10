@@ -540,7 +540,8 @@ p_sfd_dens <- ggplot(filter(x, NO_COLONY != -1), aes(COLONYLENGTH, colour = ANAL
 p_sfd_dens
 
 
-# Lumping vs splitting plot
+# Lumping vs splitting plots 
+# old dead vs colony length
 lumpsplit <- x %>%
   dplyr::filter(NO_COLONY != -1, JUVENILE != -1,!is.na(OLD_DEAD)) %>%
   dplyr::group_by(ANALYST) %>%
@@ -562,10 +563,47 @@ ls <- ggplot(lumpsplit, aes(MEAN_OD, MEAN_LEN, colour = ANALYST, label = ANALYST
            hjust = -0.2, vjust = -0.8, size = 5, fontface = "bold", colour = "grey30") +
   annotate("text", x = Inf, y = Inf, label = "Lumper",
            hjust = 1.2, vjust = 1.8, size = 5, fontface = "bold", colour = "grey30") +
-  labs(x = "Mean old dead (%, ± SE)", y = "Mean colony length (m, ± SE)",
+  labs(x = "Average old dead (%, ± SE)", y = "Average colony length (m, ± SE)",
        colour = "Annotator",
-       title = "Lumpers vs Splitters") +
-  theme_bw()
+       title = "Avg old dead vs Avg colony length") +
+  theme_bw()+
+  theme(legend.position = "none")
 ls
 
 
+#Lump split but its old dead vs colony count
+seg_counts <- x %>%
+  dplyr::filter(JUVENILE == 0, NO_COLONY != -1) %>%
+  dplyr::group_by(ANALYST, SITE, SEGMENT) %>%
+  dplyr::summarise(N_COL = dplyr::n(), 
+                   OD_SEG = mean(OLD_DEAD, na.rm = TRUE),
+                   .groups = "drop")
+
+od_n <- seg_counts %>%
+  dplyr::group_by(ANALYST) %>%
+  dplyr::summarise(N_SEGS     = dplyr::n(),
+                   MEAN_NCOL  = mean(N_COL),
+                   SE_NCOL    = sd(N_COL) / sqrt(dplyr::n()),
+                   MEAN_OD   = mean(OD_SEG, na.rm = TRUE),
+                   SE_OD     = sd(OD_SEG, na.rm = TRUE) / sqrt(sum(!is.na(OD_SEG))),
+                   .groups = "drop")
+
+ls2 <- ggplot(od_n, aes(MEAN_OD, MEAN_NCOL, colour = ANALYST, label = ANALYST)) +
+  annotate("segment", x = -Inf, xend = Inf, y = Inf, yend = -Inf,
+           colour = "grey50", linetype = "dashed", linewidth = 1.2) +
+  annotate("text", x = -Inf, y = -Inf, label = "Splitter",
+           hjust = -0.2, vjust = -0.8, size = 5, fontface = "bold", colour = "grey30") +
+  annotate("text", x = Inf, y = Inf, label = "Lumper",
+           hjust = 1.2, vjust = 1.8, size = 5, fontface = "bold", colour = "grey30") +
+  geom_errorbar(aes(ymin = MEAN_NCOL - SE_NCOL, ymax = MEAN_NCOL + SE_NCOL), width = 0) +
+  geom_errorbar(aes(xmin = MEAN_OD - SE_OD, xmax = MEAN_OD + SE_OD),
+                orientation = "y", width = 0) +
+  geom_point(size = 4) +
+  geom_text(vjust = -1.2, show.legend = FALSE) +
+  labs(x = "Avg old dead (%, ± SE)",
+       y = "Avg number of adult colonies per segment (± SE)",
+       colour = "Annotator",
+       title = "Avg old dead vs. #colonies per segment") +
+  theme_bw() +
+  theme(legend.position = "none")
+ls2
